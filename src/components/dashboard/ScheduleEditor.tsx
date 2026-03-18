@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Save, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatDateLongBE, formatDateMonthBE } from "@/lib/format";
 
 const DAYS = [
   { key: "lundi", label: "Lun" },
@@ -209,15 +210,11 @@ export function ScheduleEditor() {
 
   const hasEdits = Object.keys(localEdits).length > 0;
 
-  const weekLabel = currentMonday.toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  const weekLabel = formatDateLongBE(currentMonday);
 
   const endOfWeek = addWeeks(currentMonday, 1);
   endOfWeek.setDate(endOfWeek.getDate() - 2); // Saturday
-  const weekEndLabel = endOfWeek.toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+  const weekEndLabel = formatDateMonthBE(endOfWeek);
 
   return (
     <div className="space-y-4">

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Calendar, ChevronLeft, ChevronRight, Clock, User } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { formatDateLongBE, formatDateMonthBE, formatTimeBE } from "@/lib/format";
 
 const DAYS = [
   { key: "lundi", label: "Lundi" },
@@ -119,7 +120,7 @@ const EmployeeView = () => {
     );
   }
 
-  const weekLabel = currentMonday.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  const weekLabel = formatDateLongBE(currentMonday);
 
   return (
     <div className="min-h-screen bg-background">
@@ -163,7 +164,7 @@ const EmployeeView = () => {
           {weeks.map((ws) => {
             const schedule = schedules?.find((s) => s.week_start === ws);
             const monday = new Date(ws);
-            const label = monday.toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+            const label = formatDateMonthBE(monday);
             const isCurrentWeek = ws === formatWeekDate(getMonday(new Date()));
 
             return (
@@ -204,7 +205,7 @@ const EmployeeView = () => {
                           <div className="font-medium text-muted-foreground mb-1">{day.label}</div>
                           {hasShift ? (
                             <div className="font-mono-data font-medium">
-                              {start.replace(":", "h")} — {end.replace(":", "h")}
+                              {formatTimeBE(start)} — {formatTimeBE(end)}
                             </div>
                           ) : (
                             <div className="text-muted-foreground">Repos</div>

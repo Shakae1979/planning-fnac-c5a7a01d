@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, ChevronRight, Users, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatDateLongBE } from "@/lib/format";
 
 const DAYS = [
   { key: "lundi", label: "Lundi" },
@@ -75,7 +76,7 @@ export function TeamRecap() {
     },
   });
 
-  const weekLabel = currentMonday.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  const weekLabel = formatDateLongBE(currentMonday);
 
   // Build coverage data: for each day/hour, which employees are working
   const coverage: Record<string, Record<number, string[]>> = {};
