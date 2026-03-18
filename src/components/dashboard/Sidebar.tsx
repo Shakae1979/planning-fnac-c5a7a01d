@@ -1,6 +1,6 @@
-import { BarChart3, Users, CalendarDays, Share2, Calendar } from "lucide-react";
+import { BarChart3, Users, CalendarDays, Share2, Calendar, TableProperties } from "lucide-react";
 
-type View = "overview" | "schedule" | "employees" | "share";
+type View = "overview" | "schedule" | "recap" | "employees" | "share";
 
 interface SidebarProps {
   activeView: View;
@@ -10,6 +10,7 @@ interface SidebarProps {
 const links: { id: View; label: string; icon: React.ElementType }[] = [
   { id: "overview", label: "Vue d'ensemble", icon: BarChart3 },
   { id: "schedule", label: "Horaires", icon: CalendarDays },
+  { id: "recap", label: "Récap équipe", icon: TableProperties },
   { id: "employees", label: "Équipe", icon: Users },
   { id: "share", label: "Liens vendeurs", icon: Share2 },
 ];

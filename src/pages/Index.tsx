@@ -4,8 +4,9 @@ import { ScheduleEditor } from "@/components/dashboard/ScheduleEditor";
 import { EmployeeManager } from "@/components/dashboard/EmployeeManager";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { ShareLinks } from "@/components/dashboard/ShareLinks";
+import { TeamRecap } from "@/components/dashboard/TeamRecap";
 
-type View = "overview" | "schedule" | "employees" | "share";
+type View = "overview" | "schedule" | "recap" | "employees" | "share";
 
 const Index = () => {
   const [view, setView] = useState<View>("overview");
@@ -26,6 +27,7 @@ const Index = () => {
         <div className="p-6">
           {view === "overview" && <DashboardOverview />}
           {view === "schedule" && <ScheduleEditor />}
+          {view === "recap" && <TeamRecap />}
           {view === "employees" && <EmployeeManager />}
           {view === "share" && <ShareLinks />}
         </div>

@@ -1,0 +1,268 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { ChevronLeft, ChevronRight, Users, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+const DAYS = [
+  { key: "lundi", label: "Lundi" },
+  { key: "mardi", label: "Mardi" },
+  { key: "mercredi", label: "Mercredi" },
+  { key: "jeudi", label: "Jeudi" },
+  { key: "vendredi", label: "Vendredi" },
+  { key: "samedi", label: "Samedi" },
+  { key: "dimanche", label: "Dimanche" },
+] as const;
+
+const SLOTS = Array.from({ length: 15 }, (_, i) => i + 7); // 7h to 21h
+
+function getMonday(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function addWeeks(date: Date, n: number): Date {
+  const d = new Date(date);
+  d.setDate(d.getDate() + 7 * n);
+  return d;
+}
+
+function formatWeekDate(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
+
+function timeToMinutes(t: string): number {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + (m || 0);
+}
+
+function isWorking(start: string | null, end: string | null, hour: number): boolean {
+  if (!start || !end) return false;
+  const slotStart = hour * 60;
+  const slotEnd = (hour + 1) * 60;
+  const workStart = timeToMinutes(start);
+  const workEnd = timeToMinutes(end);
+  return workStart < slotEnd && workEnd > slotStart;
+}
+
+export function TeamRecap() {
+  const [weekOffset, setWeekOffset] = useState(0);
+  const currentMonday = addWeeks(getMonday(new Date()), weekOffset);
+  const weekStr = formatWeekDate(currentMonday);
+
+  const { data: employees } = useQuery({
+    queryKey: ["employees"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("employees").select("*").eq("is_active", true).order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: schedules } = useQuery({
+    queryKey: ["schedules", weekStr],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("weekly_schedules")
+        .select("*")
+        .eq("week_start", weekStr);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const weekLabel = currentMonday.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+
+  // Build coverage data: for each day/hour, which employees are working
+  const coverage: Record<string, Record<number, string[]>> = {};
+  DAYS.forEach((day) => {
+    coverage[day.key] = {};
+    SLOTS.forEach((hour) => {
+      const working: string[] = [];
+      schedules?.forEach((s) => {
+        const start = (s as any)[`${day.key}_start`];
+        const end = (s as any)[`${day.key}_end`];
+        if (isWorking(start, end, hour)) {
+          const emp = employees?.find((e) => e.id === s.employee_id);
+          if (emp) working.push(emp.name);
+        }
+      });
+      coverage[day.key][hour] = working;
+    });
+  });
+
+  // Summary per employee
+  const empSummary = employees?.map((emp) => {
+    const schedule = schedules?.find((s) => s.employee_id === emp.id);
+    const hoursWorked = schedule?.hours_modified ?? schedule?.hours_base ?? 0;
+    const diff = Number(hoursWorked) - emp.contract_hours;
+    const daysWorked = DAYS.filter((day) => {
+      const start = (schedule as any)?.[`${day.key}_start`];
+      const end = (schedule as any)?.[`${day.key}_end`];
+      return start && end;
+    }).length;
+    return { ...emp, hoursWorked: Number(hoursWorked), diff, daysWorked, hasSchedule: !!schedule };
+  });
+
+  const totalContractHours = employees?.reduce((sum, e) => sum + e.contract_hours, 0) ?? 0;
+  const totalPlannedHours = empSummary?.reduce((sum, e) => sum + e.hoursWorked, 0) ?? 0;
+  const unplannedEmployees = empSummary?.filter((e) => !e.hasSchedule).length ?? 0;
+
+  const getHeatColor = (count: number): string => {
+    if (count === 0) return "bg-destructive/15 text-destructive";
+    if (count === 1) return "bg-warning/20 text-warning";
+    if (count <= 3) return "bg-accent/15 text-accent";
+    return "bg-accent/30 text-accent font-bold";
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Week navigation */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="icon" onClick={() => setWeekOffset((w) => w - 1)}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="text-center">
+            <div className="text-sm font-semibold">Semaine du {weekLabel}</div>
+          </div>
+          <Button variant="outline" size="icon" onClick={() => setWeekOffset((w) => w + 1)}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* KPI summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="kpi-card">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-muted-foreground">Heures contrat</span>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <span className="text-2xl font-bold font-mono-data">{totalContractHours}h</span>
+        </div>
+        <div className="kpi-card">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-muted-foreground">Heures planifiées</span>
+            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <span className="text-2xl font-bold font-mono-data">{totalPlannedHours}h</span>
+          {totalPlannedHours !== totalContractHours && (
+            <span className={`text-xs ml-2 ${totalPlannedHours > totalContractHours ? "text-warning" : "text-destructive"}`}>
+              {totalPlannedHours > totalContractHours ? "+" : ""}{totalPlannedHours - totalContractHours}h
+            </span>
+          )}
+        </div>
+        <div className="kpi-card">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-muted-foreground">Non planifiés</span>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <span className={`text-2xl font-bold font-mono-data ${unplannedEmployees > 0 ? "text-destructive" : ""}`}>
+            {unplannedEmployees}
+          </span>
+        </div>
+      </div>
+
+      {/* Coverage heatmap */}
+      <div className="kpi-card overflow-hidden">
+        <h3 className="text-sm font-semibold text-muted-foreground mb-4">Couverture horaire — Nombre de vendeurs par créneau</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b">
+                <th className="pb-2 pr-2 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[90px]">Jour</th>
+                {SLOTS.map((h) => (
+                  <th key={h} className="pb-2 text-center font-semibold text-muted-foreground min-w-[40px]">
+                    {h}h
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {DAYS.map((day) => (
+                <tr key={day.key} className="border-b border-border/30">
+                  <td className="py-1.5 pr-2 font-medium sticky left-0 bg-card z-10">{day.label}</td>
+                  {SLOTS.map((hour) => {
+                    const names = coverage[day.key][hour];
+                    const count = names.length;
+                    return (
+                      <td key={hour} className="py-1.5 px-0.5 text-center">
+                        <div
+                          className={`rounded px-1 py-1 cursor-default ${getHeatColor(count)}`}
+                          title={count > 0 ? names.join(", ") : "Personne"}
+                        >
+                          {count}
+                        </div>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-destructive/15" /> 0 vendeur</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-warning/20" /> 1 vendeur</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-accent/15" /> 2-3 vendeurs</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-accent/30" /> 4+ vendeurs</span>
+        </div>
+      </div>
+
+      {/* Per-employee summary */}
+      <div className="kpi-card">
+        <h3 className="text-sm font-semibold text-muted-foreground mb-4">Récapitulatif par vendeur</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b">
+                <th className="pb-2 text-left font-semibold text-muted-foreground">Vendeur</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground">Contrat</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground">Planifié</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground">Écart</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground">Jours</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {empSummary?.map((emp) => (
+                <tr key={emp.id} className="border-b border-border/30 table-row-hover">
+                  <td className="py-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-7 w-7 rounded-full bg-accent/20 flex items-center justify-center text-xs font-bold text-accent">
+                        {emp.name.charAt(0)}
+                      </div>
+                      <span className="font-medium">{emp.name}</span>
+                    </div>
+                  </td>
+                  <td className="py-2 text-center font-mono-data">{emp.contract_hours}h</td>
+                  <td className="py-2 text-center font-mono-data">{emp.hasSchedule ? `${emp.hoursWorked}h` : "—"}</td>
+                  <td className="py-2 text-center">
+                    {emp.hasSchedule ? (
+                      <span className={`font-mono-data font-medium ${emp.diff === 0 ? "text-accent" : emp.diff > 0 ? "text-warning" : "text-destructive"}`}>
+                        {emp.diff === 0 ? "OK" : `${emp.diff > 0 ? "+" : ""}${emp.diff}h`}
+                      </span>
+                    ) : "—"}
+                  </td>
+                  <td className="py-2 text-center font-mono-data">{emp.hasSchedule ? `${emp.daysWorked}j` : "—"}</td>
+                  <td className="py-2 text-center">
+                    {emp.hasSchedule ? (
+                      <span className="badge-positive">Planifié</span>
+                    ) : (
+                      <span className="badge-negative">Non planifié</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
