@@ -445,6 +445,7 @@ export function ScheduleEditor() {
   const weekEndLabel = formatDateMonthBE(endOfWeek);
 
   const isCopyMode = copiedEmployee !== null || copiedDay !== null;
+  const isCellCopyMode = copiedCell !== null;
 
   return (
     <div className="space-y-4">
