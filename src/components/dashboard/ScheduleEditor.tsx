@@ -557,7 +557,12 @@ export function ScheduleEditor() {
                   const diff = totalH - emp.contract_hours;
 
                   const deptColor = DEPT_COLORS[emp.role] ?? { bg: "", border: "border-l-muted" };
-                  const isUnderstaffed = totalH > 0 && totalH < emp.contract_hours;
+                  // Count leave days for this employee this week
+                  let leaveDays = 0;
+                  for (let di = 0; di < DAYS.length; di++) {
+                    if (isOnLeave(emp.id, di)) leaveDays++;
+                  }
+                  const isUnderstaffed = leaveDays === 0 && totalH > 0 && totalH < emp.contract_hours;
                   const isSource = copiedEmployee === emp.id;
 
                   return (
