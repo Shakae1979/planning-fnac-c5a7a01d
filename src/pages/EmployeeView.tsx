@@ -1,21 +1,26 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, ChevronLeft, ChevronRight, Clock, User } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, User, Palmtree } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatTimeBE } from "@/lib/format";
 
-const BREAK_HOURS = 1; // 1h de pause table par jour presté
+const BREAK_HOURS = 1;
 
-/** Parse "HH:MM" to decimal hours */
 function timeToHours(t: string | null): number {
   if (!t) return 0;
   const [h, m] = t.split(":").map(Number);
   return h + (m || 0) / 60;
 }
 
-/** Compute net hours for a schedule (subtract 1h break per worked day) */
+const CONGE_LABELS: Record<string, string> = {
+  conge: "Congé payé",
+  rtt: "RTT",
+  maladie: "Maladie",
+  formation: "Formation",
+};
+
 function computeNetHours(schedule: any): { gross: number; breaks: number; net: number } {
   const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
   let gross = 0;
@@ -33,13 +38,13 @@ function computeNetHours(schedule: any): { gross: number; breaks: number; net: n
 }
 
 const DAYS = [
-  { key: "lundi", label: "Lundi" },
-  { key: "mardi", label: "Mardi" },
-  { key: "mercredi", label: "Mercredi" },
-  { key: "jeudi", label: "Jeudi" },
-  { key: "vendredi", label: "Vendredi" },
-  { key: "samedi", label: "Samedi" },
-  { key: "dimanche", label: "Dimanche" },
+  { key: "lundi", label: "Lundi", offset: 0 },
+  { key: "mardi", label: "Mardi", offset: 1 },
+  { key: "mercredi", label: "Mercredi", offset: 2 },
+  { key: "jeudi", label: "Jeudi", offset: 3 },
+  { key: "vendredi", label: "Vendredi", offset: 4 },
+  { key: "samedi", label: "Samedi", offset: 5 },
+  { key: "dimanche", label: "Dimanche", offset: 6 },
 ] as const;
 
 function getMonday(date: Date): Date {
@@ -59,6 +64,18 @@ function addWeeks(date: Date, n: number): Date {
 
 function formatWeekDate(date: Date): string {
   return date.toISOString().split("T")[0];
+}
+
+/** Get the date string (YYYY-MM-DD) for a given day offset from monday */
+function getDayDate(monday: Date, offset: number): string {
+  const d = new Date(monday);
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().split("T")[0];
+}
+
+/** Check if a date falls within a conge range */
+function getCongeForDate(dateStr: string, conges: any[]): any | null {
+  return conges.find((c) => dateStr >= c.date_start && dateStr <= c.date_end) || null;
 }
 
 const EmployeeView = () => {
@@ -81,8 +98,11 @@ const EmployeeView = () => {
 
   const employee = employees?.find((e) => e.name === decodedName);
 
-  // Fetch 4 weeks of schedules for this employee
   const weeks = Array.from({ length: 4 }, (_, i) => formatWeekDate(addWeeks(currentMonday, i)));
+
+  // Date range for conges: first monday to last sunday
+  const firstMonday = formatWeekDate(currentMonday);
+  const lastSunday = getDayDate(addWeeks(currentMonday, 3), 6);
 
   const { data: schedules } = useQuery({
     queryKey: ["employee-schedules", employee?.id, weekStr],
@@ -99,8 +119,22 @@ const EmployeeView = () => {
     },
   });
 
+  const { data: conges } = useQuery({
+    queryKey: ["employee-conges", employee?.id, firstMonday, lastSunday],
+    enabled: !!employee,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("conges")
+        .select("*")
+        .eq("employee_id", employee!.id)
+        .lte("date_start", lastSunday)
+        .gte("date_end", firstMonday);
+      if (error) throw error;
+      return data;
+    },
+  });
+
   if (!decodedName) {
-    // Show employee selector
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
         <div className="max-w-md w-full">
@@ -150,7 +184,6 @@ const EmployeeView = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b bg-card px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -170,7 +203,6 @@ const EmployeeView = () => {
         </div>
       </header>
 
-      {/* Week navigation */}
       <div className="max-w-3xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between mb-6">
           <Button variant="outline" size="icon" onClick={() => setWeekOffset((w) => w - 1)}>
@@ -185,7 +217,6 @@ const EmployeeView = () => {
           </Button>
         </div>
 
-        {/* 4-week schedule cards */}
         <div className="space-y-4">
           {weeks.map((ws) => {
             const schedule = schedules?.find((s) => s.week_start === ws);
@@ -223,6 +254,23 @@ const EmployeeView = () => {
                       const start = (schedule as any)[`${day.key}_start`];
                       const end = (schedule as any)[`${day.key}_end`];
                       const hasShift = start && end;
+                      const dayDate = getDayDate(monday, day.offset);
+                      const conge = conges ? getCongeForDate(dayDate, conges) : null;
+
+                      if (conge) {
+                        return (
+                          <div
+                            key={day.key}
+                            className="rounded-md p-2 text-center text-xs bg-primary/10 border border-primary/20"
+                          >
+                            <div className="font-medium text-muted-foreground mb-1">{day.label}</div>
+                            <Palmtree className="h-3.5 w-3.5 mx-auto text-primary mb-0.5" />
+                            <div className="font-medium text-primary text-[11px]">
+                              {CONGE_LABELS[conge.type] || conge.type}
+                            </div>
+                          </div>
+                        );
+                      }
 
                       return (
                         <div
