@@ -484,7 +484,7 @@ export function ScheduleEditor() {
     },
   });
 
-  const hasEdits = Object.keys(localEdits).length > 0;
+  const hasEdits = Object.keys(localEdits).length > 0 || Object.keys(localDayComments).length > 0;
 
   const weekLabel = formatDateLongBE(currentMonday);
 
