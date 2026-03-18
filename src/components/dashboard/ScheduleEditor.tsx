@@ -175,6 +175,9 @@ export function ScheduleEditor() {
   const [selectedTargets, setSelectedTargets] = useState<Set<string>>(new Set()); // target employee IDs
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set()); // target day keys
 
+  // Cell-level copy-paste
+  const [copiedCell, setCopiedCell] = useState<{ empId: string; dayKey: string } | null>(null);
+
   const toggleTarget = (empId: string) => {
     setSelectedTargets((prev) => {
       const next = new Set(prev);
