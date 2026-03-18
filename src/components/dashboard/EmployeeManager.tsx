@@ -60,6 +60,18 @@ export function EmployeeManager() {
     },
   });
 
+  const updateRoleMutation = useMutation({
+    mutationFn: async ({ id, role }: { id: string; role: string }) => {
+      const { error } = await supabase.from("employees").update({ role }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      toast.success("Département mis à jour !");
+    },
+    onError: (err) => toast.error((err as Error).message),
+  });
+
   const active = employees?.filter((e) => e.is_active) ?? [];
   const inactive = employees?.filter((e) => !e.is_active) ?? [];
 
@@ -122,9 +134,15 @@ export function EmployeeManager() {
                 <div>
                   <div className="text-sm font-medium">{emp.name}</div>
                   <div className="text-xs text-muted-foreground">
-                    <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${ROLES.find(r => r.value === emp.role)?.color ?? "bg-muted text-muted-foreground"}`}>
-                      {ROLES.find(r => r.value === emp.role)?.label ?? emp.role}
-                    </span>
+                    <select
+                      value={emp.role}
+                      onChange={(e) => updateRoleMutation.mutate({ id: emp.id, role: e.target.value })}
+                      className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium border-none cursor-pointer ${ROLES.find(r => r.value === emp.role)?.color ?? "bg-muted text-muted-foreground"}`}
+                    >
+                      {ROLES.map((r) => (
+                        <option key={r.value} value={r.value}>{r.label}</option>
+                      ))}
+                    </select>
                     {" · "}<span className="font-mono-data">{emp.contract_hours}h</span>
                   </div>
                 </div>
