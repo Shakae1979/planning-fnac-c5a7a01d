@@ -254,6 +254,33 @@ export function ScheduleEditor() {
     setCopiedDay(null);
     setSelectedTargets(new Set());
     setSelectedDays(new Set());
+    setCopiedCell(null);
+  };
+
+  const copyCellSchedule = (empId: string, dayKey: string) => {
+    setCopiedCell({ empId, dayKey });
+    setCopiedEmployee(null);
+    setCopiedDay(null);
+    const empName = employees?.find((e) => e.id === empId)?.name ?? "";
+    const dayLabel = DAYS.find((d) => d.key === dayKey)?.label ?? dayKey;
+    toast.info(`${dayLabel} de ${empName} copié — cliquez "Coller" sur la cellule cible`);
+  };
+
+  const pasteCellSchedule = (targetEmpId: string, targetDayKey: string) => {
+    if (!copiedCell) return;
+    const startVal = getValue(copiedCell.empId, `${copiedCell.dayKey}_start`);
+    const endVal = getValue(copiedCell.empId, `${copiedCell.dayKey}_end`);
+    setLocalEdits((prev) => ({
+      ...prev,
+      [targetEmpId]: {
+        ...prev[targetEmpId],
+        [`${targetDayKey}_start`]: startVal,
+        [`${targetDayKey}_end`]: endVal,
+      },
+    }));
+    const empName = employees?.find((e) => e.id === targetEmpId)?.name ?? "";
+    toast.success(`Horaires collés sur ${empName}`);
+    setCopiedCell(null);
   };
 
   const getScheduleForEmployee = (empId: string) => {
