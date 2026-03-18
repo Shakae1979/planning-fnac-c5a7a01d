@@ -121,7 +121,12 @@ export function EmployeeManager() {
                 </div>
                 <div>
                   <div className="text-sm font-medium">{emp.name}</div>
-                  <div className="text-xs text-muted-foreground">{emp.role} · <span className="font-mono-data">{emp.contract_hours}h</span></div>
+                  <div className="text-xs text-muted-foreground">
+                    <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${ROLES.find(r => r.value === emp.role)?.color ?? "bg-muted text-muted-foreground"}`}>
+                      {ROLES.find(r => r.value === emp.role)?.label ?? emp.role}
+                    </span>
+                    {" · "}<span className="font-mono-data">{emp.contract_hours}h</span>
+                  </div>
                 </div>
               </div>
               <Button
