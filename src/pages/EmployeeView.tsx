@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Calendar, ChevronLeft, ChevronRight, Clock, User, Palmtree } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateMonthBE, formatTimeBE } from "@/lib/format";
+import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate } from "@/lib/format";
 
 const BREAK_HOURS = 1;
 
