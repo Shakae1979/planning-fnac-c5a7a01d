@@ -15,13 +15,14 @@ const CONGE_LABELS: Record<string, string> = {
 };
 
 const ROLE_LABELS: Record<string, string> = {
+  responsable: "Responsables",
   technique: "Technique",
   editorial: "Éditorial",
   stock: "Stock",
   caisse: "Caisse",
 };
 
-const ROLE_ORDER = ["technique", "editorial", "stock", "caisse"];
+const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse"];
 
 function timeToHours(t: string | null): number {
   if (!t) return 0;
