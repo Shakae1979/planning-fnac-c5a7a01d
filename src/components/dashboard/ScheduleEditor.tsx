@@ -384,25 +384,38 @@ export function ScheduleEditor() {
         .select("*")
         .eq("week_start", TEMPLATE_WEEK);
 
-      const existing = schedules?.map((s) => s.employee_id) ?? [];
-      const toCreate = employees.filter((e) => !existing.includes(e.id));
-      if (toCreate.length === 0) {
-        toast.info("Tous les vendeurs ont déjà une ligne cette semaine.");
-        return;
+      const existingIds = schedules?.map((s) => s.employee_id) ?? [];
+      const toCreate = employees.filter((e) => !existingIds.includes(e.id));
+      const toUpdate = employees.filter((e) => existingIds.includes(e.id));
+
+      // Insert new rows
+      if (toCreate.length > 0) {
+        const rows = toCreate.map((e) => {
+          const tpl = templates?.find((t) => t.employee_id === e.id);
+          if (tpl) {
+            const { id, created_at, updated_at, week_start, ...fields } = tpl as any;
+            return { ...fields, employee_id: e.id, week_start: weekStr, hours_base: e.contract_hours };
+          }
+          return { employee_id: e.id, week_start: weekStr, hours_base: e.contract_hours };
+        });
+        const { error } = await supabase.from("weekly_schedules").insert(rows);
+        if (error) throw error;
       }
 
-      const rows = toCreate.map((e) => {
+      // Update existing rows with template data
+      const updatePromises = toUpdate.map(async (e) => {
         const tpl = templates?.find((t) => t.employee_id === e.id);
-        if (tpl) {
-          // Copy from template, change week_start
-          const { id, created_at, updated_at, week_start, ...fields } = tpl as any;
-          return { ...fields, employee_id: e.id, week_start: weekStr, hours_base: e.contract_hours };
-        }
-        return { employee_id: e.id, week_start: weekStr, hours_base: e.contract_hours };
+        if (!tpl) return; // no template for this employee, skip
+        const existingSchedule = schedules?.find((s) => s.employee_id === e.id);
+        if (!existingSchedule) return;
+        const { id, created_at, updated_at, week_start, employee_id, ...fields } = tpl as any;
+        const { error } = await supabase
+          .from("weekly_schedules")
+          .update({ ...fields, hours_base: e.contract_hours })
+          .eq("id", existingSchedule.id);
+        if (error) throw error;
       });
-
-      const { error } = await supabase.from("weekly_schedules").insert(rows);
-      if (error) throw error;
+      await Promise.all(updatePromises);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
