@@ -629,7 +629,7 @@ export function ScheduleEditor() {
             <tbody>
               {isLoading ? (
                 <tr>
-                   <td colSpan={17} className="py-8 text-center text-muted-foreground">
+                   <td colSpan={16} className="py-8 text-center text-muted-foreground">
                     Chargement...
                   </td>
                 </tr>
