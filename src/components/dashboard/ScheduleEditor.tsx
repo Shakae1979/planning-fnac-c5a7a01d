@@ -507,7 +507,7 @@ export function ScheduleEditor() {
             <div className="text-sm font-semibold">S{getWeekNumber(currentMonday)} — {weekLabel} — {weekEndLabel}</div>
             <div className="text-xs text-muted-foreground">Semaine du {formatDateBE(currentMonday)}</div>
           </div>
-          <Button variant="outline" size="icon" onClick={() => { setWeekOffset((w) => w + 1); setLocalEdits({}); cancelCopy(); }}>
+          <Button variant="outline" size="icon" onClick={() => { setWeekOffset((w) => w + 1); setLocalEdits({}); setLocalDayComments({}); cancelCopy(); }}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
