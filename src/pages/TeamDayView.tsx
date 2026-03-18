@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, ChevronLeft, ChevronRight, Clock, Palmtree, Users } from "lucide-react";
+import { AlertTriangle, Calendar, ChevronLeft, ChevronRight, Clock, Palmtree, Users } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateBE, formatTimeBE } from "@/lib/format";
@@ -155,6 +155,41 @@ const TeamDayView = () => {
     workingByRole[emp.role].push(emp);
   }
 
+  // Coverage alert: check required time slots per category
+  // Mon-Thu, Sat: 10h-19h / Fri: 10h-20h / Sun-Dim: no check
+  const REQUIRED_SLOTS: Record<string, { start: number; end: number } | null> = {
+    lundi: { start: 10, end: 19 },
+    mardi: { start: 10, end: 19 },
+    mercredi: { start: 10, end: 19 },
+    jeudi: { start: 10, end: 19 },
+    vendredi: { start: 10, end: 20 },
+    samedi: { start: 10, end: 19 },
+    dimanche: null,
+  };
+
+  const requiredSlot = REQUIRED_SLOTS[dayKey];
+
+  // For each role, find uncovered hours within the required slot
+  const coverageAlerts: { role: string; uncoveredHours: number[] }[] = [];
+  if (requiredSlot && working.length > 0) {
+    for (const role of ROLE_ORDER) {
+      const group = workingByRole[role] || [];
+      const uncovered: number[] = [];
+      for (let h = requiredSlot.start; h < requiredSlot.end; h++) {
+        // Check if at least one employee in this role covers this hour
+        const covered = group.some((emp) => {
+          const empStart = timeToHours(emp.start);
+          const empEnd = timeToHours(emp.end);
+          return empStart <= h && empEnd > h;
+        });
+        if (!covered) uncovered.push(h);
+      }
+      if (uncovered.length > 0) {
+        coverageAlerts.push({ role, uncoveredHours: uncovered });
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card px-6 py-4">
@@ -238,14 +273,34 @@ const TeamDayView = () => {
           );
         })}
 
-        {/* Missing categories warning */}
-        {ROLE_ORDER.some((role) => !workingByRole[role] || workingByRole[role].length === 0) && working.length > 0 && (
+        {/* Coverage alerts */}
+        {coverageAlerts.length > 0 && (
           <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 mb-4">
-            <div className="text-sm font-medium text-destructive mb-1">⚠️ Catégories non couvertes</div>
-            <div className="text-xs text-muted-foreground">
-              {ROLE_ORDER.filter((r) => !workingByRole[r] || workingByRole[r].length === 0)
-                .map((r) => ROLE_LABELS[r])
-                .join(", ")}
+            <div className="flex items-center gap-2 text-sm font-medium text-destructive mb-2">
+              <AlertTriangle className="h-4 w-4" />
+              Créneaux non couverts ({requiredSlot ? `${requiredSlot.start}h — ${requiredSlot.end}h` : ""})
+            </div>
+            <div className="space-y-1.5">
+              {coverageAlerts.map(({ role, uncoveredHours }) => {
+                // Group consecutive hours into ranges
+                const ranges: string[] = [];
+                let i = 0;
+                while (i < uncoveredHours.length) {
+                  const start = uncoveredHours[i];
+                  let end = start;
+                  while (i + 1 < uncoveredHours.length && uncoveredHours[i + 1] === end + 1) {
+                    end = uncoveredHours[++i];
+                  }
+                  ranges.push(end === start ? `${start}h` : `${start}h—${end + 1}h`);
+                  i++;
+                }
+                return (
+                  <div key={role} className="flex items-center justify-between text-xs">
+                    <span className="font-semibold">{ROLE_LABELS[role] || role}</span>
+                    <span className="text-muted-foreground">{ranges.join(", ")}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
