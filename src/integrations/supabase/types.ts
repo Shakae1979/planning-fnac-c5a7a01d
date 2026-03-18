@@ -14,7 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      employees: {
+        Row: {
+          contract_hours: number
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          role: string
+        }
+        Insert: {
+          contract_hours?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          role?: string
+        }
+        Update: {
+          contract_hours?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          role?: string
+        }
+        Relationships: []
+      }
+      weekly_schedules: {
+        Row: {
+          created_at: string
+          dimanche_end: string | null
+          dimanche_start: string | null
+          employee_id: string
+          hours_base: number | null
+          hours_modified: number | null
+          id: string
+          jeudi_end: string | null
+          jeudi_start: string | null
+          lundi_end: string | null
+          lundi_start: string | null
+          mardi_end: string | null
+          mardi_start: string | null
+          mercredi_end: string | null
+          mercredi_start: string | null
+          notes: string | null
+          samedi_end: string | null
+          samedi_start: string | null
+          updated_at: string
+          vendredi_end: string | null
+          vendredi_start: string | null
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          dimanche_end?: string | null
+          dimanche_start?: string | null
+          employee_id: string
+          hours_base?: number | null
+          hours_modified?: number | null
+          id?: string
+          jeudi_end?: string | null
+          jeudi_start?: string | null
+          lundi_end?: string | null
+          lundi_start?: string | null
+          mardi_end?: string | null
+          mardi_start?: string | null
+          mercredi_end?: string | null
+          mercredi_start?: string | null
+          notes?: string | null
+          samedi_end?: string | null
+          samedi_start?: string | null
+          updated_at?: string
+          vendredi_end?: string | null
+          vendredi_start?: string | null
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          dimanche_end?: string | null
+          dimanche_start?: string | null
+          employee_id?: string
+          hours_base?: number | null
+          hours_modified?: number | null
+          id?: string
+          jeudi_end?: string | null
+          jeudi_start?: string | null
+          lundi_end?: string | null
+          lundi_start?: string | null
+          mardi_end?: string | null
+          mardi_start?: string | null
+          mercredi_end?: string | null
+          mercredi_start?: string | null
+          notes?: string | null
+          samedi_end?: string | null
+          samedi_start?: string | null
+          updated_at?: string
+          vendredi_end?: string | null
+          vendredi_start?: string | null
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_schedules_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
