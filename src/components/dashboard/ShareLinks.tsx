@@ -24,6 +24,29 @@ export function ShareLinks() {
 
   return (
     <div className="space-y-6">
+      {/* Team day link */}
+      <div className="kpi-card">
+        <h3 className="text-sm font-semibold text-muted-foreground mb-2">Planning équipe du jour</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Lien partageable affichant tous les vendeurs qui travaillent un jour donné, classés par catégorie.
+        </p>
+        <div className="flex items-center justify-between py-2.5 px-3 rounded-md bg-secondary/50">
+          <div className="text-xs text-muted-foreground font-mono-data truncate max-w-[400px]">
+            {baseUrl}/equipe-du-jour
+          </div>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(`${baseUrl}/equipe-du-jour`); toast.success("Lien copié !"); }}>
+              <Copy className="h-3.5 w-3.5 mr-1" /> Copier
+            </Button>
+            <a href={`${baseUrl}/equipe-du-jour`} target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" size="sm">
+                <ExternalLink className="h-3.5 w-3.5" />
+              </Button>
+            </a>
+          </div>
+        </div>
+      </div>
+
       <div className="kpi-card">
         <h3 className="text-sm font-semibold text-muted-foreground mb-2">Liens personnels</h3>
         <p className="text-sm text-muted-foreground mb-4">
