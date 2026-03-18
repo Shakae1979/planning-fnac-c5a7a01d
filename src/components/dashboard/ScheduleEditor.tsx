@@ -555,6 +555,7 @@ export function ScheduleEditor() {
                   </th>
                 ))}
                 <th className="pb-2 text-center font-semibold text-muted-foreground min-w-[60px]">Total</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground min-w-[120px]">Commentaire</th>
               </tr>
               <tr className="border-b">
                 <th className="pb-1 sticky left-0 bg-card z-10"></th>
