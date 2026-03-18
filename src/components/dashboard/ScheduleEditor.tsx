@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Save, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatDateLongBE, formatDateMonthBE } from "@/lib/format";
 
 const DAYS = [
   { key: "lundi", label: "Lun" },
