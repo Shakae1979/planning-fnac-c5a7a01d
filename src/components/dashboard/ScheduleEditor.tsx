@@ -169,6 +169,90 @@ export function ScheduleEditor() {
 
   const [localEdits, setLocalEdits] = useState<Record<string, Record<string, string>>>({});
 
+  // Copy-paste state
+  const [copiedEmployee, setCopiedEmployee] = useState<string | null>(null); // source employee ID
+  const [copiedDay, setCopiedDay] = useState<string | null>(null); // source day key
+  const [selectedTargets, setSelectedTargets] = useState<Set<string>>(new Set()); // target employee IDs
+  const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set()); // target day keys
+
+  const toggleTarget = (empId: string) => {
+    setSelectedTargets((prev) => {
+      const next = new Set(prev);
+      if (next.has(empId)) next.delete(empId); else next.add(empId);
+      return next;
+    });
+  };
+
+  const toggleDay = (dayKey: string) => {
+    setSelectedDays((prev) => {
+      const next = new Set(prev);
+      if (next.has(dayKey)) next.delete(dayKey); else next.add(dayKey);
+      return next;
+    });
+  };
+
+  const copyEmployeeSchedule = (empId: string) => {
+    setCopiedEmployee(empId);
+    setCopiedDay(null);
+    setSelectedTargets(new Set());
+    setSelectedDays(new Set());
+    const empName = employees?.find((e) => e.id === empId)?.name ?? "";
+    toast.info(`Horaires de ${empName} copiés — cochez les cibles puis collez`);
+  };
+
+  const copyDaySchedule = (dayKey: string) => {
+    setCopiedDay(dayKey);
+    setCopiedEmployee(null);
+    setSelectedTargets(new Set());
+    setSelectedDays(new Set());
+    const dayLabel = DAYS.find((d) => d.key === dayKey)?.label ?? dayKey;
+    toast.info(`${dayLabel} copié — cochez les jours cibles puis collez`);
+  };
+
+  const pasteToTargets = () => {
+    if (copiedEmployee && selectedTargets.size > 0) {
+      // Copy employee schedule to selected target employees
+      const sourceSchedule = getScheduleForEmployee(copiedEmployee);
+      const newEdits = { ...localEdits };
+      selectedTargets.forEach((targetId) => {
+        if (targetId === copiedEmployee) return;
+        const targetEdits: Record<string, string> = {};
+        for (const day of DAYS) {
+          targetEdits[`${day.key}_start`] = getValue(copiedEmployee, `${day.key}_start`);
+          targetEdits[`${day.key}_end`] = getValue(copiedEmployee, `${day.key}_end`);
+        }
+        newEdits[targetId] = { ...newEdits[targetId], ...targetEdits };
+      });
+      setLocalEdits(newEdits);
+      toast.success(`Horaires collés sur ${selectedTargets.size} employé(s)`);
+    }
+    if (copiedDay && selectedDays.size > 0 && employees) {
+      // Copy one day to other days for ALL employees
+      const newEdits = { ...localEdits };
+      employees.forEach((emp) => {
+        const startVal = getValue(emp.id, `${copiedDay}_start`);
+        const endVal = getValue(emp.id, `${copiedDay}_end`);
+        selectedDays.forEach((targetDay) => {
+          if (targetDay === copiedDay) return;
+          if (!newEdits[emp.id]) newEdits[emp.id] = {};
+          newEdits[emp.id][`${targetDay}_start`] = startVal;
+          newEdits[emp.id][`${targetDay}_end`] = endVal;
+        });
+      });
+      setLocalEdits(newEdits);
+      const dayLabel = DAYS.find((d) => d.key === copiedDay)?.label ?? "";
+      toast.success(`${dayLabel} collé sur ${selectedDays.size} jour(s)`);
+    }
+    cancelCopy();
+  };
+
+  const cancelCopy = () => {
+    setCopiedEmployee(null);
+    setCopiedDay(null);
+    setSelectedTargets(new Set());
+    setSelectedDays(new Set());
+  };
+
   const getScheduleForEmployee = (empId: string) => {
     return schedules?.find((s) => s.employee_id === empId);
   };
