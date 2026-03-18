@@ -6,6 +6,32 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatTimeBE } from "@/lib/format";
 
+const BREAK_HOURS = 1; // 1h de pause table par jour presté
+
+/** Parse "HH:MM" to decimal hours */
+function timeToHours(t: string | null): number {
+  if (!t) return 0;
+  const [h, m] = t.split(":").map(Number);
+  return h + (m || 0) / 60;
+}
+
+/** Compute net hours for a schedule (subtract 1h break per worked day) */
+function computeNetHours(schedule: any): { gross: number; breaks: number; net: number } {
+  const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+  let gross = 0;
+  let workedDays = 0;
+  for (const d of days) {
+    const start = schedule[`${d}_start`];
+    const end = schedule[`${d}_end`];
+    if (start && end) {
+      gross += timeToHours(end) - timeToHours(start);
+      workedDays++;
+    }
+  }
+  const breaks = workedDays * BREAK_HOURS;
+  return { gross, breaks, net: gross - breaks };
+}
+
 const DAYS = [
   { key: "lundi", label: "Lundi" },
   { key: "mardi", label: "Mardi" },
@@ -178,14 +204,17 @@ const EmployeeView = () => {
                     <span className="text-sm font-semibold">Semaine du {label}</span>
                     {isCurrentWeek && <span className="badge-positive">Cette semaine</span>}
                   </div>
-                  {schedule && (
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="text-sm font-mono-data font-medium">
-                        {schedule.hours_modified ?? schedule.hours_base ?? 0}h
-                      </span>
-                    </div>
-                  )}
+                  {schedule && (() => {
+                    const { net, breaks } = computeNetHours(schedule);
+                    return (
+                      <div className="flex items-center gap-1.5" title={`Brut - ${breaks}h pause = ${net.toFixed(1)}h net`}>
+                        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="text-sm font-mono-data font-medium">
+                          {net.toFixed(1)}h <span className="text-muted-foreground text-xs">net</span>
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {schedule ? (
@@ -206,6 +235,9 @@ const EmployeeView = () => {
                           {hasShift ? (
                             <div className="font-mono-data font-medium">
                               {formatTimeBE(start)} — {formatTimeBE(end)}
+                              <div className="text-[10px] text-muted-foreground mt-0.5">
+                                {(timeToHours(end) - timeToHours(start) - BREAK_HOURS).toFixed(1)}h net
+                              </div>
                             </div>
                           ) : (
                             <div className="text-muted-foreground">Repos</div>
