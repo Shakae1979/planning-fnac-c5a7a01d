@@ -141,21 +141,23 @@ const TeamWeekView = () => {
     return acc;
   }, {} as Record<string, typeof employees>);
 
-  // Compute total per employee
+  // Compute total per employee (exclude conge days)
   const getWeekTotal = (empId: string): number => {
     const schedule = schedules?.find(s => s.employee_id === empId);
     if (!schedule) return 0;
     let totalMin = 0;
     let workedDays = 0;
-    for (const day of DAY_KEYS) {
+    DAY_KEYS.forEach((day, di) => {
+      const congeType = getConge(empId, di);
+      if (congeType) return; // skip conge days
       const start = (schedule as any)[`${day}_start`];
       const end = (schedule as any)[`${day}_end`];
       if (start && end) {
         totalMin += timeToMinutes(end) - timeToMinutes(start);
         workedDays++;
       }
-    }
-    return Math.round(((totalMin - workedDays * 60) / 60) * 100) / 100; // minus 1h break/day
+    });
+    return Math.round(((totalMin - workedDays * 60) / 60) * 100) / 100;
   };
 
   return (
