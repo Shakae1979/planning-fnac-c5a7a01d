@@ -54,7 +54,7 @@ const DAYS = [
 ] as const;
 
 const DEPT_COLORS: Record<string, { bg: string; border: string }> = {
-  responsable: { bg: "bg-rose-50 dark:bg-rose-950/30", border: "border-l-rose-500" },
+  responsable: { bg: "bg-orange-50 dark:bg-orange-950/30", border: "border-l-orange-500" },
   technique: { bg: "bg-blue-50 dark:bg-blue-950/30", border: "border-l-blue-500" },
   editorial: { bg: "bg-purple-50 dark:bg-purple-950/30", border: "border-l-purple-500" },
   stock: { bg: "bg-amber-50 dark:bg-amber-950/30", border: "border-l-amber-500" },
