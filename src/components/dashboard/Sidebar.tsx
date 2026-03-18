@@ -1,6 +1,6 @@
-import { BarChart3, Users, TrendingUp, Calendar } from "lucide-react";
+import { BarChart3, Users, CalendarDays, Share2, Calendar } from "lucide-react";
 
-type View = "overview" | "employees" | "trends";
+type View = "overview" | "schedule" | "employees" | "share";
 
 interface SidebarProps {
   activeView: View;
@@ -9,8 +9,9 @@ interface SidebarProps {
 
 const links: { id: View; label: string; icon: React.ElementType }[] = [
   { id: "overview", label: "Vue d'ensemble", icon: BarChart3 },
+  { id: "schedule", label: "Horaires", icon: CalendarDays },
   { id: "employees", label: "Équipe", icon: Users },
-  { id: "trends", label: "Tendances", icon: TrendingUp },
+  { id: "share", label: "Liens vendeurs", icon: Share2 },
 ];
 
 export function Sidebar({ activeView, onViewChange }: SidebarProps) {
@@ -40,7 +41,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
       </nav>
 
       <div className="px-5 py-4 text-xs" style={{ color: "hsl(var(--sidebar-fg) / 0.5)" }}>
-        Données 2024–2026
+        Données 2026
       </div>
     </aside>
   );
