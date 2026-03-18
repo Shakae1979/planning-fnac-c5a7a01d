@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Save, Plus, Printer, Copy, ClipboardPaste, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE } from "@/lib/format";
+import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate } from "@/lib/format";
 
 /** Convert "HHhMM" or "HH:MM" or "HHMM" to "HH:MM" for storage */
 function parseTimeBE(input: string): string {
@@ -80,7 +80,7 @@ function getMonday(date: Date): Date {
 }
 
 function formatWeekDate(date: Date): string {
-  return date.toISOString().split("T")[0];
+  return formatLocalDate(date);
 }
 
 function addWeeks(date: Date, n: number): Date {
@@ -99,7 +99,7 @@ interface ScheduleRow {
 function getDayDate(monday: Date, dayIndex: number): string {
   const d = new Date(monday);
   d.setDate(d.getDate() + dayIndex);
-  return d.toISOString().split("T")[0];
+  return formatLocalDate(d);
 }
 
 export function ScheduleEditor() {

@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, ChevronRight, Users, Printer, Palmtree, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { formatDateBE, formatTimeBE } from "@/lib/format";
+import { formatDateBE, formatTimeBE, formatLocalDate } from "@/lib/format";
 
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse"];
 
@@ -62,13 +62,13 @@ function addWeeks(date: Date, n: number): Date {
 }
 
 function formatWeekDate(date: Date): string {
-  return date.toISOString().split("T")[0];
+  return formatLocalDate(date);
 }
 
 function getDayDate(monday: Date, dayIndex: number): string {
   const d = new Date(monday);
   d.setDate(d.getDate() + dayIndex);
-  return d.toISOString().split("T")[0];
+  return formatLocalDate(d);
 }
 
 function timeToMinutes(t: string | null): number {

@@ -41,3 +41,11 @@ export function formatTimeBE(time: string | null | undefined): string {
   if (parts.length < 2) return time;
   return `${parts[0]}h${parts[1]}`;
 }
+
+/** Format a Date to ISO "YYYY-MM-DD" using LOCAL timezone (avoids UTC shift) */
+export function formatLocalDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}

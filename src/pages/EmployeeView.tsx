@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Calendar, ChevronLeft, ChevronRight, Clock, User, Palmtree } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateMonthBE, formatTimeBE } from "@/lib/format";
+import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate } from "@/lib/format";
 
 const BREAK_HOURS = 1;
 
@@ -63,14 +63,14 @@ function addWeeks(date: Date, n: number): Date {
 }
 
 function formatWeekDate(date: Date): string {
-  return date.toISOString().split("T")[0];
+  return formatLocalDate(date);
 }
 
 /** Get the date string (YYYY-MM-DD) for a given day offset from monday */
 function getDayDate(monday: Date, offset: number): string {
   const d = new Date(monday);
   d.setDate(d.getDate() + offset);
-  return d.toISOString().split("T")[0];
+  return formatLocalDate(d);
 }
 
 /** Check if a date falls within a conge range */

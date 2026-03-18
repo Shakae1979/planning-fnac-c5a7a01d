@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle, Calendar, ChevronLeft, ChevronRight, Clock, Palmtree, Users } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { formatDateBE, formatTimeBE } from "@/lib/format";
+import { formatDateBE, formatTimeBE, formatLocalDate } from "@/lib/format";
 
 const BREAK_HOURS = 1;
 
@@ -40,11 +40,11 @@ function getMonday(date: Date): Date {
 }
 
 function formatWeekDate(date: Date): string {
-  return date.toISOString().split("T")[0];
+  return formatLocalDate(date);
 }
 
 function formatDateISO(date: Date): string {
-  return date.toISOString().split("T")[0];
+  return formatLocalDate(date);
 }
 
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
