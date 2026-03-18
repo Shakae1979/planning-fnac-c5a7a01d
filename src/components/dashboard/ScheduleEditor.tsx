@@ -390,18 +390,33 @@ export function ScheduleEditor() {
                           <>
                             <td key={`${day.key}-s`} className="py-1.5 px-0.5">
                               <input
-                                type="time"
-                                value={getValue(emp.id, `${day.key}_start`)}
-                                onChange={(e) => handleChange(emp.id, `${day.key}_start`, e.target.value)}
-                                className="w-full px-1.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data"
+                                type="text"
+                                placeholder="10h00"
+                                value={getDisplayValue(emp.id, `${day.key}_start`)}
+                                onBlur={(e) => handleTimeInput(emp.id, `${day.key}_start`, e.target.value)}
+                                onChange={(e) => {
+                                  // Allow free typing, parse on blur
+                                  setLocalEdits((prev) => ({
+                                    ...prev,
+                                    [emp.id]: { ...prev[emp.id], [`${day.key}_start`]: e.target.value.includes("h") ? parseTimeBE(e.target.value) : e.target.value },
+                                  }));
+                                }}
+                                className="w-full px-1.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center"
                               />
                             </td>
                             <td key={`${day.key}-e`} className="py-1.5 px-0.5">
                               <input
-                                type="time"
-                                value={getValue(emp.id, `${day.key}_end`)}
-                                onChange={(e) => handleChange(emp.id, `${day.key}_end`, e.target.value)}
-                                className="w-full px-1.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data"
+                                type="text"
+                                placeholder="18h00"
+                                value={getDisplayValue(emp.id, `${day.key}_end`)}
+                                onBlur={(e) => handleTimeInput(emp.id, `${day.key}_end`, e.target.value)}
+                                onChange={(e) => {
+                                  setLocalEdits((prev) => ({
+                                    ...prev,
+                                    [emp.id]: { ...prev[emp.id], [`${day.key}_end`]: e.target.value.includes("h") ? parseTimeBE(e.target.value) : e.target.value },
+                                  }));
+                                }}
+                                className="w-full px-1.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center"
                               />
                             </td>
                           </>
