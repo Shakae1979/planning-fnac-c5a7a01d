@@ -5,8 +5,9 @@ import { EmployeeManager } from "@/components/dashboard/EmployeeManager";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { ShareLinks } from "@/components/dashboard/ShareLinks";
 import { TeamRecap } from "@/components/dashboard/TeamRecap";
+import { CongesCalendar } from "@/components/dashboard/CongesCalendar";
 
-type View = "overview" | "schedule" | "recap" | "employees" | "share";
+type View = "overview" | "schedule" | "recap" | "employees" | "share" | "conges";
 
 const Index = () => {
   const [view, setView] = useState<View>("overview");
@@ -30,6 +31,7 @@ const Index = () => {
           {view === "recap" && <TeamRecap />}
           {view === "employees" && <EmployeeManager />}
           {view === "share" && <ShareLinks />}
+          {view === "conges" && <CongesCalendar />}
         </div>
       </main>
     </div>
