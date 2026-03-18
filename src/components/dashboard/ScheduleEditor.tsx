@@ -334,12 +334,15 @@ export function ScheduleEditor() {
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="h-3.5 w-3.5 mr-1" /> Imprimer
           </Button>
+          <Button variant="outline" size="sm" onClick={() => saveAsTemplateMutation.mutate()} disabled={!schedules?.length}>
+            <Copy className="h-3.5 w-3.5 mr-1" /> Sauver comme Sem. 0
+          </Button>
           <Button variant="outline" size="sm" onClick={() => initAllMutation.mutate()}>
-            <Plus className="h-3.5 w-3.5 mr-1" /> Initialiser la semaine
+            <Plus className="h-3.5 w-3.5 mr-1" /> Initialiser depuis Sem. 0
           </Button>
           <Button size="sm" disabled={!hasEdits || saveMutation.isPending} onClick={() => saveMutation.mutate()}>
             <Save className="h-3.5 w-3.5 mr-1" />
