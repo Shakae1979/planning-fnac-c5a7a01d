@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, ChevronRight, Users, AlertTriangle, CheckCircle2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateBE, formatLocalDate } from "@/lib/format";
+import { formatDateLongBE, formatDateBE, formatLocalDate, getWeekNumber } from "@/lib/format";
 
 const DAYS = [
   { key: "lundi", label: "Lundi" },
@@ -164,7 +164,7 @@ export function TeamRecap() {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="text-center">
-            <div className="text-sm font-semibold">Semaine du {weekLabel}</div>
+            <div className="text-sm font-semibold">S{getWeekNumber(currentMonday)} — Semaine du {weekLabel}</div>
             <div className="text-xs text-muted-foreground">{formatDateBE(currentMonday)}</div>
           </div>
           <Button variant="outline" size="icon" onClick={() => setWeekOffset((w) => w + 1)}>

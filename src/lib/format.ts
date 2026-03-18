@@ -42,6 +42,15 @@ export function formatTimeBE(time: string | null | undefined): string {
   return `${parts[0]}h${parts[1]}`;
 }
 
+/** Get ISO week number from a Date */
+export function getWeekNumber(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
+
 /** Format a Date to ISO "YYYY-MM-DD" using LOCAL timezone (avoids UTC shift) */
 export function formatLocalDate(date: Date): string {
   const y = date.getFullYear();

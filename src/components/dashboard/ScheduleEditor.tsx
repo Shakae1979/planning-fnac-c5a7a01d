@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Save, Plus, Printer, Copy, ClipboardPaste, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate } from "@/lib/format";
+import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber } from "@/lib/format";
 
 /** Convert "HHhMM" or "HH:MM" or "HHMM" to "HH:MM" for storage */
 function parseTimeBE(input: string): string {
@@ -469,7 +469,7 @@ export function ScheduleEditor() {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="text-center">
-            <div className="text-sm font-semibold">{weekLabel} — {weekEndLabel}</div>
+            <div className="text-sm font-semibold">S{getWeekNumber(currentMonday)} — {weekLabel} — {weekEndLabel}</div>
             <div className="text-xs text-muted-foreground">Semaine du {formatDateBE(currentMonday)}</div>
           </div>
           <Button variant="outline" size="icon" onClick={() => { setWeekOffset((w) => w + 1); setLocalEdits({}); cancelCopy(); }}>

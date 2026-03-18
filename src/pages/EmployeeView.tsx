@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Calendar, ChevronLeft, ChevronRight, Clock, User, Palmtree } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate } from "@/lib/format";
+import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber } from "@/lib/format";
 
 const BREAK_HOURS = 1;
 
@@ -209,7 +209,7 @@ const EmployeeView = () => {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="text-center">
-            <div className="text-sm font-semibold">Semaine du {weekLabel}</div>
+            <div className="text-sm font-semibold">S{getWeekNumber(currentMonday)} — Semaine du {weekLabel}</div>
             <div className="text-xs text-muted-foreground">4 semaines affichées</div>
           </div>
           <Button variant="outline" size="icon" onClick={() => setWeekOffset((w) => w + 1)}>
@@ -232,7 +232,7 @@ const EmployeeView = () => {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-semibold">Semaine du {label}</span>
+                    <span className="text-sm font-semibold">S{getWeekNumber(monday)} — Semaine du {label}</span>
                     {isCurrentWeek && <span className="badge-positive">Cette semaine</span>}
                   </div>
                   {schedule && (() => {
