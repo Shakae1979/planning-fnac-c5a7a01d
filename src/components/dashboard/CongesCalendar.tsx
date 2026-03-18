@@ -207,11 +207,13 @@ export function CongesCalendar() {
                       const dateStr = formatDate(year, currentMonth, i + 1);
                       const leave = isOnLeave(emp.id, dateStr);
                       const d = new Date(year, currentMonth, i + 1);
-                      const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+                      const jsDay = d.getDay();
+                      const isWeekend = jsDay === 0 || jsDay === 6;
+                      const isMonday = jsDay === 1;
                       if (leave) totalDays++;
                       const typeColor = leave ? CONGE_TYPES.find((t) => t.value === leave.type)?.color ?? "bg-muted" : "";
                       return (
-                        <td key={i} className={`py-1 text-center ${isWeekend ? "bg-muted/30" : ""}`}>
+                        <td key={i} className={`py-1 text-center ${isWeekend ? "bg-muted/30" : ""} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
                           {leave ? (
                             <span className={`inline-block w-5 h-5 rounded ${typeColor} cursor-pointer`} title={`${CONGE_TYPES.find((t) => t.value === leave.type)?.label} — cliquer pour supprimer`} onClick={() => deleteMutation.mutate(leave.id)} />
                           ) : null}
