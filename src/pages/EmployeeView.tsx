@@ -63,7 +63,7 @@ function addWeeks(date: Date, n: number): Date {
 }
 
 function formatWeekDate(date: Date): string {
-  return date.toISOString().split("T")[0];
+  return formatLocalDate(date);
 }
 
 /** Get the date string (YYYY-MM-DD) for a given day offset from monday */
