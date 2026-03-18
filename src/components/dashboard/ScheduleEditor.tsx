@@ -577,7 +577,7 @@ export function ScheduleEditor() {
                 </tr>
               ) : employees?.length === 0 ? (
                 <tr>
-                  <td colSpan={16} className="py-8 text-center text-muted-foreground">
+                  <td colSpan={17} className="py-8 text-center text-muted-foreground">
                     Aucun employé trouvé.
                   </td>
                 </tr>
