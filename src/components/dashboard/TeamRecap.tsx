@@ -18,7 +18,7 @@ const DAYS = [
 const SLOTS = Array.from({ length: 15 }, (_, i) => i + 7);
 
 const CATEGORIES = [
-  { key: "responsable", label: "Responsables", color: "text-rose-600 dark:text-rose-400" },
+  { key: "responsable", label: "Responsables", color: "text-orange-600 dark:text-orange-400" },
   { key: "technique", label: "Technique", color: "text-blue-600 dark:text-blue-400" },
   { key: "editorial", label: "Éditorial", color: "text-purple-600 dark:text-purple-400" },
   { key: "stock", label: "Stock", color: "text-amber-600 dark:text-amber-400" },

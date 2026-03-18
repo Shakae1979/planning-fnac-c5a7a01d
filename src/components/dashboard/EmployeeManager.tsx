@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 
 const ROLES = [
-  { value: "responsable", label: "Responsable", color: "bg-rose-100 text-rose-800" },
+  { value: "responsable", label: "Responsable", color: "bg-orange-100 text-orange-800" },
   { value: "technique", label: "Technique", color: "bg-blue-100 text-blue-800" },
   { value: "editorial", label: "Éditorial", color: "bg-purple-100 text-purple-800" },
   { value: "stock", label: "Stock", color: "bg-amber-100 text-amber-800" },
