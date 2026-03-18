@@ -15,7 +15,21 @@ const DAYS = [
   { key: "dimanche", label: "Dimanche" },
 ] as const;
 
-const SLOTS = Array.from({ length: 15 }, (_, i) => i + 7); // 7h to 21h
+const SLOTS = Array.from({ length: 15 }, (_, i) => i + 7);
+
+const CATEGORIES = [
+  { key: "technique", label: "Technique", color: "text-blue-600 dark:text-blue-400" },
+  { key: "editorial", label: "Éditorial", color: "text-purple-600 dark:text-purple-400" },
+  { key: "stock", label: "Stock", color: "text-amber-600 dark:text-amber-400" },
+  { key: "caisse", label: "Caisse", color: "text-emerald-600 dark:text-emerald-400" },
+];
+
+const ROLE_LABELS: Record<string, string> = {
+  technique: "Technique",
+  editorial: "Éditorial",
+  stock: "Stock",
+  caisse: "Caisse",
+};
 
 function getMonday(date: Date): Date {
   const d = new Date(date);
@@ -78,18 +92,18 @@ export function TeamRecap() {
 
   const weekLabel = formatDateLongBE(currentMonday);
 
-  // Build coverage data: for each day/hour, which employees are working
-  const coverage: Record<string, Record<number, string[]>> = {};
+  // Build coverage data: for each day/hour, which employees are working (with their role)
+  const coverage: Record<string, Record<number, { name: string; role: string }[]>> = {};
   DAYS.forEach((day) => {
     coverage[day.key] = {};
     SLOTS.forEach((hour) => {
-      const working: string[] = [];
+      const working: { name: string; role: string }[] = [];
       schedules?.forEach((s) => {
         const start = (s as any)[`${day.key}_start`];
         const end = (s as any)[`${day.key}_end`];
         if (isWorking(start, end, hour)) {
           const emp = employees?.find((e) => e.id === s.employee_id);
-          if (emp) working.push(emp.name);
+          if (emp) working.push({ name: emp.name, role: emp.role });
         }
       });
       coverage[day.key][hour] = working;
@@ -109,6 +123,17 @@ export function TeamRecap() {
     return { ...emp, hoursWorked: Number(hoursWorked), diff, daysWorked, hasSchedule: !!schedule };
   });
 
+  // Group employees by category for summary
+  const ROLE_ORDER = ["technique", "editorial", "stock", "caisse"];
+  const sortedEmpSummary = empSummary?.sort((a, b) => {
+    const ra = ROLE_ORDER.indexOf(a.role);
+    const rb = ROLE_ORDER.indexOf(b.role);
+    const orderA = ra === -1 ? ROLE_ORDER.length : ra;
+    const orderB = rb === -1 ? ROLE_ORDER.length : rb;
+    if (orderA !== orderB) return orderA - orderB;
+    return a.name.localeCompare(b.name, "fr");
+  });
+
   const totalContractHours = employees?.reduce((sum, e) => sum + e.contract_hours, 0) ?? 0;
   const totalPlannedHours = empSummary?.reduce((sum, e) => sum + e.hoursWorked, 0) ?? 0;
   const unplannedEmployees = empSummary?.filter((e) => !e.hasSchedule).length ?? 0;
@@ -118,6 +143,14 @@ export function TeamRecap() {
     if (count === 1) return "bg-warning/20 text-warning";
     if (count <= 3) return "bg-accent/15 text-accent";
     return "bg-accent/30 text-accent font-bold";
+  };
+
+  // Check if a category is missing for a given day/hour
+  const getMissingCategories = (dayKey: string, hour: number): string[] => {
+    const workers = coverage[dayKey][hour];
+    if (workers.length === 0) return [];
+    const presentRoles = new Set(workers.map((w) => w.role));
+    return CATEGORIES.filter((c) => !presentRoles.has(c.key)).map((c) => c.label);
   };
 
   return (
@@ -169,7 +202,7 @@ export function TeamRecap() {
         </div>
       </div>
 
-      {/* Coverage heatmap */}
+      {/* Coverage heatmap with category breakdown */}
       <div className="kpi-card overflow-hidden">
         <h3 className="text-sm font-semibold text-muted-foreground mb-4">Couverture horaire — Nombre de vendeurs par créneau</h3>
         <div className="overflow-x-auto">
@@ -189,13 +222,18 @@ export function TeamRecap() {
                 <tr key={day.key} className="border-b border-border/30">
                   <td className="py-1.5 pr-2 font-medium sticky left-0 bg-card z-10">{day.label}</td>
                   {SLOTS.map((hour) => {
-                    const names = coverage[day.key][hour];
-                    const count = names.length;
+                    const workers = coverage[day.key][hour];
+                    const count = workers.length;
+                    const missing = getMissingCategories(day.key, hour);
+                    const tooltip = count > 0
+                      ? workers.map((w) => `${w.name} (${ROLE_LABELS[w.role] ?? w.role})`).join("\n") +
+                        (missing.length > 0 ? `\n⚠ Manque: ${missing.join(", ")}` : "")
+                      : "Personne";
                     return (
                       <td key={hour} className="py-1.5 px-0.5 text-center">
                         <div
-                          className={`rounded px-1 py-1 cursor-default ${getHeatColor(count)}`}
-                          title={count > 0 ? names.join(", ") : "Personne"}
+                          className={`rounded px-1 py-1 cursor-default ${getHeatColor(count)} ${missing.length > 0 && count > 0 ? "ring-1 ring-warning/50" : ""}`}
+                          title={tooltip}
                         >
                           {count}
                         </div>
@@ -207,15 +245,61 @@ export function TeamRecap() {
             </tbody>
           </table>
         </div>
-        <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground flex-wrap">
           <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-destructive/15" /> 0 vendeur</span>
           <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-warning/20" /> 1 vendeur</span>
           <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-accent/15" /> 2-3 vendeurs</span>
           <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-accent/30" /> 4+ vendeurs</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded ring-1 ring-warning/50" /> Catégorie manquante</span>
         </div>
       </div>
 
-      {/* Per-employee summary */}
+      {/* Category coverage per day */}
+      <div className="kpi-card">
+        <h3 className="text-sm font-semibold text-muted-foreground mb-4">Couverture par catégorie — Présence par jour</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b">
+                <th className="pb-2 text-left font-semibold text-muted-foreground">Catégorie</th>
+                {DAYS.map((day) => (
+                  <th key={day.key} className="pb-2 text-center font-semibold text-muted-foreground">{day.label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {CATEGORIES.map((cat) => (
+                <tr key={cat.key} className="border-b border-border/30">
+                  <td className={`py-2 font-medium ${cat.color}`}>{cat.label}</td>
+                  {DAYS.map((day) => {
+                    // Count unique employees of this category working any slot this day
+                    const empNames = new Set<string>();
+                    SLOTS.forEach((hour) => {
+                      coverage[day.key][hour]
+                        .filter((w) => w.role === cat.key)
+                        .forEach((w) => empNames.add(w.name));
+                    });
+                    const count = empNames.size;
+                    return (
+                      <td key={day.key} className="py-2 text-center">
+                        {count === 0 ? (
+                          <span className="inline-flex items-center gap-1 text-destructive font-medium">
+                            <AlertTriangle className="h-3 w-3" /> 0
+                          </span>
+                        ) : (
+                          <span className="font-mono-data font-medium">{count}</span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Per-employee summary grouped by category */}
       <div className="kpi-card">
         <h3 className="text-sm font-semibold text-muted-foreground mb-4">Récapitulatif par vendeur</h3>
         <div className="overflow-x-auto">
@@ -223,6 +307,7 @@ export function TeamRecap() {
             <thead>
               <tr className="border-b">
                 <th className="pb-2 text-left font-semibold text-muted-foreground">Vendeur</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground">Catégorie</th>
                 <th className="pb-2 text-center font-semibold text-muted-foreground">Contrat</th>
                 <th className="pb-2 text-center font-semibold text-muted-foreground">Planifié</th>
                 <th className="pb-2 text-center font-semibold text-muted-foreground">Écart</th>
@@ -231,35 +316,41 @@ export function TeamRecap() {
               </tr>
             </thead>
             <tbody>
-              {empSummary?.map((emp) => (
-                <tr key={emp.id} className="border-b border-border/30 table-row-hover">
-                  <td className="py-2">
-                    <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-full bg-accent/20 flex items-center justify-center text-xs font-bold text-accent">
-                        {emp.name.charAt(0)}
+              {sortedEmpSummary?.map((emp) => {
+                const catColor = CATEGORIES.find((c) => c.key === emp.role)?.color ?? "text-muted-foreground";
+                return (
+                  <tr key={emp.id} className="border-b border-border/30 table-row-hover">
+                    <td className="py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="h-7 w-7 rounded-full bg-accent/20 flex items-center justify-center text-xs font-bold text-accent">
+                          {emp.name.charAt(0)}
+                        </div>
+                        <span className="font-medium">{emp.name}</span>
                       </div>
-                      <span className="font-medium">{emp.name}</span>
-                    </div>
-                  </td>
-                  <td className="py-2 text-center font-mono-data">{emp.contract_hours}h</td>
-                  <td className="py-2 text-center font-mono-data">{emp.hasSchedule ? `${emp.hoursWorked}h` : "—"}</td>
-                  <td className="py-2 text-center">
-                    {emp.hasSchedule ? (
-                      <span className={`font-mono-data font-medium ${emp.diff === 0 ? "text-accent" : emp.diff > 0 ? "text-warning" : "text-destructive"}`}>
-                        {emp.diff === 0 ? "OK" : `${emp.diff > 0 ? "+" : ""}${emp.diff}h`}
-                      </span>
-                    ) : "—"}
-                  </td>
-                  <td className="py-2 text-center font-mono-data">{emp.hasSchedule ? `${emp.daysWorked}j` : "—"}</td>
-                  <td className="py-2 text-center">
-                    {emp.hasSchedule ? (
-                      <span className="badge-positive">Planifié</span>
-                    ) : (
-                      <span className="badge-negative">Non planifié</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className={`py-2 text-center text-xs font-medium ${catColor}`}>
+                      {ROLE_LABELS[emp.role] ?? emp.role}
+                    </td>
+                    <td className="py-2 text-center font-mono-data">{emp.contract_hours}h</td>
+                    <td className="py-2 text-center font-mono-data">{emp.hasSchedule ? `${emp.hoursWorked}h` : "—"}</td>
+                    <td className="py-2 text-center">
+                      {emp.hasSchedule ? (
+                        <span className={`font-mono-data font-medium ${emp.diff === 0 ? "text-accent" : emp.diff > 0 ? "text-warning" : "text-destructive"}`}>
+                          {emp.diff === 0 ? "OK" : `${emp.diff > 0 ? "+" : ""}${emp.diff}h`}
+                        </span>
+                      ) : "—"}
+                    </td>
+                    <td className="py-2 text-center font-mono-data">{emp.hasSchedule ? `${emp.daysWorked}j` : "—"}</td>
+                    <td className="py-2 text-center">
+                      {emp.hasSchedule ? (
+                        <span className="badge-positive">Planifié</span>
+                      ) : (
+                        <span className="badge-negative">Non planifié</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
