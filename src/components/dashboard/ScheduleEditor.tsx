@@ -173,10 +173,10 @@ export function ScheduleEditor() {
   };
 
   const getDisplayValue = (empId: string, field: string): string => {
-    if (localEdits[empId]?.[field] !== undefined) return displayTimeBE(localEdits[empId][field]);
+    if (localEdits[empId]?.[field] !== undefined) return localEdits[empId][field];
     const schedule = getScheduleForEmployee(empId);
     if (!schedule) return "";
-    return displayTimeBE((schedule as any)[field] ?? "");
+    return (schedule as any)[field] ?? "";
   };
 
   const getValue = (empId: string, field: string): string => {
