@@ -52,6 +52,30 @@ export type Database = {
           },
         ]
       }
+      day_comments: {
+        Row: {
+          comment: string
+          created_at: string
+          day_key: string
+          id: string
+          week_start: string
+        }
+        Insert: {
+          comment?: string
+          created_at?: string
+          day_key: string
+          id?: string
+          week_start: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          day_key?: string
+          id?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
       employees: {
         Row: {
           contract_hours: number
