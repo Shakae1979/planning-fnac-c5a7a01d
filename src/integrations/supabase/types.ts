@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      conges: {
+        Row: {
+          created_at: string
+          date_end: string
+          date_start: string
+          employee_id: string
+          id: string
+          notes: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          date_end: string
+          date_start: string
+          employee_id: string
+          id?: string
+          notes?: string | null
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          date_end?: string
+          date_start?: string
+          employee_id?: string
+          id?: string
+          notes?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conges_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           contract_hours: number

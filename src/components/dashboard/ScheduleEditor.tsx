@@ -15,6 +15,13 @@ const DAYS = [
   { key: "dimanche", label: "Dim" },
 ] as const;
 
+const DEPT_COLORS: Record<string, { bg: string; border: string }> = {
+  technique: { bg: "bg-blue-50 dark:bg-blue-950/30", border: "border-l-blue-500" },
+  editorial: { bg: "bg-purple-50 dark:bg-purple-950/30", border: "border-l-purple-500" },
+  stock: { bg: "bg-amber-50 dark:bg-amber-950/30", border: "border-l-amber-500" },
+  caisse: { bg: "bg-emerald-50 dark:bg-emerald-950/30", border: "border-l-emerald-500" },
+};
+
 type DayKey = (typeof DAYS)[number]["key"];
 
 function getMonday(date: Date): Date {
@@ -260,9 +267,12 @@ export function ScheduleEditor() {
                   const totalH = Math.round((totalMinutes / 60) * 10) / 10;
                   const diff = totalH - emp.contract_hours;
 
+                  const deptColor = DEPT_COLORS[emp.role] ?? { bg: "", border: "border-l-muted" };
+                  const isUnderstaffed = totalH > 0 && totalH < emp.contract_hours;
+
                   return (
-                    <tr key={emp.id} className="border-b border-border/50 table-row-hover">
-                      <td className="py-1.5 pr-4 sticky left-0 bg-card z-10">
+                    <tr key={emp.id} className={`border-b border-border/50 border-l-4 ${deptColor.border} ${isUnderstaffed ? "bg-destructive/10" : deptColor.bg}`}>
+                      <td className={`py-1.5 pr-4 sticky left-0 z-10 ${isUnderstaffed ? "bg-destructive/10" : deptColor.bg}`}>
                         <div className="font-medium">{emp.name}</div>
                         <div className="text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h contrat</div>
                       </td>
