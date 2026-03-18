@@ -29,7 +29,6 @@ export function DashboardOverview() {
   const cards = [
     { label: "Collaborateurs actifs", value: totalEmployees, icon: Users },
     { label: "Semaines planifiées", value: totalWeeksPlanned, icon: CalendarDays },
-    { label: "Heures totales planifiées", value: totalHoursPlanned.toLocaleString("fr-FR") + "h", icon: Clock },
     { label: "Écarts détectés", value: schedulesWithDiff, icon: AlertTriangle },
   ];
 
