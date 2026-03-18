@@ -7,6 +7,7 @@ import Index from "./pages/Index.tsx";
 import EmployeeView from "./pages/EmployeeView.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import TeamDayView from "./pages/TeamDayView.tsx";
+import TeamWeekView from "./pages/TeamWeekView.tsx";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/mon-planning/:employeeName" element={<EmployeeView />} />
           <Route path="/mon-planning" element={<EmployeeView />} />
           <Route path="/equipe-du-jour" element={<TeamDayView />} />
+          <Route path="/planning-equipe" element={<TeamWeekView />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

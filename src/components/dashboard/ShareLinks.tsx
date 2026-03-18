@@ -70,26 +70,31 @@ export function ShareLinks() {
 
   return (
     <div className="space-y-6">
-      {/* Team day link */}
+      {/* Team links */}
       <div className="kpi-card">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-2">Planning équipe du jour</h3>
-        <p className="text-sm text-muted-foreground mb-3">
-          Lien partageable affichant tous les vendeurs qui travaillent un jour donné.
-        </p>
-        <div className="flex items-center justify-between py-2.5 px-3 rounded-md bg-secondary/50">
-          <div className="text-xs text-muted-foreground font-mono-data truncate max-w-[400px]">
-            {baseUrl}/equipe-du-jour
-          </div>
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(`${baseUrl}/equipe-du-jour`); toast.success("Lien copié !"); }}>
-              <Copy className="h-3.5 w-3.5 mr-1" /> Copier
-            </Button>
-            <a href={`${baseUrl}/equipe-du-jour`} target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="sm">
-                <ExternalLink className="h-3.5 w-3.5" />
-              </Button>
-            </a>
-          </div>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-3">Liens équipe</h3>
+        <div className="space-y-2">
+          {[
+            { label: "Planning équipe du jour", desc: "Qui travaille aujourd'hui ?", path: "/equipe-du-jour" },
+            { label: "Planning semaine complet", desc: "Vue Gantt de toute l'équipe sur la semaine", path: "/planning-equipe" },
+          ].map((link) => (
+            <div key={link.path} className="flex items-center justify-between py-2.5 px-3 rounded-md bg-secondary/50">
+              <div>
+                <div className="text-sm font-medium">{link.label}</div>
+                <div className="text-xs text-muted-foreground">{link.desc}</div>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(`${baseUrl}${link.path}`); toast.success("Lien copié !"); }}>
+                  <Copy className="h-3.5 w-3.5 mr-1" /> Copier
+                </Button>
+                <a href={`${baseUrl}${link.path}`} target="_blank" rel="noopener noreferrer">
+                  <Button variant="ghost" size="sm">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Button>
+                </a>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
