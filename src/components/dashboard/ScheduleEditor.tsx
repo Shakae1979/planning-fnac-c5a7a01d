@@ -638,33 +638,62 @@ export function ScheduleEditor() {
                             </td>
                           );
                         }
+                        const hasValue = !!(getValue(emp.id, `${day.key}_start`) || getValue(emp.id, `${day.key}_end`));
+                        const isCellSource = copiedCell?.empId === emp.id && copiedCell?.dayKey === day.key;
+                        const showPaste = isCellCopyMode && !isCellSource;
                         return (
-                          <>
-                            <td key={`${day.key}-s`} className="py-1.5 px-0.5">
+                          <td key={`${day.key}-cell`} colSpan={2} className={`py-1.5 px-0.5 ${isCellSource ? "bg-primary/10" : ""}`}>
+                            <div className="flex items-center gap-0.5">
                               <select
                                 value={getDisplayValue(emp.id, `${day.key}_start`)}
                                 onChange={(e) => handleChange(emp.id, `${day.key}_start`, e.target.value)}
-                                className="w-full px-0.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center appearance-none cursor-pointer"
+                                className="flex-1 min-w-0 px-0.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center appearance-none cursor-pointer"
                               >
                                 <option value="">—</option>
                                 {TIME_SLOTS.map((t) => (
                                   <option key={t} value={t}>{displayTimeBE(t)}</option>
                                 ))}
                               </select>
-                            </td>
-                            <td key={`${day.key}-e`} className="py-1.5 px-0.5">
                               <select
                                 value={getDisplayValue(emp.id, `${day.key}_end`)}
                                 onChange={(e) => handleChange(emp.id, `${day.key}_end`, e.target.value)}
-                                className="w-full px-0.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center appearance-none cursor-pointer"
+                                className="flex-1 min-w-0 px-0.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center appearance-none cursor-pointer"
                               >
                                 <option value="">—</option>
                                 {TIME_SLOTS.map((t) => (
                                   <option key={t} value={t}>{displayTimeBE(t)}</option>
                                 ))}
                               </select>
-                            </td>
-                          </>
+                              {/* Cell copy/paste buttons */}
+                              {!isCopyMode && !isCellCopyMode && hasValue && (
+                                <button
+                                  onClick={() => copyCellSchedule(emp.id, day.key)}
+                                  className="p-0.5 rounded hover:bg-muted text-muted-foreground/50 hover:text-foreground transition-colors shrink-0"
+                                  title="Copier ce créneau"
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </button>
+                              )}
+                              {showPaste && (
+                                <button
+                                  onClick={() => pasteCellSchedule(emp.id, day.key)}
+                                  className="p-0.5 rounded bg-accent/20 text-accent hover:bg-accent/30 transition-colors shrink-0"
+                                  title="Coller ici"
+                                >
+                                  <ClipboardPaste className="h-3 w-3" />
+                                </button>
+                              )}
+                              {isCellSource && (
+                                <button
+                                  onClick={cancelCopy}
+                                  className="p-0.5 rounded text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                                  title="Annuler"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
                         );
                       })}
                       <td className="py-1.5 text-center">
