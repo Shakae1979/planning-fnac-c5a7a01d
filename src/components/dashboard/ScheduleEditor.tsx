@@ -53,11 +53,19 @@ const DAYS = [
 ] as const;
 
 const DEPT_COLORS: Record<string, { bg: string; border: string }> = {
+  responsable: { bg: "bg-rose-50 dark:bg-rose-950/30", border: "border-l-rose-500" },
   technique: { bg: "bg-blue-50 dark:bg-blue-950/30", border: "border-l-blue-500" },
   editorial: { bg: "bg-purple-50 dark:bg-purple-950/30", border: "border-l-purple-500" },
   stock: { bg: "bg-amber-50 dark:bg-amber-950/30", border: "border-l-amber-500" },
   caisse: { bg: "bg-emerald-50 dark:bg-emerald-950/30", border: "border-l-emerald-500" },
 };
+
+/** Generate time slots from 07:00 to 21:00 every 30 min */
+const TIME_SLOTS: string[] = [];
+for (let h = 7; h <= 21; h++) {
+  TIME_SLOTS.push(`${String(h).padStart(2, "0")}:00`);
+  if (h < 21) TIME_SLOTS.push(`${String(h).padStart(2, "0")}:30`);
+}
 
 type DayKey = (typeof DAYS)[number]["key"];
 
@@ -165,10 +173,10 @@ export function ScheduleEditor() {
   };
 
   const getDisplayValue = (empId: string, field: string): string => {
-    if (localEdits[empId]?.[field] !== undefined) return displayTimeBE(localEdits[empId][field]);
+    if (localEdits[empId]?.[field] !== undefined) return localEdits[empId][field];
     const schedule = getScheduleForEmployee(empId);
     if (!schedule) return "";
-    return displayTimeBE((schedule as any)[field] ?? "");
+    return (schedule as any)[field] ?? "";
   };
 
   const getValue = (empId: string, field: string): string => {
@@ -434,26 +442,28 @@ export function ScheduleEditor() {
                         return (
                           <>
                             <td key={`${day.key}-s`} className="py-1.5 px-0.5">
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                placeholder="10:00"
+                              <select
                                 value={getDisplayValue(emp.id, `${day.key}_start`)}
-                                onBlur={(e) => handleTimeInput(emp.id, `${day.key}_start`, e.target.value)}
-                                onChange={(e) => handleTimeInput(emp.id, `${day.key}_start`, e.target.value)}
-                                className="w-full px-1.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center"
-                              />
+                                onChange={(e) => handleChange(emp.id, `${day.key}_start`, e.target.value)}
+                                className="w-full px-0.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center appearance-none cursor-pointer"
+                              >
+                                <option value="">—</option>
+                                {TIME_SLOTS.map((t) => (
+                                  <option key={t} value={t}>{displayTimeBE(t)}</option>
+                                ))}
+                              </select>
                             </td>
                             <td key={`${day.key}-e`} className="py-1.5 px-0.5">
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                placeholder="18:00"
+                              <select
                                 value={getDisplayValue(emp.id, `${day.key}_end`)}
-                                onBlur={(e) => handleTimeInput(emp.id, `${day.key}_end`, e.target.value)}
-                                onChange={(e) => handleTimeInput(emp.id, `${day.key}_end`, e.target.value)}
-                                className="w-full px-1.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center"
-                              />
+                                onChange={(e) => handleChange(emp.id, `${day.key}_end`, e.target.value)}
+                                className="w-full px-0.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center appearance-none cursor-pointer"
+                              >
+                                <option value="">—</option>
+                                {TIME_SLOTS.map((t) => (
+                                  <option key={t} value={t}>{displayTimeBE(t)}</option>
+                                ))}
+                              </select>
                             </td>
                           </>
                         );
