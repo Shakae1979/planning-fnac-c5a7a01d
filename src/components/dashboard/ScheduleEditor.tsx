@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Save, Plus, Printer } from "lucide-react";
+import { ChevronLeft, ChevronRight, Save, Plus, Printer, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE } from "@/lib/format";
 
@@ -246,25 +246,67 @@ export function ScheduleEditor() {
     },
   });
 
+  const TEMPLATE_WEEK = "1970-01-05"; // Semaine 0 = template par défaut
+
   const initAllMutation = useMutation({
     mutationFn: async () => {
       if (!employees) return;
+
+      // Fetch template week (Semaine 0)
+      const { data: templates } = await supabase
+        .from("weekly_schedules")
+        .select("*")
+        .eq("week_start", TEMPLATE_WEEK);
+
       const existing = schedules?.map((s) => s.employee_id) ?? [];
       const toCreate = employees.filter((e) => !existing.includes(e.id));
-      if (toCreate.length === 0) return;
+      if (toCreate.length === 0) {
+        toast.info("Tous les vendeurs ont déjà une ligne cette semaine.");
+        return;
+      }
 
-      const { error } = await supabase.from("weekly_schedules").insert(
-        toCreate.map((e) => ({
-          employee_id: e.id,
-          week_start: weekStr,
-          hours_base: e.contract_hours,
-        }))
-      );
+      const rows = toCreate.map((e) => {
+        const tpl = templates?.find((t) => t.employee_id === e.id);
+        if (tpl) {
+          // Copy from template, change week_start
+          const { id, created_at, updated_at, week_start, ...fields } = tpl as any;
+          return { ...fields, employee_id: e.id, week_start: weekStr, hours_base: e.contract_hours };
+        }
+        return { employee_id: e.id, week_start: weekStr, hours_base: e.contract_hours };
+      });
+
+      const { error } = await supabase.from("weekly_schedules").insert(rows);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
-      toast.success("Lignes initialisées pour toute l'équipe !");
+      toast.success("Semaine initialisée depuis la Semaine 0 !");
+    },
+  });
+
+  const saveAsTemplateMutation = useMutation({
+    mutationFn: async () => {
+      if (!employees || !schedules) return;
+
+      // Delete existing template rows
+      await supabase.from("weekly_schedules").delete().eq("week_start", TEMPLATE_WEEK);
+
+      // Copy current week as template
+      const rows = schedules.map((s) => {
+        const { id, created_at, updated_at, week_start, ...fields } = s as any;
+        return { ...fields, week_start: TEMPLATE_WEEK };
+      });
+
+      if (rows.length > 0) {
+        const { error } = await supabase.from("weekly_schedules").insert(rows);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Semaine 0 (template) mise à jour !");
+    },
+    onError: (err) => {
+      toast.error("Erreur: " + (err as Error).message);
     },
   });
 
@@ -292,12 +334,15 @@ export function ScheduleEditor() {
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="h-3.5 w-3.5 mr-1" /> Imprimer
           </Button>
+          <Button variant="outline" size="sm" onClick={() => saveAsTemplateMutation.mutate()} disabled={!schedules?.length}>
+            <Copy className="h-3.5 w-3.5 mr-1" /> Sauver comme Sem. 0
+          </Button>
           <Button variant="outline" size="sm" onClick={() => initAllMutation.mutate()}>
-            <Plus className="h-3.5 w-3.5 mr-1" /> Initialiser la semaine
+            <Plus className="h-3.5 w-3.5 mr-1" /> Initialiser depuis Sem. 0
           </Button>
           <Button size="sm" disabled={!hasEdits || saveMutation.isPending} onClick={() => saveMutation.mutate()}>
             <Save className="h-3.5 w-3.5 mr-1" />
