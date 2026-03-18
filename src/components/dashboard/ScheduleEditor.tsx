@@ -609,7 +609,7 @@ export function ScheduleEditor() {
                         type="text"
                         value={value}
                         onChange={(e) => setLocalDayComments((prev) => ({ ...prev, [day.key]: e.target.value }))}
-                        placeholder="—"
+                        placeholder="center"
                         className="w-full px-1.5 py-0.5 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent"
                       />
                     </td>
