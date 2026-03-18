@@ -164,12 +164,30 @@ export function CongesCalendar() {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b">
+                <th className="pb-1 pr-2 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[120px]"></th>
+                {Array.from({ length: daysInMonth }, (_, i) => {
+                  const d = new Date(year, currentMonth, i + 1);
+                  const jsDay = d.getDay(); // 0=Sun
+                  const dayLetters = ["D", "L", "M", "M", "J", "V", "S"];
+                  const isWeekend = jsDay === 0 || jsDay === 6;
+                  const isMonday = jsDay === 1;
+                  return (
+                    <th key={i} className={`pb-0 text-center text-[9px] font-normal min-w-[28px] ${isWeekend ? "text-muted-foreground/40" : "text-muted-foreground/70"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
+                      {dayLetters[jsDay]}
+                    </th>
+                  );
+                })}
+                <th className="pb-1 min-w-[40px]"></th>
+              </tr>
+              <tr className="border-b">
                 <th className="pb-2 pr-2 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[120px]">Vendeur</th>
                 {Array.from({ length: daysInMonth }, (_, i) => {
                   const d = new Date(year, currentMonth, i + 1);
-                  const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+                  const jsDay = d.getDay();
+                  const isWeekend = jsDay === 0 || jsDay === 6;
+                  const isMonday = jsDay === 1;
                   return (
-                    <th key={i} className={`pb-2 text-center font-medium min-w-[28px] ${isWeekend ? "text-muted-foreground/50" : "text-muted-foreground"}`}>
+                    <th key={i} className={`pb-2 text-center font-medium min-w-[28px] ${isWeekend ? "text-muted-foreground/50" : "text-muted-foreground"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
                       {i + 1}
                     </th>
                   );
