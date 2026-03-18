@@ -118,3 +118,19 @@
     color: hsl(var(--warning));
   }
 }
+
+@media print {
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  nav, button, .no-print {
+    display: none !important;
+  }
+  .kpi-card {
+    break-inside: avoid;
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+  }
+}
