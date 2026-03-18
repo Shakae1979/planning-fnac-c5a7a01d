@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, ChevronLeft, ChevronRight, Clock, Palmtree, Users } from "lucide-react";
+import { AlertTriangle, Calendar, ChevronLeft, ChevronRight, Clock, Palmtree, Users } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateBE, formatTimeBE } from "@/lib/format";
