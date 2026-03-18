@@ -263,7 +263,7 @@ const TeamWeekView = () => {
                   {DAY_KEYS.map(day => {
                     const comment = dayComments?.find(dc => dc.day_key === day)?.comment || "";
                     return (
-                      <th key={day + "-comment"} className="border-b border-r px-1 py-1 text-left font-normal">
+                      <th key={day + "-comment"} className="border-b border-r px-1 py-1 text-center font-normal">
                         {comment.trim() ? (
                           <span className="text-[10px] text-foreground/80 italic" title={comment}>{comment}</span>
                         ) : null}
