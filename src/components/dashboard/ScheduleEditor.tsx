@@ -49,11 +49,23 @@ interface ScheduleRow {
   [key: string]: string | number | null | undefined;
 }
 
+// Returns the date string for a given day index (0=monday) in the week
+function getDayDate(monday: Date, dayIndex: number): string {
+  const d = new Date(monday);
+  d.setDate(d.getDate() + dayIndex);
+  return d.toISOString().split("T")[0];
+}
+
 export function ScheduleEditor() {
   const queryClient = useQueryClient();
   const [weekOffset, setWeekOffset] = useState(0);
   const currentMonday = addWeeks(getMonday(new Date()), weekOffset);
   const weekStr = formatWeekDate(currentMonday);
+
+  // Compute week date range for conges query
+  const weekSunday = new Date(currentMonday);
+  weekSunday.setDate(weekSunday.getDate() + 6);
+  const weekEndStr = formatWeekDate(weekSunday);
 
   const { data: employees } = useQuery({
     queryKey: ["employees"],
@@ -75,6 +87,30 @@ export function ScheduleEditor() {
       return data;
     },
   });
+
+  // Fetch conges that overlap with this week
+  const { data: conges } = useQuery({
+    queryKey: ["conges-week", weekStr],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("conges")
+        .select("*")
+        .lte("date_start", weekEndStr)
+        .gte("date_end", weekStr);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Check if an employee is on leave for a specific day
+  const isOnLeave = (empId: string, dayIndex: number): string | null => {
+    if (!conges) return null;
+    const dayDate = getDayDate(currentMonday, dayIndex);
+    const match = conges.find(
+      (c) => c.employee_id === empId && c.date_start <= dayDate && c.date_end >= dayDate
+    );
+    return match ? match.type : null;
+  };
 
   const [localEdits, setLocalEdits] = useState<Record<string, Record<string, string>>>({});
 
