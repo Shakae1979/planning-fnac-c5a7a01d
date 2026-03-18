@@ -164,7 +164,7 @@ const EmployeeView = () => {
           {weeks.map((ws) => {
             const schedule = schedules?.find((s) => s.week_start === ws);
             const monday = new Date(ws);
-            const label = monday.toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+            const label = formatDateMonthBE(monday);
             const isCurrentWeek = ws === formatWeekDate(getMonday(new Date()));
 
             return (
