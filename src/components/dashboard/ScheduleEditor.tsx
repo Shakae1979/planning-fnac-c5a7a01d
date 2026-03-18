@@ -4,7 +4,43 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Save, Plus, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateMonthBE, formatDateBE } from "@/lib/format";
+import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE } from "@/lib/format";
+
+/** Convert "HHhMM" or "HH:MM" or "HHMM" to "HH:MM" for storage */
+function parseTimeBE(input: string): string {
+  if (!input) return "";
+  // Remove spaces
+  const cleaned = input.trim();
+  // Try HHhMM
+  const hMatch = cleaned.match(/^(\d{1,2})h(\d{0,2})$/i);
+  if (hMatch) {
+    const h = hMatch[1].padStart(2, "0");
+    const m = (hMatch[2] || "0").padStart(2, "0");
+    return `${h}:${m}`;
+  }
+  // Try HH:MM
+  const colonMatch = cleaned.match(/^(\d{1,2}):(\d{2})$/);
+  if (colonMatch) {
+    return `${colonMatch[1].padStart(2, "0")}:${colonMatch[2]}`;
+  }
+  // Try HHMM (4 digits)
+  const digits = cleaned.match(/^(\d{2})(\d{2})$/);
+  if (digits) {
+    return `${digits[1]}:${digits[2]}`;
+  }
+  // Try just HH
+  const hourOnly = cleaned.match(/^(\d{1,2})$/);
+  if (hourOnly) {
+    return `${hourOnly[1].padStart(2, "0")}:00`;
+  }
+  return cleaned;
+}
+
+/** Convert stored "HH:MM" to display "HHhMM" */
+function displayTimeBE(value: string): string {
+  if (!value) return "";
+  return formatTimeBE(value);
+}
 
 const DAYS = [
   { key: "lundi", label: "Lun" },
@@ -128,11 +164,26 @@ export function ScheduleEditor() {
     return schedules?.find((s) => s.employee_id === empId);
   };
 
+  const getDisplayValue = (empId: string, field: string): string => {
+    if (localEdits[empId]?.[field] !== undefined) return displayTimeBE(localEdits[empId][field]);
+    const schedule = getScheduleForEmployee(empId);
+    if (!schedule) return "";
+    return displayTimeBE((schedule as any)[field] ?? "");
+  };
+
   const getValue = (empId: string, field: string): string => {
     if (localEdits[empId]?.[field] !== undefined) return localEdits[empId][field];
     const schedule = getScheduleForEmployee(empId);
     if (!schedule) return "";
     return (schedule as any)[field] ?? "";
+  };
+
+  const handleTimeInput = (empId: string, field: string, displayValue: string) => {
+    const stored = parseTimeBE(displayValue);
+    setLocalEdits((prev) => ({
+      ...prev,
+      [empId]: { ...prev[empId], [field]: stored },
+    }));
   };
 
   const handleChange = (empId: string, field: string, value: string) => {
@@ -339,18 +390,33 @@ export function ScheduleEditor() {
                           <>
                             <td key={`${day.key}-s`} className="py-1.5 px-0.5">
                               <input
-                                type="time"
-                                value={getValue(emp.id, `${day.key}_start`)}
-                                onChange={(e) => handleChange(emp.id, `${day.key}_start`, e.target.value)}
-                                className="w-full px-1.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data"
+                                type="text"
+                                placeholder="10h00"
+                                value={getDisplayValue(emp.id, `${day.key}_start`)}
+                                onBlur={(e) => handleTimeInput(emp.id, `${day.key}_start`, e.target.value)}
+                                onChange={(e) => {
+                                  // Allow free typing, parse on blur
+                                  setLocalEdits((prev) => ({
+                                    ...prev,
+                                    [emp.id]: { ...prev[emp.id], [`${day.key}_start`]: e.target.value.includes("h") ? parseTimeBE(e.target.value) : e.target.value },
+                                  }));
+                                }}
+                                className="w-full px-1.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center"
                               />
                             </td>
                             <td key={`${day.key}-e`} className="py-1.5 px-0.5">
                               <input
-                                type="time"
-                                value={getValue(emp.id, `${day.key}_end`)}
-                                onChange={(e) => handleChange(emp.id, `${day.key}_end`, e.target.value)}
-                                className="w-full px-1.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data"
+                                type="text"
+                                placeholder="18h00"
+                                value={getDisplayValue(emp.id, `${day.key}_end`)}
+                                onBlur={(e) => handleTimeInput(emp.id, `${day.key}_end`, e.target.value)}
+                                onChange={(e) => {
+                                  setLocalEdits((prev) => ({
+                                    ...prev,
+                                    [emp.id]: { ...prev[emp.id], [`${day.key}_end`]: e.target.value.includes("h") ? parseTimeBE(e.target.value) : e.target.value },
+                                  }));
+                                }}
+                                className="w-full px-1.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center"
                               />
                             </td>
                           </>
