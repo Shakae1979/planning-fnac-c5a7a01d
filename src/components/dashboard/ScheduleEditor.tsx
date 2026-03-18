@@ -4,7 +4,43 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Save, Plus, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateMonthBE, formatDateBE } from "@/lib/format";
+import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE } from "@/lib/format";
+
+/** Convert "HHhMM" or "HH:MM" or "HHMM" to "HH:MM" for storage */
+function parseTimeBE(input: string): string {
+  if (!input) return "";
+  // Remove spaces
+  const cleaned = input.trim();
+  // Try HHhMM
+  const hMatch = cleaned.match(/^(\d{1,2})h(\d{0,2})$/i);
+  if (hMatch) {
+    const h = hMatch[1].padStart(2, "0");
+    const m = (hMatch[2] || "0").padStart(2, "0");
+    return `${h}:${m}`;
+  }
+  // Try HH:MM
+  const colonMatch = cleaned.match(/^(\d{1,2}):(\d{2})$/);
+  if (colonMatch) {
+    return `${colonMatch[1].padStart(2, "0")}:${colonMatch[2]}`;
+  }
+  // Try HHMM (4 digits)
+  const digits = cleaned.match(/^(\d{2})(\d{2})$/);
+  if (digits) {
+    return `${digits[1]}:${digits[2]}`;
+  }
+  // Try just HH
+  const hourOnly = cleaned.match(/^(\d{1,2})$/);
+  if (hourOnly) {
+    return `${hourOnly[1].padStart(2, "0")}:00`;
+  }
+  return cleaned;
+}
+
+/** Convert stored "HH:MM" to display "HHhMM" */
+function displayTimeBE(value: string): string {
+  if (!value) return "";
+  return formatTimeBE(value);
+}
 
 const DAYS = [
   { key: "lundi", label: "Lun" },
