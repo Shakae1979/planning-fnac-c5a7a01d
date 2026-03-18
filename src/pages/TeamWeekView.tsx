@@ -254,6 +254,25 @@ const TeamWeekView = () => {
                 ))}
                 <th className="border-b" />
               </tr>
+              {/* Day comments row */}
+              {dayComments && dayComments.some(dc => dc.comment.trim()) && (
+                <tr>
+                  <th className="sticky left-0 z-20 bg-card border-b border-r px-2 py-1 text-left text-[10px] text-muted-foreground font-normal">
+                    📝 Notes
+                  </th>
+                  {DAY_KEYS.map(day => {
+                    const comment = dayComments?.find(dc => dc.day_key === day)?.comment || "";
+                    return (
+                      <th key={day + "-comment"} className="border-b border-r px-1 py-1 text-left font-normal">
+                        {comment.trim() ? (
+                          <span className="text-[10px] text-accent-foreground/80 italic">{comment}</span>
+                        ) : null}
+                      </th>
+                    );
+                  })}
+                  <th className="border-b" />
+                </tr>
+              )}
             </thead>
             <tbody>
               {ROLE_ORDER.map(role => {
