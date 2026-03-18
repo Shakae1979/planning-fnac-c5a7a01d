@@ -333,6 +333,7 @@ export function ScheduleEditor() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
+      // Save schedules
       const promises = Object.entries(localEdits).map(async ([empId, fields]) => {
         const existing = getScheduleForEmployee(empId);
         const payload: any = { employee_id: empId, week_start: weekStr, ...fields };
@@ -354,10 +355,9 @@ export function ScheduleEditor() {
             }
           }
         }
-        const breakMinutes = workedDays * 60; // 1h de pause par jour travaillé
+        const breakMinutes = workedDays * 60;
         payload.hours_modified = Math.round(((totalMinutes - breakMinutes) / 60) * 100) / 100;
 
-        // Find employee contract hours
         const emp = employees?.find((e) => e.id === empId);
         payload.hours_base = emp?.contract_hours ?? 36;
 
@@ -374,12 +374,32 @@ export function ScheduleEditor() {
           if (error) throw error;
         }
       });
-      await Promise.all(promises);
+
+      // Save day comments
+      const commentPromises = Object.entries(localDayComments).map(async ([dayKey, comment]) => {
+        const existing = dayComments?.find((dc) => dc.day_key === dayKey);
+        if (existing) {
+          const { error } = await supabase
+            .from("day_comments")
+            .update({ comment })
+            .eq("id", existing.id);
+          if (error) throw error;
+        } else if (comment.trim()) {
+          const { error } = await supabase
+            .from("day_comments")
+            .insert({ week_start: weekStr, day_key: dayKey, comment });
+          if (error) throw error;
+        }
+      });
+
+      await Promise.all([...promises, ...commentPromises]);
     },
     onSuccess: () => {
       setLocalEdits({});
+      setLocalDayComments({});
       queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
       queryClient.invalidateQueries({ queryKey: ["all-schedules"] });
+      queryClient.invalidateQueries({ queryKey: ["day-comments", weekStr] });
       toast.success("Horaires sauvegardés !");
     },
     onError: (err) => {
