@@ -89,6 +89,18 @@ export function EmployeeManager() {
               className="w-full mt-1 px-3 py-2 text-sm rounded-md border bg-background focus:outline-none focus:ring-2 focus:ring-accent font-mono-data"
             />
           </div>
+          <div className="w-40">
+            <label className="text-xs text-muted-foreground">Département</label>
+            <select
+              value={newRole}
+              onChange={(e) => setNewRole(e.target.value)}
+              className="w-full mt-1 px-3 py-2 text-sm rounded-md border bg-background focus:outline-none focus:ring-2 focus:ring-accent"
+            >
+              {ROLES.map((r) => (
+                <option key={r.value} value={r.value}>{r.label}</option>
+              ))}
+            </select>
+          </div>
           <Button size="sm" onClick={() => addMutation.mutate()} disabled={addMutation.isPending}>
             <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter
           </Button>
