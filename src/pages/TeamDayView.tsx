@@ -155,6 +155,41 @@ const TeamDayView = () => {
     workingByRole[emp.role].push(emp);
   }
 
+  // Coverage alert: check required time slots per category
+  // Mon-Thu, Sat: 10h-19h / Fri: 10h-20h / Sun-Dim: no check
+  const REQUIRED_SLOTS: Record<string, { start: number; end: number } | null> = {
+    lundi: { start: 10, end: 19 },
+    mardi: { start: 10, end: 19 },
+    mercredi: { start: 10, end: 19 },
+    jeudi: { start: 10, end: 19 },
+    vendredi: { start: 10, end: 20 },
+    samedi: { start: 10, end: 19 },
+    dimanche: null,
+  };
+
+  const requiredSlot = REQUIRED_SLOTS[dayKey];
+
+  // For each role, find uncovered hours within the required slot
+  const coverageAlerts: { role: string; uncoveredHours: number[] }[] = [];
+  if (requiredSlot && working.length > 0) {
+    for (const role of ROLE_ORDER) {
+      const group = workingByRole[role] || [];
+      const uncovered: number[] = [];
+      for (let h = requiredSlot.start; h < requiredSlot.end; h++) {
+        // Check if at least one employee in this role covers this hour
+        const covered = group.some((emp) => {
+          const empStart = timeToHours(emp.start);
+          const empEnd = timeToHours(emp.end);
+          return empStart <= h && empEnd > h;
+        });
+        if (!covered) uncovered.push(h);
+      }
+      if (uncovered.length > 0) {
+        coverageAlerts.push({ role, uncoveredHours: uncovered });
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card px-6 py-4">
