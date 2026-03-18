@@ -273,14 +273,34 @@ const TeamDayView = () => {
           );
         })}
 
-        {/* Missing categories warning */}
-        {ROLE_ORDER.some((role) => !workingByRole[role] || workingByRole[role].length === 0) && working.length > 0 && (
+        {/* Coverage alerts */}
+        {coverageAlerts.length > 0 && (
           <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 mb-4">
-            <div className="text-sm font-medium text-destructive mb-1">⚠️ Catégories non couvertes</div>
-            <div className="text-xs text-muted-foreground">
-              {ROLE_ORDER.filter((r) => !workingByRole[r] || workingByRole[r].length === 0)
-                .map((r) => ROLE_LABELS[r])
-                .join(", ")}
+            <div className="flex items-center gap-2 text-sm font-medium text-destructive mb-2">
+              <AlertTriangle className="h-4 w-4" />
+              Créneaux non couverts ({requiredSlot ? `${requiredSlot.start}h — ${requiredSlot.end}h` : ""})
+            </div>
+            <div className="space-y-1.5">
+              {coverageAlerts.map(({ role, uncoveredHours }) => {
+                // Group consecutive hours into ranges
+                const ranges: string[] = [];
+                let i = 0;
+                while (i < uncoveredHours.length) {
+                  const start = uncoveredHours[i];
+                  let end = start;
+                  while (i + 1 < uncoveredHours.length && uncoveredHours[i + 1] === end + 1) {
+                    end = uncoveredHours[++i];
+                  }
+                  ranges.push(end === start ? `${start}h` : `${start}h—${end + 1}h`);
+                  i++;
+                }
+                return (
+                  <div key={role} className="flex items-center justify-between text-xs">
+                    <span className="font-semibold">{ROLE_LABELS[role] || role}</span>
+                    <span className="text-muted-foreground">{ranges.join(", ")}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
