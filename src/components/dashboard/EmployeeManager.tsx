@@ -5,10 +5,18 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 
+const ROLES = [
+  { value: "technique", label: "Technique", color: "bg-blue-100 text-blue-800" },
+  { value: "editorial", label: "Éditorial", color: "bg-purple-100 text-purple-800" },
+  { value: "stock", label: "Stock", color: "bg-amber-100 text-amber-800" },
+  { value: "caisse", label: "Caisse", color: "bg-emerald-100 text-emerald-800" },
+] as const;
+
 export function EmployeeManager() {
   const queryClient = useQueryClient();
   const [newName, setNewName] = useState("");
   const [newHours, setNewHours] = useState("36");
+  const [newRole, setNewRole] = useState("technique");
 
   const { data: employees } = useQuery({
     queryKey: ["employees"],
