@@ -724,6 +724,7 @@ export function ScheduleEditor() {
                                 className="flex-1 min-w-0 px-0.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center appearance-none cursor-pointer"
                               >
                                 <option value="">—</option>
+                                <option value="EXT">Extérieur</option>
                                 {TIME_SLOTS.map((t) => (
                                   <option key={t} value={t}>{displayTimeBE(t)}</option>
                                 ))}
