@@ -1,0 +1,1 @@
+UPDATE public.employees SET contract_hours = 29 WHERE id = '07bc19b1-1204-449f-b9d0-951f094b74a7';
