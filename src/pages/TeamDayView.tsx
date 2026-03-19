@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle, Calendar, ChevronLeft, ChevronRight, Clock, Palmtree, Users } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Clock, Palmtree, Users } from "lucide-react";
+import HourlyGrid from "@/components/team-day/HourlyGrid";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateBE, formatTimeBE, formatLocalDate } from "@/lib/format";
@@ -232,6 +233,9 @@ const TeamDayView = () => {
             <div className="text-xs text-muted-foreground">Repos</div>
           </div>
         </div>
+
+        {/* Hourly grid */}
+        <HourlyGrid employees={teamDay || []} />
 
         {/* Working employees by category */}
         {ROLE_ORDER.map((role) => {
