@@ -1,8 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, ChevronRight, Users, Printer, Palmtree, AlertTriangle, Flag } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { formatDateBE, formatTimeBE, formatLocalDate } from "@/lib/format";
 
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse"];
@@ -78,6 +79,7 @@ function timeToMinutes(t: string | null): number {
 }
 
 const TeamWeekView = () => {
+  const queryClient = useQueryClient();
   const [weekOffset, setWeekOffset] = useState(0);
   const currentMonday = addWeeks(getMonday(new Date()), weekOffset);
   const weekStr = formatWeekDate(currentMonday);
@@ -171,6 +173,30 @@ const TeamWeekView = () => {
     return Math.round(((totalMin - workedDays * 60) / 60) * 100) / 100;
   };
 
+  const ferieMutation = useMutation({
+    mutationFn: async (dayKey: string) => {
+      if (!employees || !schedules) return;
+      const promises = employees.map(async (emp) => {
+        const existing = schedules.find(s => s.employee_id === emp.id);
+        const payload = { [`${dayKey}_start`]: "FERIE", [`${dayKey}_end`]: "FERIE" };
+        if (existing) {
+          const { error } = await supabase.from("weekly_schedules").update(payload).eq("id", existing.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from("weekly_schedules").insert({ employee_id: emp.id, week_start: weekStr, ...payload });
+          if (error) throw error;
+        }
+      });
+      await Promise.all(promises);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["team-week-schedules", weekStr] });
+      queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
+      toast.success("Jour marqué comme férié !");
+    },
+    onError: (err) => toast.error("Erreur : " + (err as Error).message),
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card px-4 py-3 no-print">
@@ -231,7 +257,17 @@ const TeamWeekView = () => {
                   dayDate.setDate(dayDate.getDate() + di);
                   return (
                     <th key={day} className="border-b border-r px-1 py-2 text-center font-semibold text-muted-foreground" style={{ minWidth: 140 }}>
-                      <div>{DAY_LABELS[day]}</div>
+                      <div className="flex items-center justify-center gap-1">
+                        <span>{DAY_LABELS[day]}</span>
+                        <button
+                          onClick={() => ferieMutation.mutate(day)}
+                          className="p-0.5 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors no-print"
+                          title={`Marquer ${DAY_LABELS[day]} comme jour férié`}
+                          disabled={ferieMutation.isPending}
+                        >
+                          <Flag className="h-3 w-3" />
+                        </button>
+                      </div>
                       <div className="text-[10px] font-normal">{formatDateBE(dayDate)}</div>
                     </th>
                   );
