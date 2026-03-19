@@ -160,10 +160,10 @@ const TeamWeekView = () => {
     let workedDays = 0;
     DAY_KEYS.forEach((day, di) => {
       const congeType = getConge(empId, di);
-      if (congeType) return; // skip conge days
+      if (congeType) return;
       const start = (schedule as any)[`${day}_start`];
       const end = (schedule as any)[`${day}_end`];
-      if (start && end) {
+      if (start && end && start !== "FERIE" && start !== "EXT") {
         totalMin += timeToMinutes(end) - timeToMinutes(start);
         workedDays++;
       }
