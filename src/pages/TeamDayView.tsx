@@ -234,6 +234,9 @@ const TeamDayView = () => {
           </div>
         </div>
 
+        {/* Hourly grid */}
+        <HourlyGrid employees={teamDay || []} />
+
         {/* Working employees by category */}
         {ROLE_ORDER.map((role) => {
           const group = workingByRole[role];
