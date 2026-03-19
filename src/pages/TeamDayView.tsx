@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle, ChevronLeft, ChevronRight, Clock, Palmtree, Users } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Clock, Flag, Palmtree, Users } from "lucide-react";
 import HourlyGrid from "@/components/team-day/HourlyGrid";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -119,7 +119,9 @@ const TeamDayView = () => {
       const schedule = schedules?.find((s) => s.employee_id === emp.id);
       const start = schedule ? (schedule as any)[`${dayKey}_start`] : null;
       const end = schedule ? (schedule as any)[`${dayKey}_end`] : null;
-      const hasShift = !!(start && end);
+      const isFerie = start === "FERIE" || end === "FERIE";
+      const isExt = start === "EXT" || end === "EXT";
+      const hasShift = !!(start && end && !isFerie && !isExt);
       const conge = conges?.find((c) => c.employee_id === emp.id);
 
       let netHours = 0;
@@ -132,6 +134,8 @@ const TeamDayView = () => {
         start,
         end,
         hasShift,
+        isFerie,
+        isExt,
         netHours,
         conge,
       };
@@ -145,7 +149,9 @@ const TeamDayView = () => {
 
   const working = teamDay?.filter((e) => e.hasShift && !e.conge) || [];
   const onLeave = teamDay?.filter((e) => e.conge) || [];
-  const off = teamDay?.filter((e) => !e.hasShift && !e.conge) || [];
+  const ferie = teamDay?.filter((e) => e.isFerie && !e.conge) || [];
+  const ext = teamDay?.filter((e) => e.isExt && !e.conge) || [];
+  const off = teamDay?.filter((e) => !e.hasShift && !e.conge && !e.isFerie && !e.isExt) || [];
 
   const isToday = dayOffset === 0;
 
@@ -229,10 +235,18 @@ const TeamDayView = () => {
             <div className="text-xs text-muted-foreground">En congé</div>
           </div>
           <div className="rounded-lg border bg-muted/50 p-3 text-center">
-            <div className="text-2xl font-bold text-muted-foreground">{off.length}</div>
-            <div className="text-xs text-muted-foreground">Repos</div>
+            <div className="text-2xl font-bold text-muted-foreground">{off.length + ferie.length}</div>
+            <div className="text-xs text-muted-foreground">{ferie.length > 0 ? "Férié / Repos" : "Repos"}</div>
           </div>
         </div>
+
+        {/* Jour férié banner */}
+        {ferie.length > 0 && (
+          <div className="rounded-lg border border-muted bg-muted/30 p-3 mb-4 flex items-center gap-2">
+            <Flag className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground">Jour férié — {ferie.length} employé(s) concerné(s)</span>
+          </div>
+        )}
 
         {/* Hourly grid */}
         <HourlyGrid employees={teamDay || []} />

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ChevronLeft, ChevronRight, Users, Printer, Palmtree, AlertTriangle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Users, Printer, Palmtree, AlertTriangle, Flag } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateBE, formatTimeBE, formatLocalDate } from "@/lib/format";
@@ -160,10 +160,10 @@ const TeamWeekView = () => {
     let workedDays = 0;
     DAY_KEYS.forEach((day, di) => {
       const congeType = getConge(empId, di);
-      if (congeType) return; // skip conge days
+      if (congeType) return;
       const start = (schedule as any)[`${day}_start`];
       const end = (schedule as any)[`${day}_end`];
-      if (start && end) {
+      if (start && end && start !== "FERIE" && start !== "EXT") {
         totalMin += timeToMinutes(end) - timeToMinutes(start);
         workedDays++;
       }
@@ -214,6 +214,8 @@ const TeamWeekView = () => {
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-pink-400" /> Formation</span>
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-red-400" /> Maladie</span>
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-cyan-400" /> RTT</span>
+          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-gray-400" /> Férié</span>
+          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-indigo-400" /> Extérieur</span>
         </div>
 
         {/* Main table */}
@@ -307,7 +309,9 @@ const TeamWeekView = () => {
                             const congeType = getConge(emp.id, di);
                             const start = schedule ? (schedule as any)[`${day}_start`] : null;
                             const end = schedule ? (schedule as any)[`${day}_end`] : null;
-                            const hasShift = !!(start && end);
+                            const isFerie = start === "FERIE" || end === "FERIE";
+                            const isExt = start === "EXT" || end === "EXT";
+                            const hasShift = !!(start && end && !isFerie && !isExt);
 
                             return (
                               <td key={day} className="border-r p-0 relative" style={{ height: 32 }}>
@@ -319,15 +323,26 @@ const TeamWeekView = () => {
                                 </div>
 
                                 {congeType ? (
-                                  // Leave bar - full width
                                   <div className="absolute inset-0 flex items-center px-0.5">
                                     <div className={`h-5 rounded ${CONGE_COLORS[congeType] || "bg-yellow-400"} opacity-70 flex items-center justify-center text-[9px] font-semibold text-white w-full`}>
                                       <Palmtree className="h-3 w-3 mr-0.5" />
                                       {CONGE_LABELS[congeType] || congeType}
                                     </div>
                                   </div>
+                                ) : isFerie ? (
+                                  <div className="absolute inset-0 flex items-center px-0.5">
+                                    <div className="h-5 rounded bg-gray-400 opacity-70 flex items-center justify-center text-[9px] font-semibold text-white w-full">
+                                      <Flag className="h-3 w-3 mr-0.5" />
+                                      Férié
+                                    </div>
+                                  </div>
+                                ) : isExt ? (
+                                  <div className="absolute inset-0 flex items-center px-0.5">
+                                    <div className="h-5 rounded bg-indigo-400 opacity-70 flex items-center justify-center text-[9px] font-semibold text-white w-full">
+                                      Extérieur
+                                    </div>
+                                  </div>
                                 ) : hasShift ? (
-                                  // Work bar
                                   <div className="absolute inset-0 flex items-center">
                                     {(() => {
                                       const startMin = timeToMinutes(start);
@@ -350,7 +365,6 @@ const TeamWeekView = () => {
                                     })()}
                                   </div>
                                 ) : (
-                                  // Repos
                                   <div className="absolute inset-0 flex items-center justify-center">
                                     <span className="text-[9px] text-muted-foreground/40">—</span>
                                   </div>
