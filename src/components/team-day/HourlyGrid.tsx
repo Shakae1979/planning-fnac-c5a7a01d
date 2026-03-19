@@ -8,6 +8,7 @@ const ROLES = [
   { key: "editorial", label: "Édit.", color: "bg-yellow-300/50", dot: "bg-yellow-400" },
   { key: "stock", label: "Stock", color: "bg-blue-300/50", dot: "bg-blue-400" },
   { key: "caisse", label: "Caisse", color: "bg-emerald-300/50", dot: "bg-emerald-400" },
+  { key: "heure_de_table", label: "H. table", color: "bg-transparent", dot: "bg-gray-300 border border-gray-400" },
 ];
 
 const ROLE_BG: Record<string, string> = Object.fromEntries(ROLES.map((r) => [r.key, r.color]));
