@@ -3,10 +3,10 @@ import { useState, useRef, useEffect } from "react";
 const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
 const ROLES = [
-  { key: "responsable", label: "Resp.", color: "bg-orange-300/50", dot: "bg-orange-400" },
-  { key: "technique", label: "Tech.", color: "bg-blue-300/50", dot: "bg-blue-400" },
-  { key: "editorial", label: "Édit.", color: "bg-violet-300/50", dot: "bg-violet-400" },
-  { key: "stock", label: "Stock", color: "bg-amber-300/50", dot: "bg-amber-400" },
+  { key: "responsable", label: "Resp.", color: "bg-red-300/50", dot: "bg-red-400" },
+  { key: "technique", label: "Tech.", color: "bg-orange-300/50", dot: "bg-orange-400" },
+  { key: "editorial", label: "Édit.", color: "bg-yellow-300/50", dot: "bg-yellow-400" },
+  { key: "stock", label: "Stock", color: "bg-blue-300/50", dot: "bg-blue-400" },
   { key: "caisse", label: "Caisse", color: "bg-emerald-300/50", dot: "bg-emerald-400" },
 ];
 
