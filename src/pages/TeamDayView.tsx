@@ -235,10 +235,18 @@ const TeamDayView = () => {
             <div className="text-xs text-muted-foreground">En congé</div>
           </div>
           <div className="rounded-lg border bg-muted/50 p-3 text-center">
-            <div className="text-2xl font-bold text-muted-foreground">{off.length}</div>
-            <div className="text-xs text-muted-foreground">Repos</div>
+            <div className="text-2xl font-bold text-muted-foreground">{off.length + ferie.length}</div>
+            <div className="text-xs text-muted-foreground">{ferie.length > 0 ? "Férié / Repos" : "Repos"}</div>
           </div>
         </div>
+
+        {/* Jour férié banner */}
+        {ferie.length > 0 && (
+          <div className="rounded-lg border border-muted bg-muted/30 p-3 mb-4 flex items-center gap-2">
+            <Flag className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground">Jour férié — {ferie.length} employé(s) concerné(s)</span>
+          </div>
+        )}
 
         {/* Hourly grid */}
         <HourlyGrid employees={teamDay || []} />
