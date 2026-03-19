@@ -576,13 +576,22 @@ export function ScheduleEditor() {
                       )}
                       <span>{day.label}</span>
                       {!isCopyMode && (
-                        <button
-                          onClick={() => copyDaySchedule(day.key)}
-                          className="ml-1 p-0.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                          title={`Copier ${day.label}`}
-                        >
-                          <Copy className="h-3 w-3" />
-                        </button>
+                        <>
+                          <button
+                            onClick={() => copyDaySchedule(day.key)}
+                            className="ml-1 p-0.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            title={`Copier ${day.label}`}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </button>
+                          <button
+                            onClick={() => setDayFerie(day.key)}
+                            className="p-0.5 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors"
+                            title={`Marquer ${day.label} comme jour férié`}
+                          >
+                            <Flag className="h-3 w-3" />
+                          </button>
+                        </>
                       )}
                       {copiedDay === day.key && (
                         <span className="ml-1 text-xs text-primary font-normal">(source)</span>
