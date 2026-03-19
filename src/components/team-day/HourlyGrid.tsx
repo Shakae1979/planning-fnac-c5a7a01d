@@ -105,7 +105,8 @@ export default function HourlyGrid({ employees }: { employees: Employee[] }) {
         <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Grille horaire
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 no-print">
           {ROLES.map((r) => (
             <span key={r.key} className="flex items-center gap-1 text-[10px] text-muted-foreground">
               <span className={`w-2.5 h-2.5 rounded-full ${r.dot}`} />
