@@ -214,6 +214,8 @@ const TeamWeekView = () => {
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-pink-400" /> Formation</span>
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-red-400" /> Maladie</span>
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-cyan-400" /> RTT</span>
+          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-gray-400" /> Férié</span>
+          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-indigo-400" /> Extérieur</span>
         </div>
 
         {/* Main table */}
