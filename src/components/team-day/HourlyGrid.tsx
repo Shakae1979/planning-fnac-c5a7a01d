@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { Printer } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
@@ -103,13 +105,24 @@ export default function HourlyGrid({ employees }: { employees: Employee[] }) {
         <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Grille horaire
         </h2>
-        <div className="flex items-center gap-2">
-          {ROLES.map((r) => (
-            <span key={r.key} className="flex items-center gap-1 text-[10px] text-muted-foreground">
-              <span className={`w-2.5 h-2.5 rounded-full ${r.dot}`} />
-              {r.label}
-            </span>
-          ))}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {ROLES.map((r) => (
+              <span key={r.key} className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                <span className={`w-2.5 h-2.5 rounded-full ${r.dot}`} />
+                {r.label}
+              </span>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="no-print h-7 text-xs gap-1.5"
+            onClick={() => window.print()}
+          >
+            <Printer className="h-3.5 w-3.5" />
+            Imprimer
+          </Button>
         </div>
       </div>
       <div className="overflow-x-auto rounded-lg border">
