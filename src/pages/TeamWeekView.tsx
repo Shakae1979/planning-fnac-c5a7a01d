@@ -257,7 +257,17 @@ const TeamWeekView = () => {
                   dayDate.setDate(dayDate.getDate() + di);
                   return (
                     <th key={day} className="border-b border-r px-1 py-2 text-center font-semibold text-muted-foreground" style={{ minWidth: 140 }}>
-                      <div>{DAY_LABELS[day]}</div>
+                      <div className="flex items-center justify-center gap-1">
+                        <span>{DAY_LABELS[day]}</span>
+                        <button
+                          onClick={() => ferieMutation.mutate(day)}
+                          className="p-0.5 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors no-print"
+                          title={`Marquer ${DAY_LABELS[day]} comme jour férié`}
+                          disabled={ferieMutation.isPending}
+                        >
+                          <Flag className="h-3 w-3" />
+                        </button>
+                      </div>
                       <div className="text-[10px] font-normal">{formatDateBE(dayDate)}</div>
                     </th>
                   );
