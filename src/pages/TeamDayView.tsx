@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle, ChevronLeft, ChevronRight, Clock, Flag, Palmtree, Users } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Clock, Flag, Palmtree, Printer, Users } from "lucide-react";
 import HourlyGrid from "@/components/team-day/HourlyGrid";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -200,12 +200,23 @@ const TeamDayView = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card px-6 py-4">
-        <div className="max-w-3xl mx-auto flex items-center gap-3">
-          <Users className="h-8 w-8 text-accent" />
-          <div>
-            <h1 className="text-lg font-bold">Planning équipe du jour</h1>
-            <p className="text-xs text-muted-foreground">Qui travaille aujourd'hui ?</p>
+        <div className="max-w-3xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Users className="h-8 w-8 text-accent" />
+            <div>
+              <h1 className="text-lg font-bold">Planning équipe du jour</h1>
+              <p className="text-xs text-muted-foreground">Qui travaille aujourd'hui ?</p>
+            </div>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="no-print h-8 text-xs gap-1.5"
+            onClick={() => window.print()}
+          >
+            <Printer className="h-3.5 w-3.5" />
+            Imprimer
+          </Button>
         </div>
       </header>
 
