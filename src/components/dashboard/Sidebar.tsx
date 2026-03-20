@@ -19,10 +19,13 @@ const links: { id: View; label: string; icon: React.ElementType }[] = [
 export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   return (
     <aside className="w-60 shrink-0 h-screen flex flex-col" style={{ background: "hsl(var(--sidebar-bg))" }}>
-      <div className="px-5 py-5 flex items-center gap-2.5">
+      <div className="px-5 py-5 flex items-center gap-2.5 border-b border-white/10">
         <Calendar className="h-6 w-6" style={{ color: "hsl(var(--sidebar-active))" }} />
-        <span className="text-lg font-bold" style={{ color: "hsl(var(--sidebar-fg))" }}>
-          Fnac Planning
+        <span className="text-lg font-extrabold tracking-tight" style={{ color: "hsl(var(--sidebar-active))" }}>
+          fnac
+        </span>
+        <span className="text-xs font-medium" style={{ color: "hsl(var(--sidebar-fg))" }}>
+          Planning
         </span>
       </div>
 

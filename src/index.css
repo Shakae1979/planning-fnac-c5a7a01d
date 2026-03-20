@@ -6,25 +6,25 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 215 25% 15%;
+    --background: 0 0% 97%;
+    --foreground: 0 0% 13%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card-foreground: 0 0% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: 0 0% 13%;
 
-    --primary: 217 91% 20%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 40 85% 44%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 215 25% 15%;
+    --secondary: 40 20% 95%;
+    --secondary-foreground: 0 0% 13%;
 
-    --muted: 210 30% 95%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 40 10% 94%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 217 91% 60%;
+    --accent: 40 85% 44%;
     --accent-foreground: 0 0% 100%;
 
     --success: 160 84% 39%;
@@ -34,18 +34,18 @@
     --warning-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 217 91% 60%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 40 85% 44%;
 
     --radius: 0.5rem;
 
-    --sidebar-bg: 217 91% 10%;
-    --sidebar-fg: 210 40% 85%;
-    --sidebar-active: 217 91% 60%;
-    --sidebar-hover: 217 50% 18%;
+    --sidebar-bg: 0 0% 10%;
+    --sidebar-fg: 0 0% 80%;
+    --sidebar-active: 40 85% 44%;
+    --sidebar-hover: 0 0% 18%;
 
     --mono: 'Roboto Mono', monospace;
     --sans: 'Inter', system-ui, sans-serif;
