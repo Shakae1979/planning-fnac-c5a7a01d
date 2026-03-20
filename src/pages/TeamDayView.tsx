@@ -325,26 +325,26 @@ const TeamDayView = () => {
 
         {/* On leave */}
         {onLeave.length > 0 && (
-          <div className="mb-4">
+          <div className="mb-4 print-section">
             <div className="flex items-center gap-2 mb-2">
               <Palmtree className="h-4 w-4 text-primary" />
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">En congé</span>
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 print-compact-grid">
               {onLeave.map((emp) => (
                 <div
                   key={emp.id}
-                  className="flex items-center justify-between py-2.5 px-3 rounded-md bg-primary/5 border border-primary/20"
+                  className="flex items-center justify-between py-2.5 px-3 rounded-md bg-primary/5 border border-primary/20 print-employee-row"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary print:hidden">
                       {emp.name.charAt(0)}
                     </div>
                     <div>
-                      <div className="font-medium text-sm">{emp.name}</div>
-                      <div className="text-[11px] text-muted-foreground">
+                      <span className="font-medium text-sm">{emp.name}</span>
+                      <span className="text-[11px] text-muted-foreground ml-1">
                         {ROLE_LABELS[emp.role] || emp.role}
-                      </div>
+                      </span>
                     </div>
                   </div>
                   <div className="text-xs font-medium text-primary">
@@ -358,15 +358,15 @@ const TeamDayView = () => {
 
         {/* Off / Repos */}
         {off.length > 0 && (
-          <div className="mb-4">
+          <div className="mb-4 print-section">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Repos</span>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 print-compact-grid">
               {off.map((emp) => (
                 <div
                   key={emp.id}
-                  className="py-1.5 px-3 rounded-md bg-muted/50 text-xs text-muted-foreground"
+                  className="py-1.5 px-3 rounded-md bg-muted/50 text-xs text-muted-foreground print-employee-row"
                 >
                   {emp.name}
                 </div>
