@@ -136,9 +136,9 @@ export default function HourlyGrid({ employees }: { employees: Employee[] }) {
               <th className="sticky left-0 bg-muted/50 px-2 py-1.5 text-left font-medium min-w-[100px] border-r">
                 Employé
               </th>
-              {HOURS.map((h) => (
-                <th key={h} className="px-0 py-2 text-center font-medium min-w-[38px] border-r last:border-r-0">
-                  {h}h
+              {HALF_HOURS.map((slot, i) => (
+                <th key={i} className="px-0 py-2 text-center font-medium min-w-[28px] border-r last:border-r-0">
+                  <span className="text-[9px]">{slot.minute === 0 ? slot.label : ""}</span>
                 </th>
               ))}
             </tr>
@@ -158,19 +158,21 @@ export default function HourlyGrid({ employees }: { employees: Employee[] }) {
                       </span>
                     </div>
                   </td>
-                  {HOURS.map((h) => {
-                    const isWorking = empStart <= h && empEnd > h;
-                    const overrideKey = `${emp.id}-${h}`;
+                  {HALF_HOURS.map((slot, i) => {
+                    const slotTime = slot.hour + slot.minute / 60;
+                    const isWorking = empStart <= slotTime && empEnd > slotTime;
+                    const overrideKey = `${emp.id}-${slot.hour}-${slot.minute}`;
                     const cellRole = overrides[overrideKey] || emp.role;
                     const colorClass = ROLE_BG[cellRole] || "bg-accent/20";
+                    const isHourStart = slot.minute === 0;
 
                     return (
                       <td
-                        key={h}
-                        className={`px-0 py-1 text-center border-r last:border-r-0 ${
+                        key={i}
+                        className={`px-0 py-1 text-center ${isHourStart ? "border-r" : "border-r border-r-muted/30"} last:border-r-0 ${
                           isWorking ? `${colorClass} cursor-pointer hover:opacity-80 transition-opacity` : ""
                         }`}
-                        onClick={isWorking ? (e) => handleCellClick(emp.id, h, e) : undefined}
+                        onClick={isWorking ? (e) => handleCellClick(emp.id, slot.hour, e, slot.minute) : undefined}
                       >
                         {isWorking ? <div className="w-full h-6 rounded-sm" /> : null}
                       </td>
