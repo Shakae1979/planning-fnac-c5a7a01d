@@ -256,21 +256,21 @@ const TeamDayView = () => {
           const group = workingByRole[role];
           if (!group || group.length === 0) return null;
           return (
-            <div key={role} className="mb-4">
+            <div key={role} className="mb-4 print-section">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {ROLE_LABELS[role] || role}
                 </span>
                 <span className="text-xs text-muted-foreground">({group.length})</span>
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 print-compact-grid">
                 {group.map((emp) => (
                   <div
                     key={emp.id}
-                    className="flex items-center justify-between py-2.5 px-3 rounded-md bg-accent/5 border border-accent/20"
+                    className="flex items-center justify-between py-2.5 px-3 rounded-md bg-accent/5 border border-accent/20 print-employee-row"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center text-xs font-bold text-accent">
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center text-xs font-bold text-accent print:hidden">
                         {emp.name.charAt(0)}
                       </div>
                       <div className="font-medium text-sm">{emp.name}</div>
