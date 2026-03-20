@@ -155,11 +155,31 @@ export function CongesCalendar() {
           </div>
           <div>
             <label className="text-xs text-muted-foreground">Début</label>
-            <input type="date" value={formStart} onChange={(e) => setFormStart(e.target.value)} className="mt-1 px-3 py-2 text-sm rounded-md border bg-background" />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn("mt-1 w-[150px] justify-start text-left font-normal", !formStart && "text-muted-foreground")}>
+                  <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                  {formStart ? formatDateBE(formStart) : "Choisir…"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={formStart} onSelect={setFormStart} locale={fr} weekStartsOn={1} initialFocus className="p-3 pointer-events-auto" />
+              </PopoverContent>
+            </Popover>
           </div>
           <div>
             <label className="text-xs text-muted-foreground">Fin</label>
-            <input type="date" value={formEnd} onChange={(e) => setFormEnd(e.target.value)} className="mt-1 px-3 py-2 text-sm rounded-md border bg-background" />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn("mt-1 w-[150px] justify-start text-left font-normal", !formEnd && "text-muted-foreground")}>
+                  <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                  {formEnd ? formatDateBE(formEnd) : "Choisir…"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={formEnd} onSelect={setFormEnd} locale={fr} weekStartsOn={1} disabled={(date) => formStart ? date < formStart : false} initialFocus className="p-3 pointer-events-auto" />
+              </PopoverContent>
+            </Popover>
           </div>
           <div>
             <label className="text-xs text-muted-foreground">Type</label>
