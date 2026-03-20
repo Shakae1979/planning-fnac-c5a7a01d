@@ -2,7 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const HOURS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
+const HALF_HOURS: { hour: number; minute: number; label: string }[] = [];
+for (let h = 7; h <= 21; h++) {
+  HALF_HOURS.push({ hour: h, minute: 0, label: `${h}h` });
+  if (h < 21) HALF_HOURS.push({ hour: h, minute: 30, label: `${h}h30` });
+}
 
 const ROLES = [
   { key: "responsable", label: "Resp.", color: "bg-red-300/50", dot: "bg-red-400" },
