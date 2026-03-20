@@ -3,7 +3,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, ChevronLeft, ChevronRight, Printer } from "lucide-react";
+import { Plus, Trash2, ChevronLeft, ChevronRight, Printer, CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { fr } from "date-fns/locale";
+import { formatDateBE, formatLocalDate } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 const MONTHS = [
   "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
@@ -63,8 +68,8 @@ export function CongesCalendar() {
 
   const [showForm, setShowForm] = useState(false);
   const [formEmp, setFormEmp] = useState("");
-  const [formStart, setFormStart] = useState("");
-  const [formEnd, setFormEnd] = useState("");
+  const [formStart, setFormStart] = useState<Date | undefined>();
+  const [formEnd, setFormEnd] = useState<Date | undefined>();
   const [formType, setFormType] = useState("conge");
 
   const addMutation = useMutation({
@@ -72,8 +77,8 @@ export function CongesCalendar() {
       if (!formEmp || !formStart || !formEnd) throw new Error("Tous les champs sont requis");
       const { error } = await supabase.from("conges").insert({
         employee_id: formEmp,
-        date_start: formStart,
-        date_end: formEnd,
+        date_start: formatLocalDate(formStart),
+        date_end: formatLocalDate(formEnd),
         type: formType,
       });
       if (error) throw error;
@@ -81,8 +86,8 @@ export function CongesCalendar() {
     onSuccess: () => {
       setShowForm(false);
       setFormEmp("");
-      setFormStart("");
-      setFormEnd("");
+      setFormStart(undefined);
+      setFormEnd(undefined);
       queryClient.invalidateQueries({ queryKey: ["conges"] });
       toast.success("Congé ajouté !");
     },
@@ -150,11 +155,31 @@ export function CongesCalendar() {
           </div>
           <div>
             <label className="text-xs text-muted-foreground">Début</label>
-            <input type="date" value={formStart} onChange={(e) => setFormStart(e.target.value)} className="mt-1 px-3 py-2 text-sm rounded-md border bg-background" />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn("mt-1 w-[150px] justify-start text-left font-normal", !formStart && "text-muted-foreground")}>
+                  <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                  {formStart ? formatDateBE(formStart) : "Choisir…"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={formStart} onSelect={setFormStart} locale={fr} weekStartsOn={1} initialFocus className="p-3 pointer-events-auto" />
+              </PopoverContent>
+            </Popover>
           </div>
           <div>
             <label className="text-xs text-muted-foreground">Fin</label>
-            <input type="date" value={formEnd} onChange={(e) => setFormEnd(e.target.value)} className="mt-1 px-3 py-2 text-sm rounded-md border bg-background" />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn("mt-1 w-[150px] justify-start text-left font-normal", !formEnd && "text-muted-foreground")}>
+                  <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                  {formEnd ? formatDateBE(formEnd) : "Choisir…"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={formEnd} onSelect={setFormEnd} locale={fr} weekStartsOn={1} disabled={(date) => formStart ? date < formStart : false} initialFocus className="p-3 pointer-events-auto" />
+              </PopoverContent>
+            </Popover>
           </div>
           <div>
             <label className="text-xs text-muted-foreground">Type</label>
