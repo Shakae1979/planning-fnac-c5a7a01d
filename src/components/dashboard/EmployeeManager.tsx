@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Mail } from "lucide-react";
 
 const ROLES = [
   { value: "responsable", label: "Responsable", color: "bg-orange-100 text-orange-800" },
