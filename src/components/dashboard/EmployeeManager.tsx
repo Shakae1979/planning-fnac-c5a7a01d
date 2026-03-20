@@ -73,7 +73,13 @@ export function EmployeeManager() {
     onError: (err) => toast.error((err as Error).message),
   });
 
-  const active = employees?.filter((e) => e.is_active) ?? [];
+  const roleOrder = ["responsable", "technique", "editorial", "stock", "caisse"];
+  const active = (employees?.filter((e) => e.is_active) ?? []).sort((a, b) => {
+    const ra = roleOrder.indexOf(a.role);
+    const rb = roleOrder.indexOf(b.role);
+    if (ra !== rb) return (ra === -1 ? 99 : ra) - (rb === -1 ? 99 : rb);
+    return a.name.localeCompare(b.name);
+  });
   const inactive = employees?.filter((e) => !e.is_active) ?? [];
 
   return (
