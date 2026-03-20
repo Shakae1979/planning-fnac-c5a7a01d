@@ -86,8 +86,8 @@ export function CongesCalendar() {
     onSuccess: () => {
       setShowForm(false);
       setFormEmp("");
-      setFormStart("");
-      setFormEnd("");
+      setFormStart(undefined);
+      setFormEnd(undefined);
       queryClient.invalidateQueries({ queryKey: ["conges"] });
       toast.success("Congé ajouté !");
     },
