@@ -126,7 +126,7 @@ export default function HourlyGrid({ employees }: { employees: Employee[] }) {
         </div>
       </div>
       <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full text-[11px] border-collapse">
+        <table className="w-full text-xs border-collapse">
           <thead>
             <tr className="bg-muted/50">
               <th className="sticky left-0 bg-muted/50 px-2 py-1.5 text-left font-medium min-w-[100px] border-r">
