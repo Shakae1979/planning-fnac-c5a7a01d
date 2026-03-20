@@ -68,8 +68,8 @@ export function CongesCalendar() {
 
   const [showForm, setShowForm] = useState(false);
   const [formEmp, setFormEmp] = useState("");
-  const [formStart, setFormStart] = useState("");
-  const [formEnd, setFormEnd] = useState("");
+  const [formStart, setFormStart] = useState<Date | undefined>();
+  const [formEnd, setFormEnd] = useState<Date | undefined>();
   const [formType, setFormType] = useState("conge");
 
   const addMutation = useMutation({
