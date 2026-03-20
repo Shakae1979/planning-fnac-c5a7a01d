@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar, ChevronLeft, ChevronRight, Clock, User, Palmtree } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber } from "@/lib/format";
 import { FnacHeader } from "@/components/FnacHeader";
@@ -48,6 +48,37 @@ const DAYS = [
   { key: "dimanche", label: "Dimanche", offset: 6 },
 ] as const;
 
+const SHIFT_COLORS = [
+  { bg: "bg-emerald-100 border-emerald-300", text: "text-emerald-800" },
+  { bg: "bg-sky-100 border-sky-300", text: "text-sky-800" },
+  { bg: "bg-amber-100 border-amber-300", text: "text-amber-800" },
+  { bg: "bg-violet-100 border-violet-300", text: "text-violet-800" },
+  { bg: "bg-rose-100 border-rose-300", text: "text-rose-800" },
+  { bg: "bg-teal-100 border-teal-300", text: "text-teal-800" },
+  { bg: "bg-orange-100 border-orange-300", text: "text-orange-800" },
+  { bg: "bg-fuchsia-100 border-fuchsia-300", text: "text-fuchsia-800" },
+];
+
+function buildShiftColorMap(schedules: any[] | undefined): Map<string, number> {
+  const map = new Map<string, number>();
+  if (!schedules) return map;
+  let idx = 0;
+  for (const schedule of schedules) {
+    for (const day of DAYS) {
+      const start = schedule[`${day.key}_start`];
+      const end = schedule[`${day.key}_end`];
+      if (start && end && start !== "FERIE" && start !== "EXT") {
+        const key = `${start}-${end}`;
+        if (!map.has(key)) {
+          map.set(key, idx % SHIFT_COLORS.length);
+          idx++;
+        }
+      }
+    }
+  }
+  return map;
+}
+
 function getMonday(date: Date): Date {
   const d = new Date(date);
   const day = d.getDay();
@@ -67,14 +98,12 @@ function formatWeekDate(date: Date): string {
   return formatLocalDate(date);
 }
 
-/** Get the date string (YYYY-MM-DD) for a given day offset from monday */
 function getDayDate(monday: Date, offset: number): string {
   const d = new Date(monday);
   d.setDate(d.getDate() + offset);
   return formatLocalDate(d);
 }
 
-/** Check if a date falls within a conge range */
 function getCongeForDate(dateStr: string, conges: any[]): any | null {
   return conges.find((c) => dateStr >= c.date_start && dateStr <= c.date_end) || null;
 }
@@ -101,7 +130,6 @@ const EmployeeView = () => {
 
   const weeks = Array.from({ length: 4 }, (_, i) => formatWeekDate(addWeeks(currentMonday, i)));
 
-  // Date range for conges: first monday to last sunday
   const firstMonday = formatWeekDate(currentMonday);
   const lastSunday = getDayDate(addWeeks(currentMonday, 3), 6);
 
@@ -134,6 +162,8 @@ const EmployeeView = () => {
       return data;
     },
   });
+
+  const shiftColorMap = useMemo(() => buildShiftColorMap(schedules), [schedules]);
 
   if (!decodedName) {
     return (
@@ -204,6 +234,22 @@ const EmployeeView = () => {
           </Button>
         </div>
 
+        {/* Légende couleurs */}
+        {shiftColorMap.size > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-4 px-1">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Horaires :</span>
+            {Array.from(shiftColorMap.entries()).map(([shiftKey, colorIdx]) => {
+              const color = SHIFT_COLORS[colorIdx];
+              const [s, e] = shiftKey.split("-");
+              return (
+                <span key={shiftKey} className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[11px] font-medium ${color.bg} ${color.text}`}>
+                  {formatTimeBE(s)} — {formatTimeBE(e)}
+                </span>
+              );
+            })}
+          </div>
+        )}
+
         <div className="space-y-4">
           {weeks.map((ws) => {
             const schedule = schedules?.find((s) => s.week_start === ws);
@@ -258,18 +304,27 @@ const EmployeeView = () => {
                         );
                       }
 
+                      // Get color for this shift
+                      const shiftKey = hasShift ? `${start}-${end}` : null;
+                      const colorIdx = shiftKey ? shiftColorMap.get(shiftKey) : undefined;
+                      const shiftColor = colorIdx !== undefined ? SHIFT_COLORS[colorIdx] : null;
+
                       return (
                         <div
                           key={day.key}
-                          className={`rounded-md p-2 text-center text-xs ${
-                            hasShift ? "bg-accent/10 border border-accent/20" : "bg-muted/50"
+                          className={`rounded-md p-2 text-center text-xs border ${
+                            hasShift && shiftColor
+                              ? `${shiftColor.bg}`
+                              : hasShift
+                              ? "bg-accent/10 border-accent/20"
+                              : "bg-muted/50 border-transparent"
                           }`}
                         >
                           <div className="font-medium text-muted-foreground mb-1">{day.label}</div>
                           {hasShift ? (
-                            <div className="font-mono-data font-medium">
+                            <div className={`font-mono-data font-semibold ${shiftColor ? shiftColor.text : ""}`}>
                               {formatTimeBE(start)} — {formatTimeBE(end)}
-                              <div className="text-[10px] text-muted-foreground mt-0.5">
+                              <div className="text-[10px] text-muted-foreground mt-0.5 font-normal">
                                 {(timeToHours(end) - timeToHours(start) - BREAK_HOURS).toFixed(1)}h net
                               </div>
                             </div>
