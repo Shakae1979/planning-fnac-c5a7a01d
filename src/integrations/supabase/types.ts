@@ -80,6 +80,7 @@ export type Database = {
         Row: {
           contract_hours: number
           created_at: string
+          email: string | null
           id: string
           is_active: boolean
           name: string
@@ -88,6 +89,7 @@ export type Database = {
         Insert: {
           contract_hours?: number
           created_at?: string
+          email?: string | null
           id?: string
           is_active?: boolean
           name: string
@@ -96,6 +98,7 @@ export type Database = {
         Update: {
           contract_hours?: number
           created_at?: string
+          email?: string | null
           id?: string
           is_active?: boolean
           name?: string
