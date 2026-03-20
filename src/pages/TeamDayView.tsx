@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle, ChevronLeft, ChevronRight, Clock, Flag, Palmtree, Printer, Users } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Flag, Palmtree, Printer, Users } from "lucide-react";
 import HourlyGrid from "@/components/team-day/HourlyGrid";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -262,129 +262,110 @@ const TeamDayView = () => {
         {/* Hourly grid */}
         <HourlyGrid employees={teamDay || []} />
 
-        {/* Working employees by category */}
-        {ROLE_ORDER.map((role) => {
-          const group = workingByRole[role];
-          if (!group || group.length === 0) return null;
-          return (
-            <div key={role} className="mb-4 print-section">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {ROLE_LABELS[role] || role}
-                </span>
-                <span className="text-xs text-muted-foreground">({group.length})</span>
-              </div>
-              <div className="space-y-1.5 print-compact-grid">
-                {group.map((emp) => (
-                  <div
-                    key={emp.id}
-                    className="flex items-center justify-between py-2.5 px-3 rounded-md bg-accent/5 border border-accent/20 print-employee-row"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center text-xs font-bold text-accent print:hidden">
-                        {emp.name.charAt(0)}
-                      </div>
-                      <div className="font-medium text-sm">{emp.name}</div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-sm font-mono-data">
-                        {formatTimeBE(emp.start)} — {formatTimeBE(emp.end)}
-                      </div>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        {emp.netHours.toFixed(1)}h
-                      </div>
-                    </div>
+        {/* Compact details below grid */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Left: employees by role */}
+          <div className="space-y-3">
+            {ROLE_ORDER.map((role) => {
+              const group = workingByRole[role];
+              if (!group || group.length === 0) return null;
+              return (
+                <div key={role}>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                    {ROLE_LABELS[role] || role} ({group.length})
                   </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Coverage alerts */}
-        {coverageAlerts.length > 0 && (
-          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 mb-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-destructive mb-2">
-              <AlertTriangle className="h-4 w-4" />
-              Créneaux non couverts ({requiredSlot ? `${requiredSlot.start}h — ${requiredSlot.end}h` : ""})
-            </div>
-            <div className="space-y-1.5">
-              {coverageAlerts.map(({ role, uncoveredHours }) => {
-                // Group consecutive hours into ranges
-                const ranges: string[] = [];
-                let i = 0;
-                while (i < uncoveredHours.length) {
-                  const start = uncoveredHours[i];
-                  let end = start;
-                  while (i + 1 < uncoveredHours.length && uncoveredHours[i + 1] === end + 1) {
-                    end = uncoveredHours[++i];
-                  }
-                  ranges.push(end === start ? `${start}h` : `${start}h—${end + 1}h`);
-                  i++;
-                }
-                return (
-                  <div key={role} className="flex items-center justify-between text-xs">
-                    <span className="font-semibold">{ROLE_LABELS[role] || role}</span>
-                    <span className="text-muted-foreground">{ranges.join(", ")}</span>
+                  <div className="space-y-0.5">
+                    {group.map((emp) => (
+                      <div
+                        key={emp.id}
+                        className="flex items-center justify-between py-1 px-2 rounded bg-accent/5 text-xs"
+                      >
+                        <span className="font-medium">{emp.name}</span>
+                        <span className="text-muted-foreground font-mono-data text-[11px]">
+                          {formatTimeBE(emp.start)}–{formatTimeBE(emp.end)} <span className="ml-1">{emp.netHours.toFixed(1)}h</span>
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
-        )}
 
-        {/* On leave */}
-        {onLeave.length > 0 && (
-          <div className="mb-4 print-section">
-            <div className="flex items-center gap-2 mb-2">
-              <Palmtree className="h-4 w-4 text-primary" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">En congé</span>
-            </div>
-            <div className="space-y-1.5 print-compact-grid">
-              {onLeave.map((emp) => (
-                <div
-                  key={emp.id}
-                  className="flex items-center justify-between py-2.5 px-3 rounded-md bg-primary/5 border border-primary/20 print-employee-row"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary print:hidden">
-                      {emp.name.charAt(0)}
-                    </div>
-                    <div>
-                      <span className="font-medium text-sm">{emp.name}</span>
-                      <span className="text-[11px] text-muted-foreground ml-1">
-                        {ROLE_LABELS[emp.role] || emp.role}
+          {/* Right: alerts, congés, repos */}
+          <div className="space-y-3">
+            {/* Coverage alerts */}
+            {coverageAlerts.length > 0 && (
+              <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-2">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-destructive mb-1">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  Non couverts ({requiredSlot ? `${requiredSlot.start}h–${requiredSlot.end}h` : ""})
+                </div>
+                <div className="space-y-0.5">
+                  {coverageAlerts.map(({ role, uncoveredHours }) => {
+                    const ranges: string[] = [];
+                    let i = 0;
+                    while (i < uncoveredHours.length) {
+                      const start = uncoveredHours[i];
+                      let end = start;
+                      while (i + 1 < uncoveredHours.length && uncoveredHours[i + 1] === end + 1) {
+                        end = uncoveredHours[++i];
+                      }
+                      ranges.push(end === start ? `${start}h` : `${start}h–${end + 1}h`);
+                      i++;
+                    }
+                    return (
+                      <div key={role} className="flex items-center justify-between text-[11px]">
+                        <span className="font-semibold">{ROLE_LABELS[role] || role}</span>
+                        <span className="text-muted-foreground">{ranges.join(", ")}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* On leave */}
+            {onLeave.length > 0 && (
+              <div>
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Palmtree className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">En congé</span>
+                </div>
+                <div className="space-y-0.5">
+                  {onLeave.map((emp) => (
+                    <div
+                      key={emp.id}
+                      className="flex items-center justify-between py-1 px-2 rounded bg-primary/5 text-xs"
+                    >
+                      <span className="font-medium">{emp.name}</span>
+                      <span className="text-primary text-[11px]">
+                        {emp.conge ? CONGE_LABELS[emp.conge.type] || emp.conge.type : ""}
                       </span>
                     </div>
-                  </div>
-                  <div className="text-xs font-medium text-primary">
-                    {emp.conge ? CONGE_LABELS[emp.conge.type] || emp.conge.type : ""}
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+              </div>
+            )}
 
-        {/* Off / Repos */}
-        {off.length > 0 && (
-          <div className="mb-4 print-section">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Repos</span>
-            </div>
-            <div className="flex flex-wrap gap-2 print-compact-grid">
-              {off.map((emp) => (
-                <div
-                  key={emp.id}
-                  className="py-1.5 px-3 rounded-md bg-muted/50 text-xs text-muted-foreground print-employee-row"
-                >
-                  {emp.name}
+            {/* Repos */}
+            {off.length > 0 && (
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Repos</div>
+                <div className="flex flex-wrap gap-1">
+                  {off.map((emp) => (
+                    <span
+                      key={emp.id}
+                      className="py-0.5 px-2 rounded bg-muted/50 text-[11px] text-muted-foreground"
+                    >
+                      {emp.name}
+                    </span>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

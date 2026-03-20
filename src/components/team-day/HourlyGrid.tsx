@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+const HOURS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 
 const ROLES = [
   { key: "responsable", label: "Resp.", color: "bg-red-300/50", dot: "bg-red-400" },
@@ -126,14 +126,14 @@ export default function HourlyGrid({ employees }: { employees: Employee[] }) {
         </div>
       </div>
       <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full text-[11px] border-collapse">
+        <table className="w-full text-xs border-collapse">
           <thead>
             <tr className="bg-muted/50">
               <th className="sticky left-0 bg-muted/50 px-2 py-1.5 text-left font-medium min-w-[100px] border-r">
                 Employé
               </th>
               {HOURS.map((h) => (
-                <th key={h} className="px-0 py-1.5 text-center font-medium min-w-[32px] border-r last:border-r-0">
+                <th key={h} className="px-0 py-2 text-center font-medium min-w-[38px] border-r last:border-r-0">
                   {h}h
                 </th>
               ))}
@@ -168,7 +168,7 @@ export default function HourlyGrid({ employees }: { employees: Employee[] }) {
                         }`}
                         onClick={isWorking ? (e) => handleCellClick(emp.id, h, e) : undefined}
                       >
-                        {isWorking ? <div className="w-full h-5 rounded-sm" /> : null}
+                        {isWorking ? <div className="w-full h-6 rounded-sm" /> : null}
                       </td>
                     );
                   })}
