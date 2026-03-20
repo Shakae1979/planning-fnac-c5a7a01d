@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { Printer } from "lucide-react";
+import { Printer, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const HALF_HOURS: { hour: number; minute: number; label: string }[] = [];
 for (let h = 7; h <= 21; h++) {
@@ -43,7 +45,6 @@ function timeToHours(t: string | null): number {
   return h + (m || 0) / 60;
 }
 
-// Key for overrides: "empId-hour"
 type Overrides = Record<string, string>;
 
 function RolePicker({
@@ -85,10 +86,34 @@ function RolePicker({
   );
 }
 
-export default function HourlyGrid({ employees }: { employees: Employee[] }) {
+export default function HourlyGrid({ employees, date }: { employees: Employee[]; date: string }) {
   const active = employees.filter((e) => e.hasShift && !e.conge);
   const [overrides, setOverrides] = useState<Overrides>({});
   const [picker, setPicker] = useState<{ key: string; rect: { top: number; left: number } } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
+
+  // Load overrides from DB
+  useEffect(() => {
+    if (!date) return;
+    const load = async () => {
+      const { data } = await supabase
+        .from("schedule_role_overrides")
+        .select("employee_id, slot_key, role")
+        .eq("date", date);
+      if (data && data.length > 0) {
+        const loaded: Overrides = {};
+        for (const row of data) {
+          loaded[`${row.employee_id}-${row.slot_key}`] = row.role;
+        }
+        setOverrides(loaded);
+      } else {
+        setOverrides({});
+      }
+      setDirty(false);
+    };
+    load();
+  }, [date]);
 
   if (active.length === 0) return null;
 
@@ -100,7 +125,43 @@ export default function HourlyGrid({ employees }: { employees: Employee[] }) {
   const handleSelect = (role: string) => {
     if (!picker) return;
     setOverrides((prev) => ({ ...prev, [picker.key]: role }));
+    setDirty(true);
     setPicker(null);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Delete existing overrides for this date
+      await supabase.from("schedule_role_overrides").delete().eq("date", date);
+
+      // Insert current overrides
+      const rows = Object.entries(overrides).map(([key, role]) => {
+        // key format: "empId-hour-minute"
+        const parts = key.split("-");
+        const slotKey = `${parts[parts.length - 2]}-${parts[parts.length - 1]}`;
+        const employeeId = parts.slice(0, parts.length - 2).join("-");
+        return {
+          date,
+          employee_id: employeeId,
+          slot_key: slotKey,
+          role,
+        };
+      });
+
+      if (rows.length > 0) {
+        const { error } = await supabase.from("schedule_role_overrides").insert(rows);
+        if (error) throw error;
+      }
+
+      setDirty(false);
+      toast.success("Grille sauvegardée");
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur lors de la sauvegarde");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -126,6 +187,15 @@ export default function HourlyGrid({ employees }: { employees: Employee[] }) {
           >
             <Printer className="h-3.5 w-3.5" />
             Imprimer
+          </Button>
+          <Button
+            size="sm"
+            className="no-print h-7 text-xs gap-1.5"
+            onClick={handleSave}
+            disabled={saving || !dirty}
+          >
+            <Save className="h-3.5 w-3.5" />
+            {saving ? "Sauvegarde..." : "Sauvegarder"}
           </Button>
         </div>
       </div>

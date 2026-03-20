@@ -103,6 +103,41 @@ export type Database = {
         }
         Relationships: []
       }
+      schedule_role_overrides: {
+        Row: {
+          created_at: string
+          date: string
+          employee_id: string
+          id: string
+          role: string
+          slot_key: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          employee_id: string
+          id?: string
+          role: string
+          slot_key: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          employee_id?: string
+          id?: string
+          role?: string
+          slot_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_role_overrides_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       weekly_schedules: {
         Row: {
           created_at: string
