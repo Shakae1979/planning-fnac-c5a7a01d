@@ -5,6 +5,7 @@ import { Calendar, ChevronLeft, ChevronRight, Clock, User, Palmtree } from "luci
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber } from "@/lib/format";
+import { FnacHeader } from "@/components/FnacHeader";
 
 const BREAK_HOURS = 1;
 
@@ -136,29 +137,28 @@ const EmployeeView = () => {
 
   if (!decodedName) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-        <div className="max-w-md w-full">
-          <div className="flex items-center gap-3 mb-6">
-            <Calendar className="h-8 w-8 text-accent" />
-            <h1 className="text-2xl font-bold">Mon Planning Fnac</h1>
-          </div>
-          <p className="text-muted-foreground mb-6">Sélectionnez votre nom pour voir votre planning :</p>
-          <div className="space-y-2">
-            {employees?.map((emp) => (
-              <button
-                key={emp.id}
-                onClick={() => navigate(`/mon-planning/${encodeURIComponent(emp.name)}`)}
-                className="w-full flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-secondary transition-colors text-left"
-              >
-                <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center text-sm font-bold text-accent">
-                  {emp.name.charAt(0)}
-                </div>
-                <div>
-                  <div className="font-medium">{emp.name}</div>
-                  <div className="text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h / semaine</div>
-                </div>
-              </button>
-            ))}
+      <div className="min-h-screen bg-background flex flex-col">
+        <FnacHeader title="Mon Planning" subtitle="Sélectionnez votre nom" icon={Calendar} />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="max-w-md w-full">
+            <p className="text-muted-foreground mb-6">Sélectionnez votre nom pour voir votre planning :</p>
+            <div className="space-y-2">
+              {employees?.map((emp) => (
+                <button
+                  key={emp.id}
+                  onClick={() => navigate(`/mon-planning/${encodeURIComponent(emp.name)}`)}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-secondary transition-colors text-left"
+                >
+                  <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center text-sm font-bold text-accent">
+                    {emp.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div className="font-medium">{emp.name}</div>
+                    <div className="text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h / semaine</div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -184,24 +184,11 @@ const EmployeeView = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card px-6 py-4">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center text-sm font-bold text-accent">
-              {employee.name.charAt(0)}
-            </div>
-            <div>
-              <h1 className="text-lg font-bold">{employee.name}</h1>
-              <p className="text-xs text-muted-foreground font-mono-data">
-                Contrat {employee.contract_hours}h / semaine
-              </p>
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/mon-planning")}>
-            Changer
-          </Button>
-        </div>
-      </header>
+      <FnacHeader title={employee.name} subtitle={`Contrat ${employee.contract_hours}h / semaine`} icon={User}>
+        <Button variant="outline" size="sm" className="border-white/20 text-white/80 hover:bg-white/10 hover:text-white" onClick={() => navigate("/mon-planning")}>
+          Changer
+        </Button>
+      </FnacHeader>
 
       <div className="max-w-3xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between mb-6">

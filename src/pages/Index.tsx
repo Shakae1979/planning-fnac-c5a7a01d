@@ -16,11 +16,11 @@ const Index = () => {
     <div className="flex h-screen overflow-hidden">
       <Sidebar activeView={view} onViewChange={setView} />
       <main className="flex-1 overflow-auto">
-        <header className="sticky top-0 z-10 border-b bg-card px-6 py-4">
-          <h1 className="text-xl font-bold text-foreground">
+        <header className="sticky top-0 z-10 border-b px-6 py-4" style={{ background: "hsl(var(--sidebar-bg))" }}>
+          <h1 className="text-xl font-bold" style={{ color: "hsl(var(--sidebar-active))" }}>
             Planning Fnac 2026
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <p className="text-sm mt-0.5" style={{ color: "hsl(var(--sidebar-fg) / 0.6)" }}>
             Gestion des horaires de l'équipe
           </p>
         </header>

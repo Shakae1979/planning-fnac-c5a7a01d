@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, ChevronRight, Users, Printer, Palmtree, AlertTriangle, Flag } from "lucide-react";
+import { FnacHeader } from "@/components/FnacHeader";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -199,33 +200,24 @@ const TeamWeekView = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card px-4 py-3 no-print">
-        <div className="max-w-[1600px] mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Users className="h-7 w-7 text-accent" />
-            <div>
-              <h1 className="text-lg font-bold">Planning équipe</h1>
-              <p className="text-xs text-muted-foreground">Vue complète de la semaine</p>
+      <FnacHeader title="Planning équipe" subtitle="Vue complète de la semaine" icon={Users}>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon" className="border-white/20 text-white/80 hover:bg-white/10 hover:text-white" onClick={() => setWeekOffset(w => w - 1)}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="text-center min-w-[200px]">
+            <div className="text-sm font-semibold" style={{ color: "hsl(var(--sidebar-fg))" }}>
+              {formatDateBE(currentMonday)} — {formatDateBE(saturday)}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={() => setWeekOffset(w => w - 1)}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="text-center min-w-[200px]">
-              <div className="text-sm font-semibold">
-                {formatDateBE(currentMonday)} — {formatDateBE(saturday)}
-              </div>
-            </div>
-            <Button variant="outline" size="icon" onClick={() => setWeekOffset(w => w + 1)}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" className="ml-2" onClick={() => window.print()}>
-              <Printer className="h-3.5 w-3.5 mr-1" /> Imprimer
-            </Button>
-          </div>
+          <Button variant="outline" size="icon" className="border-white/20 text-white/80 hover:bg-white/10 hover:text-white" onClick={() => setWeekOffset(w => w + 1)}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" className="ml-2 border-white/20 text-white/80 hover:bg-white/10 hover:text-white" onClick={() => window.print()}>
+            <Printer className="h-3.5 w-3.5 mr-1" /> Imprimer
+          </Button>
         </div>
-      </header>
+      </FnacHeader>
 
       <div className="max-w-[1600px] mx-auto px-4 py-4">
         {/* Legend */}
