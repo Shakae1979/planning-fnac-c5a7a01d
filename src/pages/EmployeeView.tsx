@@ -5,6 +5,7 @@ import { Calendar, ChevronLeft, ChevronRight, Clock, User, Palmtree } from "luci
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber } from "@/lib/format";
+import { FnacHeader } from "@/components/FnacHeader";
 
 const BREAK_HOURS = 1;
 
