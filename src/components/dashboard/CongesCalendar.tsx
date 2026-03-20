@@ -114,8 +114,21 @@ export function CongesCalendar() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 mr-2">
+            {["T1", "T2", "T3", "T4"].map((label, qi) => (
+              <Button
+                key={label}
+                variant={Math.floor(currentMonth / 3) === qi ? "default" : "outline"}
+                size="sm"
+                className="px-2.5 text-xs"
+                onClick={() => setCurrentMonth(qi * 3)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
           <Button variant="outline" size="icon" onClick={() => setCurrentMonth((m) => Math.max(0, m - 1))} disabled={currentMonth === 0}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
