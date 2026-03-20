@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, ChevronLeft, ChevronRight, Printer, CalendarIcon } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Printer, CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { fr } from "date-fns/locale";
@@ -31,11 +31,117 @@ function formatDate(y: number, m: number, d: number) {
   return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
+type ViewMode = "month" | "quarter";
+
+interface MonthGridProps {
+  year: number;
+  month: number;
+  employees: any[] | undefined;
+  conges: any[] | undefined;
+  deleteMutation: any;
+  compact?: boolean;
+}
+
+function MonthGrid({ year, month, employees, conges, deleteMutation, compact }: MonthGridProps) {
+  const daysInMonth = getDaysInMonth(year, month);
+
+  const isOnLeave = (empId: string, dateStr: string) => {
+    return conges?.find((c: any) => {
+      if (c.employee_id !== empId) return false;
+      return dateStr >= c.date_start && dateStr <= c.date_end;
+    });
+  };
+
+  const cellSize = compact ? "min-w-[18px]" : "min-w-[28px]";
+  const dotSize = compact ? "w-3.5 h-3.5" : "w-5 h-5";
+  const fontSize = compact ? "text-[8px]" : "text-[9px]";
+
+  return (
+    <div>
+      <div className="text-xs font-semibold text-muted-foreground mb-1 text-center">
+        {MONTHS[month]}
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b">
+              <th className={`pb-0 pr-1 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 ${compact ? "min-w-[90px]" : "min-w-[120px]"}`}></th>
+              {Array.from({ length: daysInMonth }, (_, i) => {
+                const d = new Date(year, month, i + 1);
+                const jsDay = d.getDay();
+                const dayLetters = ["D", "L", "M", "M", "J", "V", "S"];
+                const isWeekend = jsDay === 0 || jsDay === 6;
+                const isMonday = jsDay === 1;
+                return (
+                  <th key={i} className={`pb-0 text-center ${fontSize} font-normal ${cellSize} ${isWeekend ? "text-muted-foreground/40" : "text-muted-foreground/70"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
+                    {dayLetters[jsDay]}
+                  </th>
+                );
+              })}
+              <th className={`pb-0 ${compact ? "min-w-[30px]" : "min-w-[40px]"}`}></th>
+            </tr>
+            <tr className="border-b">
+              <th className={`pb-1 pr-1 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 ${compact ? "min-w-[90px] text-[10px]" : "min-w-[120px]"}`}>
+                {compact ? "" : "Vendeur"}
+              </th>
+              {Array.from({ length: daysInMonth }, (_, i) => {
+                const d = new Date(year, month, i + 1);
+                const jsDay = d.getDay();
+                const isWeekend = jsDay === 0 || jsDay === 6;
+                const isMonday = jsDay === 1;
+                return (
+                  <th key={i} className={`pb-1 text-center font-medium ${cellSize} ${compact ? "text-[9px]" : ""} ${isWeekend ? "text-muted-foreground/50" : "text-muted-foreground"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
+                    {i + 1}
+                  </th>
+                );
+              })}
+              <th className={`pb-1 text-center font-semibold text-muted-foreground ${compact ? "min-w-[30px] text-[9px]" : "min-w-[40px]"}`}>
+                {compact ? "T" : "Total"}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {employees?.map((emp) => {
+              let totalDays = 0;
+              return (
+                <tr key={emp.id} className="border-b border-border/50">
+                  <td className={`py-0.5 pr-1 sticky left-0 bg-card z-10 ${compact ? "text-[10px]" : ""}`}>
+                    <div className="font-medium truncate">{emp.name}</div>
+                  </td>
+                  {Array.from({ length: daysInMonth }, (_, i) => {
+                    const dateStr = formatDate(year, month, i + 1);
+                    const leave = isOnLeave(emp.id, dateStr);
+                    const d = new Date(year, month, i + 1);
+                    const jsDay = d.getDay();
+                    const isWeekend = jsDay === 0 || jsDay === 6;
+                    const isMonday = jsDay === 1;
+                    if (leave) totalDays++;
+                    const typeColor = leave ? CONGE_TYPES.find((t) => t.value === leave.type)?.color ?? "bg-muted" : "";
+                    return (
+                      <td key={i} className={`py-0.5 text-center ${isWeekend ? "bg-muted/30" : ""} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
+                        {leave ? (
+                          <span className={`inline-block ${dotSize} rounded ${typeColor} cursor-pointer`} title={`${CONGE_TYPES.find((t) => t.value === leave.type)?.label} — cliquer pour supprimer`} onClick={() => deleteMutation.mutate(leave.id)} />
+                        ) : null}
+                      </td>
+                    );
+                  })}
+                  <td className="py-0.5 text-center font-mono-data font-medium text-[10px]">{totalDays || "—"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export function CongesCalendar() {
   const queryClient = useQueryClient();
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [viewMode, setViewMode] = useState<ViewMode>("month");
+  const [currentQuarter, setCurrentQuarter] = useState(Math.floor(new Date().getMonth() / 3));
   const year = 2026;
-  const daysInMonth = getDaysInMonth(year, currentMonth);
 
   const roleOrder = ["responsable", "technique", "editorial", "stock", "caisse"];
 
@@ -105,12 +211,7 @@ export function CongesCalendar() {
     },
   });
 
-  const isOnLeave = (empId: string, dateStr: string) => {
-    return conges?.find((c) => {
-      if (c.employee_id !== empId) return false;
-      return dateStr >= c.date_start && dateStr <= c.date_end;
-    });
-  };
+  const quarterMonths = [currentQuarter * 3, currentQuarter * 3 + 1, currentQuarter * 3 + 2];
 
   return (
     <div className="space-y-4">
@@ -120,22 +221,37 @@ export function CongesCalendar() {
             {["T1", "T2", "T3", "T4"].map((label, qi) => (
               <Button
                 key={label}
-                variant={Math.floor(currentMonth / 3) === qi ? "default" : "outline"}
+                variant={viewMode === "quarter" && currentQuarter === qi ? "default" : "outline"}
                 size="sm"
                 className="px-2.5 text-xs"
-                onClick={() => setCurrentMonth(qi * 3)}
+                onClick={() => {
+                  setViewMode("quarter");
+                  setCurrentQuarter(qi);
+                }}
               >
                 {label}
               </Button>
             ))}
           </div>
-          <Button variant="outline" size="icon" onClick={() => setCurrentMonth((m) => Math.max(0, m - 1))} disabled={currentMonth === 0}>
+          <div className="w-px h-6 bg-border" />
+          <Button variant="outline" size="icon" onClick={() => {
+            setViewMode("month");
+            setCurrentMonth((m) => Math.max(0, m - 1));
+          }} disabled={viewMode === "month" && currentMonth === 0}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <div className="text-sm font-semibold min-w-[140px] text-center">
+          <Button
+            variant={viewMode === "month" ? "default" : "outline"}
+            size="sm"
+            className="min-w-[140px] text-xs font-semibold"
+            onClick={() => setViewMode("month")}
+          >
             {MONTHS[currentMonth]} {year}
-          </div>
-          <Button variant="outline" size="icon" onClick={() => setCurrentMonth((m) => Math.min(11, m + 1))} disabled={currentMonth === 11}>
+          </Button>
+          <Button variant="outline" size="icon" onClick={() => {
+            setViewMode("month");
+            setCurrentMonth((m) => Math.min(11, m + 1));
+          }} disabled={viewMode === "month" && currentMonth === 11}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -204,75 +320,32 @@ export function CongesCalendar() {
         </div>
       )}
 
-      <div className="kpi-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b">
-                <th className="pb-1 pr-2 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[120px]"></th>
-                {Array.from({ length: daysInMonth }, (_, i) => {
-                  const d = new Date(year, currentMonth, i + 1);
-                  const jsDay = d.getDay(); // 0=Sun
-                  const dayLetters = ["D", "L", "M", "M", "J", "V", "S"];
-                  const isWeekend = jsDay === 0 || jsDay === 6;
-                  const isMonday = jsDay === 1;
-                  return (
-                    <th key={i} className={`pb-0 text-center text-[9px] font-normal min-w-[28px] ${isWeekend ? "text-muted-foreground/40" : "text-muted-foreground/70"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
-                      {dayLetters[jsDay]}
-                    </th>
-                  );
-                })}
-                <th className="pb-1 min-w-[40px]"></th>
-              </tr>
-              <tr className="border-b">
-                <th className="pb-2 pr-2 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[120px]">Vendeur</th>
-                {Array.from({ length: daysInMonth }, (_, i) => {
-                  const d = new Date(year, currentMonth, i + 1);
-                  const jsDay = d.getDay();
-                  const isWeekend = jsDay === 0 || jsDay === 6;
-                  const isMonday = jsDay === 1;
-                  return (
-                    <th key={i} className={`pb-2 text-center font-medium min-w-[28px] ${isWeekend ? "text-muted-foreground/50" : "text-muted-foreground"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
-                      {i + 1}
-                    </th>
-                  );
-                })}
-                <th className="pb-2 text-center font-semibold text-muted-foreground min-w-[40px]">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {employees?.map((emp) => {
-                let totalDays = 0;
-                return (
-                  <tr key={emp.id} className="border-b border-border/50">
-                    <td className="py-1 pr-2 sticky left-0 bg-card z-10">
-                      <div className="font-medium">{emp.name}</div>
-                    </td>
-                    {Array.from({ length: daysInMonth }, (_, i) => {
-                      const dateStr = formatDate(year, currentMonth, i + 1);
-                      const leave = isOnLeave(emp.id, dateStr);
-                      const d = new Date(year, currentMonth, i + 1);
-                      const jsDay = d.getDay();
-                      const isWeekend = jsDay === 0 || jsDay === 6;
-                      const isMonday = jsDay === 1;
-                      if (leave) totalDays++;
-                      const typeColor = leave ? CONGE_TYPES.find((t) => t.value === leave.type)?.color ?? "bg-muted" : "";
-                      return (
-                        <td key={i} className={`py-1 text-center ${isWeekend ? "bg-muted/30" : ""} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
-                          {leave ? (
-                            <span className={`inline-block w-5 h-5 rounded ${typeColor} cursor-pointer`} title={`${CONGE_TYPES.find((t) => t.value === leave.type)?.label} — cliquer pour supprimer`} onClick={() => deleteMutation.mutate(leave.id)} />
-                          ) : null}
-                        </td>
-                      );
-                    })}
-                    <td className="py-1 text-center font-mono-data font-medium">{totalDays || "—"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      {viewMode === "month" ? (
+        <div className="kpi-card overflow-hidden">
+          <MonthGrid
+            year={year}
+            month={currentMonth}
+            employees={employees}
+            conges={conges}
+            deleteMutation={deleteMutation}
+          />
         </div>
-      </div>
+      ) : (
+        <div className="space-y-4">
+          {quarterMonths.map((m) => (
+            <div key={m} className="kpi-card overflow-hidden">
+              <MonthGrid
+                year={year}
+                month={m}
+                employees={employees}
+                conges={conges}
+                deleteMutation={deleteMutation}
+                compact
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
