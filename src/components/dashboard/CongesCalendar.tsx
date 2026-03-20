@@ -32,12 +32,19 @@ export function CongesCalendar() {
   const year = 2026;
   const daysInMonth = getDaysInMonth(year, currentMonth);
 
+  const roleOrder = ["responsable", "technique", "editorial", "stock", "caisse"];
+
   const { data: employees } = useQuery({
     queryKey: ["employees"],
     queryFn: async () => {
       const { data, error } = await supabase.from("employees").select("*").eq("is_active", true).order("name");
       if (error) throw error;
-      return data;
+      return data.sort((a, b) => {
+        const ra = roleOrder.indexOf(a.role);
+        const rb = roleOrder.indexOf(b.role);
+        if (ra !== rb) return (ra === -1 ? 99 : ra) - (rb === -1 ? 99 : rb);
+        return a.name.localeCompare(b.name);
+      });
     },
   });
 
