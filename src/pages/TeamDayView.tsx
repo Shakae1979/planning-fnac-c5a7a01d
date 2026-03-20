@@ -252,7 +252,7 @@ const TeamDayView = () => {
         )}
 
         {/* Hourly grid */}
-        <HourlyGrid employees={teamDay || []} />
+        <HourlyGrid employees={teamDay || []} date={dateStr} />
 
         {/* Compact details below grid */}
         <div className="grid grid-cols-2 gap-4">
