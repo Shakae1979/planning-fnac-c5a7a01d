@@ -177,6 +177,21 @@ export function EmployeeManager() {
                     </select>
                     {" · "}<span className="font-mono-data">{emp.contract_hours}h</span>
                   </div>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <Mail className="h-3 w-3 text-muted-foreground" />
+                    <input
+                      type="email"
+                      defaultValue={(emp as any).email || ""}
+                      placeholder="email@exemple.com"
+                      className="text-[11px] bg-transparent border-none outline-none text-muted-foreground w-48 focus:text-foreground"
+                      onBlur={(e) => {
+                        const val = e.target.value.trim();
+                        if (val !== ((emp as any).email || "")) {
+                          updateEmailMutation.mutate({ id: emp.id, email: val });
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
               <Button
