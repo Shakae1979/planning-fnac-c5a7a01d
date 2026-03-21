@@ -130,35 +130,23 @@
     print-color-adjust: exact;
     font-size: 10px !important;
   }
-  .no-print {
+  nav, button, .no-print {
     display: none !important;
   }
-  /* Hide sidebar */
   aside {
     display: none !important;
   }
-  /* Hide sticky header inside main */
-  main > header {
+  header {
     display: none !important;
-  }
-  /* Fix layout: remove flex/overflow so content fills the page */
-  .flex.h-screen.overflow-hidden,
-  .flex.h-screen {
-    display: block !important;
-    height: auto !important;
-    overflow: visible !important;
   }
   main {
     margin: 0 !important;
-    padding: 8px !important;
+    padding: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
-    overflow: visible !important;
-    height: auto !important;
   }
-  /* Hide buttons only inside toolbars, keep content intact */
-  main button {
-    display: none !important;
+  .flex.h-screen {
+    display: block !important;
   }
   .kpi-card {
     break-inside: avoid;
@@ -192,9 +180,5 @@
   }
   .print\:hidden {
     display: none !important;
-  }
-  /* Ensure overflow-x-auto sections show fully */
-  .overflow-x-auto {
-    overflow: visible !important;
   }
 }
