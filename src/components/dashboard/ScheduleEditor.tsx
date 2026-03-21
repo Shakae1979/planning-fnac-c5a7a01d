@@ -764,7 +764,7 @@ export function ScheduleEditor() {
                         const leaveType = isOnLeave(emp.id, dayIndex);
                         if (leaveType) {
                           const leaveLabels: Record<string, string> = {
-                            conge: "CP", rtt: "RTT", maladie: "MAL", formation: "FORM",
+                            conge: "CP", rtt: "SS", maladie: "MAL", formation: "FORM",
                           };
                           return (
                             <td key={`${day.key}-leave`} colSpan={2} className="py-1.5 px-0.5 text-center">

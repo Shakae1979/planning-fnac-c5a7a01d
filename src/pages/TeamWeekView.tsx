@@ -27,7 +27,7 @@ const ROLE_COLORS: Record<string, { bar: string; text: string; bg: string; heade
 
 const CONGE_LABELS: Record<string, string> = {
   conge: "Congé",
-  rtt: "RTT",
+  rtt: "Sans solde",
   maladie: "Maladie",
   formation: "Formation",
 };
@@ -231,7 +231,7 @@ const TeamWeekView = () => {
           <span className="ml-2 border-l pl-2 flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-yellow-400" /> Congé</span>
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-pink-400" /> Formation</span>
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-red-400" /> Maladie</span>
-          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-cyan-400" /> RTT</span>
+          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-cyan-400" /> Sans solde</span>
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-gray-400" /> Férié</span>
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-indigo-400" /> Extérieur</span>
         </div>

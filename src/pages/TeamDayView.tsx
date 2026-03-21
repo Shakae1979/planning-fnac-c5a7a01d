@@ -11,7 +11,7 @@ const BREAK_HOURS = 1;
 
 const CONGE_LABELS: Record<string, string> = {
   conge: "Congé payé",
-  rtt: "RTT",
+  rtt: "Sans solde",
   maladie: "Maladie",
   formation: "Formation",
 };

@@ -19,10 +19,10 @@ const MONTHS = [
 
 export const CONGE_TYPES = [
   { value: "conge", label: "Congé payé", color: "bg-blue-400" },
-  { value: "rtt", label: "RTT", color: "bg-emerald-400" },
+  { value: "rtt", label: "Sans solde", color: "bg-emerald-400" },
   { value: "maladie", label: "Maladie", color: "bg-red-400" },
   { value: "formation", label: "Formation", color: "bg-purple-400" },
-  { value: "autre", label: "Autre", color: "bg-muted-foreground" },
+  { value: "autre", label: "Pas encodé", color: "bg-muted-foreground" },
 ];
 
 type ViewMode = "month" | "quarter";

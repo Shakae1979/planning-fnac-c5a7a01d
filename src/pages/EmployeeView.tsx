@@ -17,7 +17,7 @@ function timeToHours(t: string | null): number {
 
 const CONGE_LABELS: Record<string, string> = {
   conge: "Congé payé",
-  rtt: "RTT",
+  rtt: "Sans solde",
   maladie: "Maladie",
   formation: "Formation",
 };
