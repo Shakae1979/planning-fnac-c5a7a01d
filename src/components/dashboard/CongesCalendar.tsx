@@ -154,6 +154,10 @@ export function CongesCalendar() {
                 {t.label}
               </span>
             ))}
+            <span className="flex items-center gap-1">
+              <span className="inline-block w-3 h-3 rounded bg-amber-400/40" />
+              Congé scolaire
+            </span>
           </div>
           <Button variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="h-3.5 w-3.5 mr-1" /> Imprimer
