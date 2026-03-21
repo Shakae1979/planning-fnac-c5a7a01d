@@ -509,6 +509,42 @@ export function ScheduleEditor() {
     },
   });
 
+  const copyPreviousWeekForEmployee = async (empId: string) => {
+    try {
+      const previousMonday = addWeeks(currentMonday, -1);
+      const previousWeekStr = formatWeekDate(previousMonday);
+
+      const { data: prevSchedules, error } = await supabase
+        .from("weekly_schedules")
+        .select("*")
+        .eq("week_start", previousWeekStr)
+        .eq("employee_id", empId)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!prevSchedules) {
+        toast.warning("Aucun planning trouvé pour la semaine précédente");
+        return;
+      }
+
+      const dayFields = DAYS.flatMap((d) => [`${d.key}_start`, `${d.key}_end`]);
+      const edits: Record<string, string> = {};
+      dayFields.forEach((field) => {
+        edits[field] = (prevSchedules as any)[field] ?? "";
+      });
+
+      setLocalEdits((prev) => ({
+        ...prev,
+        [empId]: { ...prev[empId], ...edits },
+      }));
+
+      const empName = employees?.find((e) => e.id === empId)?.name ?? "";
+      toast.success(`Semaine précédente copiée pour ${empName}`);
+    } catch (err) {
+      toast.error("Erreur: " + (err as Error).message);
+    }
+  };
+
   const saveAsTemplateMutation = useMutation({
     mutationFn: async () => {
       if (!employees || !schedules) return;
