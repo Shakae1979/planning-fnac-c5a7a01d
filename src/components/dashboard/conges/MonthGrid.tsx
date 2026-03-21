@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CONGE_TYPES } from "../CongesCalendar";
+import { isSchoolHoliday } from "@/lib/school-holidays";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 function getDaysInMonth(year: number, month: number) {
@@ -49,8 +50,10 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation }: Mo
                 const dayLetters = ["D", "L", "M", "M", "J", "V", "S"];
                 const isWeekend = jsDay === 0 || jsDay === 6;
                 const isMonday = jsDay === 1;
+                const dateStr = formatDate(year, month, i + 1);
+                const schoolHol = isSchoolHoliday(dateStr);
                 return (
-                  <th key={i} className={`pb-0 text-center text-[9px] font-normal min-w-[28px] ${isWeekend ? "text-muted-foreground/40" : "text-muted-foreground/70"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
+                  <th key={i} className={`pb-0 text-center text-[9px] font-normal min-w-[28px] ${schoolHol ? "bg-amber-400/20" : ""} ${isWeekend ? "text-muted-foreground/40" : "text-muted-foreground/70"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
                     {dayLetters[jsDay]}
                   </th>
                 );
@@ -64,8 +67,10 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation }: Mo
                 const jsDay = d.getDay();
                 const isWeekend = jsDay === 0 || jsDay === 6;
                 const isMonday = jsDay === 1;
+                const dateStr = formatDate(year, month, i + 1);
+                const schoolHol = isSchoolHoliday(dateStr);
                 return (
-                  <th key={i} className={`pb-1 text-center font-medium min-w-[28px] ${isWeekend ? "text-muted-foreground/50" : "text-muted-foreground"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
+                  <th key={i} className={`pb-1 text-center font-medium min-w-[28px] ${schoolHol ? "bg-amber-400/20" : ""} ${isWeekend ? "text-muted-foreground/50" : "text-muted-foreground"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`} title={schoolHol || undefined}>
                     {i + 1}
                   </th>
                 );
@@ -90,8 +95,9 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation }: Mo
                     const isMonday = jsDay === 1;
                     if (leave) totalDays++;
                     const typeColor = leave ? CONGE_TYPES.find((t) => t.value === leave.type)?.color ?? "bg-muted" : "";
+                    const schoolHol = isSchoolHoliday(dateStr);
                     return (
-                      <td key={i} className={`py-0.5 text-center ${isWeekend ? "bg-muted/30" : ""} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
+                      <td key={i} className={`py-0.5 text-center ${schoolHol && !isWeekend ? "bg-amber-400/20" : isWeekend ? "bg-muted/30" : ""} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
                         {leave ? (
                           <span className={`inline-block w-5 h-5 rounded ${typeColor} cursor-pointer`} title={`${CONGE_TYPES.find((t) => t.value === leave.type)?.label} — cliquer pour supprimer`} onClick={() => setDeleteTarget({ id: leave.id, name: emp.name, type: CONGE_TYPES.find((t) => t.value === leave.type)?.label || leave.type })} />
                         ) : null}

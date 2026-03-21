@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { CONGE_TYPES } from "../CongesCalendar";
+import { isSchoolHoliday } from "@/lib/school-holidays";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const MONTHS_SHORT = ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"];
@@ -116,6 +117,7 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
             const isWeekend = jsDay === 0 || jsDay === 6;
             const dateStr = formatDateStr(year, month, day);
             const holiday = HOLIDAYS_2026[dateStr];
+            const schoolHol = isSchoolHoliday(dateStr);
             const isoWeek = getISOWeek(date);
             const isMonday = jsDay === 1;
             const showWeek = isMonday && isoWeek !== lastWeekShown;
@@ -127,7 +129,7 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
               <tr
                 key={i}
                 className={`border-b border-border/40 ${
-                  holiday ? "bg-emerald-500/15" : isWeekend ? "bg-muted/40" : ""
+                  holiday ? "bg-emerald-500/15" : schoolHol && !isWeekend ? "bg-amber-400/15" : isWeekend ? "bg-muted/40" : ""
                 } ${isMonday ? "border-t-2 border-t-accent/40" : ""}`}
               >
                 <td className="px-1 py-0.5 text-muted-foreground whitespace-nowrap">
