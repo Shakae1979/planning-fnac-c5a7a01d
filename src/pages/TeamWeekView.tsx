@@ -19,12 +19,12 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 const ROLE_COLORS: Record<string, { bar: string; text: string; bg: string; headerBg: string }> = {
-  responsable: { bar: "bg-orange-400", text: "text-orange-800 dark:text-orange-200", bg: "bg-orange-50 dark:bg-orange-950/20", headerBg: "bg-orange-100 dark:bg-orange-900/40" },
-  technique:   { bar: "bg-blue-400",   text: "text-blue-800 dark:text-blue-200",   bg: "bg-blue-50 dark:bg-blue-950/20",   headerBg: "bg-blue-100 dark:bg-blue-900/40"   },
-  editorial:   { bar: "bg-purple-400", text: "text-purple-800 dark:text-purple-200", bg: "bg-purple-50 dark:bg-purple-950/20", headerBg: "bg-purple-100 dark:bg-purple-900/40" },
-  stock:       { bar: "bg-amber-400",  text: "text-amber-800 dark:text-amber-200",  bg: "bg-amber-50 dark:bg-amber-950/20",  headerBg: "bg-amber-100 dark:bg-amber-900/40"  },
-  caisse:      { bar: "bg-emerald-400",text: "text-emerald-800 dark:text-emerald-200",bg: "bg-emerald-50 dark:bg-emerald-950/20",headerBg: "bg-emerald-100 dark:bg-emerald-900/40"},
-  stagiaire:   { bar: "bg-pink-400",   text: "text-pink-800 dark:text-pink-200",   bg: "bg-pink-50 dark:bg-pink-950/20",   headerBg: "bg-pink-100 dark:bg-pink-900/40"   },
+  responsable: { bar: "bg-red-500",     text: "text-red-800 dark:text-red-200",     bg: "bg-red-50 dark:bg-red-950/20",     headerBg: "bg-red-100 dark:bg-red-900/40"     },
+  technique:   { bar: "bg-orange-500",  text: "text-orange-800 dark:text-orange-200",bg: "bg-orange-50 dark:bg-orange-950/20",headerBg: "bg-orange-100 dark:bg-orange-900/40" },
+  editorial:   { bar: "bg-yellow-500",  text: "text-yellow-800 dark:text-yellow-200",bg: "bg-yellow-50 dark:bg-yellow-950/20",headerBg: "bg-yellow-100 dark:bg-yellow-900/40" },
+  stock:       { bar: "bg-blue-500",    text: "text-blue-800 dark:text-blue-200",   bg: "bg-blue-50 dark:bg-blue-950/20",   headerBg: "bg-blue-100 dark:bg-blue-900/40"   },
+  caisse:      { bar: "bg-emerald-500", text: "text-emerald-800 dark:text-emerald-200",bg: "bg-emerald-50 dark:bg-emerald-950/20",headerBg: "bg-emerald-100 dark:bg-emerald-900/40"},
+  stagiaire:   { bar: "bg-pink-500",    text: "text-pink-800 dark:text-pink-200",   bg: "bg-pink-50 dark:bg-pink-950/20",   headerBg: "bg-pink-100 dark:bg-pink-900/40"   },
 };
 
 const CONGE_LABELS: Record<string, string> = {
