@@ -247,6 +247,7 @@ export function CongesCalendar() {
           employees={employees}
           conges={conges}
           deleteMutation={deleteMutation}
+          onAddConge={handleAddConge}
         />
       )}
     </div>
