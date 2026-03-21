@@ -120,6 +120,10 @@
 }
 
 @media print {
+  @page {
+    margin: 0.5cm;
+    size: landscape;
+  }
   body {
     background: white !important;
     -webkit-print-color-adjust: exact;
@@ -129,10 +133,26 @@
   nav, button, .no-print {
     display: none !important;
   }
+  aside {
+    display: none !important;
+  }
+  header {
+    display: none !important;
+  }
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .flex.h-screen {
+    display: block !important;
+  }
   .kpi-card {
     break-inside: avoid;
     border: 1px solid #ddd !important;
     box-shadow: none !important;
+    padding: 4px !important;
   }
   .print-compact-grid {
     display: grid !important;
@@ -157,12 +177,6 @@
   .print-employee-row {
     padding: 1px 6px !important;
     font-size: 9px !important;
-  }
-  header {
-    padding: 4px 8px !important;
-  }
-  header h1 {
-    font-size: 12px !important;
   }
   .print\:hidden {
     display: none !important;
