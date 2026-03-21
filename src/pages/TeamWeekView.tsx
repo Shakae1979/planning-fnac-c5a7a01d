@@ -35,10 +35,10 @@ const CONGE_LABELS: Record<string, string> = {
 };
 
 const CONGE_COLORS: Record<string, string> = {
-  conge: "bg-yellow-400",
-  rtt: "bg-cyan-400",
-  maladie: "bg-red-400",
-  formation: "bg-pink-400",
+  conge: "bg-lime-500",
+  rtt: "bg-cyan-500",
+  maladie: "bg-rose-600",
+  formation: "bg-violet-500",
 };
 
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"] as const;
