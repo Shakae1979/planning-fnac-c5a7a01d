@@ -182,6 +182,8 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
 }
 
 export function QuarterView({ year, months, employees, conges, deleteMutation }: QuarterViewProps) {
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; type: string } | null>(null);
+
   return (
     <div className="kpi-card overflow-hidden">
       <div className="overflow-x-auto">
@@ -194,10 +196,28 @@ export function QuarterView({ year, months, employees, conges, deleteMutation }:
               employees={employees}
               conges={conges}
               deleteMutation={deleteMutation}
+              onRequestDelete={setDeleteTarget}
             />
           ))}
         </div>
       </div>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer ce congé ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Voulez-vous vraiment supprimer le congé ({deleteTarget?.type}) de <strong>{deleteTarget?.name}</strong> ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { if (deleteTarget) { deleteMutation.mutate(deleteTarget.id); setDeleteTarget(null); } }}>
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
