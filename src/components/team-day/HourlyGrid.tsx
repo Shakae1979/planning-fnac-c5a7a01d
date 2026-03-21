@@ -207,7 +207,12 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
                 Employé
               </th>
               {HALF_HOURS.map((slot, i) => (
-                <th key={i} className="px-0 py-2 text-center font-medium min-w-[28px] border-r last:border-r-0">
+                <th
+                  key={i}
+                  className={`px-0 py-2 text-center font-medium min-w-[28px] ${
+                    slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"
+                  } last:border-r-0`}
+                >
                   <span className="text-[9px]">{slot.minute === 0 ? slot.label : ""}</span>
                 </th>
               ))}
@@ -234,17 +239,22 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
                     const overrideKey = `${emp.id}-${slot.hour}-${slot.minute}`;
                     const cellRole = overrides[overrideKey] || emp.role;
                     const colorClass = ROLE_BG[cellRole] || "bg-accent/20";
-                    const isHourStart = slot.minute === 0;
 
                     return (
                       <td
                         key={i}
-                        className={`px-0 py-1 text-center ${isHourStart ? "border-r" : "border-r border-r-muted/30"} last:border-r-0 ${
+                        className={`px-0 py-1 text-center ${
+                          slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"
+                        } last:border-r-0 ${
                           isWorking ? `${colorClass} cursor-pointer hover:opacity-80 transition-opacity` : ""
                         }`}
                         onClick={isWorking ? (e) => handleCellClick(emp.id, slot.hour, e, slot.minute) : undefined}
                       >
-                        {isWorking ? <div className="w-full h-6 rounded-sm" /> : null}
+                        {isWorking ? (
+                          <div className="w-full h-6 rounded-sm flex items-center justify-center">
+                            <span className="text-[8px] text-muted-foreground/60">{slot.minute === 30 ? "30" : ""}</span>
+                          </div>
+                        ) : null}
                       </td>
                     );
                   })}
