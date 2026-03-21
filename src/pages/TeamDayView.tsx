@@ -244,6 +244,14 @@ const TeamDayView = () => {
           </Button>
         </div>
 
+        {/* Day comment banner */}
+        {dayComment && (
+          <div className="mb-4 flex items-center gap-2 rounded-lg border-2 border-amber-400 bg-amber-50 dark:bg-amber-950/30 px-4 py-3">
+            <MessageSquare className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+            <span className="text-sm font-semibold text-amber-800 dark:text-amber-200">{dayComment}</span>
+          </div>
+        )}
+
         {/* Summary */}
         <div className="grid grid-cols-3 gap-3 mb-6 print-summary-cards">
           <div className="rounded-lg border bg-accent/5 border-accent/20 p-3 text-center">
