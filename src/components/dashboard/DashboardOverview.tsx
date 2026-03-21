@@ -1,6 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Clock, Users, CalendarDays, AlertTriangle } from "lucide-react";
+import { Users, CalendarDays, AlertTriangle } from "lucide-react";
+
+const ROLE_META: Record<string, { label: string; bg: string; text: string }> = {
+  responsable: { label: "Resp.", bg: "bg-red-100", text: "text-red-800" },
+  technique: { label: "Tech.", bg: "bg-orange-100", text: "text-orange-800" },
+  editorial: { label: "Édit.", bg: "bg-yellow-100", text: "text-yellow-800" },
+  stock: { label: "Stock", bg: "bg-blue-100", text: "text-blue-800" },
+  caisse: { label: "Caisse", bg: "bg-emerald-100", text: "text-emerald-800" },
+  stagiaire: { label: "Stage", bg: "bg-pink-100", text: "text-pink-800" },
+};
+
+const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
 
 export function DashboardOverview() {
   const { data: employees } = useQuery({
@@ -48,19 +59,34 @@ export function DashboardOverview() {
 
       <div className="kpi-card">
         <h3 className="text-sm font-semibold text-muted-foreground mb-4">Équipe 2026</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {employees?.map((emp) => (
-            <div key={emp.id} className="flex items-center gap-2 p-2 rounded-md bg-secondary/50">
-              <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center text-xs font-bold text-accent">
-                {emp.name.charAt(0)}
+        {ROLE_ORDER.map((role) => {
+          const roleEmps = employees?.filter((e) => e.role === role) ?? [];
+          if (roleEmps.length === 0) return null;
+          const meta = ROLE_META[role] ?? { label: role, bg: "bg-muted", text: "text-muted-foreground" };
+          return (
+            <div key={role} className="mb-4 last:mb-0">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${meta.bg} ${meta.text}`}>
+                  {meta.label}
+                </span>
+                <span className="text-xs text-muted-foreground">{roleEmps.length} collaborateur{roleEmps.length > 1 ? "s" : ""}</span>
               </div>
-              <div>
-                <div className="text-sm font-medium">{emp.name}</div>
-                <div className="text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {roleEmps.map((emp) => (
+                  <div key={emp.id} className="flex items-center gap-2 p-2 rounded-md bg-secondary/50">
+                    <div className={`h-8 w-8 rounded-full ${meta.bg} flex items-center justify-center text-xs font-bold ${meta.text}`}>
+                      {emp.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium">{emp.name}</div>
+                      <div className="text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
       <div className="kpi-card">
