@@ -52,7 +52,7 @@ interface QuarterViewProps {
   deleteMutation: any;
 }
 
-function VerticalMonthColumn({ year, month, employees, conges, deleteMutation }: {
+function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, onRequestDelete }: {
   year: number;
   month: number;
   employees: any[] | undefined;
