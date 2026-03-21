@@ -15,7 +15,6 @@ const ROLE_COLUMNS = [
   { key: "editorial", label: "Édit." },
   { key: "stock", label: "Stock" },
   { key: "caisse", label: "Caisse" },
-  { key: "stagiaire", label: "Stage" },
 ];
 
 const HOLIDAYS_2026: Record<string, string> = {
