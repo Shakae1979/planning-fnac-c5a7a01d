@@ -229,7 +229,7 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
                       return (
                         <td
                           key={role.key}
-                          className={`px-1 py-0.5 text-center cursor-pointer transition-colors ${
+                          className={`px-1 py-0.5 text-center cursor-pointer transition-colors ${role.borderColor} ${
                             isSelected ? "bg-primary/25 ring-1 ring-inset ring-primary/50" : "hover:bg-primary/10"
                           }`}
                           onClick={() => {
