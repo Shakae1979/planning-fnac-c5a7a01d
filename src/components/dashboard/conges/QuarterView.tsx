@@ -117,7 +117,7 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
             const isWeekend = jsDay === 0 || jsDay === 6;
             const dateStr = formatDateStr(year, month, day);
             const holiday = HOLIDAYS_2026[dateStr];
-            const isoWeek = getISOWeek(date);
+            const schoolHol = isSchoolHoliday(dateStr);
             const isMonday = jsDay === 1;
             const showWeek = isMonday && isoWeek !== lastWeekShown;
             if (showWeek) lastWeekShown = isoWeek;
