@@ -19,11 +19,6 @@ const links: { id: View; label: string; icon: React.ElementType }[] = [
   { id: "share", label: "Liens vendeurs", icon: Share2 },
 ];
 
-const shortcuts = [
-  { label: "Équipe du jour", path: "/equipe-du-jour" },
-  { label: "Planning semaine", path: "/planning-equipe" },
-  { label: "Mon planning", path: "/mon-planning" },
-];
 
 export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const navigate = useNavigate();
