@@ -295,7 +295,7 @@ const TeamWeekView = () => {
                     return (
                       <th key={day + "-comment"} className="border-b border-r px-1 py-1 text-center font-normal">
                         {comment.trim() ? (
-                          <span className="text-[10px] text-foreground/80 italic" title={comment}>{comment}</span>
+                          <span className="text-[10px] font-semibold italic px-1.5 py-0.5 rounded" style={{ background: "hsl(var(--warning) / 0.15)", color: "hsl(var(--warning))" }} title={comment}>{comment}</span>
                         ) : null}
                       </th>
                     );

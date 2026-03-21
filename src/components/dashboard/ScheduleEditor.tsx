@@ -672,7 +672,9 @@ export function ScheduleEditor() {
                         value={value}
                         onChange={(e) => setLocalDayComments((prev) => ({ ...prev, [day.key]: e.target.value }))}
                         placeholder="—"
-                        className="w-full px-1.5 py-0.5 text-xs text-center rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent"
+                        className={`w-full px-1.5 py-0.5 text-xs text-center rounded border focus:outline-none focus:ring-1 focus:ring-accent ${
+                          value.trim() ? "bg-warning/15 text-warning font-semibold border-warning/30" : "bg-background"
+                        }`}
                       />
                     </td>
                   );
