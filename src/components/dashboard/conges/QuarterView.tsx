@@ -58,6 +58,7 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
   employees: any[] | undefined;
   conges: any[] | undefined;
   deleteMutation: any;
+  onRequestDelete: (target: { id: string; name: string; type: string }) => void;
 }) {
   const daysInMonth = getDaysInMonth(year, month);
 
