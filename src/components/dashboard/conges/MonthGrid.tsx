@@ -1,10 +1,36 @@
-import { useState, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { CONGE_TYPES } from "../CongesCalendar";
 import { isSchoolHoliday } from "@/lib/school-holidays";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { formatDateBE } from "@/lib/format";
+
+const MONTHS_FULL = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+const DAY_NAMES = ["dim", "lun", "mar", "mer", "jeu", "ven", "sam"];
+
+const ROLE_COLUMNS = [
+  { key: "responsable", label: "Resp." },
+  { key: "technique", label: "Tech." },
+  { key: "editorial", label: "Édit." },
+  { key: "stock", label: "Stock" },
+  { key: "caisse", label: "Caisse" },
+  { key: "stagiaire", label: "Stage" },
+];
+
+const HOLIDAYS_2026: Record<string, string> = {
+  "2026-01-01": "Nouvel An",
+  "2026-04-05": "Pâques",
+  "2026-04-06": "Lundi de Pâques",
+  "2026-05-01": "Fête du travail",
+  "2026-05-14": "Ascension",
+  "2026-05-25": "Pentecôte",
+  "2026-07-21": "Fête nationale",
+  "2026-08-15": "Assomption",
+  "2026-11-01": "Toussaint",
+  "2026-11-11": "Armistice",
+  "2026-12-25": "Noël",
+};
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
@@ -13,6 +39,15 @@ function getDaysInMonth(year: number, month: number) {
 function formatDate(y: number, m: number, d: number) {
   return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
+
+function getISOWeek(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
+
+const MONTHS_SHORT = ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"];
 
 interface MonthGridProps {
   year: number;
@@ -24,36 +59,51 @@ interface MonthGridProps {
 }
 
 interface Selection {
-  empId: string;
-  empName: string;
+  role: string;
   dates: string[];
 }
 
 export function MonthGrid({ year, month, employees, conges, deleteMutation, onAddConge }: MonthGridProps) {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; type: string } | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
+  const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
   const [showTypeDialog, setShowTypeDialog] = useState(false);
   const [selectedType, setSelectedType] = useState("conge");
 
-  const MONTHS = [
-    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
-  ];
   const daysInMonth = getDaysInMonth(year, month);
 
-  const isOnLeave = (empId: string, dateStr: string) => {
-    return conges?.find((c: any) => {
-      if (c.employee_id !== empId) return false;
-      return dateStr >= c.date_start && dateStr <= c.date_end;
+  const employeesByRole = useMemo(() => {
+    const map: Record<string, any[]> = {};
+    ROLE_COLUMNS.forEach(r => { map[r.key] = []; });
+    employees?.forEach(emp => {
+      if (map[emp.role]) map[emp.role].push(emp);
     });
+    return map;
+  }, [employees]);
+
+  const activeRoles = useMemo(() => {
+    return ROLE_COLUMNS.filter(r => employeesByRole[r.key]?.length > 0);
+  }, [employeesByRole]);
+
+  const getLeaveForDate = (empId: string, dateStr: string) => {
+    return conges?.find((c: any) => c.employee_id === empId && dateStr >= c.date_start && dateStr <= c.date_end);
   };
 
-  const handleCellClick = useCallback((empId: string, empName: string, dateStr: string) => {
-    if (!selection || selection.empId !== empId) {
-      // Start new selection
-      setSelection({ empId, empName, dates: [dateStr] });
+  const getLeavesForRoleOnDate = (role: string, dateStr: string) => {
+    const emps = employeesByRole[role] || [];
+    const results: { emp: any; leave: any }[] = [];
+    emps.forEach(emp => {
+      const leave = getLeaveForDate(emp.id, dateStr);
+      if (leave) results.push({ emp, leave });
+    });
+    return results;
+  };
+
+  const handleCellClick = useCallback((role: string, dateStr: string) => {
+    if (!selection || selection.role !== role) {
+      setSelection({ role, dates: [dateStr] });
+      setSelectedEmpId(null);
     } else {
-      // Same employee — extend/toggle selection
       const dates = [...selection.dates];
       const idx = dates.indexOf(dateStr);
       if (idx >= 0) {
@@ -64,7 +114,6 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
         }
         setSelection({ ...selection, dates });
       } else {
-        // Build range from first selected to this date
         const allDates = [dates[0], dateStr].sort();
         const start = allDates[0];
         const end = allDates[allDates.length - 1];
@@ -79,40 +128,35 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
     }
   }, [selection]);
 
-  const handleConfirmSelection = () => {
-    if (!selection || selection.dates.length === 0 || !onAddConge) return;
-    const sorted = [...selection.dates].sort();
-    onAddConge(selection.empId, sorted[0], sorted[sorted.length - 1], selectedType);
-    setSelection(null);
-    setShowTypeDialog(false);
-    setSelectedType("conge");
-  };
-
   const handleCancelSelection = () => {
     setSelection(null);
+    setSelectedEmpId(null);
     setShowTypeDialog(false);
     setSelectedType("conge");
   };
 
-  const isSelected = (empId: string, dateStr: string) => {
-    return selection?.empId === empId && selection.dates.includes(dateStr);
+  const handleConfirmSelection = () => {
+    if (!selection || selection.dates.length === 0 || !selectedEmpId || !onAddConge) return;
+    const sorted = [...selection.dates].sort();
+    onAddConge(selectedEmpId, sorted[0], sorted[sorted.length - 1], selectedType);
+    handleCancelSelection();
   };
 
   const selectionSorted = selection ? [...selection.dates].sort() : [];
   const selectionStart = selectionSorted[0];
   const selectionEnd = selectionSorted[selectionSorted.length - 1];
+  const roleLabel = selection ? ROLE_COLUMNS.find(r => r.key === selection.role)?.label || selection.role : "";
+  const roleEmployees = selection ? employeesByRole[selection.role] || [] : [];
+
+  let lastWeekShown = -1;
 
   return (
     <div>
-      <div className="text-xs font-semibold text-muted-foreground mb-1 text-center">
-        {MONTHS[month]}
-      </div>
-
       {/* Selection bar */}
       {selection && selection.dates.length > 0 && (
         <div className="flex items-center justify-between bg-primary/10 border border-primary/30 rounded-md px-3 py-1.5 mb-2 text-xs">
           <span>
-            <strong>{selection.empName}</strong> — {selection.dates.length} jour(s) sélectionné(s)
+            <strong>{roleLabel}</strong> — {selection.dates.length} jour(s)
             {selectionStart && selectionEnd && selectionStart !== selectionEnd && (
               <span className="text-muted-foreground ml-1">
                 ({formatDateBE(new Date(selectionStart))} → {formatDateBE(new Date(selectionEnd))})
@@ -131,92 +175,99 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
       )}
 
       <div className="overflow-x-auto">
-        <table className="w-full text-xs">
+        <table className="w-full text-[11px] border-collapse">
           <thead>
-            <tr className="border-b">
-              <th className="pb-0 pr-1 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[120px]"></th>
-              {Array.from({ length: daysInMonth }, (_, i) => {
-                const d = new Date(year, month, i + 1);
-                const jsDay = d.getDay();
-                const dayLetters = ["D", "L", "M", "M", "J", "V", "S"];
-                const isWeekend = jsDay === 0 || jsDay === 6;
-                const isMonday = jsDay === 1;
-                const dateStr = formatDate(year, month, i + 1);
-                const schoolHol = isSchoolHoliday(dateStr);
-                return (
-                  <th key={i} className={`pb-0 text-center text-[9px] font-normal min-w-[28px] ${schoolHol ? "bg-amber-400/20" : ""} ${isWeekend ? "text-muted-foreground/40" : "text-muted-foreground/70"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
-                    {dayLetters[jsDay]}
-                  </th>
-                );
-              })}
-              <th className="pb-0 min-w-[40px]"></th>
-            </tr>
-            <tr className="border-b">
-              <th className="pb-1 pr-1 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[120px]">Vendeur</th>
-              {Array.from({ length: daysInMonth }, (_, i) => {
-                const d = new Date(year, month, i + 1);
-                const jsDay = d.getDay();
-                const isWeekend = jsDay === 0 || jsDay === 6;
-                const isMonday = jsDay === 1;
-                const dateStr = formatDate(year, month, i + 1);
-                const schoolHol = isSchoolHoliday(dateStr);
-                return (
-                  <th key={i} className={`pb-1 text-center font-medium min-w-[28px] ${schoolHol ? "bg-amber-400/20" : ""} ${isWeekend ? "text-muted-foreground/50" : "text-muted-foreground"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`} title={schoolHol || undefined}>
-                    {i + 1}
-                  </th>
-                );
-              })}
-              <th className="pb-1 text-center font-semibold text-muted-foreground min-w-[40px]">Total</th>
+            <tr className="border-b bg-muted/30">
+              <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[70px]">Date</th>
+              <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[30px]">Jour</th>
+              {activeRoles.map(r => (
+                <th key={r.key} className="px-1 py-1 text-center font-semibold text-muted-foreground">{r.label}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {employees?.map((emp) => {
-              let totalDays = 0;
+            {Array.from({ length: daysInMonth }, (_, i) => {
+              const day = i + 1;
+              const date = new Date(year, month, day);
+              const jsDay = date.getDay();
+              const isWeekend = jsDay === 0 || jsDay === 6;
+              const dateStr = formatDate(year, month, day);
+              const holiday = HOLIDAYS_2026[dateStr];
+              const schoolHol = isSchoolHoliday(dateStr);
+              const isoWeek = getISOWeek(date);
+              const isMonday = jsDay === 1;
+              const showWeek = isMonday && isoWeek !== lastWeekShown;
+              if (showWeek) lastWeekShown = isoWeek;
+
+              const dateLabel = `${String(day).padStart(2, "0")}-${MONTHS_SHORT[month]}`;
+
               return (
-                <tr key={emp.id} className="border-b border-border/50">
-                  <td className="py-0.5 pr-1 sticky left-0 bg-card z-10">
-                    <div className="font-medium truncate">{emp.name}</div>
+                <tr
+                  key={i}
+                  className={`border-b border-border/40 ${
+                    holiday ? "bg-emerald-500/15" : schoolHol && !isWeekend ? "bg-amber-400/15" : isWeekend ? "bg-muted/40" : ""
+                  } ${isMonday ? "border-t-2 border-t-accent/40" : ""}`}
+                >
+                  <td className="px-1 py-0.5 text-muted-foreground whitespace-nowrap">
+                    <div className="flex items-center gap-1">
+                      <span>{dateLabel}</span>
+                      {showWeek && (
+                        <span className="text-[9px] font-bold text-primary/60 ml-auto">{isoWeek}</span>
+                      )}
+                    </div>
                   </td>
-                  {Array.from({ length: daysInMonth }, (_, i) => {
-                    const dateStr = formatDate(year, month, i + 1);
-                    const leave = isOnLeave(emp.id, dateStr);
-                    const d = new Date(year, month, i + 1);
-                    const jsDay = d.getDay();
-                    const isWeekend = jsDay === 0 || jsDay === 6;
-                    const isMonday = jsDay === 1;
-                    if (leave) totalDays++;
-                    const typeColor = leave ? CONGE_TYPES.find((t) => t.value === leave.type)?.color ?? "bg-muted" : "";
-                    const schoolHol = isSchoolHoliday(dateStr);
-                    const selected = isSelected(emp.id, dateStr);
-                    return (
-                      <td
-                        key={i}
-                        className={`py-0.5 text-center cursor-pointer transition-colors ${
-                          selected
-                            ? "bg-primary/25 ring-1 ring-inset ring-primary/50"
-                            : schoolHol && !isWeekend
-                            ? "bg-amber-400/20"
-                            : isWeekend
-                            ? "bg-muted/30"
-                            : "hover:bg-primary/10"
-                        } ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}
-                        onClick={() => {
-                          if (leave) {
-                            setDeleteTarget({ id: leave.id, name: emp.name, type: CONGE_TYPES.find((t) => t.value === leave.type)?.label || leave.type });
-                          } else {
-                            handleCellClick(emp.id, emp.name, dateStr);
-                          }
-                        }}
-                      >
-                        {leave ? (
-                          <span className={`inline-block w-5 h-5 rounded ${typeColor}`} title={`${CONGE_TYPES.find((t) => t.value === leave.type)?.label} — cliquer pour supprimer`} />
-                        ) : selected ? (
-                          <span className="inline-block w-5 h-5 rounded bg-primary/40" />
-                        ) : null}
-                      </td>
-                    );
-                  })}
-                  <td className="py-0.5 text-center font-mono-data font-medium text-[10px]">{totalDays || "—"}</td>
+                  <td className={`px-1 py-0.5 font-medium ${isWeekend ? "text-muted-foreground/50" : ""}`}>
+                    {DAY_NAMES[jsDay]}
+                  </td>
+                  {holiday ? (
+                    <td colSpan={activeRoles.length} className="px-2 py-0.5 text-center font-semibold text-emerald-700 dark:text-emerald-400 text-[10px]">
+                      {holiday}
+                    </td>
+                  ) : (
+                    activeRoles.map(role => {
+                      const leaves = getLeavesForRoleOnDate(role.key, dateStr);
+                      const isSelected = selection?.role === role.key && selection.dates.includes(dateStr);
+                      return (
+                        <td
+                          key={role.key}
+                          className={`px-1 py-0.5 text-center cursor-pointer transition-colors ${
+                            isSelected ? "bg-primary/25 ring-1 ring-inset ring-primary/50" : "hover:bg-primary/10"
+                          }`}
+                          onClick={() => {
+                            if (leaves.length > 0 && !isSelected) {
+                              if (leaves.length === 1) {
+                                const { emp, leave } = leaves[0];
+                                const typeLabel = CONGE_TYPES.find(t => t.value === leave.type)?.label ?? "";
+                                setDeleteTarget({ id: leave.id, name: emp.name, type: typeLabel });
+                              }
+                            } else {
+                              handleCellClick(role.key, dateStr);
+                            }
+                          }}
+                        >
+                          {leaves.length > 0 ? (
+                            <div className="flex flex-col gap-0.5">
+                              {leaves.map(({ emp, leave }) => {
+                                const typeColor = CONGE_TYPES.find(t => t.value === leave.type)?.color ?? "bg-muted";
+                                const typeLabel = CONGE_TYPES.find(t => t.value === leave.type)?.label ?? "";
+                                return (
+                                  <span
+                                    key={emp.id}
+                                    className={`${typeColor} text-white text-[10px] px-1 py-0.5 rounded truncate block`}
+                                    title={`${emp.name} — ${typeLabel}`}
+                                  >
+                                    {emp.name.split(" ")[0]}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          ) : isSelected ? (
+                            <span className="inline-block w-full h-4 rounded bg-primary/30" />
+                          ) : null}
+                        </td>
+                      );
+                    })
+                  )}
                 </tr>
               );
             })}
@@ -224,7 +275,7 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
         </table>
       </div>
 
-      {/* Type selection dialog */}
+      {/* Type + employee selection dialog */}
       <Dialog open={showTypeDialog} onOpenChange={(open) => { if (!open) setShowTypeDialog(false); }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -232,13 +283,28 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
           </DialogHeader>
           <div className="space-y-3">
             <div className="text-sm text-muted-foreground">
-              <strong>{selection?.empName}</strong> — {selection?.dates.length} jour(s)
+              <strong>{roleLabel}</strong> — {selection?.dates.length} jour(s)
               {selectionStart && selectionEnd && (
                 <span className="block text-xs mt-0.5">
                   Du {formatDateBE(new Date(selectionStart))} au {formatDateBE(new Date(selectionEnd))}
                 </span>
               )}
             </div>
+
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Vendeur</label>
+              <select
+                value={selectedEmpId || ""}
+                onChange={(e) => setSelectedEmpId(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-md border bg-background"
+              >
+                <option value="">Choisir…</option>
+                {roleEmployees.map((emp: any) => (
+                  <option key={emp.id} value={emp.id}>{emp.name}</option>
+                ))}
+              </select>
+            </div>
+
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Type de congé</label>
               <div className="grid grid-cols-2 gap-2">
@@ -261,7 +327,7 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={handleCancelSelection}>Annuler</Button>
-            <Button onClick={handleConfirmSelection}>Valider</Button>
+            <Button onClick={handleConfirmSelection} disabled={!selectedEmpId}>Valider</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
