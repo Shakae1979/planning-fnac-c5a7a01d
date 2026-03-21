@@ -213,7 +213,7 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
                     slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"
                   } last:border-r-0`}
                 >
-                  <span className="text-[9px]">{slot.minute === 0 ? slot.label : ""}</span>
+                  <span className="text-[9px]">{slot.minute === 0 ? slot.label : `${slot.hour}h30`}</span>
                 </th>
               ))}
             </tr>
@@ -251,9 +251,7 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
                         onClick={isWorking ? (e) => handleCellClick(emp.id, slot.hour, e, slot.minute) : undefined}
                       >
                         {isWorking ? (
-                          <div className="w-full h-6 rounded-sm flex items-center justify-center">
-                            <span className="text-[8px] text-muted-foreground/60">{slot.minute === 30 ? "30" : ""}</span>
-                          </div>
+                          <div className="w-full h-6 rounded-sm" />
                         ) : null}
                       </td>
                     );
