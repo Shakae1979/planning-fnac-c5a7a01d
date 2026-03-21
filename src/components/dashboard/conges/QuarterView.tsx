@@ -1,7 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { CONGE_TYPES } from "../CongesCalendar";
 import { isSchoolHoliday } from "@/lib/school-holidays";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { formatDateBE } from "@/lib/format";
 
 const MONTHS_SHORT = ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"];
 const MONTHS_FULL = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
@@ -15,7 +18,6 @@ const ROLE_COLUMNS = [
   { key: "caisse", label: "Caisse" },
 ];
 
-// Belgian public holidays for 2026
 const HOLIDAYS_2026: Record<string, string> = {
   "2026-01-01": "Nouvel An",
   "2026-04-05": "Pâques",
@@ -51,15 +53,24 @@ interface QuarterViewProps {
   employees: any[] | undefined;
   conges: any[] | undefined;
   deleteMutation: any;
+  onAddConge?: (employeeId: string, dateStart: string, dateEnd: string, type: string) => void;
 }
 
-function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, onRequestDelete }: {
+interface Selection {
+  role: string;
+  dates: string[];
+}
+
+function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, onRequestDelete, selection, onCellClick, selectedEmpId }: {
   year: number;
   month: number;
   employees: any[] | undefined;
   conges: any[] | undefined;
   deleteMutation: any;
   onRequestDelete: (target: { id: string; name: string; type: string }) => void;
+  selection: Selection | null;
+  onCellClick: (role: string, dateStr: string) => void;
+  selectedEmpId: string | null;
 }) {
   const daysInMonth = getDaysInMonth(year, month);
 
@@ -72,7 +83,6 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
     return map;
   }, [employees]);
 
-  // Find active roles (those with at least one employee)
   const activeRoles = useMemo(() => {
     return ROLE_COLUMNS.filter(r => employeesByRole[r.key]?.length > 0);
   }, [employeesByRole]);
@@ -91,7 +101,6 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
     return results;
   };
 
-  // Track week numbers already shown
   let lastWeekShown = -1;
 
   return (
@@ -150,8 +159,26 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
                 ) : (
                   activeRoles.map(role => {
                     const leaves = getLeavesForRoleOnDate(role.key, dateStr);
+                    const isSelected = selection?.role === role.key && selection.dates.includes(dateStr);
                     return (
-                      <td key={role.key} className="px-1 py-0.5 text-center">
+                      <td
+                        key={role.key}
+                        className={`px-1 py-0.5 text-center cursor-pointer transition-colors ${
+                          isSelected ? "bg-primary/25 ring-1 ring-inset ring-primary/50" : "hover:bg-primary/10"
+                        }`}
+                        onClick={() => {
+                          if (leaves.length > 0 && !isSelected) {
+                            // If only one leave, request delete directly
+                            if (leaves.length === 1) {
+                              const { emp, leave } = leaves[0];
+                              const typeLabel = CONGE_TYPES.find(t => t.value === leave.type)?.label ?? "";
+                              onRequestDelete({ id: leave.id, name: emp.name, type: typeLabel });
+                            }
+                          } else {
+                            onCellClick(role.key, dateStr);
+                          }
+                        }}
+                      >
                         {leaves.length > 0 ? (
                           <div className="flex flex-col gap-0.5">
                             {leaves.map(({ emp, leave }) => {
@@ -160,15 +187,16 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
                               return (
                                 <span
                                   key={emp.id}
-                                  className={`${typeColor} text-white text-[10px] px-1 py-0.5 rounded cursor-pointer truncate block`}
-                                  title={`${emp.name} — ${typeLabel} — cliquer pour supprimer`}
-                                  onClick={() => onRequestDelete({ id: leave.id, name: emp.name, type: typeLabel })}
+                                  className={`${typeColor} text-white text-[10px] px-1 py-0.5 rounded truncate block`}
+                                  title={`${emp.name} — ${typeLabel}`}
                                 >
                                   {emp.name.split(" ")[0]}
                                 </span>
                               );
                             })}
                           </div>
+                        ) : isSelected ? (
+                          <span className="inline-block w-full h-4 rounded bg-primary/30" />
                         ) : null}
                       </td>
                     );
@@ -183,11 +211,96 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
   );
 }
 
-export function QuarterView({ year, months, employees, conges, deleteMutation }: QuarterViewProps) {
+export function QuarterView({ year, months, employees, conges, deleteMutation, onAddConge }: QuarterViewProps) {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; type: string } | null>(null);
+  const [selection, setSelection] = useState<Selection | null>(null);
+  const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
+  const [showTypeDialog, setShowTypeDialog] = useState(false);
+  const [selectedType, setSelectedType] = useState("conge");
+
+  const employeesByRole = useMemo(() => {
+    const map: Record<string, any[]> = {};
+    ROLE_COLUMNS.forEach(r => { map[r.key] = []; });
+    employees?.forEach(emp => {
+      if (map[emp.role]) map[emp.role].push(emp);
+    });
+    return map;
+  }, [employees]);
+
+  const handleCellClick = useCallback((role: string, dateStr: string) => {
+    if (!selection || selection.role !== role) {
+      setSelection({ role, dates: [dateStr] });
+      setSelectedEmpId(null);
+    } else {
+      const dates = [...selection.dates];
+      const idx = dates.indexOf(dateStr);
+      if (idx >= 0) {
+        dates.splice(idx, 1);
+        if (dates.length === 0) {
+          setSelection(null);
+          return;
+        }
+        setSelection({ ...selection, dates });
+      } else {
+        const allDates = [dates[0], dateStr].sort();
+        const start = allDates[0];
+        const end = allDates[allDates.length - 1];
+        const range: string[] = [];
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+          range.push(d.toISOString().slice(0, 10));
+        }
+        setSelection({ ...selection, dates: range });
+      }
+    }
+  }, [selection]);
+
+  const handleCancelSelection = () => {
+    setSelection(null);
+    setSelectedEmpId(null);
+    setShowTypeDialog(false);
+    setSelectedType("conge");
+  };
+
+  const handleConfirmSelection = () => {
+    if (!selection || selection.dates.length === 0 || !selectedEmpId || !onAddConge) return;
+    const sorted = [...selection.dates].sort();
+    onAddConge(selectedEmpId, sorted[0], sorted[sorted.length - 1], selectedType);
+    handleCancelSelection();
+  };
+
+  const selectionSorted = selection ? [...selection.dates].sort() : [];
+  const selectionStart = selectionSorted[0];
+  const selectionEnd = selectionSorted[selectionSorted.length - 1];
+  const roleLabel = selection ? ROLE_COLUMNS.find(r => r.key === selection.role)?.label || selection.role : "";
+  const roleEmployees = selection ? employeesByRole[selection.role] || [] : [];
+  const selectedEmpName = selectedEmpId ? employees?.find((e: any) => e.id === selectedEmpId)?.name : null;
 
   return (
     <div className="kpi-card overflow-hidden">
+      {/* Selection bar */}
+      {selection && selection.dates.length > 0 && (
+        <div className="flex items-center justify-between bg-primary/10 border border-primary/30 rounded-md px-3 py-1.5 mb-2 text-xs">
+          <span>
+            <strong>{roleLabel}</strong> — {selection.dates.length} jour(s)
+            {selectionStart && selectionEnd && selectionStart !== selectionEnd && (
+              <span className="text-muted-foreground ml-1">
+                ({formatDateBE(new Date(selectionStart))} → {formatDateBE(new Date(selectionEnd))})
+              </span>
+            )}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={handleCancelSelection}>
+              Annuler
+            </Button>
+            <Button size="sm" className="h-6 text-xs" onClick={() => setShowTypeDialog(true)}>
+              Encoder le congé
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="overflow-x-auto">
         <div className="flex gap-0 divide-x divide-border min-w-[900px]">
           {months.map(m => (
@@ -199,11 +312,72 @@ export function QuarterView({ year, months, employees, conges, deleteMutation }:
               conges={conges}
               deleteMutation={deleteMutation}
               onRequestDelete={setDeleteTarget}
+              selection={selection}
+              onCellClick={handleCellClick}
+              selectedEmpId={selectedEmpId}
             />
           ))}
         </div>
       </div>
 
+      {/* Type + employee selection dialog */}
+      <Dialog open={showTypeDialog} onOpenChange={(open) => { if (!open) setShowTypeDialog(false); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Encoder un congé</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="text-sm text-muted-foreground">
+              <strong>{roleLabel}</strong> — {selection?.dates.length} jour(s)
+              {selectionStart && selectionEnd && (
+                <span className="block text-xs mt-0.5">
+                  Du {formatDateBE(new Date(selectionStart))} au {formatDateBE(new Date(selectionEnd))}
+                </span>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Vendeur</label>
+              <select
+                value={selectedEmpId || ""}
+                onChange={(e) => setSelectedEmpId(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-md border bg-background"
+              >
+                <option value="">Choisir…</option>
+                {roleEmployees.map((emp: any) => (
+                  <option key={emp.id} value={emp.id}>{emp.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Type de congé</label>
+              <div className="grid grid-cols-2 gap-2">
+                {CONGE_TYPES.map((t) => (
+                  <button
+                    key={t.value}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-md border text-sm transition-colors ${
+                      selectedType === t.value
+                        ? "border-primary bg-primary/10 font-medium"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                    onClick={() => setSelectedType(t.value)}
+                  >
+                    <span className={`inline-block w-3 h-3 rounded ${t.color}`} />
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancelSelection}>Annuler</Button>
+            <Button onClick={handleConfirmSelection} disabled={!selectedEmpId}>Valider</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
