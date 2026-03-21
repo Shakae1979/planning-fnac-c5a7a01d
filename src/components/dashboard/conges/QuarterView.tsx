@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { CONGE_TYPES } from "../CongesCalendar";
+import { isSchoolHoliday } from "@/lib/school-holidays";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const MONTHS_SHORT = ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"];
