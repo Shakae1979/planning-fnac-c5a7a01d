@@ -50,8 +50,10 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation }: Mo
                 const dayLetters = ["D", "L", "M", "M", "J", "V", "S"];
                 const isWeekend = jsDay === 0 || jsDay === 6;
                 const isMonday = jsDay === 1;
+                const dateStr = formatDate(year, month, i + 1);
+                const schoolHol = isSchoolHoliday(dateStr);
                 return (
-                  <th key={i} className={`pb-0 text-center text-[9px] font-normal min-w-[28px] ${isWeekend ? "text-muted-foreground/40" : "text-muted-foreground/70"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
+                  <th key={i} className={`pb-0 text-center text-[9px] font-normal min-w-[28px] ${schoolHol ? "bg-amber-400/20" : ""} ${isWeekend ? "text-muted-foreground/40" : "text-muted-foreground/70"} ${isMonday && i > 0 ? "border-l-2 border-accent/30" : ""}`}>
                     {dayLetters[jsDay]}
                   </th>
                 );
