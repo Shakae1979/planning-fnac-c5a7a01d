@@ -115,6 +115,20 @@ const TeamDayView = () => {
     },
   });
 
+  const { data: dayComments } = useQuery({
+    queryKey: ["team-day-comments", weekStr],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("day_comments")
+        .select("*")
+        .eq("week_start", weekStr);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const dayComment = dayComments?.find((c) => c.day_key === dayKey)?.comment || null;
+
   // Build list of employees with their status for the day
   const teamDay = employees
     ?.map((emp) => {
