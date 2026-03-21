@@ -215,7 +215,7 @@ const EmployeeView = () => {
   return (
     <div className="min-h-screen bg-background">
       <FnacHeader title={employee.name} subtitle={`Contrat ${employee.contract_hours}h / semaine`} icon={User}>
-        <Button variant="outline" size="sm" className="border-white/20 text-white/80 hover:bg-white/10 hover:text-white" onClick={() => navigate("/mon-planning")}>
+        <Button variant="outline" size="sm" className="border-foreground/20 text-foreground hover:bg-foreground/10" onClick={() => navigate("/mon-planning")}>
           Changer
         </Button>
       </FnacHeader>

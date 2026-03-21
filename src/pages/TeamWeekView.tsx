@@ -202,7 +202,7 @@ const TeamWeekView = () => {
     <div className="min-h-screen bg-background">
       <FnacHeader title="Planning équipe" subtitle="Vue complète de la semaine" icon={Users}>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" className="border-white/20 text-white/80 hover:bg-white/10 hover:text-white" onClick={() => setWeekOffset(w => w - 1)}>
+          <Button variant="outline" size="icon" className="border-foreground/20 text-foreground hover:bg-foreground/10" onClick={() => setWeekOffset(w => w - 1)}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="text-center min-w-[200px]">
@@ -210,10 +210,10 @@ const TeamWeekView = () => {
               {formatDateBE(currentMonday)} — {formatDateBE(saturday)}
             </div>
           </div>
-          <Button variant="outline" size="icon" className="border-white/20 text-white/80 hover:bg-white/10 hover:text-white" onClick={() => setWeekOffset(w => w + 1)}>
+          <Button variant="outline" size="icon" className="border-foreground/20 text-foreground hover:bg-foreground/10" onClick={() => setWeekOffset(w => w + 1)}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" className="ml-2 border-white/20 text-white/80 hover:bg-white/10 hover:text-white" onClick={() => window.print()}>
+          <Button variant="outline" size="sm" className="ml-2 border-foreground/20 text-foreground hover:bg-foreground/10" onClick={() => window.print()}>
             <Printer className="h-3.5 w-3.5 mr-1" /> Imprimer
           </Button>
         </div>
