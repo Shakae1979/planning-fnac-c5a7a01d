@@ -207,7 +207,12 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
                 Employé
               </th>
               {HALF_HOURS.map((slot, i) => (
-                <th key={i} className="px-0 py-2 text-center font-medium min-w-[28px] border-r last:border-r-0">
+                <th
+                  key={i}
+                  className={`px-0 py-2 text-center font-medium min-w-[28px] ${
+                    slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"
+                  } last:border-r-0`}
+                >
                   <span className="text-[9px]">{slot.minute === 0 ? slot.label : ""}</span>
                 </th>
               ))}
