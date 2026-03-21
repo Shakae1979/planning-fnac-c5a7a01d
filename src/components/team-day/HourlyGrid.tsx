@@ -11,12 +11,12 @@ for (let h = 9; h <= 19; h++) {
 }
 
 const ROLES = [
-  { key: "responsable", label: "Resp.", color: "bg-red-300/50", dot: "bg-red-400" },
-  { key: "technique", label: "Tech.", color: "bg-orange-300/50", dot: "bg-orange-400" },
-  { key: "editorial", label: "Édit.", color: "bg-yellow-300/50", dot: "bg-yellow-400" },
-  { key: "stock", label: "Stock", color: "bg-blue-300/50", dot: "bg-blue-400" },
-  { key: "caisse", label: "Caisse", color: "bg-emerald-300/50", dot: "bg-emerald-400" },
-  { key: "stagiaire", label: "Stage", color: "bg-pink-300/50", dot: "bg-pink-400" },
+  { key: "responsable", label: "Resp.", color: "bg-red-500/30", dot: "bg-red-500" },
+  { key: "technique", label: "Tech.", color: "bg-orange-500/30", dot: "bg-orange-500" },
+  { key: "editorial", label: "Édit.", color: "bg-yellow-500/30", dot: "bg-yellow-500" },
+  { key: "stock", label: "Stock", color: "bg-blue-500/30", dot: "bg-blue-500" },
+  { key: "caisse", label: "Caisse", color: "bg-emerald-500/30", dot: "bg-emerald-500" },
+  { key: "stagiaire", label: "Stage", color: "bg-pink-500/30", dot: "bg-pink-500" },
   { key: "heure_de_table", label: "H. table", color: "bg-transparent", dot: "bg-gray-300 border border-gray-400" },
 ];
 
