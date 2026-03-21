@@ -69,41 +69,6 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
           })}
         </nav>
 
-        {!collapsed && (
-          <div className="px-3 pb-3 space-y-1">
-            <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: "hsl(var(--sidebar-fg) / 0.4)" }}>
-              Accès rapide
-            </div>
-            {shortcuts.map((s) => (
-              <button
-                key={s.path}
-                onClick={() => navigate(s.path)}
-                className="sidebar-link sidebar-link-inactive w-full flex items-center justify-between"
-              >
-                <span>{s.label}</span>
-                <ExternalLink className="h-3 w-3 opacity-50" />
-              </button>
-            ))}
-          </div>
-        )}
-
-        {collapsed && (
-          <div className="px-2 pb-3 space-y-1">
-            {shortcuts.map((s) => (
-              <Tooltip key={s.path}>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => navigate(s.path)}
-                    className="sidebar-link sidebar-link-inactive w-full justify-center px-0"
-                  >
-                    <ExternalLink className="h-4 w-4 shrink-0" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="right">{s.label}</TooltipContent>
-              </Tooltip>
-            ))}
-          </div>
-        )}
 
         <div className={`${collapsed ? "px-2" : "px-3"} pb-4`}>
           <Tooltip>
