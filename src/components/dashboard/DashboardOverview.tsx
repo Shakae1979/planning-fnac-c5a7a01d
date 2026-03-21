@@ -1,6 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Clock, Users, CalendarDays, AlertTriangle } from "lucide-react";
+import { Users, CalendarDays, AlertTriangle } from "lucide-react";
+
+const ROLE_META: Record<string, { label: string; bg: string; text: string }> = {
+  responsable: { label: "Resp.", bg: "bg-red-100", text: "text-red-800" },
+  technique: { label: "Tech.", bg: "bg-orange-100", text: "text-orange-800" },
+  editorial: { label: "Édit.", bg: "bg-yellow-100", text: "text-yellow-800" },
+  stock: { label: "Stock", bg: "bg-blue-100", text: "text-blue-800" },
+  caisse: { label: "Caisse", bg: "bg-emerald-100", text: "text-emerald-800" },
+  stagiaire: { label: "Stage", bg: "bg-pink-100", text: "text-pink-800" },
+};
+
+const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
 
 export function DashboardOverview() {
   const { data: employees } = useQuery({
