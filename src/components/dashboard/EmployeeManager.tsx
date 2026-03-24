@@ -93,6 +93,18 @@ export function EmployeeManager() {
     onError: (err) => toast.error((err as Error).message),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("employees").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      toast.success("Collaborateur supprimé définitivement !");
+    },
+    onError: (err) => toast.error((err as Error).message),
+  });
+
   const roleOrder = ["responsable", "technique", "editorial", "stock", "caisse"];
   const active = (employees?.filter((e) => e.is_active) ?? []).sort((a, b) => {
     const ra = roleOrder.indexOf(a.role);
