@@ -237,6 +237,24 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
                         {ROLE_LABELS[emp.role] || emp.role}
                       </span>
                     </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <label className="flex items-center gap-0.5 cursor-pointer">
+                        <Checkbox
+                          checked={!!soclozChecked[emp.id]}
+                          onCheckedChange={(v) => setSoclozChecked((p) => ({ ...p, [emp.id]: !!v }))}
+                          className="h-3 w-3"
+                        />
+                        <span className="text-[8px] text-muted-foreground">Socloz</span>
+                      </label>
+                      <label className="flex items-center gap-0.5 cursor-pointer">
+                        <Checkbox
+                          checked={!!savChecked[emp.id]}
+                          onCheckedChange={(v) => setSavChecked((p) => ({ ...p, [emp.id]: !!v }))}
+                          className="h-3 w-3"
+                        />
+                        <span className="text-[8px] text-muted-foreground">SAV</span>
+                      </label>
+                    </div>
                   </td>
                   {HALF_HOURS.map((slot, i) => {
                     const slotTime = slot.hour + slot.minute / 60;
