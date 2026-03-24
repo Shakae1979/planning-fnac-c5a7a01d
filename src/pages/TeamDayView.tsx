@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle, ChevronLeft, ChevronRight, Flag, MessageSquare, Palmtree, Printer, Users } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 import HourlyGrid from "@/components/team-day/HourlyGrid";
 import { FnacHeader } from "@/components/FnacHeader";
 import { useState } from "react";
@@ -71,8 +70,6 @@ const DAY_LABELS: Record<string, string> = {
 
 const TeamDayView = () => {
   const [dayOffset, setDayOffset] = useState(0);
-  const [soclozChecked, setSoclozChecked] = useState<Record<string, boolean>>({});
-  const [savChecked, setSavChecked] = useState<Record<string, boolean>>({});
   const today = new Date();
   const selectedDate = new Date(today);
   selectedDate.setDate(today.getDate() + dayOffset);
@@ -300,30 +297,10 @@ const TeamDayView = () => {
                         <div
                           className="flex items-center justify-between py-1 px-2 rounded bg-accent/5 text-xs"
                         >
-                        <div className="flex items-center gap-2">
                           <span className="font-medium">{emp.name}</span>
-                          <div className="flex items-center gap-3 ml-auto mr-2">
-                            <label className="flex items-center gap-1 cursor-pointer">
-                              <Checkbox
-                                checked={!!soclozChecked[emp.id]}
-                                onCheckedChange={(v) => setSoclozChecked((p) => ({ ...p, [emp.id]: !!v }))}
-                                className="h-3.5 w-3.5"
-                              />
-                              <span className="text-[10px] text-muted-foreground">Socloz</span>
-                            </label>
-                            <label className="flex items-center gap-1 cursor-pointer">
-                              <Checkbox
-                                checked={!!savChecked[emp.id]}
-                                onCheckedChange={(v) => setSavChecked((p) => ({ ...p, [emp.id]: !!v }))}
-                                className="h-3.5 w-3.5"
-                              />
-                              <span className="text-[10px] text-muted-foreground">SAV</span>
-                            </label>
-                          </div>
-                        </div>
-                        <span className="text-muted-foreground font-mono-data text-[11px]">
-                          {formatTimeBE(emp.start)}–{formatTimeBE(emp.end)} <span className="ml-1">{emp.netHours.toFixed(1)}h</span>
-                        </span>
+                          <span className="text-muted-foreground font-mono-data text-[11px]">
+                            {formatTimeBE(emp.start)}–{formatTimeBE(emp.end)} <span className="ml-1">{emp.netHours.toFixed(1)}h</span>
+                          </span>
                         </div>
                         {emp.notes && (
                           <div className="ml-2 mt-0.5 mb-1 px-2 py-1 rounded bg-amber-100/80 dark:bg-amber-900/30 border-l-2 border-amber-500 text-[11px] text-amber-800 dark:text-amber-200">

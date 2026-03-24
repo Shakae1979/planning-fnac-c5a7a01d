@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Printer, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -94,6 +95,8 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
   const [picker, setPicker] = useState<{ key: string; rect: { top: number; left: number } } | null>(null);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [soclozChecked, setSoclozChecked] = useState<Record<string, boolean>>({});
+  const [savChecked, setSavChecked] = useState<Record<string, boolean>>({});
 
   // Load overrides from DB
   useEffect(() => {
@@ -233,6 +236,24 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
                       <span className="text-[9px] text-muted-foreground">
                         {ROLE_LABELS[emp.role] || emp.role}
                       </span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <label className="flex items-center gap-0.5 cursor-pointer">
+                        <Checkbox
+                          checked={!!soclozChecked[emp.id]}
+                          onCheckedChange={(v) => setSoclozChecked((p) => ({ ...p, [emp.id]: !!v }))}
+                          className="h-3 w-3"
+                        />
+                        <span className="text-[8px] text-muted-foreground">Socloz</span>
+                      </label>
+                      <label className="flex items-center gap-0.5 cursor-pointer">
+                        <Checkbox
+                          checked={!!savChecked[emp.id]}
+                          onCheckedChange={(v) => setSavChecked((p) => ({ ...p, [emp.id]: !!v }))}
+                          className="h-3 w-3"
+                        />
+                        <span className="text-[8px] text-muted-foreground">SAV</span>
+                      </label>
                     </div>
                   </td>
                   {HALF_HOURS.map((slot, i) => {
