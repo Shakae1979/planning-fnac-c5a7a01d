@@ -70,7 +70,8 @@ const DAY_LABELS: Record<string, string> = {
 };
 
 const TeamDayView = () => {
-  const [dayOffset, setDayOffset] = useState(0);
+  const [soclozChecked, setSoclozChecked] = useState<Record<string, boolean>>({});
+  const [savChecked, setSavChecked] = useState<Record<string, boolean>>({});
   const today = new Date();
   const selectedDate = new Date(today);
   selectedDate.setDate(today.getDate() + dayOffset);
