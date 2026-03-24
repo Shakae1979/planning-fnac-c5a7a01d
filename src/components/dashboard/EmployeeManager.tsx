@@ -3,7 +3,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Mail } from "lucide-react";
+import { Plus, Trash2, Mail, X } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const ROLES = [
   { value: "responsable", label: "Responsable", color: "bg-orange-100 text-orange-800" },
@@ -85,6 +89,18 @@ export function EmployeeManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       toast.success("Email mis à jour !");
+    },
+    onError: (err) => toast.error((err as Error).message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("employees").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      toast.success("Collaborateur supprimé définitivement !");
     },
     onError: (err) => toast.error((err as Error).message),
   });
@@ -195,14 +211,40 @@ export function EmployeeManager() {
                   </div>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-                onClick={() => toggleMutation.mutate({ id: emp.id, active: false })}
-              >
-                <Trash2 className="h-3.5 w-3.5 mr-1" /> Désactiver
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-destructive"
+                  onClick={() => toggleMutation.mutate({ id: emp.id, active: false })}
+                >
+                  <Trash2 className="h-3.5 w-3.5 mr-1" /> Désactiver
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-destructive/60 hover:text-destructive">
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Supprimer {emp.name} ?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Cette action est irréversible. Toutes les données liées à ce collaborateur (plannings, congés) seront également supprimées.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        onClick={() => deleteMutation.mutate(emp.id)}
+                      >
+                        Supprimer définitivement
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
           ))}
         </div>
@@ -217,9 +259,35 @@ export function EmployeeManager() {
             {inactive.map((emp) => (
               <div key={emp.id} className="flex items-center justify-between py-2 px-2 rounded table-row-hover opacity-60">
                 <span className="text-sm">{emp.name}</span>
-                <Button variant="outline" size="sm" onClick={() => toggleMutation.mutate({ id: emp.id, active: true })}>
-                  Réactiver
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button variant="outline" size="sm" onClick={() => toggleMutation.mutate({ id: emp.id, active: true })}>
+                    Réactiver
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-destructive/60 hover:text-destructive">
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Supprimer {emp.name} ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Cette action est irréversible. Toutes les données liées seront supprimées.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          onClick={() => deleteMutation.mutate(emp.id)}
+                        >
+                          Supprimer définitivement
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </div>
             ))}
           </div>
