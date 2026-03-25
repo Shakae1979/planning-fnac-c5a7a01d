@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Calendar, Users, CalendarDays, User } from "lucide-react";
+import { Calendar, Users, CalendarDays, User, LogOut } from "lucide-react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { ScheduleEditor } from "@/components/dashboard/ScheduleEditor";
 import { EmployeeManager } from "@/components/dashboard/EmployeeManager";
@@ -8,6 +8,8 @@ import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { ShareLinks } from "@/components/dashboard/ShareLinks";
 import { TeamRecap } from "@/components/dashboard/TeamRecap";
 import { CongesCalendar } from "@/components/dashboard/CongesCalendar";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 type View = "overview" | "schedule" | "recap" | "employees" | "share" | "conges";
 
@@ -21,6 +23,12 @@ const Index = () => {
   const [view, setView] = useState<View>("overview");
   const navigate = useNavigate();
   const location = useLocation();
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -57,9 +65,22 @@ const Index = () => {
               })}
             </nav>
           </div>
-          <p className="text-xs" style={{ color: "hsl(var(--sidebar-fg) / 0.6)" }}>
-            Gestion des horaires de l'équipe
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-xs" style={{ color: "hsl(var(--sidebar-fg) / 0.6)" }}>
+              Gestion des horaires de l'équipe
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              className="flex items-center gap-1.5 text-xs"
+              style={{ color: "hsl(var(--sidebar-fg) / 0.7)" }}
+              title="Se déconnecter"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Déconnexion</span>
+            </Button>
+          </div>
         </header>
 
         <div className="p-6">
