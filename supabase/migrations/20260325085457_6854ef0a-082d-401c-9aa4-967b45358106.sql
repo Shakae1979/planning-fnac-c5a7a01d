@@ -1,0 +1,1 @@
+CREATE POLICY "Public can delete employees" ON public.employees FOR DELETE TO public USING (true);
