@@ -159,12 +159,14 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Delete existing overrides for this date
-      await supabase.from("schedule_role_overrides").delete().eq("date", date);
+      // Delete existing overrides and flags for this date
+      await Promise.all([
+        supabase.from("schedule_role_overrides").delete().eq("date", date),
+        supabase.from("employee_day_flags").delete().eq("date", date),
+      ]);
 
       // Insert current overrides
       const rows = Object.entries(overrides).map(([key, role]) => {
-        // key format: "empId-hour-minute"
         const parts = key.split("-");
         const slotKey = `${parts[parts.length - 2]}-${parts[parts.length - 1]}`;
         const employeeId = parts.slice(0, parts.length - 2).join("-");
@@ -176,10 +178,25 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
         };
       });
 
+      // Insert flags for employees that have socloz or sav checked
+      const allEmpIds = new Set([...Object.keys(soclozChecked), ...Object.keys(savChecked)]);
+      const flagRows = Array.from(allEmpIds)
+        .filter((id) => soclozChecked[id] || savChecked[id])
+        .map((employee_id) => ({
+          date,
+          employee_id,
+          socloz: !!soclozChecked[employee_id],
+          sav: !!savChecked[employee_id],
+        }));
+
+      const promises: Promise<any>[] = [];
       if (rows.length > 0) {
-        const { error } = await supabase.from("schedule_role_overrides").insert(rows);
-        if (error) throw error;
+        promises.push(supabase.from("schedule_role_overrides").insert(rows).then(({ error }) => { if (error) throw error; }));
       }
+      if (flagRows.length > 0) {
+        promises.push(supabase.from("employee_day_flags").insert(flagRows).then(({ error }) => { if (error) throw error; }));
+      }
+      await Promise.all(promises);
 
       setDirty(false);
       toast.success("Grille sauvegardée");
