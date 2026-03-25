@@ -23,8 +23,10 @@ const links: { id: View; label: string; icon: React.ElementType }[] = [
 
 export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const navigate = useNavigate();
+  const { role, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
+  const filteredLinks = role === "admin" ? links : links.filter(l => false); // users don't see dashboard
   return (
     <TooltipProvider delayDuration={0}>
       <aside
