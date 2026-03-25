@@ -27,12 +27,24 @@ export function UserManager() {
 
   const callManageUsers = async (body: Record<string, unknown>) => {
     const { data: { session } } = await supabase.auth.getSession();
-    const res = await supabase.functions.invoke("manage-users", {
-      body,
-      headers: { Authorization: `Bearer ${session?.access_token}` },
-    });
-    if (res.error) throw new Error(res.error.message);
-    return res.data;
+    if (!session) throw new Error("Non connecté");
+    
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+          "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify(body),
+      }
+    );
+    
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Erreur serveur");
+    return data;
   };
 
   const fetchUsers = async () => {
