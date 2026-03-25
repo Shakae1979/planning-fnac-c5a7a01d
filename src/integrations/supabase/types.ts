@@ -76,6 +76,41 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_day_flags: {
+        Row: {
+          created_at: string
+          date: string
+          employee_id: string
+          id: string
+          sav: boolean
+          socloz: boolean
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          employee_id: string
+          id?: string
+          sav?: boolean
+          socloz?: boolean
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          employee_id?: string
+          id?: string
+          sav?: boolean
+          socloz?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_day_flags_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           contract_hours: number
