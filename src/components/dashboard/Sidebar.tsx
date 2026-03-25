@@ -1,7 +1,8 @@
-import { BarChart3, Users, CalendarDays, Share2, Calendar, TableProperties, Palmtree, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { BarChart3, Users, CalendarDays, Share2, Calendar, TableProperties, Palmtree, PanelLeftClose, PanelLeftOpen, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from "@/hooks/useAuth";
 
 type View = "overview" | "schedule" | "recap" | "employees" | "share" | "conges";
 
@@ -22,8 +23,10 @@ const links: { id: View; label: string; icon: React.ElementType }[] = [
 
 export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const navigate = useNavigate();
+  const { role, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
+  const filteredLinks = role === "admin" ? links : links.filter(l => false); // users don't see dashboard
   return (
     <TooltipProvider delayDuration={0}>
       <aside
@@ -70,7 +73,19 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
         </nav>
 
 
-        <div className={`${collapsed ? "px-2" : "px-3"} pb-4`}>
+        <div className={`${collapsed ? "px-2" : "px-3"} pb-4 space-y-1`}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={signOut}
+                className="sidebar-link sidebar-link-inactive w-full justify-center text-destructive"
+              >
+                <LogOut className="h-4 w-4" />
+                {!collapsed && <span className="text-xs">Déconnexion</span>}
+              </button>
+            </TooltipTrigger>
+            {collapsed && <TooltipContent side="right">Déconnexion</TooltipContent>}
+          </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
               <button

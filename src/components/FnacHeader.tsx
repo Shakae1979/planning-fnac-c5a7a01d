@@ -1,6 +1,7 @@
-import { Calendar, Users, CalendarDays, User } from "lucide-react";
+import { Calendar, Users, CalendarDays, User, LogOut } from "lucide-react";
 import { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 interface FnacHeaderProps {
   title: string;
@@ -18,12 +19,13 @@ const NAV_SHORTCUTS = [
 export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { role, signOut } = useAuth();
 
   return (
     <header className="border-b" style={{ background: "hsl(var(--sidebar-bg))" }}>
       <div className="max-w-[1600px] mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/")} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <button onClick={() => navigate(role === "admin" ? "/" : "/equipe-du-jour")} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <Calendar className="h-5 w-5" style={{ color: "hsl(var(--sidebar-active))" }} />
             <span className="text-base font-extrabold tracking-tight" style={{ color: "hsl(var(--sidebar-active))" }}>
               fnac
@@ -48,9 +50,7 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
                   key={s.path}
                   onClick={() => navigate(s.path)}
                   className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                    active
-                      ? ""
-                      : "hover:opacity-80"
+                    active ? "" : "hover:opacity-80"
                   }`}
                   style={{
                     background: active ? "hsl(var(--sidebar-active))" : "hsl(var(--sidebar-hover))",
@@ -66,6 +66,18 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
         </div>
         <div className="flex items-center gap-2">
           {children}
+          <button
+            onClick={signOut}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:opacity-80"
+            style={{
+              background: "hsl(var(--sidebar-hover))",
+              color: "hsl(var(--sidebar-fg))",
+            }}
+            title="Déconnexion"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Déconnexion</span>
+          </button>
         </div>
       </div>
     </header>
