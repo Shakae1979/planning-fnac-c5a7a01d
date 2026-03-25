@@ -263,7 +263,7 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
                       <label className="flex items-center gap-0.5 cursor-pointer">
                         <Checkbox
                           checked={!!soclozChecked[emp.id]}
-                          onCheckedChange={(v) => setSoclozChecked((p) => ({ ...p, [emp.id]: !!v }))}
+                          onCheckedChange={(v) => { setSoclozChecked((p) => ({ ...p, [emp.id]: !!v })); setDirty(true); }}
                           className="h-3 w-3"
                         />
                         <span className="text-[8px] text-muted-foreground">Socloz</span>
@@ -271,7 +271,7 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
                       <label className="flex items-center gap-0.5 cursor-pointer">
                         <Checkbox
                           checked={!!savChecked[emp.id]}
-                          onCheckedChange={(v) => setSavChecked((p) => ({ ...p, [emp.id]: !!v }))}
+                          onCheckedChange={(v) => { setSavChecked((p) => ({ ...p, [emp.id]: !!v })); setDirty(true); }}
                           className="h-3 w-3"
                         />
                         <span className="text-[8px] text-muted-foreground">SAV</span>
