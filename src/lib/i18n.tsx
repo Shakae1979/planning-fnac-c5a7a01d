@@ -354,6 +354,34 @@ const translations = {
   "misc.to": { fr: "au", nl: "tot" },
   "misc.active": { fr: "Actif", nl: "Actief" },
   "misc.week": { fr: "Semaine", nl: "Week" },
+  "misc.rest": { fr: "Repos", nl: "Rust" },
+  "misc.nobody": { fr: "Personne", nl: "Niemand" },
+  "misc.collaborator": { fr: "collaborateur", nl: "medewerker" },
+  "misc.collaborators": { fr: "collaborateurs", nl: "medewerkers" },
+
+  // ========== HourlyGrid ==========
+  "hourlyGrid.title": { fr: "Grille horaire", nl: "Uurrooster" },
+  "hourlyGrid.employee": { fr: "Employé", nl: "Medewerker" },
+  "hourlyGrid.saving": { fr: "Sauvegarde...", nl: "Opslaan..." },
+
+  // ========== EmployeeView ==========
+  "empView.myPlanning": { fr: "Mon Planning", nl: "Mijn Planning" },
+  "empView.selectYourName": { fr: "Sélectionnez votre nom", nl: "Selecteer uw naam" },
+  "empView.weeklyContract": { fr: "/ semaine", nl: "/ week" },
+  "empView.contract": { fr: "Contrat", nl: "Contract" },
+
+  // ========== Store delete confirm ==========
+  "store.deleteConfirm": { fr: "Supprimer", nl: "Verwijderen" },
+  "store.deleteTitle": { fr: "Supprimer ce magasin ?", nl: "Winkel verwijderen?" },
+  "store.employeesDetached": { fr: "collaborateur(s). Ils seront détachés du magasin.", nl: "medewerker(s). Zij worden losgekoppeld van de winkel." },
+  "store.irreversible": { fr: "Cette action est irréversible.", nl: "Deze actie is onomkeerbaar." },
+
+  // ========== Schedule misc ==========
+  "schedule.markHoliday": { fr: "marqué comme jour férié pour tous les employés", nl: "gemarkeerd als feestdag voor alle medewerkers" },
+  "schedule.errorSaving": { fr: "Erreur lors de la sauvegarde", nl: "Fout bij het opslaan" },
+  "schedule.weekOfDate": { fr: "Semaine du", nl: "Week van" },
+  "schedule.prevWeekCopiedFor": { fr: "Semaine précédente copiée pour", nl: "Vorige week gekopieerd voor" },
+  "schedule.pastedOnEmployees": { fr: "Horaires collés sur", nl: "Roosters geplakt op" },
 } as const;
 
 type TranslationKey = keyof typeof translations;

@@ -7,6 +7,7 @@ import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber } from "@/lib/format";
 import { FnacHeader } from "@/components/FnacHeader";
+import { useI18n } from "@/lib/i18n";
 
 const BREAK_HOURS = 1;
 
@@ -16,38 +17,18 @@ function timeToHours(t: string | null): number {
   return h + (m || 0) / 60;
 }
 
-const CONGE_LABELS: Record<string, string> = {
-  conge: "Congé payé",
-  rtt: "Sans solde",
-  maladie: "Maladie",
-  formation: "Formation",
-};
-
 function computeNetHours(schedule: any): { gross: number; breaks: number; net: number } {
   const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
-  let gross = 0;
-  let workedDays = 0;
+  let gross = 0; let workedDays = 0;
   for (const d of days) {
-    const start = schedule[`${d}_start`];
-    const end = schedule[`${d}_end`];
-    if (start && end) {
-      gross += timeToHours(end) - timeToHours(start);
-      workedDays++;
-    }
+    const start = schedule[`${d}_start`]; const end = schedule[`${d}_end`];
+    if (start && end) { gross += timeToHours(end) - timeToHours(start); workedDays++; }
   }
   const breaks = workedDays * BREAK_HOURS;
   return { gross, breaks, net: gross - breaks };
 }
 
-const DAYS = [
-  { key: "lundi", label: "Lundi", offset: 0 },
-  { key: "mardi", label: "Mardi", offset: 1 },
-  { key: "mercredi", label: "Mercredi", offset: 2 },
-  { key: "jeudi", label: "Jeudi", offset: 3 },
-  { key: "vendredi", label: "Vendredi", offset: 4 },
-  { key: "samedi", label: "Samedi", offset: 5 },
-  { key: "dimanche", label: "Dimanche", offset: 6 },
-] as const;
+const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
 
 const SHIFT_COLORS = [
   { bg: "bg-emerald-100 border-emerald-300", text: "text-emerald-800" },
@@ -61,19 +42,13 @@ const SHIFT_COLORS = [
 ];
 
 function buildShiftColorMap(schedules: any[] | undefined): Map<string, number> {
-  const map = new Map<string, number>();
-  if (!schedules) return map;
-  let idx = 0;
+  const map = new Map<string, number>(); if (!schedules) return map; let idx = 0;
   for (const schedule of schedules) {
-    for (const day of DAYS) {
-      const start = schedule[`${day.key}_start`];
-      const end = schedule[`${day.key}_end`];
+    for (const day of DAY_KEYS) {
+      const start = schedule[`${day}_start`]; const end = schedule[`${day}_end`];
       if (start && end && start !== "FERIE" && start !== "EXT") {
         const key = `${start}-${end}`;
-        if (!map.has(key)) {
-          map.set(key, idx % SHIFT_COLORS.length);
-          idx++;
-        }
+        if (!map.has(key)) { map.set(key, idx % SHIFT_COLORS.length); idx++; }
       }
     }
   }
@@ -81,28 +56,19 @@ function buildShiftColorMap(schedules: any[] | undefined): Map<string, number> {
 }
 
 function getMonday(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay();
+  const d = new Date(date); const day = d.getDay();
   const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  d.setDate(diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
+  d.setDate(diff); d.setHours(0, 0, 0, 0); return d;
 }
 
 function addWeeks(date: Date, n: number): Date {
-  const d = new Date(date);
-  d.setDate(d.getDate() + 7 * n);
-  return d;
+  const d = new Date(date); d.setDate(d.getDate() + 7 * n); return d;
 }
 
-function formatWeekDate(date: Date): string {
-  return formatLocalDate(date);
-}
+function formatWeekDate(date: Date): string { return formatLocalDate(date); }
 
 function getDayDate(monday: Date, offset: number): string {
-  const d = new Date(monday);
-  d.setDate(d.getDate() + offset);
-  return formatLocalDate(d);
+  const d = new Date(monday); d.setDate(d.getDate() + offset); return formatLocalDate(d);
 }
 
 function getCongeForDate(dateStr: string, conges: any[]): any | null {
@@ -110,13 +76,17 @@ function getCongeForDate(dateStr: string, conges: any[]): any | null {
 }
 
 const EmployeeView = () => {
+  const { t } = useI18n();
   const { employeeName } = useParams();
   const navigate = useNavigate();
   const [weekOffset, setWeekOffset] = useState(0);
   const currentMonday = addWeeks(getMonday(new Date()), weekOffset);
   const weekStr = formatWeekDate(currentMonday);
-
   const decodedName = employeeName ? decodeURIComponent(employeeName) : null;
+
+  const DAYS = DAY_KEYS.map((key, i) => ({ key, label: t(`day.long.${key}` as any), offset: i }));
+
+  const congeLabels = (type: string) => t(`leave.${type}` as any) || type;
 
   const { currentStore } = useStore();
   const { data: employees } = useQuery({
@@ -131,9 +101,7 @@ const EmployeeView = () => {
   });
 
   const employee = employees?.find((e) => e.name === decodedName);
-
   const weeks = Array.from({ length: 4 }, (_, i) => formatWeekDate(addWeeks(currentMonday, i)));
-
   const firstMonday = formatWeekDate(currentMonday);
   const lastSunday = getDayDate(addWeeks(currentMonday, 3), 6);
 
@@ -141,12 +109,7 @@ const EmployeeView = () => {
     queryKey: ["employee-schedules", employee?.id, weekStr],
     enabled: !!employee,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("weekly_schedules")
-        .select("*")
-        .eq("employee_id", employee!.id)
-        .in("week_start", weeks)
-        .order("week_start");
+      const { data, error } = await supabase.from("weekly_schedules").select("*").eq("employee_id", employee!.id).in("week_start", weeks).order("week_start");
       if (error) throw error;
       return data;
     },
@@ -156,12 +119,7 @@ const EmployeeView = () => {
     queryKey: ["employee-conges", employee?.id, firstMonday, lastSunday],
     enabled: !!employee,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("conges")
-        .select("*")
-        .eq("employee_id", employee!.id)
-        .lte("date_start", lastSunday)
-        .gte("date_end", firstMonday);
+      const { data, error } = await supabase.from("conges").select("*").eq("employee_id", employee!.id).lte("date_start", lastSunday).gte("date_end", firstMonday);
       if (error) throw error;
       return data;
     },
@@ -172,23 +130,18 @@ const EmployeeView = () => {
   if (!decodedName) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <FnacHeader title="Mon Planning" subtitle="Sélectionnez votre nom" icon={Calendar} />
+        <FnacHeader title={t("empView.myPlanning")} subtitle={t("empView.selectYourName")} icon={Calendar} />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full">
-            <p className="text-muted-foreground mb-6">Sélectionnez votre nom pour voir votre planning :</p>
+            <p className="text-muted-foreground mb-6">{t("empView.selectName")}</p>
             <div className="space-y-2">
               {employees?.map((emp) => (
-                <button
-                  key={emp.id}
-                  onClick={() => navigate(`/mon-planning/${encodeURIComponent(emp.name)}`)}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-secondary transition-colors text-left"
-                >
-                  <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center text-sm font-bold text-accent">
-                    {emp.name.charAt(0)}
-                  </div>
+                <button key={emp.id} onClick={() => navigate(`/mon-planning/${encodeURIComponent(emp.name)}`)}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-secondary transition-colors text-left">
+                  <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center text-sm font-bold text-accent">{emp.name.charAt(0)}</div>
                   <div>
                     <div className="font-medium">{emp.name}</div>
-                    <div className="text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h / semaine</div>
+                    <div className="text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h {t("empView.weeklyContract")}</div>
                   </div>
                 </button>
               ))}
@@ -204,11 +157,9 @@ const EmployeeView = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <User className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h1 className="text-xl font-bold mb-2">Vendeur non trouvé</h1>
-          <p className="text-muted-foreground mb-4">"{decodedName}" n'existe pas dans le système.</p>
-          <Button variant="outline" onClick={() => navigate("/mon-planning")}>
-            Choisir un vendeur
-          </Button>
+          <h1 className="text-xl font-bold mb-2">{t("empView.notFound")}</h1>
+          <p className="text-muted-foreground mb-4">"{decodedName}" {t("empView.notFoundDesc")}</p>
+          <Button variant="outline" onClick={() => navigate("/mon-planning")}>{t("empView.chooseSeller")}</Button>
         </div>
       </div>
     );
@@ -218,30 +169,25 @@ const EmployeeView = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <FnacHeader title={employee.name} subtitle={`Contrat ${employee.contract_hours}h / semaine`} icon={User}>
+      <FnacHeader title={employee.name} subtitle={`${t("empView.contract")} ${employee.contract_hours}h ${t("empView.weeklyContract")}`} icon={User}>
         <Button variant="outline" size="sm" className="border-foreground/20 text-foreground hover:bg-foreground/10" onClick={() => navigate("/mon-planning")}>
-          Changer
+          {t("action.change")}
         </Button>
       </FnacHeader>
 
       <div className="max-w-3xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between mb-6">
-          <Button variant="outline" size="icon" onClick={() => setWeekOffset((w) => w - 1)}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
+          <Button variant="outline" size="icon" onClick={() => setWeekOffset((w) => w - 1)}><ChevronLeft className="h-4 w-4" /></Button>
           <div className="text-center">
-            <div className="text-sm font-semibold">S{getWeekNumber(currentMonday)} — Semaine du {weekLabel}</div>
-            <div className="text-xs text-muted-foreground">4 semaines affichées</div>
+            <div className="text-sm font-semibold">S{getWeekNumber(currentMonday)} — {t("schedule.weekOfDate")} {weekLabel}</div>
+            <div className="text-xs text-muted-foreground">{t("empView.4weeks")}</div>
           </div>
-          <Button variant="outline" size="icon" onClick={() => setWeekOffset((w) => w + 1)}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          <Button variant="outline" size="icon" onClick={() => setWeekOffset((w) => w + 1)}><ChevronRight className="h-4 w-4" /></Button>
         </div>
 
-        {/* Légende couleurs */}
         {shiftColorMap.size > 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-4 px-1">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Horaires :</span>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{t("empView.schedules")}</span>
             {Array.from(shiftColorMap.entries()).map(([shiftKey, colorIdx]) => {
               const color = SHIFT_COLORS[colorIdx];
               const [s, e] = shiftKey.split("-");
@@ -262,15 +208,12 @@ const EmployeeView = () => {
             const isCurrentWeek = ws === formatWeekDate(getMonday(new Date()));
 
             return (
-              <div
-                key={ws}
-                className={`rounded-lg border p-4 ${isCurrentWeek ? "border-accent bg-accent/5 ring-1 ring-accent/20" : "bg-card"}`}
-              >
+              <div key={ws} className={`rounded-lg border p-4 ${isCurrentWeek ? "border-accent bg-accent/5 ring-1 ring-accent/20" : "bg-card"}`}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-semibold">S{getWeekNumber(monday)} — Semaine du {label}</span>
-                    {isCurrentWeek && <span className="badge-positive">Cette semaine</span>}
+                    <span className="text-sm font-semibold">S{getWeekNumber(monday)} — {t("schedule.weekOfDate")} {label}</span>
+                    {isCurrentWeek && <span className="badge-positive">{t("empView.thisWeek")}</span>}
                   </div>
                   {schedule && (() => {
                     const { net, breaks } = computeNetHours(schedule);
@@ -278,7 +221,7 @@ const EmployeeView = () => {
                       <div className="flex items-center gap-1.5" title={`Brut - ${breaks}h pause = ${net.toFixed(1)}h net`}>
                         <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                         <span className="text-sm font-mono-data font-medium">
-                          {net.toFixed(1)}h <span className="text-muted-foreground text-xs">net</span>
+                          {net.toFixed(1)}h <span className="text-muted-foreground text-xs">{t("empView.net")}</span>
                         </span>
                       </div>
                     );
@@ -286,59 +229,44 @@ const EmployeeView = () => {
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-                    {DAYS.map((day) => {
-                      const start = schedule ? (schedule as any)[`${day.key}_start`] : null;
-                      const end = schedule ? (schedule as any)[`${day.key}_end`] : null;
-                      const hasShift = start && end;
-                      const dayDate = getDayDate(monday, day.offset);
-                      const conge = conges ? getCongeForDate(dayDate, conges) : null;
+                  {DAYS.map((day) => {
+                    const start = schedule ? (schedule as any)[`${day.key}_start`] : null;
+                    const end = schedule ? (schedule as any)[`${day.key}_end`] : null;
+                    const hasShift = start && end;
+                    const dayDate = getDayDate(monday, day.offset);
+                    const conge = conges ? getCongeForDate(dayDate, conges) : null;
 
-                      if (conge) {
-                        return (
-                          <div
-                            key={day.key}
-                            className="rounded-md p-2 text-center text-xs bg-primary/10 border border-primary/20"
-                          >
-                            <div className="font-medium text-muted-foreground mb-1">{day.label}</div>
-                            <Palmtree className="h-3.5 w-3.5 mx-auto text-primary mb-0.5" />
-                            <div className="font-medium text-primary text-[11px]">
-                              {CONGE_LABELS[conge.type] || conge.type}
-                            </div>
-                          </div>
-                        );
-                      }
-
-                      // Get color for this shift
-                      const shiftKey = hasShift ? `${start}-${end}` : null;
-                      const colorIdx = shiftKey ? shiftColorMap.get(shiftKey) : undefined;
-                      const shiftColor = colorIdx !== undefined ? SHIFT_COLORS[colorIdx] : null;
-
+                    if (conge) {
                       return (
-                        <div
-                          key={day.key}
-                          className={`rounded-md p-2 text-center text-xs border ${
-                            hasShift && shiftColor
-                              ? `${shiftColor.bg}`
-                              : hasShift
-                              ? "bg-accent/10 border-accent/20"
-                              : "bg-muted/50 border-transparent"
-                          }`}
-                        >
+                        <div key={day.key} className="rounded-md p-2 text-center text-xs bg-primary/10 border border-primary/20">
                           <div className="font-medium text-muted-foreground mb-1">{day.label}</div>
-                          {hasShift ? (
-                            <div className={`font-mono-data font-semibold ${shiftColor ? shiftColor.text : ""}`}>
-                              {formatTimeBE(start)} — {formatTimeBE(end)}
-                              <div className="text-[10px] text-muted-foreground mt-0.5 font-normal">
-                                {(timeToHours(end) - timeToHours(start) - BREAK_HOURS).toFixed(1)}h net
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="text-muted-foreground">Repos</div>
-                          )}
+                          <Palmtree className="h-3.5 w-3.5 mx-auto text-primary mb-0.5" />
+                          <div className="font-medium text-primary text-[11px]">{congeLabels(conge.type)}</div>
                         </div>
                       );
-                    })}
-                  </div>
+                    }
+
+                    const shiftKey = hasShift ? `${start}-${end}` : null;
+                    const colorIdx = shiftKey ? shiftColorMap.get(shiftKey) : undefined;
+                    const shiftColor = colorIdx !== undefined ? SHIFT_COLORS[colorIdx] : null;
+
+                    return (
+                      <div key={day.key} className={`rounded-md p-2 text-center text-xs border ${hasShift && shiftColor ? `${shiftColor.bg}` : hasShift ? "bg-accent/10 border-accent/20" : "bg-muted/50 border-transparent"}`}>
+                        <div className="font-medium text-muted-foreground mb-1">{day.label}</div>
+                        {hasShift ? (
+                          <div className={`font-mono-data font-semibold ${shiftColor ? shiftColor.text : ""}`}>
+                            {formatTimeBE(start)} — {formatTimeBE(end)}
+                            <div className="text-[10px] text-muted-foreground mt-0.5 font-normal">
+                              {(timeToHours(end) - timeToHours(start) - BREAK_HOURS).toFixed(1)}h {t("empView.net")}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-muted-foreground">{t("misc.rest")}</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}

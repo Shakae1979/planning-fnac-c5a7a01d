@@ -5,36 +5,20 @@ import { ChevronLeft, ChevronRight, Users, AlertTriangle, CheckCircle2, Printer 
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateBE, formatLocalDate, getWeekNumber } from "@/lib/format";
 import { useStore } from "@/hooks/useStore";
+import { useI18n } from "@/lib/i18n";
 
-const DAYS = [
-  { key: "lundi", label: "Lundi" },
-  { key: "mardi", label: "Mardi" },
-  { key: "mercredi", label: "Mercredi" },
-  { key: "jeudi", label: "Jeudi" },
-  { key: "vendredi", label: "Vendredi" },
-  { key: "samedi", label: "Samedi" },
-  { key: "dimanche", label: "Dimanche" },
-] as const;
+const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
 
 const SLOTS = Array.from({ length: 15 }, (_, i) => i + 7);
 
 const CATEGORIES = [
-  { key: "responsable", label: "Responsables", color: "text-orange-600 dark:text-orange-400" },
-  { key: "technique", label: "Technique", color: "text-blue-600 dark:text-blue-400" },
-  { key: "editorial", label: "Éditorial", color: "text-purple-600 dark:text-purple-400" },
-  { key: "stock", label: "Stock", color: "text-amber-600 dark:text-amber-400" },
-  { key: "caisse", label: "Caisse", color: "text-emerald-600 dark:text-emerald-400" },
-  { key: "stagiaire", label: "Stagiaires", color: "text-pink-600 dark:text-pink-400" },
+  { key: "responsable", color: "text-orange-600 dark:text-orange-400" },
+  { key: "technique", color: "text-blue-600 dark:text-blue-400" },
+  { key: "editorial", color: "text-purple-600 dark:text-purple-400" },
+  { key: "stock", color: "text-amber-600 dark:text-amber-400" },
+  { key: "caisse", color: "text-emerald-600 dark:text-emerald-400" },
+  { key: "stagiaire", color: "text-pink-600 dark:text-pink-400" },
 ];
-
-const ROLE_LABELS: Record<string, string> = {
-  responsable: "Responsables",
-  technique: "Technique",
-  editorial: "Éditorial",
-  stock: "Stock",
-  caisse: "Caisse",
-  stagiaire: "Stagiaires",
-};
 
 function getMonday(date: Date): Date {
   const d = new Date(date);
@@ -70,9 +54,17 @@ function isWorking(start: string | null, end: string | null, hour: number): bool
 }
 
 export function TeamRecap() {
+  const { t } = useI18n();
   const [weekOffset, setWeekOffset] = useState(0);
   const currentMonday = addWeeks(getMonday(new Date()), weekOffset);
   const weekStr = formatWeekDate(currentMonday);
+
+  const DAYS = DAY_KEYS.map((key) => ({
+    key,
+    label: t(`day.long.${key}` as any),
+  }));
+
+  const roleLabels = (role: string) => t(`role.${role}.plural` as any) || t(`role.${role}` as any) || role;
 
   const { currentStore } = useStore();
   const { data: employees } = useQuery({
@@ -104,7 +96,6 @@ export function TeamRecap() {
 
   const weekLabel = formatDateLongBE(currentMonday);
 
-  // Build coverage data: for each day/hour, which employees are working (with their role)
   const coverage: Record<string, Record<number, { name: string; role: string }[]>> = {};
   DAYS.forEach((day) => {
     coverage[day.key] = {};
@@ -122,7 +113,6 @@ export function TeamRecap() {
     });
   });
 
-  // Summary per employee
   const empSummary = employees?.map((emp) => {
     const schedule = schedules?.find((s) => s.employee_id === emp.id);
     const hoursWorked = schedule?.hours_modified ?? schedule?.hours_base ?? 0;
@@ -135,7 +125,6 @@ export function TeamRecap() {
     return { ...emp, hoursWorked: Number(hoursWorked), diff, daysWorked, hasSchedule: !!schedule };
   });
 
-  // Group employees by category for summary
   const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
   const sortedEmpSummary = empSummary?.sort((a, b) => {
     const ra = ROLE_ORDER.indexOf(a.role);
@@ -157,24 +146,22 @@ export function TeamRecap() {
     return "bg-accent/30 text-accent font-bold";
   };
 
-  // Check if a category is missing for a given day/hour
   const getMissingCategories = (dayKey: string, hour: number): string[] => {
     const workers = coverage[dayKey][hour];
     if (workers.length === 0) return [];
     const presentRoles = new Set(workers.map((w) => w.role));
-    return CATEGORIES.filter((c) => !presentRoles.has(c.key)).map((c) => c.label);
+    return CATEGORIES.filter((c) => !presentRoles.has(c.key)).map((c) => roleLabels(c.key));
   };
 
   return (
     <div className="space-y-6">
-      {/* Week navigation */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="outline" size="icon" onClick={() => setWeekOffset((w) => w - 1)}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="text-center">
-            <div className="text-sm font-semibold">S{getWeekNumber(currentMonday)} — Semaine du {weekLabel}</div>
+            <div className="text-sm font-semibold">S{getWeekNumber(currentMonday)} — {t("schedule.weekOfDate")} {weekLabel}</div>
             <div className="text-xs text-muted-foreground">{formatDateBE(currentMonday)}</div>
           </div>
           <Button variant="outline" size="icon" onClick={() => setWeekOffset((w) => w + 1)}>
@@ -182,22 +169,21 @@ export function TeamRecap() {
           </Button>
         </div>
         <Button variant="outline" size="sm" onClick={() => window.print()}>
-          <Printer className="h-3.5 w-3.5 mr-1" /> Imprimer
+          <Printer className="h-3.5 w-3.5 mr-1" /> {t("action.print")}
         </Button>
       </div>
 
-      {/* KPI summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="kpi-card">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Heures contrat</span>
+            <span className="text-sm text-muted-foreground">{t("recap.contractHours")}</span>
             <Users className="h-4 w-4 text-muted-foreground" />
           </div>
           <span className="text-2xl font-bold font-mono-data">{totalContractHours}h</span>
         </div>
         <div className="kpi-card">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Heures planifiées</span>
+            <span className="text-sm text-muted-foreground">{t("recap.plannedHours")}</span>
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </div>
           <span className="text-2xl font-bold font-mono-data">{totalPlannedHours}h</span>
@@ -209,7 +195,7 @@ export function TeamRecap() {
         </div>
         <div className="kpi-card">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Non planifiés</span>
+            <span className="text-sm text-muted-foreground">{t("recap.unplanned")}</span>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </div>
           <span className={`text-2xl font-bold font-mono-data ${unplannedEmployees > 0 ? "text-destructive" : ""}`}>
@@ -218,14 +204,13 @@ export function TeamRecap() {
         </div>
       </div>
 
-      {/* Coverage heatmap with category breakdown */}
       <div className="kpi-card overflow-hidden">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-4">Couverture horaire — Nombre de vendeurs par créneau</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-4">{t("recap.coverage")}</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b">
-                <th className="pb-2 pr-2 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[90px]">Jour</th>
+                <th className="pb-2 pr-2 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[90px]">{t("conges.dayLabel")}</th>
                 {SLOTS.map((h) => (
                   <th key={h} className="pb-2 text-center font-semibold text-muted-foreground min-w-[40px]">
                     {String(h).padStart(2, "0")}h00
@@ -242,9 +227,9 @@ export function TeamRecap() {
                     const count = workers.length;
                     const missing = getMissingCategories(day.key, hour);
                     const tooltip = count > 0
-                      ? workers.map((w) => `${w.name} (${ROLE_LABELS[w.role] ?? w.role})`).join("\n") +
-                        (missing.length > 0 ? `\n⚠ Manque: ${missing.join(", ")}` : "")
-                      : "Personne";
+                      ? workers.map((w) => `${w.name} (${roleLabels(w.role)})`).join("\n") +
+                        (missing.length > 0 ? `\n⚠ ${t("recap.missing")}: ${missing.join(", ")}` : "")
+                      : t("recap.nobody");
                     return (
                       <td key={hour} className="py-1.5 px-0.5 text-center">
                         <div
@@ -262,22 +247,21 @@ export function TeamRecap() {
           </table>
         </div>
         <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground flex-wrap">
-          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-destructive/15" /> 0 vendeur</span>
-          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-warning/20" /> 1 vendeur</span>
-          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-accent/15" /> 2-3 vendeurs</span>
-          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-accent/30" /> 4+ vendeurs</span>
-          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded ring-1 ring-warning/50" /> Catégorie manquante</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-destructive/15" /> {t("recap.0seller")}</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-warning/20" /> {t("recap.1seller")}</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-accent/15" /> {t("recap.2_3sellers")}</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-accent/30" /> {t("recap.4sellers")}</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded ring-1 ring-warning/50" /> {t("recap.missingCategory")}</span>
         </div>
       </div>
 
-      {/* Category coverage per day */}
       <div className="kpi-card">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-4">Couverture par catégorie — Présence par jour</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-4">{t("recap.categoryCoverage")}</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th className="pb-2 text-left font-semibold text-muted-foreground">Catégorie</th>
+                <th className="pb-2 text-left font-semibold text-muted-foreground">{t("recap.category")}</th>
                 {DAYS.map((day) => (
                   <th key={day.key} className="pb-2 text-center font-semibold text-muted-foreground">{day.label}</th>
                 ))}
@@ -286,9 +270,8 @@ export function TeamRecap() {
             <tbody>
               {CATEGORIES.map((cat) => (
                 <tr key={cat.key} className="border-b border-border/30">
-                  <td className={`py-2 font-medium ${cat.color}`}>{cat.label}</td>
+                  <td className={`py-2 font-medium ${cat.color}`}>{roleLabels(cat.key)}</td>
                   {DAYS.map((day) => {
-                    // Count unique employees of this category working any slot this day
                     const empNames = new Set<string>();
                     SLOTS.forEach((hour) => {
                       coverage[day.key][hour]
@@ -315,20 +298,19 @@ export function TeamRecap() {
         </div>
       </div>
 
-      {/* Per-employee summary grouped by category */}
       <div className="kpi-card">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-4">Récapitulatif par vendeur</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-4">{t("recap.perSeller")}</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th className="pb-2 text-left font-semibold text-muted-foreground">Vendeur</th>
-                <th className="pb-2 text-center font-semibold text-muted-foreground">Catégorie</th>
-                <th className="pb-2 text-center font-semibold text-muted-foreground">Contrat</th>
-                <th className="pb-2 text-center font-semibold text-muted-foreground">Planifié</th>
-                <th className="pb-2 text-center font-semibold text-muted-foreground">Écart</th>
-                <th className="pb-2 text-center font-semibold text-muted-foreground">Jours</th>
-                <th className="pb-2 text-center font-semibold text-muted-foreground">Statut</th>
+                <th className="pb-2 text-left font-semibold text-muted-foreground">{t("schedule.seller")}</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground">{t("recap.category")}</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground">{t("recap.contract")}</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground">{t("recap.planned")}</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground">{t("recap.diff")}</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground">{t("recap.days")}</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground">{t("recap.status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -345,7 +327,7 @@ export function TeamRecap() {
                       </div>
                     </td>
                     <td className={`py-2 text-center text-xs font-medium ${catColor}`}>
-                      {ROLE_LABELS[emp.role] ?? emp.role}
+                      {roleLabels(emp.role)}
                     </td>
                     <td className="py-2 text-center font-mono-data">{emp.contract_hours}h</td>
                     <td className="py-2 text-center font-mono-data">{emp.hasSchedule ? `${emp.hoursWorked}h` : "—"}</td>
@@ -359,9 +341,9 @@ export function TeamRecap() {
                     <td className="py-2 text-center font-mono-data">{emp.hasSchedule ? `${emp.daysWorked}j` : "—"}</td>
                     <td className="py-2 text-center">
                       {emp.hasSchedule ? (
-                        <span className="badge-positive">Planifié</span>
+                        <span className="badge-positive">{t("recap.statusPlanned")}</span>
                       ) : (
-                        <span className="badge-negative">Non planifié</span>
+                        <span className="badge-negative">{t("recap.statusUnplanned")}</span>
                       )}
                     </td>
                   </tr>

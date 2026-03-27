@@ -15,16 +15,18 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useStore } from "@/hooks/useStore";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/lib/i18n";
 import { EmployeeSheet } from "./EmployeeSheet";
 
-const ROLES = [
-  { value: "responsable", label: "Responsable", color: "bg-orange-100 text-orange-800" },
-  { value: "technique", label: "Technique", color: "bg-blue-100 text-blue-800" },
-  { value: "editorial", label: "Éditorial", color: "bg-purple-100 text-purple-800" },
-  { value: "stock", label: "Stock", color: "bg-amber-100 text-amber-800" },
-  { value: "caisse", label: "Caisse", color: "bg-emerald-100 text-emerald-800" },
-  { value: "stagiaire", label: "Stagiaire", color: "bg-pink-100 text-pink-800" },
-] as const;
+const ROLE_KEYS = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
+const ROLE_COLORS: Record<string, string> = {
+  responsable: "bg-orange-100 text-orange-800",
+  technique: "bg-blue-100 text-blue-800",
+  editorial: "bg-purple-100 text-purple-800",
+  stock: "bg-amber-100 text-amber-800",
+  caisse: "bg-emerald-100 text-emerald-800",
+  stagiaire: "bg-pink-100 text-pink-800",
+};
 
 interface AppUser {
   id: string;

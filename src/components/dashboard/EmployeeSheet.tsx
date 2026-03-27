@@ -10,21 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Save, Shield, PenTool, User, Loader2 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
-const ROLES = [
-  { value: "responsable", label: "Responsable" },
-  { value: "technique", label: "Technique" },
-  { value: "editorial", label: "Éditorial" },
-  { value: "stock", label: "Stock" },
-  { value: "caisse", label: "Caisse" },
-  { value: "stagiaire", label: "Stagiaire" },
-] as const;
-
-const ACCESS_ROLES = [
-  { value: "admin", label: "Admin", icon: Shield, desc: "Accès total, tous les magasins" },
-  { value: "editor", label: "Éditeur", icon: PenTool, desc: "Gestion de son magasin uniquement" },
-  { value: "user", label: "Utilisateur", icon: User, desc: "Lecture seule" },
-] as const;
+const ROLE_KEYS = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
 
 interface Employee {
   id: string;
@@ -51,6 +39,7 @@ interface EmployeeSheetProps {
 
 export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateAccountRole }: EmployeeSheetProps) {
   const queryClient = useQueryClient();
+  const { t } = useI18n();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("technique");
@@ -73,11 +62,17 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
     }
   }, [account]);
 
+  const ACCESS_ROLES = [
+    { value: "admin", label: t("access.admin"), icon: Shield, desc: t("access.admin.desc") },
+    { value: "editor", label: t("access.editor"), icon: PenTool, desc: t("access.editor.desc") },
+    { value: "user", label: t("access.user"), icon: User, desc: t("access.user.desc") },
+  ] as const;
+
   const updateMutation = useMutation({
     mutationFn: async () => {
       if (!employee) return;
       const trimmed = name.trim();
-      if (!trimmed) throw new Error("Le nom est requis");
+      if (!trimmed) throw new Error(t("misc.nameRequired"));
       const { error } = await supabase
         .from("employees")
         .update({
@@ -91,7 +86,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      toast.success("Collaborateur mis à jour !");
+      toast.success(t("sheet.employeeUpdated"));
       onOpenChange(false);
     },
     onError: (err) => toast.error((err as Error).message),
@@ -103,10 +98,10 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
     setSavingAccessRole(true);
     try {
       await onUpdateAccountRole(account.id, newRole);
-      toast.success("Rôle d'accès mis à jour !");
+      toast.success(t("sheet.accessRoleUpdated"));
     } catch (e: any) {
-      toast.error(e.message || "Erreur");
-      setAccessRole(account.role); // revert
+      toast.error(e.message || "Error");
+      setAccessRole(account.role);
     }
     setSavingAccessRole(false);
   };
@@ -121,75 +116,49 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
             <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center text-sm font-bold text-accent">
               {employee.name.charAt(0)}
             </div>
-            Fiche collaborateur
+            {t("sheet.title")}
           </SheetTitle>
         </SheetHeader>
 
         <div className="mt-6 space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="emp-name">Nom</Label>
-            <Input
-              id="emp-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Nom du collaborateur"
-            />
+            <Label htmlFor="emp-name">{t("team.name")}</Label>
+            <Input id="emp-name" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="emp-email">Email</Label>
-            <Input
-              id="emp-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@exemple.com"
-            />
+            <Label htmlFor="emp-email">{t("team.email")}</Label>
+            <Input id="emp-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@exemple.com" />
           </div>
 
           <div className="space-y-2">
-            <Label>Département</Label>
+            <Label>{t("team.department")}</Label>
             <Select value={role} onValueChange={setRole}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {ROLES.map((r) => (
-                  <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                {ROLE_KEYS.map((r) => (
+                  <SelectItem key={r} value={r}>{t(`role.${r}` as any)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="emp-hours">Heures contrat</Label>
-            <Input
-              id="emp-hours"
-              type="number"
-              value={hours}
-              onChange={(e) => setHours(e.target.value)}
-              min={0}
-              max={48}
-              className="font-mono-data"
-            />
+            <Label htmlFor="emp-hours">{t("team.contractHours")}</Label>
+            <Input id="emp-hours" type="number" value={hours} onChange={(e) => setHours(e.target.value)} min={0} max={48} className="font-mono-data" />
           </div>
 
-          <Button
-            className="w-full"
-            onClick={() => updateMutation.mutate()}
-            disabled={updateMutation.isPending}
-          >
+          <Button className="w-full" onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>
             <Save className="h-4 w-4 mr-2" />
-            Enregistrer
+            {t("sheet.register")}
           </Button>
 
-          {/* Access role section */}
           {account && (
             <>
               <Separator />
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-semibold">Rôle d'accès</Label>
+                  <Label className="text-sm font-semibold">{t("sheet.accessRole")}</Label>
                   {savingAccessRole && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
                 </div>
                 <div className="space-y-2">
@@ -202,21 +171,15 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
                         onClick={() => handleAccessRoleChange(ar.value)}
                         disabled={savingAccessRole}
                         className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors ${
-                          isSelected
-                            ? "border-accent bg-accent/10"
-                            : "border-border hover:border-accent/50 hover:bg-muted/50"
+                          isSelected ? "border-accent bg-accent/10" : "border-border hover:border-accent/50 hover:bg-muted/50"
                         }`}
                       >
                         <Icon className={`h-4 w-4 shrink-0 ${isSelected ? "text-accent" : "text-muted-foreground"}`} />
                         <div className="flex-1 min-w-0">
-                          <p className={`text-sm font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>
-                            {ar.label}
-                          </p>
+                          <p className={`text-sm font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>{ar.label}</p>
                           <p className="text-[11px] text-muted-foreground">{ar.desc}</p>
                         </div>
-                        {isSelected && (
-                          <Badge variant="secondary" className="text-[10px] shrink-0">Actif</Badge>
-                        )}
+                        {isSelected && <Badge variant="secondary" className="text-[10px] shrink-0">{t("misc.active")}</Badge>}
                       </button>
                     );
                   })}
@@ -228,10 +191,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
           {!account && employee.email && (
             <>
               <Separator />
-              <p className="text-xs text-muted-foreground text-center">
-                Ce collaborateur n'a pas encore de compte d'accès.
-                Créez-en un depuis la liste pour pouvoir gérer son rôle.
-              </p>
+              <p className="text-xs text-muted-foreground text-center">{t("sheet.noAccountYet")}</p>
             </>
           )}
         </div>
