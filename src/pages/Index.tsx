@@ -8,11 +8,12 @@ import { ShareLinks } from "@/components/dashboard/ShareLinks";
 import { TeamRecap } from "@/components/dashboard/TeamRecap";
 import { CongesCalendar } from "@/components/dashboard/CongesCalendar";
 import { TeamAndAccounts } from "@/components/dashboard/TeamAndAccounts";
+import { StoreManager } from "@/components/dashboard/StoreManager";
 import { useStore } from "@/hooks/useStore";
 import { useAuth } from "@/hooks/useAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type View = "overview" | "schedule" | "recap" | "team" | "share" | "conges";
+type View = "overview" | "schedule" | "recap" | "team" | "share" | "conges" | "stores";
 
 const NAV_SHORTCUTS = [
   { label: "Équipe du jour", path: "/equipe-du-jour", icon: Users },
@@ -109,6 +110,7 @@ const Index = () => {
           {view === "team" && <TeamAndAccounts />}
           {view === "share" && <ShareLinks />}
           {view === "conges" && <CongesCalendar />}
+          {view === "stores" && <StoreManager />}
         </div>
       </main>
     </div>

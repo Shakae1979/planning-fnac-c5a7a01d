@@ -1,10 +1,10 @@
-import { BarChart3, Users, CalendarDays, Share2, Calendar, TableProperties, Palmtree, PanelLeftClose, PanelLeftOpen, LogOut } from "lucide-react";
+import { BarChart3, Users, CalendarDays, Share2, Calendar, TableProperties, Palmtree, PanelLeftClose, PanelLeftOpen, LogOut, Store } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 
-type View = "overview" | "schedule" | "recap" | "team" | "share" | "conges";
+type View = "overview" | "schedule" | "recap" | "team" | "share" | "conges" | "stores";
 
 interface SidebarProps {
   activeView: View;
@@ -18,6 +18,7 @@ const links: { id: View; label: string; icon: React.ElementType }[] = [
   { id: "conges", label: "Congés 2026", icon: Palmtree },
   { id: "team", label: "Équipe & Comptes", icon: Users },
   { id: "share", label: "Liens vendeurs", icon: Share2 },
+  { id: "stores", label: "Magasins", icon: Store },
 ];
 
 
@@ -26,7 +27,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const { role, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
-  const filteredLinks = (role === "admin" || role === "editor") ? links : links.filter(l => false);
+  const filteredLinks = role === "admin" ? links : (role === "editor" ? links.filter(l => l.id !== "stores") : []);
   return (
     <TooltipProvider delayDuration={0}>
       <aside
@@ -48,7 +49,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
         </div>
 
         <nav className={`flex-1 ${collapsed ? "px-2" : "px-3"} mt-4 space-y-1`}>
-          {links.map((link) => {
+          {filteredLinks.map((link) => {
             const active = activeView === link.id;
             const btn = (
               <button
