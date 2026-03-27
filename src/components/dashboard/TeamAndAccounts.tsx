@@ -48,6 +48,7 @@ export function TeamAndAccounts() {
   const [accountRole, setAccountRole] = useState<string>("user");
   const [savingAccount, setSavingAccount] = useState(false);
   const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
+  const [editingEmployee, setEditingEmployee] = useState<any>(null);
 
   // Fetch employees filtered by store
   const { data: employees } = useQuery({
