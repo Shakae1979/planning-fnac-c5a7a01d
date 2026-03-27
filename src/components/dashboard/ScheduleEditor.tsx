@@ -123,6 +123,7 @@ export function ScheduleEditor() {
       let query = supabase.from("employees").select("*").eq("is_active", true).order("name");
       if (currentStore) query = query.eq("store_id", currentStore.id);
       const { data, error } = await query;
+      if (error) throw error;
       return data?.sort((a, b) => {
         const ra = ROLE_ORDER.indexOf(a.role);
         const rb = ROLE_ORDER.indexOf(b.role);
