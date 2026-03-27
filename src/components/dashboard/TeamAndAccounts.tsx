@@ -279,7 +279,7 @@ export function TeamAndAccounts() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{emp.name}</span>
+                        <button className="text-sm font-medium hover:underline cursor-pointer text-left" onClick={() => setEditingEmployee(emp)}>{emp.name}</button>
                         {account ? (
                           <Badge variant="outline" className="text-[10px] gap-1 py-0">
                             {account.role === "admin" ? <Shield className="h-3 w-3" /> : account.role === "editor" ? <PenTool className="h-3 w-3" /> : <User className="h-3 w-3" />}
@@ -459,6 +459,12 @@ export function TeamAndAccounts() {
           </div>
         </div>
       )}
+
+      <EmployeeSheet
+        employee={editingEmployee}
+        open={!!editingEmployee}
+        onOpenChange={(open) => { if (!open) setEditingEmployee(null); }}
+      />
     </div>
   );
 }
