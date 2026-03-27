@@ -15,6 +15,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useStore } from "@/hooks/useStore";
 import { useAuth } from "@/hooks/useAuth";
+import { EmployeeSheet } from "./EmployeeSheet";
 
 const ROLES = [
   { value: "responsable", label: "Responsable", color: "bg-orange-100 text-orange-800" },
