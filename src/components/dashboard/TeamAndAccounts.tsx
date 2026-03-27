@@ -10,9 +10,11 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  Plus, Trash2, Mail, X, Users, Shield, User, Loader2, KeyRound, UserPlus,
+  Plus, Trash2, Mail, X, Users, Shield, User, Loader2, KeyRound, UserPlus, PenTool,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useStore } from "@/hooks/useStore";
+import { useAuth } from "@/hooks/useAuth";
 
 const ROLES = [
   { value: "responsable", label: "Responsable", color: "bg-orange-100 text-orange-800" },
