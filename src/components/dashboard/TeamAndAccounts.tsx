@@ -271,7 +271,7 @@ export function TeamAndAccounts() {
             <label className="text-xs text-muted-foreground">Département</label>
             <select value={newRole} onChange={(e) => setNewRole(e.target.value)}
               className="w-full mt-1 px-3 py-2 text-sm rounded-md border bg-background focus:outline-none focus:ring-2 focus:ring-accent">
-              {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+              {ROLE_KEYS.map((r) => <option key={r} value={r}>{t(`role.${r}.short` as any)}</option>)}
             </select>
           </div>
           <Button size="sm" onClick={() => addMutation.mutate()} disabled={addMutation.isPending}>
@@ -314,8 +314,8 @@ export function TeamAndAccounts() {
                       <div className="text-xs text-muted-foreground flex items-center gap-1">
                         <select value={emp.role}
                           onChange={(e) => updateRoleMutation.mutate({ id: emp.id, role: e.target.value })}
-                          className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium border-none cursor-pointer ${ROLES.find(r => r.value === emp.role)?.color ?? "bg-muted text-muted-foreground"}`}>
-                          {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+                          className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium border-none cursor-pointer ${ROLE_COLORS[emp.role] ?? "bg-muted text-muted-foreground"}`}>
+                          {ROLE_KEYS.map((r) => <option key={r} value={r}>{t(`role.${r}.short` as any)}</option>)}
                         </select>
                         {" · "}<span className="font-mono-data">{emp.contract_hours}h</span>
                       </div>
