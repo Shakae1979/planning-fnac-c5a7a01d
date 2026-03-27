@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useStore } from "@/hooks/useStore";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronLeft, ChevronRight, Printer, CalendarIcon } from "lucide-react";
@@ -36,10 +37,13 @@ export function CongesCalendar() {
 
   const roleOrder = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
 
+  const { currentStore } = useStore();
   const { data: employees } = useQuery({
-    queryKey: ["employees"],
+    queryKey: ["employees", currentStore?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("employees").select("*").eq("is_active", true).order("name");
+      let query = supabase.from("employees").select("*").eq("is_active", true).order("name");
+      if (currentStore) query = query.eq("store_id", currentStore.id);
+      const { data, error } = await query;
       if (error) throw error;
       return data.sort((a, b) => {
         const ra = roleOrder.indexOf(a.role);

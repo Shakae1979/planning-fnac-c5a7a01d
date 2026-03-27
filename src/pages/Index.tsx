@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Calendar, Users, CalendarDays, User } from "lucide-react";
+import { Calendar, Users, CalendarDays, User, Store } from "lucide-react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { ScheduleEditor } from "@/components/dashboard/ScheduleEditor";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
@@ -8,6 +8,10 @@ import { ShareLinks } from "@/components/dashboard/ShareLinks";
 import { TeamRecap } from "@/components/dashboard/TeamRecap";
 import { CongesCalendar } from "@/components/dashboard/CongesCalendar";
 import { TeamAndAccounts } from "@/components/dashboard/TeamAndAccounts";
+import { useStore } from "@/hooks/useStore";
+import { useAuth } from "@/hooks/useAuth";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 type View = "overview" | "schedule" | "recap" | "team" | "share" | "conges";
 
 const NAV_SHORTCUTS = [
@@ -20,6 +24,8 @@ const Index = () => {
   const [view, setView] = useState<View>("overview");
   const navigate = useNavigate();
   const location = useLocation();
+  const { stores, currentStore, setCurrentStore } = useStore();
+  const { role } = useAuth();
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -33,6 +39,41 @@ const Index = () => {
                 Planning Fnac 2026
               </h1>
             </div>
+
+            {/* Store selector */}
+            {stores.length > 1 && (
+              <>
+                <div className="h-5 w-px" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
+                <Select
+                  value={currentStore?.id || ""}
+                  onValueChange={(val) => {
+                    const s = stores.find((st) => st.id === val);
+                    if (s) setCurrentStore(s);
+                  }}
+                >
+                  <SelectTrigger className="w-[180px] h-8 text-xs border-none" style={{ background: "hsl(var(--sidebar-hover))", color: "hsl(var(--sidebar-fg))" }}>
+                    <Store className="h-3.5 w-3.5 mr-1" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {stores.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
+            )}
+
+            {stores.length === 1 && currentStore && (
+              <>
+                <div className="h-5 w-px" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
+                <span className="text-xs font-medium flex items-center gap-1" style={{ color: "hsl(var(--sidebar-fg))" }}>
+                  <Store className="h-3.5 w-3.5" />
+                  {currentStore.name}
+                </span>
+              </>
+            )}
+
             <div className="h-5 w-px" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
             <nav className="flex items-center gap-1">
               {NAV_SHORTCUTS.map((s) => {
@@ -57,7 +98,7 @@ const Index = () => {
             </nav>
           </div>
           <p className="text-xs" style={{ color: "hsl(var(--sidebar-fg) / 0.6)" }}>
-            Gestion des horaires de l'équipe
+            {currentStore ? currentStore.name : "Gestion des horaires"}
           </p>
         </header>
 

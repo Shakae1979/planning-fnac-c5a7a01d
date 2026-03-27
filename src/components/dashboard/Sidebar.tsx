@@ -26,7 +26,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const { role, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
-  const filteredLinks = role === "admin" ? links : links.filter(l => false); // users don't see dashboard
+  const filteredLinks = (role === "admin" || role === "editor") ? links : links.filter(l => false);
   return (
     <TooltipProvider delayDuration={0}>
       <aside

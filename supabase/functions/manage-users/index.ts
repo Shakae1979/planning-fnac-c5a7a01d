@@ -29,7 +29,6 @@ Deno.serve(async (req) => {
     });
     const { data: { user: caller }, error: authError } = await anonClient.auth.getUser();
     if (authError || !caller) {
-      console.error("Auth error:", authError?.message);
       return new Response(JSON.stringify({ error: "Non autorisé" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -38,14 +37,12 @@ Deno.serve(async (req) => {
 
     // Check admin role with service role client
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
-    const { data: roleData, error: roleError } = await adminClient
+    const { data: roleData } = await adminClient
       .from("user_roles")
       .select("role")
       .eq("user_id", caller.id)
-      .eq("role", "admin")
+      .in("role", ["admin", "editor"])
       .maybeSingle();
-
-    console.log("Role check for", caller.email, ":", roleData, roleError);
 
     if (!roleData) {
       return new Response(JSON.stringify({ error: "Accès refusé" }), {
@@ -54,25 +51,31 @@ Deno.serve(async (req) => {
       });
     }
 
+    const callerRole = roleData.role;
     const { action, ...payload } = await req.json();
-    console.log("Action:", action);
 
     if (action === "list") {
       const { data: { users }, error } = await adminClient.auth.admin.listUsers();
       if (error) throw error;
 
-      const { data: roles } = await adminClient
-        .from("user_roles")
-        .select("user_id, role");
-
+      const { data: roles } = await adminClient.from("user_roles").select("user_id, role");
       const roleMap: Record<string, string> = {};
       (roles || []).forEach((r: any) => { roleMap[r.user_id] = r.role; });
+
+      // Get store assignments
+      const { data: assignments } = await adminClient.from("user_store_assignments").select("user_id, store_id, stores(name)");
+      const storeMap: Record<string, { store_id: string; store_name: string }[]> = {};
+      (assignments || []).forEach((a: any) => {
+        if (!storeMap[a.user_id]) storeMap[a.user_id] = [];
+        storeMap[a.user_id].push({ store_id: a.store_id, store_name: a.stores?.name || "" });
+      });
 
       const result = (users || []).map((u: any) => ({
         id: u.id,
         email: u.email,
         role: roleMap[u.id] || "user",
         created_at: u.created_at,
+        stores: storeMap[u.id] || [],
       }));
 
       return new Response(JSON.stringify(result), {
@@ -81,10 +84,18 @@ Deno.serve(async (req) => {
     }
 
     if (action === "create") {
-      const { email, password, role } = payload;
+      const { email, password, role, store_id } = payload;
       if (!email || !password) {
         return new Response(JSON.stringify({ error: "Email et mot de passe requis" }), {
           status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Only admins can create admin/editor accounts
+      if ((role === "admin" || role === "editor") && callerRole !== "admin") {
+        return new Response(JSON.stringify({ error: "Seul un admin peut créer des comptes admin/éditeur" }), {
+          status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -94,15 +105,20 @@ Deno.serve(async (req) => {
         password,
         email_confirm: true,
       });
-      if (error) {
-        console.error("Create user error:", error.message);
-        throw error;
-      }
+      if (error) throw error;
 
       await adminClient.from("user_roles").insert({
         user_id: newUser.user.id,
         role: role || "user",
       });
+
+      // Assign to store if provided
+      if (store_id) {
+        await adminClient.from("user_store_assignments").insert({
+          user_id: newUser.user.id,
+          store_id,
+        });
+      }
 
       return new Response(JSON.stringify({ success: true, user_id: newUser.user.id }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -124,10 +140,53 @@ Deno.serve(async (req) => {
         });
       }
 
+      // Only admin can delete
+      if (callerRole !== "admin") {
+        return new Response(JSON.stringify({ error: "Seul un admin peut supprimer des comptes" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      await adminClient.from("user_store_assignments").delete().eq("user_id", user_id);
       await adminClient.from("user_roles").delete().eq("user_id", user_id);
       const { error } = await adminClient.auth.admin.deleteUser(user_id);
       if (error) throw error;
 
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "assign_store") {
+      if (callerRole !== "admin") {
+        return new Response(JSON.stringify({ error: "Accès refusé" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { user_id, store_id } = payload;
+      const { error } = await adminClient.from("user_store_assignments").upsert(
+        { user_id, store_id },
+        { onConflict: "user_id,store_id" }
+      );
+      if (error) throw error;
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "unassign_store") {
+      if (callerRole !== "admin") {
+        return new Response(JSON.stringify({ error: "Accès refusé" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { user_id, store_id } = payload;
+      const { error } = await adminClient.from("user_store_assignments").delete()
+        .eq("user_id", user_id).eq("store_id", store_id);
+      if (error) throw error;
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

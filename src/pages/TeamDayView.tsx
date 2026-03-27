@@ -6,6 +6,7 @@ import { FnacHeader } from "@/components/FnacHeader";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateBE, formatTimeBE, formatLocalDate } from "@/lib/format";
+import { useStore } from "@/hooks/useStore";
 
 const BREAK_HOURS = 1;
 
@@ -81,10 +82,13 @@ const TeamDayView = () => {
   const monday = getMonday(selectedDate);
   const weekStr = formatWeekDate(monday);
 
+  const { currentStore } = useStore();
   const { data: employees } = useQuery({
-    queryKey: ["team-day-employees"],
+    queryKey: ["team-day-employees", currentStore?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("employees").select("*").eq("is_active", true).order("name");
+      let query = supabase.from("employees").select("*").eq("is_active", true).order("name");
+      if (currentStore) query = query.eq("store_id", currentStore.id);
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },

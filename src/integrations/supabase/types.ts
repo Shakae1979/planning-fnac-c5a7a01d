@@ -120,6 +120,7 @@ export type Database = {
           is_active: boolean
           name: string
           role: string
+          store_id: string | null
         }
         Insert: {
           contract_hours?: number
@@ -129,6 +130,7 @@ export type Database = {
           is_active?: boolean
           name: string
           role?: string
+          store_id?: string | null
         }
         Update: {
           contract_hours?: number
@@ -138,8 +140,17 @@ export type Database = {
           is_active?: boolean
           name?: string
           role?: string
+          store_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "employees_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       schedule_role_overrides: {
         Row: {
@@ -176,6 +187,27 @@ export type Database = {
           },
         ]
       }
+      stores: {
+        Row: {
+          city: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -196,6 +228,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_store_assignments: {
+        Row: {
+          created_at: string
+          id: string
+          store_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          store_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          store_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_store_assignments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       weekly_schedules: {
         Row: {
@@ -286,6 +347,14 @@ export type Database = {
     }
     Functions: {
       get_my_role: { Args: never; Returns: string }
+      get_my_stores: {
+        Args: never
+        Returns: {
+          store_city: string
+          store_id: string
+          store_name: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -295,7 +364,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "editor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -423,7 +492,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "editor"],
     },
   },
 } as const

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useStore } from "@/hooks/useStore";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Mail, X } from "lucide-react";
@@ -25,10 +26,13 @@ export function EmployeeManager() {
   const [newRole, setNewRole] = useState("technique");
   const [newEmail, setNewEmail] = useState("");
 
+  const { currentStore } = useStore();
   const { data: employees } = useQuery({
-    queryKey: ["employees"],
+    queryKey: ["employees", currentStore?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("employees").select("*").order("name");
+      let query = supabase.from("employees").select("*").order("name");
+      if (currentStore) query = query.eq("store_id", currentStore.id);
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
@@ -44,6 +48,7 @@ export function EmployeeManager() {
         contract_hours: Number(newHours) || 36,
         role: newRole,
         email: newEmail.trim() || null,
+        store_id: currentStore?.id || null,
       });
       if (error) throw error;
     },

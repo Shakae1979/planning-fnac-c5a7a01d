@@ -10,9 +10,11 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  Plus, Trash2, Mail, X, Users, Shield, User, Loader2, KeyRound, UserPlus,
+  Plus, Trash2, Mail, X, Users, Shield, User, Loader2, KeyRound, UserPlus, PenTool,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useStore } from "@/hooks/useStore";
+import { useAuth } from "@/hooks/useAuth";
 
 const ROLES = [
   { value: "responsable", label: "Responsable", color: "bg-orange-100 text-orange-800" },
@@ -32,6 +34,8 @@ interface AppUser {
 
 export function TeamAndAccounts() {
   const queryClient = useQueryClient();
+  const { currentStore } = useStore();
+  const { role: myRole } = useAuth();
   const [newName, setNewName] = useState("");
   const [newHours, setNewHours] = useState("36");
   const [newRole, setNewRole] = useState("technique");
@@ -44,11 +48,15 @@ export function TeamAndAccounts() {
   const [savingAccount, setSavingAccount] = useState(false);
   const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
 
-  // Fetch employees
+  // Fetch employees filtered by store
   const { data: employees } = useQuery({
-    queryKey: ["employees"],
+    queryKey: ["employees", currentStore?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("employees").select("*").order("name");
+      let query = supabase.from("employees").select("*").order("name");
+      if (currentStore) {
+        query = query.eq("store_id", currentStore.id);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
@@ -107,6 +115,7 @@ export function TeamAndAccounts() {
         contract_hours: Number(newHours) || 36,
         role: newRole,
         email: newEmail.trim() || null,
+        store_id: currentStore?.id || null,
       });
       if (error) throw error;
     },
@@ -170,7 +179,7 @@ export function TeamAndAccounts() {
     }
     setSavingAccount(true);
     try {
-      await callManageUsers({ action: "create", email: employeeEmail, password: accountPassword, role: accountRole });
+      await callManageUsers({ action: "create", email: employeeEmail, password: accountPassword, role: accountRole, store_id: currentStore?.id });
       toast.success("Compte créé !");
       setCreatingForId(null);
       setAccountPassword("");
@@ -271,8 +280,8 @@ export function TeamAndAccounts() {
                         <span className="text-sm font-medium">{emp.name}</span>
                         {account ? (
                           <Badge variant="outline" className="text-[10px] gap-1 py-0">
-                            {account.role === "admin" ? <Shield className="h-3 w-3" /> : <User className="h-3 w-3" />}
-                            {account.role === "admin" ? "Admin" : "Utilisateur"}
+                            {account.role === "admin" ? <Shield className="h-3 w-3" /> : account.role === "editor" ? <PenTool className="h-3 w-3" /> : <User className="h-3 w-3" />}
+                            {account.role === "admin" ? "Admin" : account.role === "editor" ? "Éditeur" : "Utilisateur"}
                           </Badge>
                         ) : emp.email ? (
                           <Badge variant="secondary" className="text-[10px] py-0 text-muted-foreground">
@@ -360,7 +369,8 @@ export function TeamAndAccounts() {
                       <Select value={accountRole} onValueChange={setAccountRole}>
                         <SelectTrigger className="h-8 text-sm mt-1"><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="admin">Admin</SelectItem>
+                          {myRole === "admin" && <SelectItem value="admin">Admin</SelectItem>}
+                          {myRole === "admin" && <SelectItem value="editor">Éditeur</SelectItem>}
                           <SelectItem value="user">Utilisateur</SelectItem>
                         </SelectContent>
                       </Select>
