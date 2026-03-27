@@ -163,12 +163,14 @@ export function ScheduleEditor() {
 
   // Fetch day comments for this week
   const { data: dayComments } = useQuery({
-    queryKey: ["day-comments", weekStr],
+    queryKey: ["day-comments", weekStr, currentStore?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("day_comments")
         .select("*")
         .eq("week_start", weekStr);
+      if (currentStore) query = query.eq("store_id", currentStore.id);
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
