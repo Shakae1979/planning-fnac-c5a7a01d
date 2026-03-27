@@ -230,9 +230,12 @@ export function TeamAndAccounts() {
   });
   const inactive = employees?.filter((e) => !e.is_active) ?? [];
 
-  // Find accounts not linked to any employee
+  // Find accounts not linked to any employee in this store, but assigned to this store
   const employeeEmails = new Set((employees ?? []).filter(e => e.email).map(e => e.email!.toLowerCase()));
-  const orphanAccounts = accounts.filter(a => !employeeEmails.has(a.email.toLowerCase()));
+  const assignedUserIds = new Set((storeAssignments ?? []).map(a => a.user_id));
+  const orphanAccounts = accounts.filter(a => 
+    !employeeEmails.has(a.email.toLowerCase()) && assignedUserIds.has(a.id)
+  );
 
   return (
     <div className="space-y-6">
