@@ -158,6 +158,27 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (action === "update_role") {
+      if (callerRole !== "admin") {
+        return new Response(JSON.stringify({ error: "Seul un admin peut changer les rôles" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { user_id, role } = payload;
+      if (!user_id || !role) {
+        return new Response(JSON.stringify({ error: "user_id et role requis" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { error } = await adminClient.from("user_roles").update({ role }).eq("user_id", user_id);
+      if (error) throw error;
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (action === "assign_store") {
       if (callerRole !== "admin") {
         return new Response(JSON.stringify({ error: "Accès refusé" }), {
