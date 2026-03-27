@@ -70,7 +70,7 @@ export function DashboardOverview() {
       </div>
 
       <div className="kpi-card">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-4">{t("overview.team2026")}</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-4">{t("overview.team" as any)}</h3>
         {ROLE_ORDER.map((role) => {
           const roleEmps = employees?.filter((e) => e.role === role) ?? [];
           if (roleEmps.length === 0) return null;

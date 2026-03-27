@@ -37,7 +37,7 @@ export function CongesCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [currentQuarter, setCurrentQuarter] = useState(Math.floor(new Date().getMonth() / 3));
-  const year = 2026;
+  const year = new Date().getFullYear();
 
   const congeTypes = CONGE_TYPES_KEYS.map((k) => ({
     value: k,

@@ -20,7 +20,7 @@ const translations = {
   "header.teamDay": { fr: "Équipe du jour", nl: "Team van de dag" },
   "header.weekPlan": { fr: "Planning semaine", nl: "Weekplanning" },
   "header.myPlan": { fr: "Mon planning", nl: "Mijn planning" },
-  "header.title": { fr: "Planning Fnac 2026", nl: "Planning Fnac 2026" },
+  "header.title": { fr: "Planning Fnac", nl: "Planning Fnac" },
   "header.mgmt": { fr: "Gestion des horaires", nl: "Roosterbeheer" },
 
   // ========== Days short ==========
@@ -152,7 +152,7 @@ const translations = {
   "overview.activeEmployees": { fr: "Collaborateurs actifs", nl: "Actieve medewerkers" },
   "overview.weeksPlanned": { fr: "Semaines planifiées", nl: "Geplande weken" },
   "overview.diffs": { fr: "Écarts détectés", nl: "Afwijkingen gedetecteerd" },
-  "overview.team2026": { fr: "Équipe 2026", nl: "Team 2026" },
+  "overview.team": { fr: "Équipe", nl: "Team" },
   "overview.collaborator": { fr: "collaborateur", nl: "medewerker" },
   "overview.collaborators": { fr: "collaborateurs", nl: "medewerkers" },
   "overview.getStarted": { fr: "Pour commencer", nl: "Aan de slag" },
