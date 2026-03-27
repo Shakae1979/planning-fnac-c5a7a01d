@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 
-type View = "overview" | "schedule" | "recap" | "employees" | "share" | "conges" | "users";
+type View = "overview" | "schedule" | "recap" | "team" | "share" | "conges";
 
 interface SidebarProps {
   activeView: View;
@@ -16,9 +16,8 @@ const links: { id: View; label: string; icon: React.ElementType }[] = [
   { id: "schedule", label: "Horaires", icon: CalendarDays },
   { id: "recap", label: "Récap équipe", icon: TableProperties },
   { id: "conges", label: "Congés 2026", icon: Palmtree },
-  { id: "employees", label: "Équipe", icon: Users },
+  { id: "team", label: "Équipe & Comptes", icon: Users },
   { id: "share", label: "Liens vendeurs", icon: Share2 },
-  { id: "users", label: "Comptes", icon: UserCog },
 ];
 
 

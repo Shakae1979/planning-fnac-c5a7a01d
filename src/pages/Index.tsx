@@ -3,13 +3,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Calendar, Users, CalendarDays, User } from "lucide-react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { ScheduleEditor } from "@/components/dashboard/ScheduleEditor";
-import { EmployeeManager } from "@/components/dashboard/EmployeeManager";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { ShareLinks } from "@/components/dashboard/ShareLinks";
 import { TeamRecap } from "@/components/dashboard/TeamRecap";
 import { CongesCalendar } from "@/components/dashboard/CongesCalendar";
-import { UserManager } from "@/components/dashboard/UserManager";
-type View = "overview" | "schedule" | "recap" | "employees" | "share" | "conges" | "users";
+import { TeamAndAccounts } from "@/components/dashboard/TeamAndAccounts";
+type View = "overview" | "schedule" | "recap" | "team" | "share" | "conges";
 
 const NAV_SHORTCUTS = [
   { label: "Équipe du jour", path: "/equipe-du-jour", icon: Users },
@@ -66,10 +65,9 @@ const Index = () => {
           {view === "overview" && <DashboardOverview />}
           {view === "schedule" && <ScheduleEditor />}
           {view === "recap" && <TeamRecap />}
-          {view === "employees" && <EmployeeManager />}
+          {view === "team" && <TeamAndAccounts />}
           {view === "share" && <ShareLinks />}
           {view === "conges" && <CongesCalendar />}
-          {view === "users" && <UserManager />}
         </div>
       </main>
     </div>
