@@ -49,7 +49,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
         </div>
 
         <nav className={`flex-1 ${collapsed ? "px-2" : "px-3"} mt-4 space-y-1`}>
-          {links.map((link) => {
+          {filteredLinks.map((link) => {
             const active = activeView === link.id;
             const btn = (
               <button
