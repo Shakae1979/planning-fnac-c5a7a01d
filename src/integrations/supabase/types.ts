@@ -58,6 +58,7 @@ export type Database = {
           created_at: string
           day_key: string
           id: string
+          store_id: string | null
           week_start: string
         }
         Insert: {
@@ -65,6 +66,7 @@ export type Database = {
           created_at?: string
           day_key: string
           id?: string
+          store_id?: string | null
           week_start: string
         }
         Update: {
@@ -72,9 +74,18 @@ export type Database = {
           created_at?: string
           day_key?: string
           id?: string
+          store_id?: string | null
           week_start?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "day_comments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       employee_day_flags: {
         Row: {
