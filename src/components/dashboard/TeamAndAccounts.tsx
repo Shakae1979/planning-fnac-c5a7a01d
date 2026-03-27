@@ -464,6 +464,11 @@ export function TeamAndAccounts() {
         employee={editingEmployee}
         open={!!editingEmployee}
         onOpenChange={(open) => { if (!open) setEditingEmployee(null); }}
+        account={editingEmployee ? getAccountForEmployee(editingEmployee.email) : null}
+        onUpdateAccountRole={async (userId, newRole) => {
+          await callManageUsers({ action: "update_role", user_id: userId, role: newRole });
+          fetchAccounts();
+        }}
       />
     </div>
   );
