@@ -369,7 +369,8 @@ export function TeamAndAccounts() {
                       <Select value={accountRole} onValueChange={setAccountRole}>
                         <SelectTrigger className="h-8 text-sm mt-1"><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="admin">Admin</SelectItem>
+                          {myRole === "admin" && <SelectItem value="admin">Admin</SelectItem>}
+                          {myRole === "admin" && <SelectItem value="editor">Éditeur</SelectItem>}
                           <SelectItem value="user">Utilisateur</SelectItem>
                         </SelectContent>
                       </Select>
