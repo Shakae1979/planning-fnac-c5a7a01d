@@ -39,6 +39,7 @@ export function TeamAndAccounts() {
   const queryClient = useQueryClient();
   const { currentStore } = useStore();
   const { role: myRole } = useAuth();
+  const { t } = useI18n();
   const [newName, setNewName] = useState("");
   const [newHours, setNewHours] = useState("36");
   const [newRole, setNewRole] = useState("technique");
