@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, CalendarDays, AlertTriangle } from "lucide-react";
+import { useStore } from "@/hooks/useStore";
 
 const ROLE_META: Record<string, { label: string; bg: string; text: string }> = {
   responsable: { label: "Resp.", bg: "bg-red-100", text: "text-red-800" },
@@ -14,10 +15,13 @@ const ROLE_META: Record<string, { label: string; bg: string; text: string }> = {
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
 
 export function DashboardOverview() {
+  const { currentStore } = useStore();
   const { data: employees } = useQuery({
-    queryKey: ["employees"],
+    queryKey: ["employees", currentStore?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("employees").select("*").eq("is_active", true).order("name");
+      let query = supabase.from("employees").select("*").eq("is_active", true).order("name");
+      if (currentStore) query = query.eq("store_id", currentStore.id);
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },

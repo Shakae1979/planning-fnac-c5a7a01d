@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Copy, ExternalLink, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useStore } from "@/hooks/useStore";
 
 const ROLE_COLORS: Record<string, string> = {
   responsable: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
@@ -27,10 +28,13 @@ const AVATAR_COLORS = [
 ];
 
 export function ShareLinks() {
+  const { currentStore } = useStore();
   const { data: employees } = useQuery({
-    queryKey: ["employees"],
+    queryKey: ["employees", currentStore?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("employees").select("*").eq("is_active", true).order("name");
+      let query = supabase.from("employees").select("*").eq("is_active", true).order("name");
+      if (currentStore) query = query.eq("store_id", currentStore.id);
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },

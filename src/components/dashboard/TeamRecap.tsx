@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, ChevronRight, Users, AlertTriangle, CheckCircle2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateBE, formatLocalDate, getWeekNumber } from "@/lib/format";
+import { useStore } from "@/hooks/useStore";
 
 const DAYS = [
   { key: "lundi", label: "Lundi" },
@@ -73,10 +74,13 @@ export function TeamRecap() {
   const currentMonday = addWeeks(getMonday(new Date()), weekOffset);
   const weekStr = formatWeekDate(currentMonday);
 
+  const { currentStore } = useStore();
   const { data: employees } = useQuery({
-    queryKey: ["employees"],
+    queryKey: ["employees", currentStore?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("employees").select("*").eq("is_active", true).order("name");
+      let query = supabase.from("employees").select("*").eq("is_active", true).order("name");
+      if (currentStore) query = query.eq("store_id", currentStore.id);
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
