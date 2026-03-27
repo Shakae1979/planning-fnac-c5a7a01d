@@ -2,38 +2,48 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/hooks/useStore";
+import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronLeft, ChevronRight, Printer, CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { fr } from "date-fns/locale";
 import { formatDateBE, formatLocalDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { QuarterView } from "./conges/QuarterView";
 import { MonthGrid } from "./conges/MonthGrid";
 
-const MONTHS = [
-  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
-];
+export const CONGE_TYPES_KEYS = ["conge", "rtt", "maladie", "formation", "autre"] as const;
+export const CONGE_TYPE_COLORS: Record<string, string> = {
+  conge: "bg-blue-400",
+  rtt: "bg-emerald-400",
+  maladie: "bg-red-400",
+  formation: "bg-purple-400",
+  autre: "bg-muted-foreground",
+};
 
-export const CONGE_TYPES = [
-  { value: "conge", label: "Congé payé", color: "bg-blue-400" },
-  { value: "rtt", label: "Sans solde", color: "bg-emerald-400" },
-  { value: "maladie", label: "Maladie", color: "bg-red-400" },
-  { value: "formation", label: "Formation", color: "bg-purple-400" },
-  { value: "autre", label: "Pas encodé", color: "bg-muted-foreground" },
-];
+// Keep backward compat export
+export const CONGE_TYPES = CONGE_TYPES_KEYS.map((k) => ({
+  value: k,
+  label: k, // will be replaced by t() at render
+  color: CONGE_TYPE_COLORS[k],
+}));
 
 type ViewMode = "month" | "quarter";
 
 export function CongesCalendar() {
   const queryClient = useQueryClient();
+  const { t, dateFnsLocale, monthName } = useI18n();
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [currentQuarter, setCurrentQuarter] = useState(Math.floor(new Date().getMonth() / 3));
   const year = 2026;
+
+  const congeTypes = CONGE_TYPES_KEYS.map((k) => ({
+    value: k,
+    label: t(`leave.${k}` as any),
+    color: CONGE_TYPE_COLORS[k],
+  }));
 
   const roleOrder = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
 
@@ -84,7 +94,7 @@ export function CongesCalendar() {
         });
         if (error) throw error;
       } else {
-        if (!formEmp || !formStart || !formEnd) throw new Error("Tous les champs sont requis");
+        if (!formEmp || !formStart || !formEnd) throw new Error(t("misc.allFieldsRequired"));
         const { error } = await supabase.from("conges").insert({
           employee_id: formEmp,
           date_start: formatLocalDate(formStart),
@@ -100,7 +110,7 @@ export function CongesCalendar() {
       setFormStart(undefined);
       setFormEnd(undefined);
       queryClient.invalidateQueries({ queryKey: ["conges"] });
-      toast.success("Congé ajouté !");
+      toast.success(t("conges.added"));
     },
     onError: (err) => toast.error((err as Error).message),
   });
@@ -116,7 +126,7 @@ export function CongesCalendar() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["conges"] });
-      toast.success("Congé supprimé !");
+      toast.success(t("conges.deleted"));
     },
   });
 
@@ -155,7 +165,7 @@ export function CongesCalendar() {
             className="min-w-[140px] text-xs font-semibold"
             onClick={() => setViewMode("month")}
           >
-            {MONTHS[currentMonth]} {year}
+            {monthName(currentMonth)} {year}
           </Button>
           <Button variant="outline" size="icon" onClick={() => {
             setViewMode("month");
@@ -166,22 +176,22 @@ export function CongesCalendar() {
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 text-xs">
-            {CONGE_TYPES.map((t) => (
-              <span key={t.value} className="flex items-center gap-1">
-                <span className={`inline-block w-3 h-3 rounded ${t.color}`} />
-                {t.label}
+            {congeTypes.map((ct) => (
+              <span key={ct.value} className="flex items-center gap-1">
+                <span className={`inline-block w-3 h-3 rounded ${ct.color}`} />
+                {ct.label}
               </span>
             ))}
             <span className="flex items-center gap-1">
               <span className="inline-block w-3 h-3 rounded bg-amber-400/40" />
-              Congé scolaire
+              {t("leave.school")}
             </span>
           </div>
           <Button variant="outline" size="sm" onClick={() => window.print()}>
-            <Printer className="h-3.5 w-3.5 mr-1" /> Imprimer
+            <Printer className="h-3.5 w-3.5 mr-1" /> {t("action.print")}
           </Button>
           <Button size="sm" onClick={() => setShowForm(!showForm)}>
-            <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter
+            <Plus className="h-3.5 w-3.5 mr-1" /> {t("action.add")}
           </Button>
         </div>
       </div>
@@ -189,47 +199,47 @@ export function CongesCalendar() {
       {showForm && (
         <div className="kpi-card flex items-end gap-3">
           <div className="flex-1">
-            <label className="text-xs text-muted-foreground">Vendeur</label>
+            <label className="text-xs text-muted-foreground">{t("conges.seller")}</label>
             <select value={formEmp} onChange={(e) => setFormEmp(e.target.value)} className="w-full mt-1 px-3 py-2 text-sm rounded-md border bg-background">
-              <option value="">Choisir…</option>
+              <option value="">{t("action.choose")}</option>
               {employees?.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="text-xs text-muted-foreground">Début</label>
+            <label className="text-xs text-muted-foreground">{t("conges.start")}</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className={cn("mt-1 w-[150px] justify-start text-left font-normal", !formStart && "text-muted-foreground")}>
                   <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                  {formStart ? formatDateBE(formStart) : "Choisir…"}
+                  {formStart ? formatDateBE(formStart) : t("action.choose")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={formStart} onSelect={setFormStart} locale={fr} weekStartsOn={1} initialFocus className="p-3 pointer-events-auto" />
+                <Calendar mode="single" selected={formStart} onSelect={setFormStart} locale={dateFnsLocale} weekStartsOn={1} initialFocus className="p-3 pointer-events-auto" />
               </PopoverContent>
             </Popover>
           </div>
           <div>
-            <label className="text-xs text-muted-foreground">Fin</label>
+            <label className="text-xs text-muted-foreground">{t("conges.end")}</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className={cn("mt-1 w-[150px] justify-start text-left font-normal", !formEnd && "text-muted-foreground")}>
                   <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                  {formEnd ? formatDateBE(formEnd) : "Choisir…"}
+                  {formEnd ? formatDateBE(formEnd) : t("action.choose")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={formEnd} onSelect={setFormEnd} locale={fr} weekStartsOn={1} disabled={(date) => formStart ? date < formStart : false} initialFocus className="p-3 pointer-events-auto" />
+                <Calendar mode="single" selected={formEnd} onSelect={setFormEnd} locale={dateFnsLocale} weekStartsOn={1} disabled={(date) => formStart ? date < formStart : false} initialFocus className="p-3 pointer-events-auto" />
               </PopoverContent>
             </Popover>
           </div>
           <div>
-            <label className="text-xs text-muted-foreground">Type</label>
+            <label className="text-xs text-muted-foreground">{t("conges.type")}</label>
             <select value={formType} onChange={(e) => setFormType(e.target.value)} className="mt-1 px-3 py-2 text-sm rounded-md border bg-background">
-              {CONGE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              {congeTypes.map((ct) => <option key={ct.value} value={ct.value}>{ct.label}</option>)}
             </select>
           </div>
-          <Button size="sm" onClick={() => addMutation.mutate(undefined)} disabled={addMutation.isPending}>Valider</Button>
+          <Button size="sm" onClick={() => addMutation.mutate(undefined)} disabled={addMutation.isPending}>{t("action.validate")}</Button>
         </div>
       )}
 

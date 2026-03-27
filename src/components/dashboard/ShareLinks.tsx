@@ -4,6 +4,7 @@ import { Copy, ExternalLink, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useStore } from "@/hooks/useStore";
+import { useI18n } from "@/lib/i18n";
 
 const ROLE_COLORS: Record<string, string> = {
   responsable: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
@@ -13,14 +14,6 @@ const ROLE_COLORS: Record<string, string> = {
   caisse: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
 };
 
-const ROLE_LABELS: Record<string, string> = {
-  responsable: "Responsable",
-  technique: "Technique",
-  editorial: "Éditorial",
-  stock: "Stock",
-  caisse: "Caisse",
-};
-
 const AVATAR_COLORS = [
   "bg-blue-500", "bg-emerald-500", "bg-violet-500", "bg-rose-500",
   "bg-amber-500", "bg-cyan-500", "bg-indigo-500", "bg-pink-500",
@@ -28,6 +21,7 @@ const AVATAR_COLORS = [
 ];
 
 export function ShareLinks() {
+  const { t } = useI18n();
   const { currentStore } = useStore();
   const { data: employees } = useQuery({
     queryKey: ["employees", currentStore?.id],
@@ -45,7 +39,7 @@ export function ShareLinks() {
   const copyLink = (name: string) => {
     const url = `${baseUrl}/mon-planning/${encodeURIComponent(name)}`;
     navigator.clipboard.writeText(url);
-    toast.success(`Lien copié pour ${name} !`);
+    toast.success(t("share.linkCopied"));
   };
 
   const copyAllLinks = () => {
@@ -54,10 +48,9 @@ export function ShareLinks() {
       .map((emp) => `${emp.name}: ${baseUrl}/mon-planning/${encodeURIComponent(emp.name)}`)
       .join("\n");
     navigator.clipboard.writeText(text);
-    toast.success("Tous les liens ont été copiés !");
+    toast.success(t("share.allCopied"));
   };
 
-  // Group by role
   const grouped = employees?.reduce((acc, emp) => {
     const role = emp.role || "autre";
     if (!acc[role]) acc[role] = [];
@@ -74,13 +67,12 @@ export function ShareLinks() {
 
   return (
     <div className="space-y-6">
-      {/* Team links */}
       <div className="kpi-card">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-3">Liens équipe</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-3">{t("share.teamLinks")}</h3>
         <div className="space-y-2">
           {[
-            { label: "Planning équipe du jour", desc: "Qui travaille aujourd'hui ?", path: "/equipe-du-jour" },
-            { label: "Planning semaine complet", desc: "Vue Gantt de toute l'équipe sur la semaine", path: "/planning-equipe" },
+            { label: t("share.dayLabel"), desc: t("share.dayDesc"), path: "/equipe-du-jour" },
+            { label: t("share.weekLabel"), desc: t("share.weekDesc"), path: "/planning-equipe" },
           ].map((link) => (
             <div key={link.path} className="flex items-center justify-between py-2.5 px-3 rounded-md bg-secondary/50">
               <div>
@@ -88,8 +80,8 @@ export function ShareLinks() {
                 <div className="text-xs text-muted-foreground">{link.desc}</div>
               </div>
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(`${baseUrl}${link.path}`); toast.success("Lien copié !"); }}>
-                  <Copy className="h-3.5 w-3.5 mr-1" /> Copier
+                <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(`${baseUrl}${link.path}`); toast.success(t("share.linkCopied")); }}>
+                  <Copy className="h-3.5 w-3.5 mr-1" /> {t("action.copy")}
                 </Button>
                 <a href={`${baseUrl}${link.path}`} target="_blank" rel="noopener noreferrer">
                   <Button variant="ghost" size="sm">
@@ -102,20 +94,19 @@ export function ShareLinks() {
         </div>
       </div>
 
-      {/* Visual grid of all employees */}
       <div className="kpi-card">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Annuaire des liens — {employees?.length ?? 0} vendeurs
+              {t("share.directory")} — {employees?.length ?? 0} {t("share.sellers")}
             </h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Cliquez sur une carte pour copier le lien du vendeur.
+              {t("share.clickToCopy")}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={copyAllLinks}>
-            <Copy className="h-3.5 w-3.5 mr-1" /> Copier tous les liens
+            <Copy className="h-3.5 w-3.5 mr-1" /> {t("share.copyAll")}
           </Button>
         </div>
 
@@ -125,13 +116,13 @@ export function ShareLinks() {
             <div key={role} className="mb-5 last:mb-0">
               <div className="flex items-center gap-2 mb-3">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${ROLE_COLORS[role] ?? "bg-muted text-muted-foreground"}`}>
-                  {ROLE_LABELS[role] ?? role}
+                  {t(`role.${role}` as any) || role}
                 </span>
-                <span className="text-xs text-muted-foreground">{emps.length} vendeur{emps.length > 1 ? "s" : ""}</span>
+                <span className="text-xs text-muted-foreground">{emps.length} {t("share.sellers")}</span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {emps.map((emp, i) => {
+                {emps.map((emp) => {
                   const url = `${baseUrl}/mon-planning/${encodeURIComponent(emp.name)}`;
                   const colorClass = AVATAR_COLORS[emp.name.charCodeAt(0) % AVATAR_COLORS.length];
                   return (
@@ -140,30 +131,21 @@ export function ShareLinks() {
                       onClick={() => copyLink(emp.name)}
                       className="group relative flex flex-col items-center gap-2 p-4 rounded-xl border border-border/50 bg-card hover:bg-accent/10 hover:border-accent/30 transition-all duration-200 cursor-pointer hover:shadow-md"
                     >
-                      {/* Avatar */}
                       <div className={`h-12 w-12 rounded-full ${colorClass} flex items-center justify-center text-white text-lg font-bold shadow-sm group-hover:scale-110 transition-transform`}>
                         {emp.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
                       </div>
-
-                      {/* Name */}
                       <span className="text-sm font-semibold text-foreground text-center leading-tight">
                         {emp.name}
                       </span>
-
-                      {/* Role badge */}
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${ROLE_COLORS[emp.role] ?? "bg-muted text-muted-foreground"}`}>
-                        {ROLE_LABELS[emp.role] ?? emp.role}
+                        {t(`role.${emp.role}` as any) || emp.role}
                       </span>
-
-                      {/* Hover overlay */}
                       <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-accent/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                         <div className="flex items-center gap-1.5 text-accent-foreground font-medium text-sm">
                           <Copy className="h-4 w-4" />
-                          Copier le lien
+                          {t("share.copyLink")}
                         </div>
                       </div>
-
-                      {/* Open link button */}
                       <a
                         href={url}
                         target="_blank"

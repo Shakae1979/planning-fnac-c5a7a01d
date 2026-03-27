@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStore } from "@/hooks/useStore";
+import { useI18n } from "@/lib/i18n";
 import { ChevronLeft, ChevronRight, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -11,26 +12,21 @@ import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, format
 /** Convert "HHhMM" or "HH:MM" or "HHMM" to "HH:MM" for storage */
 function parseTimeBE(input: string): string {
   if (!input) return "";
-  // Remove spaces
   const cleaned = input.trim();
-  // Try HHhMM
   const hMatch = cleaned.match(/^(\d{1,2})h(\d{0,2})$/i);
   if (hMatch) {
     const h = hMatch[1].padStart(2, "0");
     const m = (hMatch[2] || "0").padStart(2, "0");
     return `${h}:${m}`;
   }
-  // Try HH:MM
   const colonMatch = cleaned.match(/^(\d{1,2}):(\d{2})$/);
   if (colonMatch) {
     return `${colonMatch[1].padStart(2, "0")}:${colonMatch[2]}`;
   }
-  // Try HHMM (4 digits)
   const digits = cleaned.match(/^(\d{2})(\d{2})$/);
   if (digits) {
     return `${digits[1]}:${digits[2]}`;
   }
-  // Try just HH
   const hourOnly = cleaned.match(/^(\d{1,2})$/);
   if (hourOnly) {
     return `${hourOnly[1].padStart(2, "0")}:00`;
@@ -44,15 +40,7 @@ function displayTimeBE(value: string): string {
   return formatTimeBE(value);
 }
 
-const DAYS = [
-  { key: "lundi", label: "Lun" },
-  { key: "mardi", label: "Mar" },
-  { key: "mercredi", label: "Mer" },
-  { key: "jeudi", label: "Jeu" },
-  { key: "vendredi", label: "Ven" },
-  { key: "samedi", label: "Sam" },
-  { key: "dimanche", label: "Dim" },
-] as const;
+const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
 
 const DEPT_COLORS: Record<string, { bg: string; border: string }> = {
   responsable: { bg: "bg-orange-50 dark:bg-orange-950/30", border: "border-l-orange-500" },
@@ -69,7 +57,7 @@ for (let h = 9; h <= 20; h++) {
   if (h < 20) TIME_SLOTS.push(`${String(h).padStart(2, "0")}:30`);
 }
 
-type DayKey = (typeof DAYS)[number]["key"];
+type DayKey = (typeof DAY_KEYS)[number];
 
 function getMonday(date: Date): Date {
   const d = new Date(date);
@@ -96,7 +84,6 @@ interface ScheduleRow {
   [key: string]: string | number | null | undefined;
 }
 
-// Returns the date string for a given day index (0=monday) in the week
 function getDayDate(monday: Date, dayIndex: number): string {
   const d = new Date(monday);
   d.setDate(d.getDate() + dayIndex);
@@ -105,16 +92,21 @@ function getDayDate(monday: Date, dayIndex: number): string {
 
 export function ScheduleEditor() {
   const queryClient = useQueryClient();
+  const { t } = useI18n();
   const [weekOffset, setWeekOffset] = useState(0);
   const currentMonday = addWeeks(getMonday(new Date()), weekOffset);
   const weekStr = formatWeekDate(currentMonday);
 
-  // Compute week date range for conges query
   const weekSunday = new Date(currentMonday);
   weekSunday.setDate(weekSunday.getDate() + 6);
   const weekEndStr = formatWeekDate(weekSunday);
 
   const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
+
+  const DAYS = DAY_KEYS.map((key) => ({
+    key,
+    label: t(`day.short.${key}` as any),
+  }));
 
   const { currentStore } = useStore();
   const { data: employees } = useQuery({
@@ -147,7 +139,6 @@ export function ScheduleEditor() {
     },
   });
 
-  // Fetch conges that overlap with this week
   const { data: conges } = useQuery({
     queryKey: ["conges-week", weekStr],
     queryFn: async () => {
@@ -161,7 +152,6 @@ export function ScheduleEditor() {
     },
   });
 
-  // Fetch day comments for this week
   const { data: dayComments } = useQuery({
     queryKey: ["day-comments", weekStr, currentStore?.id],
     queryFn: async () => {
@@ -178,7 +168,6 @@ export function ScheduleEditor() {
 
   const [localDayComments, setLocalDayComments] = useState<Record<string, string>>({});
 
-  // Check if an employee is on leave for a specific day
   const isOnLeave = (empId: string, dayIndex: number): string | null => {
     if (!conges) return null;
     const dayDate = getDayDate(currentMonday, dayIndex);
@@ -190,13 +179,10 @@ export function ScheduleEditor() {
 
   const [localEdits, setLocalEdits] = useState<Record<string, Record<string, string>>>({});
 
-  // Copy-paste state
-  const [copiedEmployee, setCopiedEmployee] = useState<string | null>(null); // source employee ID
-  const [copiedDay, setCopiedDay] = useState<string | null>(null); // source day key
-  const [selectedTargets, setSelectedTargets] = useState<Set<string>>(new Set()); // target employee IDs
-  const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set()); // target day keys
-
-  // Cell-level copy-paste
+  const [copiedEmployee, setCopiedEmployee] = useState<string | null>(null);
+  const [copiedDay, setCopiedDay] = useState<string | null>(null);
+  const [selectedTargets, setSelectedTargets] = useState<Set<string>>(new Set());
+  const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set());
   const [copiedCell, setCopiedCell] = useState<{ empId: string; dayKey: string } | null>(null);
 
   const toggleTarget = (empId: string) => {
@@ -221,7 +207,7 @@ export function ScheduleEditor() {
     setSelectedTargets(new Set());
     setSelectedDays(new Set());
     const empName = employees?.find((e) => e.id === empId)?.name ?? "";
-    toast.info(`Horaires de ${empName} copiés — cochez les cibles puis collez`);
+    toast.info(`${empName} ${t("copy.copied")} — ${t("copy.checkTargets")}`);
   };
 
   const copyDaySchedule = (dayKey: string) => {
@@ -230,13 +216,11 @@ export function ScheduleEditor() {
     setSelectedTargets(new Set());
     setSelectedDays(new Set());
     const dayLabel = DAYS.find((d) => d.key === dayKey)?.label ?? dayKey;
-    toast.info(`${dayLabel} copié — cochez les jours cibles puis collez`);
+    toast.info(`${dayLabel} ${t("copy.copied")} — ${t("copy.checkDays")}`);
   };
 
   const pasteToTargets = () => {
     if (copiedEmployee && selectedTargets.size > 0) {
-      // Copy employee schedule to selected target employees
-      const sourceSchedule = getScheduleForEmployee(copiedEmployee);
       const newEdits = { ...localEdits };
       selectedTargets.forEach((targetId) => {
         if (targetId === copiedEmployee) return;
@@ -248,10 +232,9 @@ export function ScheduleEditor() {
         newEdits[targetId] = { ...newEdits[targetId], ...targetEdits };
       });
       setLocalEdits(newEdits);
-      toast.success(`Horaires collés sur ${selectedTargets.size} employé(s)`);
+      toast.success(`${t("schedule.pastedOnEmployees")} ${selectedTargets.size} ${t("copy.employees")}`);
     }
     if (copiedDay && selectedDays.size > 0 && employees) {
-      // Copy one day to other days for ALL employees
       const newEdits = { ...localEdits };
       employees.forEach((emp) => {
         const startVal = getValue(emp.id, `${copiedDay}_start`);
@@ -265,7 +248,7 @@ export function ScheduleEditor() {
       });
       setLocalEdits(newEdits);
       const dayLabel = DAYS.find((d) => d.key === copiedDay)?.label ?? "";
-      toast.success(`${dayLabel} collé sur ${selectedDays.size} jour(s)`);
+      toast.success(`${dayLabel} ${t("copy.pastedOn")} ${selectedDays.size} ${t("copy.day")}`);
     }
     cancelCopy();
   };
@@ -288,7 +271,7 @@ export function ScheduleEditor() {
     });
     setLocalEdits(newEdits);
     const dayLabel = DAYS.find((d) => d.key === dayKey)?.label ?? dayKey;
-    toast.info(`${dayLabel} marqué comme jour férié pour tous les employés`);
+    toast.info(`${dayLabel} ${t("schedule.markHoliday")}`);
   };
 
   const copyCellSchedule = (empId: string, dayKey: string) => {
@@ -297,7 +280,7 @@ export function ScheduleEditor() {
     setCopiedDay(null);
     const empName = employees?.find((e) => e.id === empId)?.name ?? "";
     const dayLabel = DAYS.find((d) => d.key === dayKey)?.label ?? dayKey;
-    toast.info(`${dayLabel} de ${empName} copié — cliquez "Coller" sur la cellule cible`);
+    toast.info(`${dayLabel} ${empName} ${t("copy.copied")}`);
   };
 
   const pasteCellSchedule = (targetEmpId: string, targetDayKey: string) => {
@@ -313,7 +296,7 @@ export function ScheduleEditor() {
       },
     }));
     const empName = employees?.find((e) => e.id === targetEmpId)?.name ?? "";
-    toast.success(`Horaires collés sur ${empName}`);
+    toast.success(`${t("copy.pastedTo")} ${empName}`);
     setCopiedCell(null);
   };
 
@@ -352,12 +335,10 @@ export function ScheduleEditor() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      // Save schedules
       const promises = Object.entries(localEdits).map(async ([empId, fields]) => {
         const existing = getScheduleForEmployee(empId);
         const payload: any = { employee_id: empId, week_start: weekStr, ...fields };
 
-        // Calculate hours
         let totalMinutes = 0;
         let workedDays = 0;
         for (const day of DAYS) {
@@ -394,7 +375,6 @@ export function ScheduleEditor() {
         }
       });
 
-      // Save day comments
       const commentPromises = Object.entries(localDayComments).map(async ([dayKey, comment]) => {
         const existing = dayComments?.find((dc) => dc.day_key === dayKey);
         if (existing) {
@@ -420,20 +400,18 @@ export function ScheduleEditor() {
       queryClient.invalidateQueries({ queryKey: ["all-schedules"] });
       queryClient.invalidateQueries({ queryKey: ["day-comments", weekStr] });
       queryClient.invalidateQueries({ queryKey: ["team-week-day-comments", weekStr] });
-      toast.success("Horaires sauvegardés !");
+      toast.success(t("schedule.saved"));
     },
     onError: (err) => {
-      toast.error("Erreur lors de la sauvegarde: " + (err as Error).message);
+      toast.error(t("schedule.errorSaving") + ": " + (err as Error).message);
     },
   });
 
-  const TEMPLATE_WEEK = "1970-01-05"; // Semaine 0 = template par défaut
+  const TEMPLATE_WEEK = "1970-01-05";
 
   const initAllMutation = useMutation({
     mutationFn: async () => {
       if (!employees) return;
-
-      // Fetch template week (Semaine type)
       const { data: templates } = await supabase
         .from("weekly_schedules")
         .select("*")
@@ -472,7 +450,7 @@ export function ScheduleEditor() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
-      toast.success("Semaine type appliquée !");
+      toast.success(t("schedule.templateApplied"));
     },
   });
 
@@ -488,7 +466,7 @@ export function ScheduleEditor() {
         .eq("week_start", previousWeekStr);
       if (error) throw error;
       if (!prevSchedules || prevSchedules.length === 0) {
-        toast.warning("Aucun planning trouvé pour la semaine précédente");
+        toast.warning(t("schedule.noPrevWeek"));
         return;
       }
 
@@ -508,10 +486,10 @@ export function ScheduleEditor() {
       setLocalEdits(newEdits);
     },
     onSuccess: () => {
-      toast.success("Semaine précédente copiée — vérifiez puis sauvegardez");
+      toast.success(t("schedule.prevWeekCopied"));
     },
     onError: (err) => {
-      toast.error("Erreur: " + (err as Error).message);
+      toast.error("Error: " + (err as Error).message);
     },
   });
 
@@ -529,7 +507,7 @@ export function ScheduleEditor() {
 
       if (error) throw error;
       if (!prevSchedules) {
-        toast.warning("Aucun planning trouvé pour la semaine précédente");
+        toast.warning(t("schedule.noPrevWeek"));
         return;
       }
 
@@ -545,35 +523,30 @@ export function ScheduleEditor() {
       }));
 
       const empName = employees?.find((e) => e.id === empId)?.name ?? "";
-      toast.success(`Semaine précédente copiée pour ${empName}`);
+      toast.success(`${t("schedule.prevWeekCopiedFor")} ${empName}`);
     } catch (err) {
-      toast.error("Erreur: " + (err as Error).message);
+      toast.error("Error: " + (err as Error).message);
     }
   };
 
   const saveAsTemplateMutation = useMutation({
     mutationFn: async () => {
       if (!employees || !schedules) return;
-
-      // Delete existing template rows
       await supabase.from("weekly_schedules").delete().eq("week_start", TEMPLATE_WEEK);
-
-      // Copy current week as template
       const rows = schedules.map((s) => {
         const { id, created_at, updated_at, week_start, ...fields } = s as any;
         return { ...fields, week_start: TEMPLATE_WEEK };
       });
-
       if (rows.length > 0) {
         const { error } = await supabase.from("weekly_schedules").insert(rows);
         if (error) throw error;
       }
     },
     onSuccess: () => {
-      toast.success("Semaine type sauvegardée !");
+      toast.success(t("schedule.templateSaved"));
     },
     onError: (err) => {
-      toast.error("Erreur: " + (err as Error).message);
+      toast.error("Error: " + (err as Error).message);
     },
   });
 
@@ -582,7 +555,7 @@ export function ScheduleEditor() {
   const weekLabel = formatDateLongBE(currentMonday);
 
   const endOfWeek = addWeeks(currentMonday, 1);
-  endOfWeek.setDate(endOfWeek.getDate() - 2); // Saturday
+  endOfWeek.setDate(endOfWeek.getDate() - 2);
   const weekEndLabel = formatDateMonthBE(endOfWeek);
 
   const isCopyMode = copiedEmployee !== null || copiedDay !== null;
@@ -598,7 +571,7 @@ export function ScheduleEditor() {
           </Button>
           <div className="text-center">
             <div className="text-sm font-semibold">S{getWeekNumber(currentMonday)} — {weekLabel} — {weekEndLabel}</div>
-            <div className="text-xs text-muted-foreground">Semaine du {formatDateBE(currentMonday)}</div>
+            <div className="text-xs text-muted-foreground">{t("schedule.weekOfDate")} {formatDateBE(currentMonday)}</div>
           </div>
           <Button variant="outline" size="icon" onClick={() => { setWeekOffset((w) => w + 1); setLocalEdits({}); setLocalDayComments({}); cancelCopy(); }}>
             <ChevronRight className="h-4 w-4" />
@@ -606,20 +579,20 @@ export function ScheduleEditor() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={() => window.print()}>
-            <Printer className="h-3.5 w-3.5 mr-1" /> Imprimer
+            <Printer className="h-3.5 w-3.5 mr-1" /> {t("action.print")}
           </Button>
           <Button variant="outline" size="sm" onClick={() => saveAsTemplateMutation.mutate()} disabled={!schedules?.length}>
-            <Copy className="h-3.5 w-3.5 mr-1" /> Sauver sem. type
+            <Copy className="h-3.5 w-3.5 mr-1" /> {t("schedule.saveTemplate")}
           </Button>
           <Button variant="outline" size="sm" onClick={() => initAllMutation.mutate()}>
-            <ClipboardPaste className="h-3.5 w-3.5 mr-1" /> Appliquer sem. type
+            <ClipboardPaste className="h-3.5 w-3.5 mr-1" /> {t("schedule.applyTemplate")}
           </Button>
           <Button variant="outline" size="sm" onClick={() => copyPreviousWeekMutation.mutate()}>
-            <ChevronLeft className="h-3.5 w-3.5 mr-1" /> Copier sem. précédente
+            <ChevronLeft className="h-3.5 w-3.5 mr-1" /> {t("schedule.copyPrevWeek")}
           </Button>
           <Button size="sm" disabled={!hasEdits || saveMutation.isPending} onClick={() => saveMutation.mutate()}>
             <Save className="h-3.5 w-3.5 mr-1" />
-            {saveMutation.isPending ? "Sauvegarde..." : "Sauvegarder"}
+            {saveMutation.isPending ? t("action.saving") : t("action.save")}
           </Button>
         </div>
       </div>
@@ -629,11 +602,11 @@ export function ScheduleEditor() {
         <div className="flex items-center gap-3 p-3 rounded-lg border border-accent bg-accent/10">
           <ClipboardPaste className="h-4 w-4 text-accent-foreground" />
           <span className="text-sm font-medium">
-            {copiedEmployee && `Horaires de ${employees?.find((e) => e.id === copiedEmployee)?.name} copiés`}
-            {copiedDay && `${DAYS.find((d) => d.key === copiedDay)?.label} copié`}
+            {copiedEmployee && `${employees?.find((e) => e.id === copiedEmployee)?.name} ${t("copy.copied")}`}
+            {copiedDay && `${DAYS.find((d) => d.key === copiedDay)?.label} ${t("copy.copied")}`}
             {" — "}
-            {copiedEmployee && `Cochez les employés cibles (${selectedTargets.size} sélectionné(s))`}
-            {copiedDay && `Cochez les jours cibles (${selectedDays.size} sélectionné(s))`}
+            {copiedEmployee && `${t("copy.checkTargets")} (${selectedTargets.size} ${t("copy.selected")})`}
+            {copiedDay && `${t("copy.checkDays")} (${selectedDays.size} ${t("copy.selected")})`}
           </span>
           <div className="ml-auto flex items-center gap-2">
             <Button
@@ -641,7 +614,7 @@ export function ScheduleEditor() {
               onClick={pasteToTargets}
               disabled={(copiedEmployee && selectedTargets.size === 0) || (copiedDay && selectedDays.size === 0) ? true : false}
             >
-              <ClipboardPaste className="h-3.5 w-3.5 mr-1" /> Coller
+              <ClipboardPaste className="h-3.5 w-3.5 mr-1" /> {t("action.paste")}
             </Button>
             <Button size="sm" variant="ghost" onClick={cancelCopy}>
               <X className="h-3.5 w-3.5" />
@@ -657,7 +630,7 @@ export function ScheduleEditor() {
             <thead>
               <tr className="border-b">
                 <th className="pb-2 pr-4 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[140px]">
-                  Vendeur
+                  {t("schedule.seller")}
                 </th>
                 {DAYS.map((day) => (
                   <th key={day.key} colSpan={2} className="pb-2 text-center font-semibold text-muted-foreground min-w-[160px]">
@@ -669,39 +642,39 @@ export function ScheduleEditor() {
                           className="mr-1"
                         />
                       )}
-                      <span>{day.label} {(() => { const d = new Date(currentMonday); d.setDate(d.getDate() + DAYS.indexOf(day)); return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`; })()}</span>
+                      <span>{day.label} {(() => { const d = new Date(currentMonday); d.setDate(d.getDate() + DAY_KEYS.indexOf(day.key as any)); return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`; })()}</span>
                       {!isCopyMode && (
                         <>
                           <button
                             onClick={() => copyDaySchedule(day.key)}
                             className="ml-1 p-0.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                            title={`Copier ${day.label}`}
+                            title={`${t("action.copy")} ${day.label}`}
                           >
                             <Copy className="h-3 w-3" />
                           </button>
                           <button
                             onClick={() => setDayFerie(day.key)}
                             className="p-0.5 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors"
-                            title={`Marquer ${day.label} comme jour férié`}
+                            title={`${t("schedule.holiday")} ${day.label}`}
                           >
                             <Flag className="h-3 w-3" />
                           </button>
                         </>
                       )}
                       {copiedDay === day.key && (
-                        <span className="ml-1 text-xs text-primary font-normal">(source)</span>
+                        <span className="ml-1 text-xs text-primary font-normal">{t("copy.source")}</span>
                       )}
                     </div>
                   </th>
                 ))}
-                <th className="pb-2 text-center font-semibold text-muted-foreground min-w-[60px]">Total</th>
+                <th className="pb-2 text-center font-semibold text-muted-foreground min-w-[60px]">{t("schedule.total")}</th>
               </tr>
               {/* Day comments row */}
               <tr className="border-b bg-muted/30">
                 <td className="py-1 pr-2 sticky left-0 bg-muted/30 z-10">
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <MessageSquare className="h-3 w-3" />
-                    <span>Notes</span>
+                    <span>{t("schedule.notes")}</span>
                   </div>
                 </td>
                 {DAYS.map((day) => {
@@ -727,7 +700,7 @@ export function ScheduleEditor() {
                 <th className="pb-1 sticky left-0 bg-card z-10"></th>
                 {DAYS.map((day) => (
                   <th key={day.key + "-sub"} colSpan={2} className="pb-1 text-center">
-                    <span className="text-xs text-muted-foreground">Début — Fin</span>
+                    <span className="text-xs text-muted-foreground">{t("schedule.startEnd")}</span>
                   </th>
                 ))}
                 <th></th>
@@ -737,18 +710,17 @@ export function ScheduleEditor() {
               {isLoading ? (
                 <tr>
                    <td colSpan={16} className="py-8 text-center text-muted-foreground">
-                    Chargement...
+                    {t("schedule.loading")}
                   </td>
                 </tr>
               ) : employees?.length === 0 ? (
                 <tr>
                   <td colSpan={16} className="py-8 text-center text-muted-foreground">
-                    Aucun employé trouvé.
+                    {t("schedule.noEmployee")}
                   </td>
                 </tr>
               ) : (
                 employees?.map((emp) => {
-                  // Calculate total hours for this row
                   let totalMinutes = 0;
                   let workedDays = 0;
                   for (const day of DAYS) {
@@ -763,12 +735,11 @@ export function ScheduleEditor() {
                       }
                     }
                   }
-                  const breakMinutes = workedDays * 60; // 1h de pause par jour travaillé
+                  const breakMinutes = workedDays * 60;
                   const totalH = Math.round(((totalMinutes - breakMinutes) / 60) * 10) / 10;
                   const diff = totalH - emp.contract_hours;
 
                   const deptColor = DEPT_COLORS[emp.role] ?? { bg: "", border: "border-l-muted" };
-                  // Count leave days for this employee this week
                   let leaveDays = 0;
                   for (let di = 0; di < DAYS.length; di++) {
                     if (isOnLeave(emp.id, di)) leaveDays++;
@@ -793,27 +764,24 @@ export function ScheduleEditor() {
                                 <button
                                   onClick={() => copyPreviousWeekForEmployee(emp.id)}
                                   className="p-0.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                                  title={`Copier la semaine précédente pour ${emp.name}`}
+                                  title={`${t("schedule.copyPrevWeek")} ${emp.name}`}
                                 >
                                   <History className="h-3 w-3" />
                                 </button>
                               )}
-                              {isSource && <span className="text-xs text-primary">(source)</span>}
+                              {isSource && <span className="text-xs text-primary">{t("copy.source")}</span>}
                             </div>
-                            <div className="text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h contrat</div>
+                            <div className="text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h {t("schedule.contract")}</div>
                           </div>
                         </div>
                       </td>
                       {DAYS.map((day, dayIndex) => {
                         const leaveType = isOnLeave(emp.id, dayIndex);
                         if (leaveType) {
-                          const leaveLabels: Record<string, string> = {
-                            conge: "CP", rtt: "SS", maladie: "MAL", formation: "FORM",
-                          };
                           return (
                             <td key={`${day.key}-leave`} colSpan={2} className="py-1.5 px-0.5 text-center">
                               <span className="inline-block px-2 py-1 text-xs font-semibold rounded bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300">
-                                {leaveLabels[leaveType] ?? leaveType.toUpperCase()}
+                                {t(`leave.${leaveType}.short` as any)}
                               </span>
                             </td>
                           );
@@ -830,10 +798,10 @@ export function ScheduleEditor() {
                                 className="flex-1 min-w-0 px-0.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center appearance-none cursor-pointer"
                               >
                                 <option value="">—</option>
-                                <option value="EXT">Extérieur</option>
-                                <option value="FERIE">Férié</option>
-                                {TIME_SLOTS.map((t) => (
-                                  <option key={t} value={t}>{displayTimeBE(t)}</option>
+                                <option value="EXT">{t("schedule.exterior")}</option>
+                                <option value="FERIE">{t("schedule.holiday")}</option>
+                                {TIME_SLOTS.map((ts) => (
+                                  <option key={ts} value={ts}>{displayTimeBE(ts)}</option>
                                 ))}
                               </select>
                               <select
@@ -842,10 +810,10 @@ export function ScheduleEditor() {
                                 className="flex-1 min-w-0 px-0.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center appearance-none cursor-pointer"
                               >
                                 <option value="">—</option>
-                                <option value="EXT">Extérieur</option>
-                                <option value="FERIE">Férié</option>
-                                {TIME_SLOTS.map((t) => (
-                                  <option key={t} value={t}>{displayTimeBE(t)}</option>
+                                <option value="EXT">{t("schedule.exterior")}</option>
+                                <option value="FERIE">{t("schedule.holiday")}</option>
+                                {TIME_SLOTS.map((ts) => (
+                                  <option key={ts} value={ts}>{displayTimeBE(ts)}</option>
                                 ))}
                               </select>
                               {/* Cell copy/paste buttons */}
@@ -853,7 +821,7 @@ export function ScheduleEditor() {
                                 <button
                                   onClick={() => copyCellSchedule(emp.id, day.key)}
                                   className="p-0.5 rounded hover:bg-muted text-muted-foreground/50 hover:text-foreground transition-colors shrink-0"
-                                  title="Copier ce créneau"
+                                  title={t("action.copy")}
                                 >
                                   <Copy className="h-3 w-3" />
                                 </button>
@@ -862,7 +830,7 @@ export function ScheduleEditor() {
                                 <button
                                   onClick={() => pasteCellSchedule(emp.id, day.key)}
                                   className="p-0.5 rounded bg-accent/20 text-accent hover:bg-accent/30 transition-colors shrink-0"
-                                  title="Coller ici"
+                                  title={t("action.paste")}
                                 >
                                   <ClipboardPaste className="h-3 w-3" />
                                 </button>
@@ -871,7 +839,7 @@ export function ScheduleEditor() {
                                 <button
                                   onClick={cancelCopy}
                                   className="p-0.5 rounded text-muted-foreground hover:text-foreground transition-colors shrink-0"
-                                  title="Annuler"
+                                  title={t("action.cancel")}
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
