@@ -4,7 +4,7 @@ import { Calendar, Users, CalendarDays, User, Store } from "lucide-react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { ScheduleEditor } from "@/components/dashboard/ScheduleEditor";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
-import { ShareLinks } from "@/components/dashboard/ShareLinks";
+import { TeamRecap } from "@/components/dashboard/TeamRecap";
 import { TeamRecap } from "@/components/dashboard/TeamRecap";
 import { CongesCalendar } from "@/components/dashboard/CongesCalendar";
 import { TeamAndAccounts } from "@/components/dashboard/TeamAndAccounts";
