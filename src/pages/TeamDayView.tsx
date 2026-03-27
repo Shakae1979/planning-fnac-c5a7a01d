@@ -119,7 +119,6 @@ const TeamDayView = () => {
     },
   });
 
-  const { currentStore } = useStore();
   const { data: dayComments } = useQuery({
     queryKey: ["team-day-comments", weekStr, currentStore?.id],
     queryFn: async () => {
