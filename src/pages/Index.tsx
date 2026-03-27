@@ -13,7 +13,7 @@ import { useStore } from "@/hooks/useStore";
 import { useAuth } from "@/hooks/useAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type View = "overview" | "schedule" | "recap" | "team" | "share" | "conges" | "stores";
+type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores";
 
 const NAV_SHORTCUTS = [
   { label: "Équipe du jour", path: "/equipe-du-jour", icon: Users },
