@@ -17,6 +17,7 @@ const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", 
 
 export function DashboardOverview() {
   const { currentStore } = useStore();
+  const { t } = useI18n();
   const { data: employees } = useQuery({
     queryKey: ["employees", currentStore?.id],
     queryFn: async () => {
@@ -49,9 +50,9 @@ export function DashboardOverview() {
   const schedulesWithDiff = schedules?.filter((s) => (s.hours_modified ?? 0) !== (s.hours_base ?? 0)).length ?? 0;
 
   const cards = [
-    { label: "Collaborateurs actifs", value: totalEmployees, icon: Users },
-    { label: "Semaines planifiées", value: totalWeeksPlanned, icon: CalendarDays },
-    { label: "Écarts détectés", value: schedulesWithDiff, icon: AlertTriangle },
+    { label: t("overview.activeEmployees"), value: totalEmployees, icon: Users },
+    { label: t("overview.weeksPlanned"), value: totalWeeksPlanned, icon: CalendarDays },
+    { label: t("overview.diffs"), value: schedulesWithDiff, icon: AlertTriangle },
   ];
 
   return (
@@ -69,7 +70,7 @@ export function DashboardOverview() {
       </div>
 
       <div className="kpi-card">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-4">Équipe 2026</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-4">{t("overview.team2026")}</h3>
         {ROLE_ORDER.map((role) => {
           const roleEmps = employees?.filter((e) => e.role === role) ?? [];
           if (roleEmps.length === 0) return null;
@@ -80,7 +81,7 @@ export function DashboardOverview() {
                 <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${meta.bg} ${meta.text}`}>
                   {meta.label}
                 </span>
-                <span className="text-xs text-muted-foreground">{roleEmps.length} collaborateur{roleEmps.length > 1 ? "s" : ""}</span>
+                <span className="text-xs text-muted-foreground">{roleEmps.length} {roleEmps.length > 1 ? t("overview.collaborators") : t("overview.collaborator")}</span>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
                 {roleEmps.map((emp) => (
@@ -101,11 +102,8 @@ export function DashboardOverview() {
       </div>
 
       <div className="kpi-card">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-2">Pour commencer</h3>
-        <p className="text-sm text-muted-foreground">
-          Allez dans <strong>Horaires</strong> pour créer et modifier les plannings semaine par semaine.
-          Partagez ensuite les <strong>Liens vendeurs</strong> pour que chaque collaborateur puisse consulter son planning.
-        </p>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-2">{t("overview.getStarted")}</h3>
+        <p className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: t("overview.getStartedText") }} />
       </div>
     </div>
   );
