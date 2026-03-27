@@ -7,17 +7,10 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { formatDateBE, formatTimeBE, formatLocalDate } from "@/lib/format";
 import { useStore } from "@/hooks/useStore";
+import { useI18n } from "@/lib/i18n";
+import React from "react";
 
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
-
-const ROLE_LABELS: Record<string, string> = {
-  responsable: "Responsables",
-  technique: "Technique",
-  editorial: "Éditorial",
-  stock: "Stock",
-  caisse: "Caisse",
-  stagiaire: "Stagiaires",
-};
 
 const ROLE_COLORS: Record<string, { bar: string; text: string; bg: string; headerBg: string }> = {
   responsable: { bar: "bg-red-500",     text: "text-red-800 dark:text-red-200",     bg: "bg-red-50 dark:bg-red-950/20",     headerBg: "bg-red-100 dark:bg-red-900/40"     },
@@ -28,27 +21,11 @@ const ROLE_COLORS: Record<string, { bar: string; text: string; bg: string; heade
   stagiaire:   { bar: "bg-pink-500",    text: "text-pink-800 dark:text-pink-200",   bg: "bg-pink-50 dark:bg-pink-950/20",   headerBg: "bg-pink-100 dark:bg-pink-900/40"   },
 };
 
-const CONGE_LABELS: Record<string, string> = {
-  conge: "Congé",
-  rtt: "Sans solde",
-  maladie: "Maladie",
-  formation: "Formation",
-};
-
 const CONGE_COLORS: Record<string, string> = {
-  conge: "bg-lime-500",
-  rtt: "bg-cyan-500",
-  maladie: "bg-rose-600",
-  formation: "bg-violet-500",
+  conge: "bg-lime-500", rtt: "bg-cyan-500", maladie: "bg-rose-600", formation: "bg-violet-500",
 };
 
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"] as const;
-const DAY_LABELS: Record<string, string> = {
-  lundi: "Lundi", mardi: "Mardi", mercredi: "Mercredi",
-  jeudi: "Jeudi", vendredi: "Vendredi", samedi: "Samedi",
-};
-
-// Hours from 9 to 20
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 9);
 
 function getMonday(date: Date): Date {
@@ -66,9 +43,7 @@ function addWeeks(date: Date, n: number): Date {
   return d;
 }
 
-function formatWeekDate(date: Date): string {
-  return formatLocalDate(date);
-}
+function formatWeekDate(date: Date): string { return formatLocalDate(date); }
 
 function getDayDate(monday: Date, dayIndex: number): string {
   const d = new Date(monday);
@@ -84,15 +59,20 @@ function timeToMinutes(t: string | null): number {
 
 const TeamWeekView = () => {
   const queryClient = useQueryClient();
+  const { t } = useI18n();
   const [weekOffset, setWeekOffset] = useState(0);
   const currentMonday = addWeeks(getMonday(new Date()), weekOffset);
   const weekStr = formatWeekDate(currentMonday);
   const weekSunday = new Date(currentMonday);
   weekSunday.setDate(weekSunday.getDate() + 6);
   const weekEndStr = formatWeekDate(weekSunday);
-
   const saturday = new Date(currentMonday);
   saturday.setDate(saturday.getDate() + 5);
+
+  const roleLabels = (role: string) => t(`role.${role}.plural` as any) || t(`role.${role}` as any) || role;
+  const congeLabels = (type: string) => t(`leave.${type}` as any) || type;
+
+  const DAYS = DAY_KEYS.map((key) => ({ key, label: t(`day.long.${key}` as any) }));
 
   const { currentStore } = useStore();
   const { data: employees } = useQuery({
@@ -123,10 +103,7 @@ const TeamWeekView = () => {
   const { data: conges } = useQuery({
     queryKey: ["team-week-conges", weekStr],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("conges").select("*")
-        .lte("date_start", weekEndStr)
-        .gte("date_end", weekStr);
+      const { data, error } = await supabase.from("conges").select("*").lte("date_start", weekEndStr).gte("date_end", weekStr);
       if (error) throw error;
       return data;
     },
@@ -135,9 +112,7 @@ const TeamWeekView = () => {
   const { data: dayComments } = useQuery({
     queryKey: ["team-week-day-comments", weekStr, currentStore?.id],
     queryFn: async () => {
-      let query = supabase
-        .from("day_comments").select("*")
-        .eq("week_start", weekStr);
+      let query = supabase.from("day_comments").select("*").eq("week_start", weekStr);
       if (currentStore) query = query.eq("store_id", currentStore.id);
       const { data, error } = await query;
       if (error) throw error;
@@ -152,10 +127,9 @@ const TeamWeekView = () => {
     return match ? match.type : null;
   };
 
-  // Grid constants
-  const GRID_START = 9 * 60; // 9h in minutes
-  const GRID_END = 21 * 60;  // 21h in minutes
-  const GRID_SPAN = GRID_END - GRID_START; // 720 min
+  const GRID_START = 9 * 60;
+  const GRID_END = 21 * 60;
+  const GRID_SPAN = GRID_END - GRID_START;
 
   const grouped = employees?.reduce((acc, emp) => {
     if (!acc[emp.role]) acc[emp.role] = [];
@@ -163,7 +137,6 @@ const TeamWeekView = () => {
     return acc;
   }, {} as Record<string, typeof employees>);
 
-  // Compute total per employee (exclude conge days)
   const getWeekTotal = (empId: string): number => {
     const schedule = schedules?.find(s => s.employee_id === empId);
     if (!schedule) return 0;
@@ -201,14 +174,14 @@ const TeamWeekView = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["team-week-schedules", weekStr] });
       queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
-      toast.success("Jour marqué comme férié !");
+      toast.success(t("teamWeek.markedHoliday"));
     },
-    onError: (err) => toast.error("Erreur : " + (err as Error).message),
+    onError: (err) => toast.error("Error: " + (err as Error).message),
   });
 
   return (
     <div className="min-h-screen bg-background">
-      <FnacHeader title="Planning équipe" subtitle="Vue complète de la semaine" icon={Users}>
+      <FnacHeader title={t("teamWeek.title")} subtitle={t("teamWeek.subtitle")} icon={Users}>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" className="border-foreground/20 text-foreground hover:bg-foreground/10" onClick={() => setWeekOffset(w => w - 1)}>
             <ChevronLeft className="h-4 w-4" />
@@ -222,78 +195,68 @@ const TeamWeekView = () => {
             <ChevronRight className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="sm" className="ml-2 border-foreground/20 text-foreground hover:bg-foreground/10" onClick={() => window.print()}>
-            <Printer className="h-3.5 w-3.5 mr-1" /> Imprimer
+            <Printer className="h-3.5 w-3.5 mr-1" /> {t("action.print")}
           </Button>
         </div>
       </FnacHeader>
 
       <div className="max-w-[1600px] mx-auto px-4 py-4">
-        {/* Legend */}
         <div className="flex flex-wrap gap-3 mb-4 text-xs no-print">
           {ROLE_ORDER.map(role => (
             <span key={role} className="flex items-center gap-1.5">
               <span className={`inline-block w-3 h-3 rounded ${ROLE_COLORS[role]?.bar}`} />
-              {ROLE_LABELS[role]}
+              {roleLabels(role)}
             </span>
           ))}
-          <span className="ml-2 border-l pl-2 flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-lime-500" /> Congé</span>
-          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-violet-500" /> Formation</span>
-          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-rose-600" /> Maladie</span>
-          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-cyan-500" /> Sans solde</span>
-          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-gray-400" /> Férié</span>
-          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-indigo-400" /> Extérieur</span>
+          <span className="ml-2 border-l pl-2 flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-lime-500" /> {t("leave.conge")}</span>
+          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-violet-500" /> {t("leave.formation")}</span>
+          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-rose-600" /> {t("leave.maladie")}</span>
+          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-cyan-500" /> {t("leave.rtt")}</span>
+          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-gray-400" /> {t("teamWeek.ferie")}</span>
+          <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-indigo-400" /> {t("teamWeek.exterior")}</span>
         </div>
 
-        {/* Main table */}
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-xs" style={{ minWidth: 1200 }}>
             <thead>
               <tr>
                 <th className="sticky left-0 z-20 bg-card border-b border-r px-2 py-2 text-left font-semibold text-muted-foreground w-[140px]">
-                  Vendeur
+                  {t("teamWeek.seller")}
                 </th>
-                {DAY_KEYS.map((day, di) => {
+                {DAYS.map((day, di) => {
                   const dayDate = new Date(currentMonday);
                   dayDate.setDate(dayDate.getDate() + di);
                   return (
-                    <th key={day} className="border-b border-r px-1 py-2 text-center font-semibold text-muted-foreground" style={{ minWidth: 140 }}>
-                      <div className="flex items-center justify-center gap-1">
-                        <span>{DAY_LABELS[day]}</span>
-                      </div>
+                    <th key={day.key} className="border-b border-r px-1 py-2 text-center font-semibold text-muted-foreground" style={{ minWidth: 140 }}>
+                      <div className="flex items-center justify-center gap-1"><span>{day.label}</span></div>
                       <div className="text-[10px] font-normal">{formatDateBE(dayDate)}</div>
                     </th>
                   );
                 })}
-                <th className="border-b px-2 py-2 text-center font-semibold text-muted-foreground w-[50px]">
-                  Total
-                </th>
+                <th className="border-b px-2 py-2 text-center font-semibold text-muted-foreground w-[50px]">{t("teamWeek.total")}</th>
               </tr>
-              {/* Hour sub-headers */}
               <tr>
                 <th className="sticky left-0 z-20 bg-card border-b border-r" />
-                {DAY_KEYS.map(day => (
-                  <th key={day} className="border-b border-r p-0">
+                {DAYS.map(day => (
+                  <th key={day.key} className="border-b border-r p-0">
                     <div className="flex">
                       {HOURS.map(h => (
-                        <div key={h} className="flex-1 text-center text-[9px] text-muted-foreground/60 py-0.5 border-r border-border/30 last:border-r-0">
-                          {h}
-                        </div>
+                        <div key={h} className="flex-1 text-center text-[9px] text-muted-foreground/60 py-0.5 border-r border-border/30 last:border-r-0">{h}</div>
                       ))}
                     </div>
                   </th>
                 ))}
                 <th className="border-b" />
               </tr>
-              {/* Day comments row */}
               {dayComments && dayComments.some(dc => dc.comment.trim()) && (
                 <tr>
                   <th className="sticky left-0 z-20 bg-card border-b border-r px-2 py-1 text-left text-[10px] text-muted-foreground font-normal">
-                    📝 Notes
+                    {t("teamWeek.notes")}
                   </th>
-                  {DAY_KEYS.map(day => {
-                    const comment = dayComments?.find(dc => dc.day_key === day)?.comment || "";
+                  {DAYS.map(day => {
+                    const comment = dayComments?.find(dc => dc.day_key === day.key)?.comment || "";
                     return (
-                      <th key={day + "-comment"} className="border-b border-r px-1 py-1 text-center font-normal">
+                      <th key={day.key + "-comment"} className="border-b border-r px-1 py-1 text-center font-normal">
                         {comment.trim() ? (
                           <span className="text-[10px] font-semibold italic px-1.5 py-0.5 rounded" style={{ background: "hsl(var(--warning) / 0.15)", color: "hsl(var(--warning))" }} title={comment}>{comment}</span>
                         ) : null}
@@ -311,10 +274,9 @@ const TeamWeekView = () => {
                 const colors = ROLE_COLORS[role] || ROLE_COLORS.caisse;
                 return (
                   <React.Fragment key={role}>
-                    {/* Category header row */}
                     <tr>
                       <td colSpan={DAY_KEYS.length + 2} className={`px-3 py-1.5 font-bold text-xs ${colors.text} ${colors.headerBg} border-b`}>
-                        {ROLE_LABELS[role]} ({emps.length})
+                        {roleLabels(role)} ({emps.length})
                       </td>
                     </tr>
                     {emps.map(emp => {
@@ -323,7 +285,6 @@ const TeamWeekView = () => {
                       const diff = weekTotal - emp.contract_hours;
                       return (
                         <tr key={emp.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
-                          {/* Employee name */}
                           <td className="sticky left-0 z-10 bg-card border-r px-2 py-1.5">
                             <div className="flex items-center gap-2">
                               <div className={`h-6 w-6 rounded-full ${colors.bar} flex items-center justify-center text-[10px] font-bold text-white`}>
@@ -332,7 +293,6 @@ const TeamWeekView = () => {
                               <span className="font-medium truncate max-w-[90px]">{emp.name}</span>
                             </div>
                           </td>
-                          {/* Day cells with Gantt bars */}
                           {DAY_KEYS.map((day, di) => {
                             const congeType = getConge(emp.id, di);
                             const start = schedule ? (schedule as any)[`${day}_start`] : null;
@@ -343,7 +303,6 @@ const TeamWeekView = () => {
 
                             return (
                               <td key={day} className="border-r p-0 relative" style={{ height: 32 }}>
-                                {/* Hour grid lines */}
                                 <div className="absolute inset-0 flex">
                                   {HOURS.map(h => (
                                     <div key={h} className="flex-1 border-r border-border/10 last:border-r-0" />
@@ -354,20 +313,20 @@ const TeamWeekView = () => {
                                   <div className="absolute inset-0 flex items-center px-0.5">
                                     <div className={`h-5 rounded ${CONGE_COLORS[congeType] || "bg-yellow-400"} opacity-70 flex items-center justify-center text-[9px] font-semibold text-white w-full`}>
                                       <Palmtree className="h-3 w-3 mr-0.5" />
-                                      {CONGE_LABELS[congeType] || congeType}
+                                      {congeLabels(congeType)}
                                     </div>
                                   </div>
                                 ) : isFerie ? (
                                   <div className="absolute inset-0 flex items-center px-0.5">
                                     <div className="h-5 rounded bg-gray-400 opacity-70 flex items-center justify-center text-[9px] font-semibold text-white w-full">
                                       <Flag className="h-3 w-3 mr-0.5" />
-                                      Férié
+                                      {t("teamWeek.ferie")}
                                     </div>
                                   </div>
                                 ) : isExt ? (
                                   <div className="absolute inset-0 flex items-center px-0.5">
                                     <div className="h-5 rounded bg-indigo-400 opacity-70 flex items-center justify-center text-[9px] font-semibold text-white w-full">
-                                      Extérieur
+                                      {t("teamWeek.exterior")}
                                     </div>
                                   </div>
                                 ) : hasShift ? (
@@ -400,7 +359,6 @@ const TeamWeekView = () => {
                               </td>
                             );
                           })}
-                          {/* Total column */}
                           <td className="px-2 py-1.5 text-center font-mono-data">
                             {weekTotal > 0 ? (
                               <div>
@@ -425,14 +383,12 @@ const TeamWeekView = () => {
           </table>
         </div>
 
-        {/* Legend footer */}
         <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-          <span>Les horaires affichés sont bruts. Le total soustrait 1h de pause par jour travaillé.</span>
+          <span>{t("teamWeek.breakNote")}</span>
         </div>
       </div>
     </div>
   );
 };
 
-import React from "react";
 export default TeamWeekView;

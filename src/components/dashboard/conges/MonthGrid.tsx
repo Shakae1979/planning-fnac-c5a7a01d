@@ -5,31 +5,15 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { formatDateBE } from "@/lib/format";
-
-const MONTHS_FULL = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-const DAY_NAMES = ["dim", "lun", "mar", "mer", "jeu", "ven", "sam"];
+import { useI18n, getHolidays2026, getDayNames } from "@/lib/i18n";
 
 const ROLE_COLUMNS = [
-  { key: "responsable", label: "Resp.", headerBg: "bg-red-100 dark:bg-red-900/30", borderColor: "border-l-2 border-l-red-300 dark:border-l-red-700" },
-  { key: "technique", label: "Tech.", headerBg: "bg-orange-100 dark:bg-orange-900/30", borderColor: "border-l-2 border-l-orange-300 dark:border-l-orange-700" },
-  { key: "editorial", label: "Édit.", headerBg: "bg-yellow-100 dark:bg-yellow-900/30", borderColor: "border-l-2 border-l-yellow-300 dark:border-l-yellow-700" },
-  { key: "stock", label: "Stock", headerBg: "bg-blue-100 dark:bg-blue-900/30", borderColor: "border-l-2 border-l-blue-300 dark:border-l-blue-700" },
-  { key: "caisse", label: "Caisse", headerBg: "bg-green-100 dark:bg-green-900/30", borderColor: "border-l-2 border-l-green-300 dark:border-l-green-700" },
+  { key: "responsable", headerBg: "bg-red-100 dark:bg-red-900/30", borderColor: "border-l-2 border-l-red-300 dark:border-l-red-700" },
+  { key: "technique", headerBg: "bg-orange-100 dark:bg-orange-900/30", borderColor: "border-l-2 border-l-orange-300 dark:border-l-orange-700" },
+  { key: "editorial", headerBg: "bg-yellow-100 dark:bg-yellow-900/30", borderColor: "border-l-2 border-l-yellow-300 dark:border-l-yellow-700" },
+  { key: "stock", headerBg: "bg-blue-100 dark:bg-blue-900/30", borderColor: "border-l-2 border-l-blue-300 dark:border-l-blue-700" },
+  { key: "caisse", headerBg: "bg-green-100 dark:bg-green-900/30", borderColor: "border-l-2 border-l-green-300 dark:border-l-green-700" },
 ];
-
-const HOLIDAYS_2026: Record<string, string> = {
-  "2026-01-01": "Nouvel An",
-  "2026-04-05": "Pâques",
-  "2026-04-06": "Lundi de Pâques",
-  "2026-05-01": "Fête du travail",
-  "2026-05-14": "Ascension",
-  "2026-05-25": "Pentecôte",
-  "2026-07-21": "Fête nationale",
-  "2026-08-15": "Assomption",
-  "2026-11-01": "Toussaint",
-  "2026-11-11": "Armistice",
-  "2026-12-25": "Noël",
-};
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
@@ -46,8 +30,6 @@ function getISOWeek(date: Date): number {
   return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
 
-const MONTHS_SHORT = ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"];
-
 interface MonthGridProps {
   year: number;
   month: number;
@@ -63,11 +45,25 @@ interface Selection {
 }
 
 export function MonthGrid({ year, month, employees, conges, deleteMutation, onAddConge }: MonthGridProps) {
+  const { t, monthShort } = useI18n();
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; type: string } | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
   const [showTypeDialog, setShowTypeDialog] = useState(false);
   const [selectedType, setSelectedType] = useState("conge");
+
+  const HOLIDAYS = getHolidays2026(t);
+  const DAY_NAMES = getDayNames(t);
+
+  const roleLabels: Record<string, string> = {};
+  ROLE_COLUMNS.forEach((r) => {
+    roleLabels[r.key] = t(`role.${r.key}.short` as any) || r.key;
+  });
+
+  const congeTypes = CONGE_TYPES.map((ct) => ({
+    ...ct,
+    label: t(`leave.${ct.value}` as any),
+  }));
 
   const daysInMonth = getDaysInMonth(year, month);
 
@@ -107,10 +103,7 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
       const idx = dates.indexOf(dateStr);
       if (idx >= 0) {
         dates.splice(idx, 1);
-        if (dates.length === 0) {
-          setSelection(null);
-          return;
-        }
+        if (dates.length === 0) { setSelection(null); return; }
         setSelection({ ...selection, dates });
       } else {
         const allDates = [dates[0], dateStr].sort();
@@ -128,10 +121,7 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
   }, [selection]);
 
   const handleCancelSelection = () => {
-    setSelection(null);
-    setSelectedEmpId(null);
-    setShowTypeDialog(false);
-    setSelectedType("conge");
+    setSelection(null); setSelectedEmpId(null); setShowTypeDialog(false); setSelectedType("conge");
   };
 
   const handleConfirmSelection = () => {
@@ -144,18 +134,17 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
   const selectionSorted = selection ? [...selection.dates].sort() : [];
   const selectionStart = selectionSorted[0];
   const selectionEnd = selectionSorted[selectionSorted.length - 1];
-  const roleLabel = selection ? ROLE_COLUMNS.find(r => r.key === selection.role)?.label || selection.role : "";
+  const roleLabel = selection ? roleLabels[selection.role] || selection.role : "";
   const roleEmployees = selection ? employeesByRole[selection.role] || [] : [];
 
   let lastWeekShown = -1;
 
   return (
     <div>
-      {/* Selection bar */}
       {selection && selection.dates.length > 0 && (
         <div className="flex items-center justify-between bg-primary/10 border border-primary/30 rounded-md px-3 py-1.5 mb-2 text-xs">
           <span>
-            <strong>{roleLabel}</strong> — {selection.dates.length} jour(s)
+            <strong>{roleLabel}</strong> — {selection.dates.length} {t("misc.dayOfWeek")}
             {selectionStart && selectionEnd && selectionStart !== selectionEnd && (
               <span className="text-muted-foreground ml-1">
                 ({formatDateBE(new Date(selectionStart))} → {formatDateBE(new Date(selectionEnd))})
@@ -163,12 +152,8 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
             )}
           </span>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={handleCancelSelection}>
-              Annuler
-            </Button>
-            <Button size="sm" className="h-6 text-xs" onClick={() => setShowTypeDialog(true)}>
-              Encoder le congé
-            </Button>
+            <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={handleCancelSelection}>{t("action.cancel")}</Button>
+            <Button size="sm" className="h-6 text-xs" onClick={() => setShowTypeDialog(true)}>{t("conges.encodeLeave")}</Button>
           </div>
         </div>
       )}
@@ -177,10 +162,10 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
         <table className="w-full text-[11px] border-collapse">
           <thead>
             <tr className="border-b bg-muted/30">
-              <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[70px]">Date</th>
-              <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[30px]">Jour</th>
+              <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[70px]">{t("conges.date")}</th>
+              <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[30px]">{t("conges.dayLabel")}</th>
               {activeRoles.map(r => (
-                <th key={r.key} className={`px-1 py-1.5 text-center font-semibold text-muted-foreground ${r.headerBg} ${r.borderColor}`}>{r.label}</th>
+                <th key={r.key} className={`px-1 py-1.5 text-center font-semibold text-muted-foreground ${r.headerBg} ${r.borderColor}`}>{roleLabels[r.key]}</th>
               ))}
             </tr>
           </thead>
@@ -191,14 +176,14 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
               const jsDay = date.getDay();
               const isWeekend = jsDay === 0 || jsDay === 6;
               const dateStr = formatDate(year, month, day);
-              const holiday = HOLIDAYS_2026[dateStr];
+              const holiday = HOLIDAYS[dateStr];
               const schoolHol = isSchoolHoliday(dateStr);
               const isoWeek = getISOWeek(date);
               const isMonday = jsDay === 1;
               const showWeek = isMonday && isoWeek !== lastWeekShown;
               if (showWeek) lastWeekShown = isoWeek;
 
-              const dateLabel = `${String(day).padStart(2, "0")}-${MONTHS_SHORT[month]}`;
+              const dateLabel = `${String(day).padStart(2, "0")}-${monthShort(month)}`;
 
               return (
                 <tr
@@ -210,9 +195,7 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
                   <td className="px-1 py-0.5 text-muted-foreground whitespace-nowrap">
                     <div className="flex items-center gap-1">
                       <span>{dateLabel}</span>
-                      {showWeek && (
-                        <span className="text-[9px] font-bold text-primary/60 ml-auto">{isoWeek}</span>
-                      )}
+                      {showWeek && <span className="text-[9px] font-bold text-primary/60 ml-auto">{isoWeek}</span>}
                     </div>
                   </td>
                   <td className={`px-1 py-0.5 font-medium ${isWeekend ? "text-muted-foreground/50" : ""}`}>
@@ -236,7 +219,7 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
                             if (leaves.length > 0 && !isSelected) {
                               if (leaves.length === 1) {
                                 const { emp, leave } = leaves[0];
-                                const typeLabel = CONGE_TYPES.find(t => t.value === leave.type)?.label ?? "";
+                                const typeLabel = congeTypes.find(ct => ct.value === leave.type)?.label ?? "";
                                 setDeleteTarget({ id: leave.id, name: emp.name, type: typeLabel });
                               }
                             } else {
@@ -247,14 +230,10 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
                           {leaves.length > 0 ? (
                             <div className="flex flex-col gap-0.5">
                               {leaves.map(({ emp, leave }) => {
-                                const typeColor = CONGE_TYPES.find(t => t.value === leave.type)?.color ?? "bg-muted";
-                                const typeLabel = CONGE_TYPES.find(t => t.value === leave.type)?.label ?? "";
+                                const typeColor = congeTypes.find(ct => ct.value === leave.type)?.color ?? "bg-muted";
+                                const typeLabel = congeTypes.find(ct => ct.value === leave.type)?.label ?? "";
                                 return (
-                                  <span
-                                    key={emp.id}
-                                    className={`${typeColor} text-white text-[10px] px-1 py-0.5 rounded truncate block`}
-                                    title={`${emp.name} — ${typeLabel}`}
-                                  >
+                                  <span key={emp.id} className={`${typeColor} text-white text-[10px] px-1 py-0.5 rounded truncate block`} title={`${emp.name} — ${typeLabel}`}>
                                     {emp.name.split(" ")[0]}
                                   </span>
                                 );
@@ -274,76 +253,64 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
         </table>
       </div>
 
-      {/* Type + employee selection dialog */}
       <Dialog open={showTypeDialog} onOpenChange={(open) => { if (!open) setShowTypeDialog(false); }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Encoder un congé</DialogTitle>
+            <DialogTitle>{t("conges.encodeLeave")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div className="text-sm text-muted-foreground">
-              <strong>{roleLabel}</strong> — {selection?.dates.length} jour(s)
+              <strong>{roleLabel}</strong> — {selection?.dates.length} {t("misc.dayOfWeek")}
               {selectionStart && selectionEnd && (
                 <span className="block text-xs mt-0.5">
-                  Du {formatDateBE(new Date(selectionStart))} au {formatDateBE(new Date(selectionEnd))}
+                  {t("misc.from")} {formatDateBE(new Date(selectionStart))} {t("misc.to")} {formatDateBE(new Date(selectionEnd))}
                 </span>
               )}
             </div>
-
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Vendeur</label>
-              <select
-                value={selectedEmpId || ""}
-                onChange={(e) => setSelectedEmpId(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-md border bg-background"
-              >
-                <option value="">Choisir…</option>
-                {roleEmployees.map((emp: any) => (
-                  <option key={emp.id} value={emp.id}>{emp.name}</option>
-                ))}
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t("conges.seller")}</label>
+              <select value={selectedEmpId || ""} onChange={(e) => setSelectedEmpId(e.target.value)} className="w-full px-3 py-2 text-sm rounded-md border bg-background">
+                <option value="">{t("action.choose")}</option>
+                {roleEmployees.map((emp: any) => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
               </select>
             </div>
-
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Type de congé</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t("conges.leaveType")}</label>
               <div className="grid grid-cols-2 gap-2">
-                {CONGE_TYPES.map((t) => (
+                {congeTypes.map((ct) => (
                   <button
-                    key={t.value}
+                    key={ct.value}
                     className={`flex items-center gap-2 px-3 py-2 rounded-md border text-sm transition-colors ${
-                      selectedType === t.value
-                        ? "border-primary bg-primary/10 font-medium"
-                        : "border-border hover:border-primary/50"
+                      selectedType === ct.value ? "border-primary bg-primary/10 font-medium" : "border-border hover:border-primary/50"
                     }`}
-                    onClick={() => setSelectedType(t.value)}
+                    onClick={() => setSelectedType(ct.value)}
                   >
-                    <span className={`inline-block w-3 h-3 rounded ${t.color}`} />
-                    {t.label}
+                    <span className={`inline-block w-3 h-3 rounded ${ct.color}`} />
+                    {ct.label}
                   </button>
                 ))}
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={handleCancelSelection}>Annuler</Button>
-            <Button onClick={handleConfirmSelection} disabled={!selectedEmpId}>Valider</Button>
+            <Button variant="outline" onClick={handleCancelSelection}>{t("action.cancel")}</Button>
+            <Button onClick={handleConfirmSelection} disabled={!selectedEmpId}>{t("action.validate")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Delete confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer ce congé ?</AlertDialogTitle>
+            <AlertDialogTitle>{t("conges.deleteLeave")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Voulez-vous vraiment supprimer le congé ({deleteTarget?.type}) de <strong>{deleteTarget?.name}</strong> ? Cette action est irréversible.
+              {t("conges.deleteConfirm")} ({deleteTarget?.type}) <strong>{deleteTarget?.name}</strong> ? {t("conges.irreversible")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={() => { if (deleteTarget) { deleteMutation.mutate(deleteTarget.id); setDeleteTarget(null); } }}>
-              Supprimer
+              {t("action.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
