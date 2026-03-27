@@ -86,16 +86,20 @@ export function TeamRecap() {
     },
   });
 
+  const employeeIds = employees?.map((e) => e.id) ?? [];
   const { data: schedules } = useQuery({
-    queryKey: ["schedules", weekStr],
+    queryKey: ["schedules", weekStr, currentStore?.id],
     queryFn: async () => {
+      if (employeeIds.length === 0) return [];
       const { data, error } = await supabase
         .from("weekly_schedules")
         .select("*")
-        .eq("week_start", weekStr);
+        .eq("week_start", weekStr)
+        .in("employee_id", employeeIds);
       if (error) throw error;
       return data;
     },
+    enabled: !!employees,
   });
 
   const weekLabel = formatDateLongBE(currentMonday);

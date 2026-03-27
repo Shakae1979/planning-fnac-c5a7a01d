@@ -27,13 +27,19 @@ export function DashboardOverview() {
     },
   });
 
+  const employeeIds = employees?.map((e) => e.id) ?? [];
   const { data: schedules } = useQuery({
-    queryKey: ["all-schedules"],
+    queryKey: ["all-schedules", currentStore?.id, employeeIds],
     queryFn: async () => {
-      const { data, error } = await supabase.from("weekly_schedules").select("*, employees(name)");
+      if (employeeIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from("weekly_schedules")
+        .select("*, employees(name)")
+        .in("employee_id", employeeIds);
       if (error) throw error;
       return data;
     },
+    enabled: !!employees,
   });
 
   const totalEmployees = employees?.length ?? 0;
