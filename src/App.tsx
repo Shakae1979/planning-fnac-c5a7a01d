@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { StoreProvider } from "@/hooks/useStore";
 import Index from "./pages/Index.tsx";
 import EmployeeView from "./pages/EmployeeView.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -26,7 +27,8 @@ function ProtectedRoute({ children, adminOnly = false }: { children: React.React
   }
 
   if (!user) return <Navigate to="/login" replace />;
-  if (adminOnly && role !== "admin") return <Navigate to="/equipe-du-jour" replace />;
+  // admin and editor can access dashboard
+  if (adminOnly && role !== "admin" && role !== "editor") return <Navigate to="/equipe-du-jour" replace />;
 
   return <>{children}</>;
 }
@@ -62,7 +64,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <AppRoutes />
+          <StoreProvider>
+            <AppRoutes />
+          </StoreProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
