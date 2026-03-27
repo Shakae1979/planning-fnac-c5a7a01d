@@ -18,7 +18,6 @@ const links: { id: View; label: string; icon: React.ElementType }[] = [
   { id: "conges", label: "Congés 2026", icon: Palmtree },
   { id: "team", label: "Équipe & Comptes", icon: Users },
   { id: "stores", label: "Magasins", icon: Store },
-  { id: "stores", label: "Magasins", icon: Store },
 ];
 
 
