@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { formatDateBE, formatTimeBE, formatLocalDate } from "@/lib/format";
+import { useStore } from "@/hooks/useStore";
 
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
 
@@ -93,10 +94,13 @@ const TeamWeekView = () => {
   const saturday = new Date(currentMonday);
   saturday.setDate(saturday.getDate() + 5);
 
+  const { currentStore } = useStore();
   const { data: employees } = useQuery({
-    queryKey: ["team-week-employees"],
+    queryKey: ["team-week-employees", currentStore?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("employees").select("*").eq("is_active", true).order("name");
+      let query = supabase.from("employees").select("*").eq("is_active", true).order("name");
+      if (currentStore) query = query.eq("store_id", currentStore.id);
+      const { data, error } = await query;
       if (error) throw error;
       return data?.sort((a, b) => {
         const ra = ROLE_ORDER.indexOf(a.role);
