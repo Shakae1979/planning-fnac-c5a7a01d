@@ -406,7 +406,7 @@ export function ScheduleEditor() {
         } else if (comment.trim()) {
           const { error } = await supabase
             .from("day_comments")
-            .insert({ week_start: weekStr, day_key: dayKey, comment });
+            .insert({ week_start: weekStr, day_key: dayKey, comment, store_id: currentStore?.id || null });
           if (error) throw error;
         }
       });
