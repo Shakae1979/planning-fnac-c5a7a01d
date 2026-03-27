@@ -233,6 +233,8 @@ const translations = {
   "team.noAccount": { fr: "Pas de compte", nl: "Geen account" },
   "team.createAccount": { fr: "Créer un compte", nl: "Account aanmaken" },
   "team.deleteAccount": { fr: "Suppr. compte", nl: "Account verw." },
+  "team.resetPassword": { fr: "Réinit. mot de passe", nl: "Wachtwoord resetten" },
+  "team.resetEmailSent": { fr: "Email de réinitialisation envoyé", nl: "Reset-e-mail verzonden" },
   "team.password": { fr: "Mot de passe", nl: "Wachtwoord" },
   "team.minChars": { fr: "Min. 6 caractères", nl: "Min. 6 tekens" },
   "team.accountRole": { fr: "Rôle", nl: "Rol" },
