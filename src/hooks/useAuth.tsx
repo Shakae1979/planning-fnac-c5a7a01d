@@ -22,12 +22,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchRole = async (userId: string) => {
-    try {
-      const { data } = await supabase.rpc("get_my_role");
-      setRole((data as AppRole) || "user");
-    } catch {
-      setRole("user");
-    }
+    const { data } = await supabase.rpc("get_my_role");
+    setRole((data as AppRole) || "user");
   };
 
   useEffect(() => {
@@ -36,7 +32,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchRole(session.user.id);
+          // Use setTimeout to avoid deadlock with Supabase auth
+          setTimeout(() => fetchRole(session.user.id), 0);
         } else {
           setRole(null);
         }
@@ -44,13 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchRole(session.user.id);
+        fetchRole(session.user.id);
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();

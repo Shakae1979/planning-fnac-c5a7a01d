@@ -361,14 +361,12 @@ export function TeamAndAccounts() {
                           {t("team.deleteAccount" as any)}
                         </Button>
                       </>
-                    ) : emp.email && !accountsLoading ? (
+                    ) : emp.email ? (
                       <Button variant="outline" size="sm" className="text-xs gap-1"
                         onClick={() => { setCreatingForId(isCreating ? null : emp.id); setAccountPassword(""); setAccountRole("user"); }}>
                         <UserPlus className="h-3.5 w-3.5" />
                         {t("team.createAccount" as any)}
                       </Button>
-                    ) : emp.email && accountsLoading ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
                     ) : null}
                     <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive"
                       onClick={() => toggleMutation.mutate({ id: emp.id, active: false })}>
