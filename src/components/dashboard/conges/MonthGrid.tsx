@@ -35,8 +35,9 @@ interface MonthGridProps {
   month: number;
   employees: any[] | undefined;
   conges: any[] | undefined;
-  deleteMutation: any;
+  deleteMutation?: any;
   onAddConge?: (employeeId: string, dateStart: string, dateEnd: string, type: string) => void;
+  readOnly?: boolean;
 }
 
 interface Selection {
@@ -44,7 +45,7 @@ interface Selection {
   dates: string[];
 }
 
-export function MonthGrid({ year, month, employees, conges, deleteMutation, onAddConge }: MonthGridProps) {
+export function MonthGrid({ year, month, employees, conges, deleteMutation, onAddConge, readOnly = false }: MonthGridProps) {
   const { t, monthShort } = useI18n();
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; type: string } | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -141,7 +142,7 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
 
   return (
     <div>
-      {selection && selection.dates.length > 0 && (
+      {!readOnly && selection && selection.dates.length > 0 && (
         <div className="flex items-center justify-between bg-primary/10 border border-primary/30 rounded-md px-3 py-1.5 mb-2 text-xs">
           <span>
             <strong>{roleLabel}</strong> — {selection.dates.length} {t("misc.dayOfWeek")}
@@ -212,10 +213,12 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
                       return (
                         <td
                           key={role.key}
-                          className={`px-1 py-0.5 text-center cursor-pointer transition-colors ${role.borderColor} ${
-                            isSelected ? "bg-primary/25 ring-1 ring-inset ring-primary/50" : "hover:bg-primary/10"
+                          className={`px-1 py-0.5 text-center transition-colors ${role.borderColor} ${
+                            readOnly ? "" : "cursor-pointer"
+                          } ${
+                            isSelected ? "bg-primary/25 ring-1 ring-inset ring-primary/50" : readOnly ? "" : "hover:bg-primary/10"
                           }`}
-                          onClick={() => {
+                          onClick={readOnly ? undefined : () => {
                             if (leaves.length > 0 && !isSelected) {
                               if (leaves.length === 1) {
                                 const { emp, leave } = leaves[0];

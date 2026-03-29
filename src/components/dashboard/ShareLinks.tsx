@@ -73,6 +73,7 @@ export function ShareLinks() {
           {[
             { label: t("share.dayLabel"), desc: t("share.dayDesc"), path: "/equipe-du-jour" },
             { label: t("share.weekLabel"), desc: t("share.weekDesc"), path: "/planning-equipe" },
+            { label: t("nav.conges"), desc: t("share.congesDesc") || "Vue consultation congés (lecture seule)", path: "/conges" },
           ].map((link) => (
             <div key={link.path} className="flex items-center justify-between py-2.5 px-3 rounded-md bg-secondary/50">
               <div>

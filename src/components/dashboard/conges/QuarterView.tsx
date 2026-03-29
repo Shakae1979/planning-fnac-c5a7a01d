@@ -35,8 +35,9 @@ interface QuarterViewProps {
   months: number[];
   employees: any[] | undefined;
   conges: any[] | undefined;
-  deleteMutation: any;
+  deleteMutation?: any;
   onAddConge?: (employeeId: string, dateStart: string, dateEnd: string, type: string) => void;
+  readOnly?: boolean;
 }
 
 interface Selection {
@@ -44,10 +45,11 @@ interface Selection {
   dates: string[];
 }
 
-function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, onRequestDelete, selection, onCellClick, selectedEmpId }: {
+function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, onRequestDelete, selection, onCellClick, selectedEmpId, readOnly = false }: {
   year: number; month: number; employees: any[] | undefined; conges: any[] | undefined;
-  deleteMutation: any; onRequestDelete: (target: { id: string; name: string; type: string }) => void;
+  deleteMutation?: any; onRequestDelete: (target: { id: string; name: string; type: string }) => void;
   selection: Selection | null; onCellClick: (role: string, dateStr: string) => void; selectedEmpId: string | null;
+  readOnly?: boolean;
 }) {
   const { t, monthName, monthShort } = useI18n();
   const HOLIDAYS = getHolidays2026(t);
@@ -126,8 +128,8 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
                     const leaves = getLeavesForRoleOnDate(role.key, dateStr);
                     const isSelected = selection?.role === role.key && selection.dates.includes(dateStr);
                     return (
-                      <td key={role.key} className={`px-1 py-0.5 text-center cursor-pointer transition-colors ${role.borderColor} ${isSelected ? "bg-primary/25 ring-1 ring-inset ring-primary/50" : "hover:bg-primary/10"}`}
-                        onClick={() => {
+                      <td key={role.key} className={`px-1 py-0.5 text-center transition-colors ${role.borderColor} ${readOnly ? "" : "cursor-pointer"} ${isSelected ? "bg-primary/25 ring-1 ring-inset ring-primary/50" : readOnly ? "" : "hover:bg-primary/10"}`}
+                        onClick={readOnly ? undefined : () => {
                           if (leaves.length > 0 && !isSelected) {
                             if (leaves.length === 1) {
                               const { emp, leave } = leaves[0];
@@ -162,7 +164,7 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
   );
 }
 
-export function QuarterView({ year, months, employees, conges, deleteMutation, onAddConge }: QuarterViewProps) {
+export function QuarterView({ year, months, employees, conges, deleteMutation, onAddConge, readOnly = false }: QuarterViewProps) {
   const { t } = useI18n();
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; type: string } | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -222,7 +224,7 @@ export function QuarterView({ year, months, employees, conges, deleteMutation, o
 
   return (
     <div className="kpi-card overflow-hidden">
-      {selection && selection.dates.length > 0 && (
+      {!readOnly && selection && selection.dates.length > 0 && (
         <div className="flex items-center justify-between bg-primary/10 border border-primary/30 rounded-md px-3 py-1.5 mb-2 text-xs">
           <span>
             <strong>{roleLabel}</strong> — {selection.dates.length} {t("misc.dayOfWeek")}
@@ -242,7 +244,7 @@ export function QuarterView({ year, months, employees, conges, deleteMutation, o
           {months.map(m => (
             <VerticalMonthColumn key={m} year={year} month={m} employees={employees} conges={conges}
               deleteMutation={deleteMutation} onRequestDelete={setDeleteTarget}
-              selection={selection} onCellClick={handleCellClick} selectedEmpId={selectedEmpId} />
+              selection={selection} onCellClick={readOnly ? () => {} : handleCellClick} selectedEmpId={selectedEmpId} readOnly={readOnly} />
           ))}
         </div>
       </div>
