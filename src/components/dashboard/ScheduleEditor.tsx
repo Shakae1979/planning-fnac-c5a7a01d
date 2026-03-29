@@ -43,11 +43,11 @@ function displayTimeBE(value: string): string {
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
 
 const DEPT_COLORS: Record<string, { bg: string; border: string }> = {
-  responsable: { bg: "bg-orange-50 dark:bg-orange-950/30", border: "border-l-orange-500" },
-  technique: { bg: "bg-blue-50 dark:bg-blue-950/30", border: "border-l-blue-500" },
-  editorial: { bg: "bg-purple-50 dark:bg-purple-950/30", border: "border-l-purple-500" },
-  stock: { bg: "bg-amber-50 dark:bg-amber-950/30", border: "border-l-amber-500" },
-  caisse: { bg: "bg-emerald-50 dark:bg-emerald-950/30", border: "border-l-emerald-500" },
+  responsable: { bg: "bg-red-100 dark:bg-red-950/40", border: "border-l-red-500" },
+  technique: { bg: "bg-orange-100 dark:bg-orange-950/40", border: "border-l-orange-500" },
+  editorial: { bg: "bg-yellow-100 dark:bg-yellow-950/40", border: "border-l-yellow-500" },
+  stock: { bg: "bg-blue-100 dark:bg-blue-950/40", border: "border-l-blue-500" },
+  caisse: { bg: "bg-emerald-100 dark:bg-emerald-950/40", border: "border-l-emerald-500" },
 };
 
 /** Generate time slots from 09:00 to 20:00 every 30 min */
