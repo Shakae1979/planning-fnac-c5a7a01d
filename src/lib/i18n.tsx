@@ -402,6 +402,12 @@ const translations = {
   "store.deleteTitle": { fr: "Supprimer ce magasin ?", nl: "Winkel verwijderen?" },
   "store.employeesDetached": { fr: "collaborateur(s). Ils seront détachés du magasin.", nl: "medewerker(s). Zij worden losgekoppeld van de winkel." },
   "store.irreversible": { fr: "Cette action est irréversible.", nl: "Deze actie is onomkeerbaar." },
+  "store.managers": { fr: "Responsables", nl: "Verantwoordelijken" },
+  "store.noManager": { fr: "Aucun responsable assigné", nl: "Geen verantwoordelijke toegewezen" },
+  "store.addManager": { fr: "Ajouter un responsable", nl: "Verantwoordelijke toevoegen" },
+  "store.selectUser": { fr: "Sélectionner un utilisateur", nl: "Selecteer een gebruiker" },
+  "store.managerAssigned": { fr: "Responsable assigné !", nl: "Verantwoordelijke toegewezen!" },
+  "store.managerRemoved": { fr: "Responsable retiré !", nl: "Verantwoordelijke verwijderd!" },
 
   // ========== Schedule misc ==========
   "schedule.markHoliday": { fr: "marqué comme jour férié pour tous les employés", nl: "gemarkeerd als feestdag voor alle medewerkers" },
