@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (user_id === caller.id) {
+      if (user_id === callerId) {
         return new Response(JSON.stringify({ error: "Impossible de supprimer votre propre compte" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
