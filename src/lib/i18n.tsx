@@ -15,6 +15,17 @@ const translations = {
   "nav.collapse": { fr: "Réduire", nl: "Inklappen" },
   "nav.expand": { fr: "Agrandir", nl: "Uitklappen" },
   "nav.planning": { fr: "Planning", nl: "Planning" },
+  "nav.myAccount": { fr: "Mon compte", nl: "Mijn account" },
+
+  // ========== Account ==========
+  "account.title": { fr: "Mon compte", nl: "Mijn account" },
+  "account.changePassword": { fr: "Changer le mot de passe", nl: "Wachtwoord wijzigen" },
+  "account.newPassword": { fr: "Nouveau mot de passe", nl: "Nieuw wachtwoord" },
+  "account.confirmPassword": { fr: "Confirmer le mot de passe", nl: "Wachtwoord bevestigen" },
+  "account.passwordTooShort": { fr: "Le mot de passe doit contenir au moins 6 caractères", nl: "Wachtwoord moet minstens 6 tekens bevatten" },
+  "account.passwordMismatch": { fr: "Les mots de passe ne correspondent pas", nl: "Wachtwoorden komen niet overeen" },
+  "account.passwordChanged": { fr: "Mot de passe modifié avec succès", nl: "Wachtwoord succesvol gewijzigd" },
+  "account.save": { fr: "Enregistrer", nl: "Opslaan" },
 
   // ========== Header shortcuts ==========
   "header.teamDay": { fr: "Équipe du jour", nl: "Team van de dag" },
