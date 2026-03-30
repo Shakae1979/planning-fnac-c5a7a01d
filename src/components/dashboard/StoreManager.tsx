@@ -24,6 +24,7 @@ interface ManagerInfo {
 export function StoreManager() {
   const queryClient = useQueryClient();
   const { t } = useI18n();
+  const { role: callerRole } = useAuth();
   const [newName, setNewName] = useState("");
   const [newCity, setNewCity] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
