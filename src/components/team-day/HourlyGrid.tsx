@@ -186,7 +186,7 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
                       value={empComments[emp.id] || ""}
                       onChange={(e) => { setEmpComments((p) => ({ ...p, [emp.id]: e.target.value })); setDirty(true); }}
                       placeholder="Note..."
-                      className="h-5 text-[9px] mt-0.5 px-1 py-0 border-muted bg-transparent"
+                      className={`h-5 text-[9px] mt-0.5 px-1 py-0 border-muted bg-transparent ${!(empComments[emp.id]?.trim()) ? "print:hidden" : ""}`}
                     />
                   </td>
                   {HALF_HOURS.map((slot, i) => {
