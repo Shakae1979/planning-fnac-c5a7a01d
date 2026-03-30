@@ -1,4 +1,4 @@
-import { Calendar, Users, CalendarDays, User, LogOut, Palmtree, Store } from "lucide-react";
+import { Calendar, Users, CalendarDays, User, UserCog, LogOut, Palmtree, Store } from "lucide-react";
 import { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,6 +26,7 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
     { label: t("header.weekPlan"), path: "/planning-equipe", icon: CalendarDays },
     { label: t("header.myPlan"), path: "/mon-planning", icon: User },
     { label: t("nav.conges"), path: "/conges", icon: Palmtree },
+    { label: t("nav.myAccount"), path: "/mon-compte", icon: UserCog },
   ];
 
   return (
