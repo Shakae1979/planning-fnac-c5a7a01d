@@ -109,20 +109,6 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
           {children}
           <LanguageSwitcher />
           <button
-            onClick={() => navigate("/mon-compte")}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              location.pathname === "/mon-compte" ? "" : "hover:opacity-80"
-            }`}
-            style={{
-              background: location.pathname === "/mon-compte" ? "hsl(var(--sidebar-active))" : "hsl(var(--sidebar-hover))",
-              color: location.pathname === "/mon-compte" ? "hsl(var(--accent-foreground))" : "hsl(var(--sidebar-fg))",
-            }}
-            title={t("nav.myAccount")}
-          >
-            <UserCog className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{t("nav.myAccount")}</span>
-          </button>
-          <button
             onClick={signOut}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:opacity-80"
             style={{
