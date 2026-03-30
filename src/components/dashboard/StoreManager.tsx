@@ -285,19 +285,43 @@ export function StoreManager() {
                     )}
                     {managers.map((mgr) => (
                       <div key={mgr.user_id} className="flex items-center justify-between py-1 px-2 rounded bg-accent/5 text-xs group">
-                        <span>
-                          <span className="font-medium text-foreground">👤 {mgr.email}</span>
-                          <span className="text-muted-foreground ml-1">({mgr.role})</span>
+                        <span className="flex items-center gap-1.5">
+                          {mgr.is_manager ? (
+                            <Crown className="h-3.5 w-3.5 text-amber-500" />
+                          ) : (
+                            <span className="text-sm">👤</span>
+                          )}
+                          <span className="font-medium text-foreground">{mgr.email}</span>
+                          <span className="text-muted-foreground">({mgr.role})</span>
+                          {mgr.is_manager && (
+                            <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 border-amber-500/50 text-amber-600">
+                              Store Manager
+                            </Badge>
+                          )}
                         </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0 text-destructive/50 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => unassignMutation.mutate({ user_id: mgr.user_id, store_id: store.id })}
-                          disabled={unassignMutation.isPending}
-                        >
-                          <UserMinus className="h-3 w-3" />
-                        </Button>
+                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {callerRole === "admin" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className={`h-6 w-6 p-0 ${mgr.is_manager ? "text-amber-500 hover:text-amber-600" : "text-muted-foreground hover:text-amber-500"}`}
+                              title={mgr.is_manager ? t("store.removeManager" as any) : t("store.setAsManager" as any)}
+                              onClick={() => setManagerMutation.mutate({ user_id: mgr.user_id, store_id: store.id, is_manager: !mgr.is_manager })}
+                              disabled={setManagerMutation.isPending}
+                            >
+                              <Crown className="h-3 w-3" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 text-destructive/50 hover:text-destructive"
+                            onClick={() => unassignMutation.mutate({ user_id: mgr.user_id, store_id: store.id })}
+                            disabled={unassignMutation.isPending}
+                          >
+                            <UserMinus className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
 
