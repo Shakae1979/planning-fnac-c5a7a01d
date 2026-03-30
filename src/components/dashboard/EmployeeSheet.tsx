@@ -120,16 +120,22 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center text-sm font-bold text-accent">
-              {employee.name.charAt(0)}
+              {getDisplayName(employee).charAt(0)}
             </div>
             {t("sheet.title")}
           </SheetTitle>
         </SheetHeader>
 
         <div className="mt-6 space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="emp-name">{t("team.name")}</Label>
-            <Input id="emp-name" value={name} onChange={(e) => setName(e.target.value)} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="emp-name">{t("team.name")}</Label>
+              <Input id="emp-name" value={name} onChange={(e) => setName(e.target.value)} placeholder={t("team.name")} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="emp-lastname">{t("team.lastName" as any)}</Label>
+              <Input id="emp-lastname" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder={t("team.lastName" as any)} />
+            </div>
           </div>
 
           <div className="space-y-2">
