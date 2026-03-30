@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Printer, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
@@ -65,8 +65,7 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
   const [picker, setPicker] = useState<{ key: string; rect: { top: number; left: number } } | null>(null);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const [soclozChecked, setSoclozChecked] = useState<Record<string, boolean>>({});
-  const [savChecked, setSavChecked] = useState<Record<string, boolean>>({});
+  const [empComments, setEmpComments] = useState<Record<string, string>>({});
 
   const roleLabels: Record<string, string> = {};
   ROLES.forEach((r) => {
@@ -90,10 +89,10 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
         setOverrides(loaded);
       } else setOverrides({});
       if (flagsRes.data && flagsRes.data.length > 0) {
-        const soc: Record<string, boolean> = {}; const sav: Record<string, boolean> = {};
-        for (const row of flagsRes.data) { if (row.socloz) soc[row.employee_id] = true; if (row.sav) sav[row.employee_id] = true; }
-        setSoclozChecked(soc); setSavChecked(sav);
-      } else { setSoclozChecked({}); setSavChecked({}); }
+        const comments: Record<string, string> = {};
+        for (const row of flagsRes.data) { if ((row as any).comment) comments[row.employee_id] = (row as any).comment; }
+        setEmpComments(comments);
+      } else { setEmpComments({}); }
       setDirty(false);
     };
     load();
@@ -125,9 +124,8 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
         const employeeId = parts.slice(0, parts.length - 2).join("-");
         return { date, employee_id: employeeId, slot_key: slotKey, role };
       });
-      const allEmpIds = new Set([...Object.keys(soclozChecked), ...Object.keys(savChecked)]);
-      const flagRows = Array.from(allEmpIds).filter((id) => soclozChecked[id] || savChecked[id])
-        .map((employee_id) => ({ date, employee_id, socloz: !!soclozChecked[employee_id], sav: !!savChecked[employee_id] }));
+      const flagRows = Object.entries(empComments).filter(([, c]) => c.trim() !== '')
+        .map(([employee_id, comment]) => ({ date, employee_id, socloz: false, sav: false, comment }));
       const promises: Array<Promise<any>> = [];
       if (rows.length > 0) promises.push(Promise.resolve(supabase.from("schedule_role_overrides").insert(rows)).then(({ error }) => { if (error) throw error; }));
       if (flagRows.length > 0) promises.push(Promise.resolve(supabase.from("employee_day_flags").insert(flagRows as any)).then(({ error }) => { if (error) throw error; }));
@@ -184,16 +182,12 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
                       <span className="font-medium truncate max-w-[70px]">{emp.name}</span>
                       <span className="text-[9px] text-muted-foreground">{roleLabels[emp.role] || emp.role}</span>
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <label className="flex items-center gap-0.5 cursor-pointer">
-                        <Checkbox checked={!!soclozChecked[emp.id]} onCheckedChange={(v) => { setSoclozChecked((p) => ({ ...p, [emp.id]: !!v })); setDirty(true); }} className="h-3 w-3" />
-                        <span className="text-[8px] text-muted-foreground">Socloz</span>
-                      </label>
-                      <label className="flex items-center gap-0.5 cursor-pointer">
-                        <Checkbox checked={!!savChecked[emp.id]} onCheckedChange={(v) => { setSavChecked((p) => ({ ...p, [emp.id]: !!v })); setDirty(true); }} className="h-3 w-3" />
-                        <span className="text-[8px] text-muted-foreground">SAV</span>
-                      </label>
-                    </div>
+                    <Input
+                      value={empComments[emp.id] || ""}
+                      onChange={(e) => { setEmpComments((p) => ({ ...p, [emp.id]: e.target.value })); setDirty(true); }}
+                      placeholder="Note..."
+                      className="h-5 text-[9px] mt-0.5 px-1 py-0 border-muted bg-transparent"
+                    />
                   </td>
                   {HALF_HOURS.map((slot, i) => {
                     const slotTime = slot.hour + slot.minute / 60;
