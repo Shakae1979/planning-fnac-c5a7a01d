@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound.tsx";
 import TeamDayView from "./pages/TeamDayView.tsx";
 import TeamWeekView from "./pages/TeamWeekView.tsx";
 import CongesView from "./pages/CongesView.tsx";
+import MyAccount from "./pages/MyAccount.tsx";
 import Login from "./pages/Login.tsx";
 import { Loader2 } from "lucide-react";
 
@@ -54,6 +55,7 @@ function AppRoutes() {
       <Route path="/equipe-du-jour" element={<ProtectedRoute><TeamDayView /></ProtectedRoute>} />
       <Route path="/planning-equipe" element={<ProtectedRoute><TeamWeekView /></ProtectedRoute>} />
       <Route path="/conges" element={<ProtectedRoute><CongesView /></ProtectedRoute>} />
+      <Route path="/mon-compte" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
