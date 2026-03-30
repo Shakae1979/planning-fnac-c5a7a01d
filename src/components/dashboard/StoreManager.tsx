@@ -49,7 +49,7 @@ export function StoreManager() {
         body: { action: "list" },
       });
       if (error) throw error;
-      return (data || []) as { id: string; email: string; role: string; stores: { store_id: string; store_name: string }[] }[];
+      return (data || []) as { id: string; email: string; role: string; stores: { store_id: string; store_name: string; is_manager: boolean }[] }[];
     },
   });
 
@@ -60,7 +60,7 @@ export function StoreManager() {
       if (u.role === "editor" || u.role === "admin") {
         for (const s of u.stores || []) {
           if (!storeManagers[s.store_id]) storeManagers[s.store_id] = [];
-          storeManagers[s.store_id].push({ user_id: u.id, email: u.email, role: u.role });
+          storeManagers[s.store_id].push({ user_id: u.id, email: u.email, role: u.role, is_manager: s.is_manager });
         }
       }
     }
