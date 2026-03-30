@@ -11,12 +11,14 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Save, Shield, PenTool, User, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { getDisplayName } from "@/lib/format";
 
 const ROLE_KEYS = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
 
 interface Employee {
   id: string;
   name: string;
+  last_name?: string | null;
   email: string | null;
   role: string;
   contract_hours: number;
@@ -41,6 +43,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
   const queryClient = useQueryClient();
   const { t } = useI18n();
   const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("technique");
   const [hours, setHours] = useState("36");
@@ -50,6 +53,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
   useEffect(() => {
     if (employee) {
       setName(employee.name);
+      setLastName(employee.last_name || "");
       setEmail(employee.email || "");
       setRole(employee.role);
       setHours(String(employee.contract_hours));
@@ -71,12 +75,14 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
   const updateMutation = useMutation({
     mutationFn: async () => {
       if (!employee) return;
-      const trimmed = name.trim();
-      if (!trimmed) throw new Error(t("misc.nameRequired"));
+      const trimmedFirst = name.trim();
+      const trimmedLast = lastName.trim();
+      if (!trimmedFirst && !trimmedLast) throw new Error(t("misc.nameRequired"));
       const { error } = await supabase
         .from("employees")
         .update({
-          name: trimmed,
+          name: trimmedFirst || trimmedLast,
+          last_name: trimmedLast || null,
           email: email.trim() || null,
           role,
           contract_hours: Number(hours) || 36,
