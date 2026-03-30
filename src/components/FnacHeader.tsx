@@ -26,6 +26,7 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
     { label: t("header.weekPlan"), path: "/planning-equipe", icon: CalendarDays },
     { label: t("header.myPlan"), path: "/mon-planning", icon: User },
     { label: t("nav.conges"), path: "/conges", icon: Palmtree },
+    { label: t("nav.myAccount"), path: "/mon-compte", icon: UserCog },
   ];
 
   return (
