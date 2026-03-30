@@ -9,13 +9,16 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, Pencil, Store, X, Save, Loader2, UserPlus, UserMinus } from "lucide-react";
+import { Plus, Trash2, Pencil, Store, X, Save, Loader2, UserPlus, UserMinus, Crown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ManagerInfo {
   user_id: string;
   email: string;
   role: string;
+  is_manager: boolean;
 }
 
 export function StoreManager() {

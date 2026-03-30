@@ -408,6 +408,10 @@ const translations = {
   "store.selectUser": { fr: "Sélectionner un utilisateur", nl: "Selecteer een gebruiker" },
   "store.managerAssigned": { fr: "Responsable assigné !", nl: "Verantwoordelijke toegewezen!" },
   "store.managerRemoved": { fr: "Responsable retiré !", nl: "Verantwoordelijke verwijderd!" },
+  "store.storeManager": { fr: "Store Manager", nl: "Store Manager" },
+  "store.setAsManager": { fr: "Définir comme Store Manager", nl: "Instellen als Store Manager" },
+  "store.removeManager": { fr: "Retirer le rôle Store Manager", nl: "Store Manager rol verwijderen" },
+  "store.managerSet": { fr: "Store Manager défini !", nl: "Store Manager ingesteld!" },
 
   // ========== Schedule misc ==========
   "schedule.markHoliday": { fr: "marqué comme jour férié pour tous les employés", nl: "gemarkeerd als feestdag voor alle medewerkers" },
