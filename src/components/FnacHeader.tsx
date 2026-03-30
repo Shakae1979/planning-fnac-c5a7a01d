@@ -1,9 +1,11 @@
-import { Calendar, Users, CalendarDays, User, LogOut, Palmtree, UserCog } from "lucide-react";
+import { Calendar, Users, CalendarDays, User, LogOut, Palmtree, UserCog, Store } from "lucide-react";
 import { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface FnacHeaderProps {
   title: string;
@@ -16,6 +18,7 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
   const navigate = useNavigate();
   const location = useLocation();
   const { role, signOut } = useAuth();
+  const { stores, currentStore, setCurrentStore } = useStore();
   const { t } = useI18n();
 
   const NAV_SHORTCUTS = [
@@ -36,6 +39,40 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
             </span>
           </button>
           <div className="h-5 w-px" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
+
+          {stores.length > 1 && (
+            <>
+              <Select
+                value={currentStore?.id || ""}
+                onValueChange={(val) => {
+                  const s = stores.find((st) => st.id === val);
+                  if (s) setCurrentStore(s);
+                }}
+              >
+                <SelectTrigger className="w-[180px] h-8 text-xs border-none" style={{ background: "hsl(var(--sidebar-hover))", color: "hsl(var(--sidebar-fg))" }}>
+                  <Store className="h-3.5 w-3.5 mr-1" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {stores.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="h-5 w-px" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
+            </>
+          )}
+
+          {stores.length === 1 && currentStore && (
+            <>
+              <span className="text-xs font-medium flex items-center gap-1" style={{ color: "hsl(var(--sidebar-fg))" }}>
+                <Store className="h-3.5 w-3.5" />
+                {currentStore.name}
+              </span>
+              <div className="h-5 w-px" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
+            </>
+          )}
+
           <div className="flex items-center gap-2">
             {Icon && <Icon className="h-5 w-5" style={{ color: "hsl(var(--sidebar-fg))" }} />}
             <div>
