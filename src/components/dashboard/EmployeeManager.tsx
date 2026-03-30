@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/hooks/useStore";
+import { getDisplayName } from "@/lib/format";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Mail, X } from "lucide-react";
@@ -183,10 +184,10 @@ export function EmployeeManager() {
             <div key={emp.id} className="flex items-center justify-between py-2 px-2 rounded table-row-hover">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center text-xs font-bold text-accent">
-                  {emp.name.charAt(0)}
+                  {getDisplayName(emp).charAt(0)}
                 </div>
                 <div>
-                  <div className="text-sm font-medium">{emp.name}</div>
+                  <div className="text-sm font-medium">{getDisplayName(emp)}</div>
                   <div className="text-xs text-muted-foreground">
                     <select
                       value={emp.role}
@@ -233,7 +234,7 @@ export function EmployeeManager() {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Supprimer {emp.name} ?</AlertDialogTitle>
+                      <AlertDialogTitle>Supprimer {getDisplayName(emp)} ?</AlertDialogTitle>
                       <AlertDialogDescription>
                         Cette action est irréversible. Toutes les données liées à ce collaborateur (plannings, congés) seront également supprimées.
                       </AlertDialogDescription>
@@ -263,7 +264,7 @@ export function EmployeeManager() {
           <div className="space-y-1">
             {inactive.map((emp) => (
               <div key={emp.id} className="flex items-center justify-between py-2 px-2 rounded table-row-hover opacity-60">
-                <span className="text-sm">{emp.name}</span>
+                <span className="text-sm">{getDisplayName(emp)}</span>
                 <div className="flex items-center gap-1">
                   <Button variant="outline" size="sm" onClick={() => toggleMutation.mutate({ id: emp.id, active: true })}>
                     Réactiver
