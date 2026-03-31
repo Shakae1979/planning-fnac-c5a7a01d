@@ -177,16 +177,7 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
               </span>
             ))}
           </div>
-          <Button
-            variant={multiMode ? "default" : "outline"}
-            size="sm"
-            className={`no-print h-7 text-xs gap-1.5 ${multiMode ? "ring-2 ring-primary/50" : ""}`}
-            onClick={toggleMultiMode}
-          >
-            {multiMode ? <X className="h-3.5 w-3.5" /> : <MousePointerClick className="h-3.5 w-3.5" />}
-            {multiMode ? "Annuler" : "Multi-sélection"}
-          </Button>
-          {multiMode && selected.size > 0 && (
+          {selected.size > 0 && (
             <Button size="sm" className="no-print h-7 text-xs gap-1.5" onClick={handleApplyClick}>
               Appliquer ({selected.size})
             </Button>
