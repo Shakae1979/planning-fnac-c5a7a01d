@@ -63,7 +63,7 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
   const { t } = useI18n();
   const active = employees.filter((e) => e.hasShift && !e.conge);
   const [overrides, setOverrides] = useState<Overrides>({});
-  const [picker, setPicker] = useState<{ key: string; rect: { top: number; left: number } } | null>(null);
+  
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [empComments, setEmpComments] = useState<Record<string, string>>({});
