@@ -129,7 +129,6 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
     setDirty(true);
     setSelected(new Set());
     setMultiPicker(null);
-    setMultiMode(false);
   };
 
   const handleApplyClick = (e: React.MouseEvent) => {
