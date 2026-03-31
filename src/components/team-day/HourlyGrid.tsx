@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Printer, Save, MousePointerClick, X } from "lucide-react";
+import { Printer, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,13 +63,12 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
   const { t } = useI18n();
   const active = employees.filter((e) => e.hasShift && !e.conge);
   const [overrides, setOverrides] = useState<Overrides>({});
-  const [picker, setPicker] = useState<{ key: string; rect: { top: number; left: number } } | null>(null);
+  
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [empComments, setEmpComments] = useState<Record<string, string>>({});
 
   // Multi-select state
-  const [multiMode, setMultiMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [multiPicker, setMultiPicker] = useState<{ rect: { top: number; left: number } } | null>(null);
 
@@ -106,33 +105,15 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
 
   if (active.length === 0) return null;
 
-  const toggleMultiMode = () => {
-    if (multiMode) {
-      setSelected(new Set());
-      setMultiPicker(null);
-    }
-    setMultiMode(!multiMode);
-  };
-
   const handleCellClick = (empId: string, hour: number, e: React.MouseEvent, minute: number = 0) => {
     const key = `${empId}-${hour}-${minute}`;
-    if (multiMode) {
-      setSelected((prev) => {
-        const next = new Set(prev);
-        if (next.has(key)) next.delete(key); else next.add(key);
-        return next;
-      });
-    } else {
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-      setPicker({ key, rect: { top: rect.bottom + 2, left: rect.left } });
-    }
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
   };
 
-  const handleSelect = (role: string) => {
-    if (!picker) return;
-    setOverrides((prev) => ({ ...prev, [picker.key]: role }));
-    setDirty(true); setPicker(null);
-  };
 
   const handleMultiApply = (role: string) => {
     setOverrides((prev) => {
@@ -143,7 +124,6 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
     setDirty(true);
     setSelected(new Set());
     setMultiPicker(null);
-    setMultiMode(false);
   };
 
   const handleApplyClick = (e: React.MouseEvent) => {
@@ -192,16 +172,7 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
               </span>
             ))}
           </div>
-          <Button
-            variant={multiMode ? "default" : "outline"}
-            size="sm"
-            className={`no-print h-7 text-xs gap-1.5 ${multiMode ? "ring-2 ring-primary/50" : ""}`}
-            onClick={toggleMultiMode}
-          >
-            {multiMode ? <X className="h-3.5 w-3.5" /> : <MousePointerClick className="h-3.5 w-3.5" />}
-            {multiMode ? "Annuler" : "Multi-sélection"}
-          </Button>
-          {multiMode && selected.size > 0 && (
+          {selected.size > 0 && (
             <Button size="sm" className="no-print h-7 text-xs gap-1.5" onClick={handleApplyClick}>
               Appliquer ({selected.size})
             </Button>
@@ -214,12 +185,6 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
           </Button>
         </div>
       </div>
-      {multiMode && (
-        <div className="mb-2 px-2 py-1.5 rounded-md bg-primary/10 border border-primary/20 text-xs text-primary">
-          Cliquez sur les cases à modifier, puis cliquez "Appliquer" pour choisir le rôle.
-          {selected.size > 0 && <span className="ml-2 font-semibold">{selected.size} case(s) sélectionnée(s)</span>}
-        </div>
-      )}
       <div className="overflow-x-auto rounded-lg border">
         <table className="w-full text-xs border-collapse">
           <thead>
@@ -256,7 +221,7 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
                     const overrideKey = `${emp.id}-${slot.hour}-${slot.minute}`;
                     const cellRole = overrides[overrideKey] || emp.role;
                     const colorClass = ROLE_BG[cellRole] || "bg-accent/20";
-                    const isSelected = multiMode && selected.has(overrideKey);
+                    const isSelected = selected.has(overrideKey);
                     return (
                       <td key={i} className={`px-0 py-1 text-center ${slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"} last:border-r-0 ${isWorking ? `${colorClass} cursor-pointer hover:opacity-80 transition-opacity` : ""} ${isSelected ? "ring-2 ring-inset ring-primary" : ""}`}
                         onClick={isWorking ? (e) => handleCellClick(emp.id, slot.hour, e, slot.minute) : undefined}
@@ -271,7 +236,7 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
           </tbody>
         </table>
       </div>
-      {picker && <RolePicker anchorRect={picker.rect} onSelect={handleSelect} onClose={() => setPicker(null)} roleLabels={roleLabels} />}
+      
       {multiPicker && <RolePicker anchorRect={multiPicker.rect} onSelect={handleMultiApply} onClose={() => setMultiPicker(null)} roleLabels={roleLabels} multi />}
     </div>
   );
