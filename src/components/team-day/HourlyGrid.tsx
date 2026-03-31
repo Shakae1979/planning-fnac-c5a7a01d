@@ -105,26 +105,13 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
 
   if (active.length === 0) return null;
 
-  const toggleMultiMode = () => {
-    if (multiMode) {
-      setSelected(new Set());
-      setMultiPicker(null);
-    }
-    setMultiMode(!multiMode);
-  };
-
   const handleCellClick = (empId: string, hour: number, e: React.MouseEvent, minute: number = 0) => {
     const key = `${empId}-${hour}-${minute}`;
-    if (multiMode) {
-      setSelected((prev) => {
-        const next = new Set(prev);
-        if (next.has(key)) next.delete(key); else next.add(key);
-        return next;
-      });
-    } else {
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-      setPicker({ key, rect: { top: rect.bottom + 2, left: rect.left } });
-    }
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
   };
 
   const handleSelect = (role: string) => {
