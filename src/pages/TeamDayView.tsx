@@ -5,7 +5,7 @@ import HourlyGrid from "@/components/team-day/HourlyGrid";
 import { FnacHeader } from "@/components/FnacHeader";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { formatDateBE, formatTimeBE, formatLocalDate } from "@/lib/format";
+import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName } from "@/lib/format";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
 
