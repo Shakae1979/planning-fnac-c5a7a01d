@@ -421,7 +421,7 @@ const translations = {
   "schedule.errorSaving": { fr: "Erreur lors de la sauvegarde", nl: "Fout bij het opslaan" },
   "schedule.weekOfDate": { fr: "Semaine du", nl: "Week van" },
   "schedule.prevWeekCopiedFor": { fr: "Semaine précédente copiée pour", nl: "Vorige week gekopieerd voor" },
-  "schedule.pastedOnEmployees": { fr: "Horaires collés sur", nl: "Roosters geplakt op" },
+  "schedule.pastedOnEmployees": { fr: "Planning collé sur", nl: "Roosters geplakt op" },
 } as const;
 
 type TranslationKey = keyof typeof translations;
