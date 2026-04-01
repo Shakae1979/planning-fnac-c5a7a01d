@@ -5,7 +5,7 @@ import { useStore } from "@/hooks/useStore";
 import { Calendar, ChevronLeft, ChevronRight, Clock, User, Palmtree } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber } from "@/lib/format";
+import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
 import { FnacHeader } from "@/components/FnacHeader";
 import { useI18n } from "@/lib/i18n";
 
@@ -138,9 +138,9 @@ const EmployeeView = () => {
               {employees?.map((emp) => (
                 <button key={emp.id} onClick={() => navigate(`/mon-planning/${encodeURIComponent(emp.name)}`)}
                   className="w-full flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-secondary transition-colors text-left">
-                  <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center text-sm font-bold text-accent">{emp.name.charAt(0)}</div>
+                  <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center text-sm font-bold text-accent">{getDisplayName(emp).split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}</div>
                   <div>
-                    <div className="font-medium">{emp.name}</div>
+                    <div className="font-medium">{getDisplayName(emp)}</div>
                     <div className="text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h {t("empView.weeklyContract")}</div>
                   </div>
                 </button>
@@ -169,7 +169,7 @@ const EmployeeView = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <FnacHeader title={employee.name} subtitle={`${t("empView.contract")} ${employee.contract_hours}h ${t("empView.weeklyContract")}`} icon={User}>
+      <FnacHeader title={getDisplayName(employee)} subtitle={`${t("empView.contract")} ${employee.contract_hours}h ${t("empView.weeklyContract")}`} icon={User}>
         <Button variant="outline" size="sm" className="border-foreground/20 text-foreground hover:bg-foreground/10" onClick={() => navigate("/mon-planning")}>
           {t("action.change")}
         </Button>
