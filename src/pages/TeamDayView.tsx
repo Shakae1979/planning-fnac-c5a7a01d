@@ -190,7 +190,7 @@ const TeamDayView = () => {
             <div className="text-xs text-muted-foreground">{t("teamDay.onLeave")}</div>
           </div>
           <div className="rounded-lg border bg-muted/50 p-3 text-center">
-            <div className="text-2xl font-bold text-muted-foreground">{off.length + ferie.length}</div>
+            <div className="text-2xl font-bold text-muted-foreground">{off.length + ferie.length + roulement.length}</div>
             <div className="text-xs text-muted-foreground">{ferie.length > 0 ? t("teamDay.holidayRest") : t("teamDay.rest")}</div>
           </div>
         </div>
