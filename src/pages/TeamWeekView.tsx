@@ -299,7 +299,8 @@ const TeamWeekView = () => {
                             const end = schedule ? (schedule as any)[`${day}_end`] : null;
                             const isFerie = start === "FERIE" || end === "FERIE";
                             const isExt = start === "EXT" || end === "EXT";
-                            const hasShift = !!(start && end && !isFerie && !isExt);
+                            const isRoulement = start === "ROULEMENT" || end === "ROULEMENT";
+                            const hasShift = !!(start && end && !isFerie && !isExt && !isRoulement);
 
                             return (
                               <td key={day} className="border-r p-0 relative" style={{ height: 32 }}>
