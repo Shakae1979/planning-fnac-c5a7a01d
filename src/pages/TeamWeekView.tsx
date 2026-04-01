@@ -146,10 +146,10 @@ const TeamWeekView = () => {
     return acc;
   }, {} as Record<string, typeof employees>);
 
-  const getWeekTotal = (empId: string, contractHours: number): { total: number; creditedHours: number } => {
+  const getWeekTotal = (empId: string): { total: number; creditedHours: number } => {
     const schedule = schedules?.find(s => s.employee_id === empId);
     if (!schedule) return { total: 0, creditedHours: 0 };
-    const dailyCredit = contractHours / 5; // heures journalières contractuelles
+    const template = templateSchedules?.find(s => s.employee_id === empId);
     let totalMin = 0;
     let workedDays = 0;
     let creditedHours = 0;
@@ -161,14 +161,15 @@ const TeamWeekView = () => {
       const isLegacyFerie = start === "FERIE" || end === "FERIE";
 
       if (congeType || (isFerieDay && !start) || isLegacyFerie) {
-        // Crédit virtuel pour CP ou férié sans horaire
-        creditedHours += dailyCredit;
-        return;
-      }
-      if (isFerieDay && start && end && start !== "EXT" && start !== "ROULEMENT") {
-        // Férié avec horaires saisis → compter les heures réelles
-        totalMin += timeToMinutes(end) - timeToMinutes(start);
-        workedDays++;
+        // Crédit virtuel basé sur la semaine type
+        if (template) {
+          const tStart = (template as any)[`${day}_start`];
+          const tEnd = (template as any)[`${day}_end`];
+          if (tStart && tEnd && tStart !== "EXT" && tStart !== "ROULEMENT" && tStart !== "FERIE") {
+            const templateMin = timeToMinutes(tEnd) - timeToMinutes(tStart) - 60; // -1h pause
+            creditedHours += templateMin / 60;
+          }
+        }
         return;
       }
       if (start && end && start !== "EXT" && start !== "ROULEMENT" && start !== "FERIE") {
