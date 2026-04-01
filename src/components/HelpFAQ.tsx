@@ -37,6 +37,10 @@ const FAQ_FR: FAQItem[] = [
     question: "Comment voir le récapitulatif des heures de l'équipe ?",
     answer: "Depuis le tableau de bord (accessible aux admins), cliquez sur 'Récap équipe' dans le menu latéral pour voir un résumé des heures par employé.",
   },
+  {
+    question: "Comment ajouter un raccourci sur mon téléphone ou ma tablette ?",
+    answer: "Sur iPhone/iPad (Safari) : appuyez sur l'icône de partage (carré avec flèche) puis 'Sur l'écran d'accueil'. Sur Android (Chrome) : appuyez sur les 3 points en haut à droite puis 'Ajouter à l'écran d'accueil'. L'application s'ouvrira ensuite comme une app native depuis votre écran d'accueil.",
+  },
 ];
 
 const FAQ_NL: FAQItem[] = [
@@ -67,6 +71,10 @@ const FAQ_NL: FAQItem[] = [
   {
     question: "Hoe bekijk ik het uren-overzicht van het team?",
     answer: "Vanuit het dashboard (voor admins), klik op 'Teamoverzicht' in het zijmenu voor een samenvatting van uren per medewerker.",
+  },
+  {
+    question: "Hoe voeg ik een snelkoppeling toe op mijn telefoon of tablet?",
+    answer: "Op iPhone/iPad (Safari): tik op het deelicoon (vierkant met pijl) en kies 'Zet op beginscherm'. Op Android (Chrome): tik op de 3 puntjes rechtsboven en kies 'Toevoegen aan startscherm'. De app opent dan als een native app vanaf uw startscherm.",
   },
 ];
 
