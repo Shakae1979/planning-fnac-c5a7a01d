@@ -389,7 +389,7 @@ const translations = {
   "misc.collaborators": { fr: "collaborateurs", nl: "medewerkers" },
 
   // ========== HourlyGrid ==========
-  "hourlyGrid.title": { fr: "Grille horaire", nl: "Uurrooster" },
+  "hourlyGrid.title": { fr: "Grille planning", nl: "Uurrooster" },
   "hourlyGrid.employee": { fr: "Employé", nl: "Medewerker" },
   "hourlyGrid.saving": { fr: "Sauvegarde...", nl: "Opslaan..." },
 
