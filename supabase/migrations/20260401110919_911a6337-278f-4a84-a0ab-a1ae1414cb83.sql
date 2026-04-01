@@ -1,0 +1,1 @@
+ALTER TABLE public.day_comments ADD COLUMN is_ferie boolean NOT NULL DEFAULT false;

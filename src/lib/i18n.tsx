@@ -416,7 +416,8 @@ const translations = {
   "store.managerSet": { fr: "Store Manager défini !", nl: "Store Manager ingesteld!" },
 
   // ========== Schedule misc ==========
-  "schedule.markHoliday": { fr: "marqué comme jour férié pour tous les employés", nl: "gemarkeerd als feestdag voor alle medewerkers" },
+  "schedule.markHoliday": { fr: "marqué comme jour férié", nl: "gemarkeerd als feestdag" },
+  "schedule.unmarkHoliday": { fr: "n'est plus jour férié", nl: "is geen feestdag meer" },
   "schedule.errorSaving": { fr: "Erreur lors de la sauvegarde", nl: "Fout bij het opslaan" },
   "schedule.weekOfDate": { fr: "Semaine du", nl: "Week van" },
   "schedule.prevWeekCopiedFor": { fr: "Semaine précédente copiée pour", nl: "Vorige week gekopieerd voor" },

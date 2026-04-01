@@ -167,6 +167,12 @@ export function ScheduleEditor() {
   });
 
   const [localDayComments, setLocalDayComments] = useState<Record<string, string>>({});
+  const [localFerieDays, setLocalFerieDays] = useState<Record<string, boolean>>({});
+
+  const isDayFerie = (dayKey: string): boolean => {
+    if (localFerieDays[dayKey] !== undefined) return localFerieDays[dayKey];
+    return dayComments?.find((dc) => dc.day_key === dayKey)?.is_ferie ?? false;
+  };
 
   const isOnLeave = (empId: string, dayIndex: number): string | null => {
     if (!conges) return null;
@@ -262,16 +268,10 @@ export function ScheduleEditor() {
   };
 
   const setDayFerie = (dayKey: string) => {
-    if (!employees) return;
-    const newEdits = { ...localEdits };
-    employees.forEach((emp) => {
-      if (!newEdits[emp.id]) newEdits[emp.id] = {};
-      newEdits[emp.id][`${dayKey}_start`] = "FERIE";
-      newEdits[emp.id][`${dayKey}_end`] = "FERIE";
-    });
-    setLocalEdits(newEdits);
+    const current = isDayFerie(dayKey);
+    setLocalFerieDays((prev) => ({ ...prev, [dayKey]: !current }));
     const dayLabel = DAYS.find((d) => d.key === dayKey)?.label ?? dayKey;
-    toast.info(`${dayLabel} ${t("schedule.markHoliday")}`);
+    toast.info(`${dayLabel} ${!current ? t("schedule.markHoliday") : t("schedule.unmarkHoliday")}`);
   };
 
   const copyCellSchedule = (empId: string, dayKey: string) => {
@@ -375,18 +375,22 @@ export function ScheduleEditor() {
         }
       });
 
-      const commentPromises = Object.entries(localDayComments).map(async ([dayKey, comment]) => {
+      // Merge localDayComments and localFerieDays into a single set of day_comments upserts
+      const allDayKeys = new Set([...Object.keys(localDayComments), ...Object.keys(localFerieDays)]);
+      const commentPromises = Array.from(allDayKeys).map(async (dayKey) => {
         const existing = dayComments?.find((dc) => dc.day_key === dayKey);
+        const commentVal = localDayComments[dayKey] ?? existing?.comment ?? "";
+        const ferieVal = localFerieDays[dayKey] ?? existing?.is_ferie ?? false;
         if (existing) {
           const { error } = await supabase
             .from("day_comments")
-            .update({ comment })
+            .update({ comment: commentVal, is_ferie: ferieVal })
             .eq("id", existing.id);
           if (error) throw error;
-        } else if (comment.trim()) {
+        } else if (commentVal.trim() || ferieVal) {
           const { error } = await supabase
             .from("day_comments")
-            .insert({ week_start: weekStr, day_key: dayKey, comment, store_id: currentStore?.id || null });
+            .insert({ week_start: weekStr, day_key: dayKey, comment: commentVal, is_ferie: ferieVal, store_id: currentStore?.id || null });
           if (error) throw error;
         }
       });
@@ -396,6 +400,7 @@ export function ScheduleEditor() {
     onSuccess: () => {
       setLocalEdits({});
       setLocalDayComments({});
+      setLocalFerieDays({});
       queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
       queryClient.invalidateQueries({ queryKey: ["all-schedules"] });
       queryClient.invalidateQueries({ queryKey: ["day-comments", weekStr] });
@@ -654,7 +659,7 @@ export function ScheduleEditor() {
                           </button>
                           <button
                             onClick={() => setDayFerie(day.key)}
-                            className="p-0.5 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors"
+                            className={`p-0.5 rounded transition-colors ${isDayFerie(day.key) ? "bg-destructive/20 text-destructive" : "hover:bg-destructive/20 text-muted-foreground hover:text-destructive"}`}
                             title={`${t("schedule.holiday")} ${day.label}`}
                           >
                             <Flag className="h-3 w-3" />
@@ -800,7 +805,6 @@ export function ScheduleEditor() {
                                 <option value="">—</option>
                                 <option value="ROULEMENT">{t("schedule.rotation")}</option>
                                 <option value="EXT">{t("schedule.exterior")}</option>
-                                <option value="FERIE">{t("schedule.holiday")}</option>
                                 {TIME_SLOTS.map((ts) => (
                                   <option key={ts} value={ts}>{displayTimeBE(ts)}</option>
                                 ))}
@@ -813,7 +817,6 @@ export function ScheduleEditor() {
                                 <option value="">—</option>
                                 <option value="ROULEMENT">{t("schedule.rotation")}</option>
                                 <option value="EXT">{t("schedule.exterior")}</option>
-                                <option value="FERIE">{t("schedule.holiday")}</option>
                                 {TIME_SLOTS.map((ts) => (
                                   <option key={ts} value={ts}>{displayTimeBE(ts)}</option>
                                 ))}

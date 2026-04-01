@@ -58,6 +58,7 @@ export type Database = {
           created_at: string
           day_key: string
           id: string
+          is_ferie: boolean
           store_id: string | null
           week_start: string
         }
@@ -66,6 +67,7 @@ export type Database = {
           created_at?: string
           day_key: string
           id?: string
+          is_ferie?: boolean
           store_id?: string | null
           week_start: string
         }
@@ -74,6 +76,7 @@ export type Database = {
           created_at?: string
           day_key?: string
           id?: string
+          is_ferie?: boolean
           store_id?: string | null
           week_start?: string
         }
