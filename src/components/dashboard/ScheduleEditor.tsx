@@ -640,7 +640,7 @@ export function ScheduleEditor() {
                 {DAYS.map((day) => {
                   const ferie = isDayFerie(day.key);
                   return (
-                  <th key={day.key} colSpan={2} className={`pb-2 text-center font-semibold text-muted-foreground min-w-[160px] ${ferie ? "bg-muted/40" : ""}`}>
+                  <th key={day.key} colSpan={2} className={`pb-2 text-center font-semibold min-w-[160px] ${ferie ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900" : "text-muted-foreground"}`}>
                     <div className="flex items-center justify-center gap-1">
                       {copiedDay !== null && copiedDay !== day.key && (
                         <Checkbox
@@ -673,8 +673,8 @@ export function ScheduleEditor() {
                       )}
                     </div>
                     {ferie && (
-                      <div className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-900 dark:bg-gray-100 text-[9px] font-bold text-white dark:text-gray-900 uppercase tracking-wider">
-                        <Flag className="h-2.5 w-2.5" />
+                      <div className="mt-1 text-[9px] font-bold uppercase tracking-wider">
+                        <Flag className="h-2.5 w-2.5 inline mr-0.5" />
                         {t("schedule.holiday")}
                       </div>
                     )}
@@ -794,7 +794,7 @@ export function ScheduleEditor() {
                         const ferieDay = isDayFerie(day.key);
                         if (leaveType) {
                           return (
-                            <td key={`${day.key}-leave`} colSpan={2} className={`py-1.5 px-0.5 text-center ${ferieDay ? "bg-amber-50/50 dark:bg-amber-950/10" : ""}`}>
+                            <td key={`${day.key}-leave`} colSpan={2} className={`py-1.5 px-0.5 text-center ${ferieDay ? "bg-gray-100 dark:bg-gray-800/50" : ""}`}>
                               <span className="inline-block px-2 py-1 text-xs font-semibold rounded bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300">
                                 {t(`leave.${leaveType}.short` as any)}
                               </span>
@@ -805,7 +805,7 @@ export function ScheduleEditor() {
                         const isCellSource = copiedCell?.empId === emp.id && copiedCell?.dayKey === day.key;
                         const showPaste = isCellCopyMode && !isCellSource;
                         return (
-                          <td key={`${day.key}-cell`} colSpan={2} className={`py-1.5 px-0.5 ${isCellSource ? "bg-primary/10" : ferieDay ? "bg-amber-50/50 dark:bg-amber-950/10" : ""}`}>
+                          <td key={`${day.key}-cell`} colSpan={2} className={`py-1.5 px-0.5 ${isCellSource ? "bg-primary/10" : ferieDay ? "bg-gray-100 dark:bg-gray-800/50" : ""}`}>
                             <div className="flex items-center gap-0.5">
                               <select
                                 value={getDisplayValue(emp.id, `${day.key}_start`)}
@@ -860,6 +860,13 @@ export function ScheduleEditor() {
                                 </button>
                               )}
                             </div>
+                            {ferieDay && (
+                              <div className="text-center mt-0.5">
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0 rounded bg-gray-900 dark:bg-gray-200 text-[8px] font-bold text-white dark:text-gray-900 uppercase">
+                                  <Flag className="h-2 w-2" />{t("schedule.holiday")}
+                                </span>
+                              </div>
+                            )}
                           </td>
                         );
                       })}
