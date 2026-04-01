@@ -72,6 +72,10 @@ const FAQ_NL: FAQItem[] = [
     question: "Hoe bekijk ik het uren-overzicht van het team?",
     answer: "Vanuit het dashboard (voor admins), klik op 'Teamoverzicht' in het zijmenu voor een samenvatting van uren per medewerker.",
   },
+  {
+    question: "Hoe voeg ik een snelkoppeling toe op mijn telefoon of tablet?",
+    answer: "Op iPhone/iPad (Safari): tik op het deelicoon (vierkant met pijl) en kies 'Zet op beginscherm'. Op Android (Chrome): tik op de 3 puntjes rechtsboven en kies 'Toevoegen aan startscherm'. De app opent dan als een native app vanaf uw startscherm.",
+  },
 ];
 
 export function HelpFAQ() {
