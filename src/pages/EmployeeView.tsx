@@ -22,7 +22,7 @@ function computeNetHours(schedule: any): { gross: number; breaks: number; net: n
   let gross = 0; let workedDays = 0;
   for (const d of days) {
     const start = schedule[`${d}_start`]; const end = schedule[`${d}_end`];
-    if (start && end) { gross += timeToHours(end) - timeToHours(start); workedDays++; }
+    if (start && end && start !== "FERIE" && start !== "EXT" && start !== "ROULEMENT") { gross += timeToHours(end) - timeToHours(start); workedDays++; }
   }
   const breaks = workedDays * BREAK_HOURS;
   return { gross, breaks, net: gross - breaks };
