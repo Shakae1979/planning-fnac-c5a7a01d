@@ -805,7 +805,6 @@ export function ScheduleEditor() {
                                 <option value="">—</option>
                                 <option value="ROULEMENT">{t("schedule.rotation")}</option>
                                 <option value="EXT">{t("schedule.exterior")}</option>
-                                <option value="FERIE">{t("schedule.holiday")}</option>
                                 {TIME_SLOTS.map((ts) => (
                                   <option key={ts} value={ts}>{displayTimeBE(ts)}</option>
                                 ))}
