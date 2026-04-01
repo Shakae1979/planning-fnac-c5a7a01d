@@ -32,6 +32,9 @@ export function StoreManager() {
   const [editCity, setEditCity] = useState("");
   const [addingManagerStoreId, setAddingManagerStoreId] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState("");
+  const [creatingManagerStoreId, setCreatingManagerStoreId] = useState<string | null>(null);
+  const [newManagerEmail, setNewManagerEmail] = useState("");
+  const [newManagerPassword, setNewManagerPassword] = useState("");
 
   const { data: stores, isLoading } = useQuery({
     queryKey: ["stores"],
