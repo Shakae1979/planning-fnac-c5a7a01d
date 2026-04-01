@@ -1,0 +1,1 @@
+ALTER TABLE public.employees DROP CONSTRAINT IF EXISTS employees_name_key;
