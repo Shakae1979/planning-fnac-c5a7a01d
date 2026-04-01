@@ -244,9 +244,11 @@ const EmployeeView = () => {
                   {DAYS.map((day) => {
                     const start = schedule ? (schedule as any)[`${day.key}_start`] : null;
                     const end = schedule ? (schedule as any)[`${day.key}_end`] : null;
-                    const hasShift = start && end;
+                    const isSpecial = start === "FERIE" || start === "EXT" || start === "ROULEMENT";
+                    const hasShift = !!(start && end && !isSpecial);
                     const dayDate = getDayDate(monday, day.offset);
                     const conge = conges ? getCongeForDate(dayDate, conges) : null;
+                    const isFerie = dayComments?.find(dc => dc.week_start === ws && dc.day_key === day.key)?.is_ferie ?? false;
 
                     if (conge) {
                       return (
@@ -263,8 +265,11 @@ const EmployeeView = () => {
                     const shiftColor = colorIdx !== undefined ? SHIFT_COLORS[colorIdx] : null;
 
                     return (
-                      <div key={day.key} className={`rounded-md p-2 text-center text-xs border ${hasShift && shiftColor ? `${shiftColor.bg}` : hasShift ? "bg-accent/10 border-accent/20" : "bg-muted/50 border-transparent"}`}>
-                        <div className="font-medium text-muted-foreground mb-1">{day.label}</div>
+                      <div key={day.key} className={`rounded-md p-2 text-center text-xs border relative ${hasShift && shiftColor ? `${shiftColor.bg}` : hasShift ? "bg-accent/10 border-accent/20" : "bg-muted/50 border-transparent"}`}>
+                        <div className="font-medium text-muted-foreground mb-1">
+                          {day.label}
+                          {isFerie && <Flag className="h-2.5 w-2.5 inline ml-1 text-muted-foreground" />}
+                        </div>
                         {hasShift ? (
                           <div className={`font-mono-data font-semibold ${shiftColor ? shiftColor.text : ""}`}>
                             {formatTimeBE(start)} — {formatTimeBE(end)}
@@ -272,6 +277,8 @@ const EmployeeView = () => {
                               {(timeToHours(end) - timeToHours(start) - BREAK_HOURS).toFixed(1)}h {t("empView.net")}
                             </div>
                           </div>
+                        ) : isSpecial ? (
+                          <div className="text-muted-foreground">{start === "ROULEMENT" ? t("schedule.rotation") : start === "EXT" ? t("schedule.exterior") : t("schedule.holiday")}</div>
                         ) : (
                           <div className="text-muted-foreground">{t("misc.rest")}</div>
                         )}
