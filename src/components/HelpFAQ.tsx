@@ -14,7 +14,7 @@ const FAQ_FR: FAQItem[] = [
     answer: "Rendez-vous sur la page 'Planning semaine', sélectionnez la semaine souhaitée et cliquez sur les cases de l'employé pour saisir ses heures de début et de fin.",
   },
   {
-    question: "Comment utiliser la grille horaire du jour ?",
+    question: "Comment utiliser la grille planning du jour ?",
     answer: "Sur la page 'Équipe du jour', la grille affiche les créneaux de 30 minutes. Cliquez sur plusieurs cases pour les sélectionner, puis utilisez le bouton 'Appliquer' pour attribuer un rôle à toute la sélection. N'oubliez pas de sauvegarder.",
   },
   {
