@@ -303,7 +303,7 @@ const translations = {
   "teamDay.uncovered": { fr: "Non couverts", nl: "Niet gedekt" },
   "teamDay.holidayBanner": { fr: "Jour férié", nl: "Feestdag" },
   "teamDay.employeeConcerned": { fr: "employé(s) concerné(s)", nl: "betrokken medewerker(s)" },
-  "teamDay.hourlyGrid": { fr: "Grille horaire", nl: "Uurrooster" },
+  "teamDay.hourlyGrid": { fr: "Grille planning", nl: "Uurrooster" },
   "teamDay.employee": { fr: "Employé", nl: "Medewerker" },
 
   // ========== Team week view ==========
