@@ -133,7 +133,8 @@ const TeamDayView = () => {
   const onLeave = teamDay?.filter((e) => e.conge) || [];
   const ferie = teamDay?.filter((e) => e.isFerie && !e.conge) || [];
   const ext = teamDay?.filter((e) => e.isExt && !e.conge) || [];
-  const off = teamDay?.filter((e) => !e.hasShift && !e.conge && !e.isFerie && !e.isExt) || [];
+  const roulement = teamDay?.filter((e) => e.isRoulement && !e.conge) || [];
+  const off = teamDay?.filter((e) => !e.hasShift && !e.conge && !e.isFerie && !e.isExt && !e.isRoulement) || [];
   const isToday = dayOffset === 0;
 
   const workingByRole: Record<string, typeof working> = {};
