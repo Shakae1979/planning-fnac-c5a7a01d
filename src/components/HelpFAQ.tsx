@@ -37,6 +37,10 @@ const FAQ_FR: FAQItem[] = [
     question: "Comment voir le récapitulatif des heures de l'équipe ?",
     answer: "Depuis le tableau de bord (accessible aux admins), cliquez sur 'Récap équipe' dans le menu latéral pour voir un résumé des heures par employé.",
   },
+  {
+    question: "Comment ajouter un raccourci sur mon téléphone ou ma tablette ?",
+    answer: "Sur iPhone/iPad (Safari) : appuyez sur l'icône de partage (carré avec flèche) puis 'Sur l'écran d'accueil'. Sur Android (Chrome) : appuyez sur les 3 points en haut à droite puis 'Ajouter à l'écran d'accueil'. L'application s'ouvrira ensuite comme une app native depuis votre écran d'accueil.",
+  },
 ];
 
 const FAQ_NL: FAQItem[] = [
