@@ -226,10 +226,15 @@ const TeamWeekView = () => {
                 {DAYS.map((day, di) => {
                   const dayDate = new Date(currentMonday);
                   dayDate.setDate(dayDate.getDate() + di);
+                  const isFerieDay = dayComments?.find(dc => dc.day_key === day.key)?.is_ferie ?? false;
                   return (
-                    <th key={day.key} className="border-b border-r px-1 py-2 text-center font-semibold text-muted-foreground" style={{ minWidth: 140 }}>
-                      <div className="flex items-center justify-center gap-1"><span>{day.label}</span></div>
+                    <th key={day.key} className={`border-b border-r px-1 py-2 text-center font-semibold text-muted-foreground ${isFerieDay ? "bg-amber-50 dark:bg-amber-950/20" : ""}`} style={{ minWidth: 140 }}>
+                      <div className="flex items-center justify-center gap-1">
+                        <span>{day.label}</span>
+                        {isFerieDay && <Flag className="h-3 w-3 text-amber-600 dark:text-amber-400" />}
+                      </div>
                       <div className="text-[10px] font-normal">{formatDateBE(dayDate)}</div>
+                      {isFerieDay && <div className="text-[9px] font-bold text-amber-600 dark:text-amber-400 uppercase">{t("schedule.holiday")}</div>}
                     </th>
                   );
                 })}
@@ -237,15 +242,18 @@ const TeamWeekView = () => {
               </tr>
               <tr>
                 <th className="sticky left-0 z-20 bg-card border-b border-r" />
-                {DAYS.map(day => (
-                  <th key={day.key} className="border-b border-r p-0">
+                {DAYS.map(day => {
+                  const isFerieDay = dayComments?.find(dc => dc.day_key === day.key)?.is_ferie ?? false;
+                  return (
+                  <th key={day.key} className={`border-b border-r p-0 ${isFerieDay ? "bg-amber-50 dark:bg-amber-950/20" : ""}`}>
                     <div className="flex">
                       {HOURS.map(h => (
                         <div key={h} className="flex-1 text-center text-[9px] text-muted-foreground/60 py-0.5 border-r border-border/30 last:border-r-0">{h}</div>
                       ))}
                     </div>
                   </th>
-                ))}
+                  );
+                })}
                 <th className="border-b" />
               </tr>
               {dayComments && dayComments.some(dc => dc.comment.trim()) && (
@@ -303,7 +311,7 @@ const TeamWeekView = () => {
                             const hasShift = !!(start && end && !isExt && !isRoulement && start !== "FERIE" && end !== "FERIE");
 
                             return (
-                              <td key={day} className="border-r p-0 relative" style={{ height: 32 }}>
+                              <td key={day} className={`border-r p-0 relative ${isFerie ? "bg-amber-50/50 dark:bg-amber-950/10" : ""}`} style={{ height: 32 }}>
                                 <div className="absolute inset-0 flex">
                                   {HOURS.map(h => (
                                     <div key={h} className="flex-1 border-r border-border/10 last:border-r-0" />
