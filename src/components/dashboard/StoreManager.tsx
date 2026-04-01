@@ -32,6 +32,9 @@ export function StoreManager() {
   const [editCity, setEditCity] = useState("");
   const [addingManagerStoreId, setAddingManagerStoreId] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState("");
+  const [creatingManagerStoreId, setCreatingManagerStoreId] = useState<string | null>(null);
+  const [newManagerEmail, setNewManagerEmail] = useState("");
+  const [newManagerPassword, setNewManagerPassword] = useState("");
 
   const { data: stores, isLoading } = useQuery({
     queryKey: ["stores"],
@@ -149,6 +152,24 @@ export function StoreManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["store-all-users"] });
       toast.success(t("store.managerSet" as any));
+    },
+    onError: (err) => toast.error((err as Error).message),
+  });
+
+  const createManagerMutation = useMutation({
+    mutationFn: async ({ email, password, store_id }: { email: string; password: string; store_id: string }) => {
+      const { data, error } = await supabase.functions.invoke("manage-users", {
+        body: { action: "create", email, password, role: "editor", store_id },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+    },
+    onSuccess: () => {
+      setCreatingManagerStoreId(null);
+      setNewManagerEmail("");
+      setNewManagerPassword("");
+      queryClient.invalidateQueries({ queryKey: ["store-all-users"] });
+      toast.success(t("store.managerCreated" as any));
     },
     onError: (err) => toast.error((err as Error).message),
   });
@@ -326,39 +347,96 @@ export function StoreManager() {
                     ))}
 
                     {isAddingManager ? (
-                      <div className="flex items-center gap-2 mt-1">
-                        <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                          <SelectTrigger className="h-8 text-xs flex-1">
-                            <SelectValue placeholder={t("store.selectUser")} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableUsers.map((u) => (
-                              <SelectItem key={u.id} value={u.id}>{u.email} ({u.role})</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          size="sm"
-                          className="h-8"
-                          disabled={!selectedUserId || assignMutation.isPending}
-                          onClick={() => assignMutation.mutate({ user_id: selectedUserId, store_id: store.id })}
+                      <div className="space-y-2 mt-1">
+                        <div className="flex items-center gap-2">
+                          <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                            <SelectTrigger className="h-8 text-xs flex-1">
+                              <SelectValue placeholder={t("store.selectUser")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableUsers.map((u) => (
+                                <SelectItem key={u.id} value={u.id}>{u.email} ({u.role})</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            size="sm"
+                            className="h-8"
+                            disabled={!selectedUserId || assignMutation.isPending}
+                            onClick={() => assignMutation.mutate({ user_id: selectedUserId, store_id: store.id })}
+                          >
+                            {assignMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+                          </Button>
+                          <Button size="sm" variant="ghost" className="h-8" onClick={() => { setAddingManagerStoreId(null); setSelectedUserId(""); }}>
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <button
+                          type="button"
+                          className="text-[11px] text-accent hover:underline"
+                          onClick={() => { setAddingManagerStoreId(null); setSelectedUserId(""); setCreatingManagerStoreId(store.id); }}
                         >
-                          {assignMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                        </Button>
-                        <Button size="sm" variant="ghost" className="h-8" onClick={() => { setAddingManagerStoreId(null); setSelectedUserId(""); }}>
-                          <X className="h-3 w-3" />
-                        </Button>
+                          {t("store.orCreateNew" as any)}
+                        </button>
+                      </div>
+                    ) : creatingManagerStoreId === store.id ? (
+                      <div className="space-y-2 mt-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Input
+                            type="email"
+                            placeholder={t("store.createManagerEmail" as any)}
+                            value={newManagerEmail}
+                            onChange={(e) => setNewManagerEmail(e.target.value)}
+                            className="h-8 text-xs flex-1 min-w-[160px]"
+                          />
+                          <Input
+                            type="password"
+                            placeholder={t("store.createManagerPassword" as any)}
+                            value={newManagerPassword}
+                            onChange={(e) => setNewManagerPassword(e.target.value)}
+                            className="h-8 text-xs w-36"
+                          />
+                          <Button
+                            size="sm"
+                            className="h-8"
+                            disabled={!newManagerEmail.trim() || !newManagerPassword.trim() || createManagerMutation.isPending}
+                            onClick={() => createManagerMutation.mutate({ email: newManagerEmail.trim(), password: newManagerPassword.trim(), store_id: store.id })}
+                          >
+                            {createManagerMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                          </Button>
+                          <Button size="sm" variant="ghost" className="h-8" onClick={() => { setCreatingManagerStoreId(null); setNewManagerEmail(""); setNewManagerPassword(""); }}>
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <button
+                          type="button"
+                          className="text-[11px] text-accent hover:underline"
+                          onClick={() => { setCreatingManagerStoreId(null); setNewManagerEmail(""); setNewManagerPassword(""); setAddingManagerStoreId(store.id); }}
+                        >
+                          {t("store.assignExisting" as any)}
+                        </button>
                       </div>
                     ) : (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs text-accent hover:text-accent mt-1"
-                        onClick={() => { setAddingManagerStoreId(store.id); setSelectedUserId(""); }}
-                      >
-                        <UserPlus className="h-3 w-3 mr-1" />
-                        {t("store.addManager")}
-                      </Button>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs text-accent hover:text-accent"
+                          onClick={() => { setAddingManagerStoreId(store.id); setSelectedUserId(""); }}
+                        >
+                          <UserPlus className="h-3 w-3 mr-1" />
+                          {t("store.addManager")}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs text-accent hover:text-accent"
+                          onClick={() => { setCreatingManagerStoreId(store.id); setNewManagerEmail(""); setNewManagerPassword(""); }}
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          {t("store.createManager" as any)}
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
