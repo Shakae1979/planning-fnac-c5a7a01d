@@ -375,18 +375,22 @@ export function ScheduleEditor() {
         }
       });
 
-      const commentPromises = Object.entries(localDayComments).map(async ([dayKey, comment]) => {
+      // Merge localDayComments and localFerieDays into a single set of day_comments upserts
+      const allDayKeys = new Set([...Object.keys(localDayComments), ...Object.keys(localFerieDays)]);
+      const commentPromises = Array.from(allDayKeys).map(async (dayKey) => {
         const existing = dayComments?.find((dc) => dc.day_key === dayKey);
+        const commentVal = localDayComments[dayKey] ?? existing?.comment ?? "";
+        const ferieVal = localFerieDays[dayKey] ?? existing?.is_ferie ?? false;
         if (existing) {
           const { error } = await supabase
             .from("day_comments")
-            .update({ comment })
+            .update({ comment: commentVal, is_ferie: ferieVal })
             .eq("id", existing.id);
           if (error) throw error;
-        } else if (comment.trim()) {
+        } else if (commentVal.trim() || ferieVal) {
           const { error } = await supabase
             .from("day_comments")
-            .insert({ week_start: weekStr, day_key: dayKey, comment, store_id: currentStore?.id || null });
+            .insert({ week_start: weekStr, day_key: dayKey, comment: commentVal, is_ferie: ferieVal, store_id: currentStore?.id || null });
           if (error) throw error;
         }
       });
