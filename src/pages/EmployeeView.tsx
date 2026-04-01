@@ -125,6 +125,18 @@ const EmployeeView = () => {
     },
   });
 
+  const { data: dayComments } = useQuery({
+    queryKey: ["employee-day-comments", weeks, currentStore?.id],
+    enabled: !!employee,
+    queryFn: async () => {
+      let query = supabase.from("day_comments").select("*").in("week_start", weeks);
+      if (currentStore) query = query.eq("store_id", currentStore.id);
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const shiftColorMap = useMemo(() => buildShiftColorMap(schedules), [schedules]);
 
   if (!decodedName) {
