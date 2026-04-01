@@ -325,7 +325,7 @@ const translations = {
   "empView.chooseSeller": { fr: "Choisir un vendeur", nl: "Kies een verkoper" },
   "empView.thisWeek": { fr: "Cette semaine", nl: "Deze week" },
   "empView.4weeks": { fr: "4 semaines affichées", nl: "4 weken weergegeven" },
-  "empView.schedules": { fr: "Horaires :", nl: "Uren:" },
+  "empView.schedules": { fr: "Planning :", nl: "Uren:" },
   "empView.net": { fr: "net", nl: "netto" },
   "empView.perWeek": { fr: "/ semaine", nl: "/ week" },
 
