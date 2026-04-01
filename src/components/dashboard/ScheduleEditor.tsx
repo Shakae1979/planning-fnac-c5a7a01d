@@ -659,7 +659,7 @@ export function ScheduleEditor() {
                           </button>
                           <button
                             onClick={() => setDayFerie(day.key)}
-                            className="p-0.5 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors"
+                            className={`p-0.5 rounded transition-colors ${isDayFerie(day.key) ? "bg-destructive/20 text-destructive" : "hover:bg-destructive/20 text-muted-foreground hover:text-destructive"}`}
                             title={`${t("schedule.holiday")} ${day.label}`}
                           >
                             <Flag className="h-3 w-3" />
