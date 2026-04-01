@@ -133,6 +133,17 @@ const EmployeeView = () => {
     },
   });
 
+  const TEMPLATE_WEEK = "1970-01-05";
+  const { data: templateSchedule } = useQuery({
+    queryKey: ["employee-template", employee?.id],
+    enabled: !!employee,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("weekly_schedules").select("*").eq("employee_id", employee!.id).eq("week_start", TEMPLATE_WEEK).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: conges } = useQuery({
     queryKey: ["employee-conges", employee?.id, firstMonday, lastSunday],
     enabled: !!employee,
