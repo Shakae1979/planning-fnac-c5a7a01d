@@ -637,8 +637,10 @@ export function ScheduleEditor() {
                 <th className="pb-2 pr-4 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[140px]">
                   {t("schedule.seller")}
                 </th>
-                {DAYS.map((day) => (
-                  <th key={day.key} colSpan={2} className="pb-2 text-center font-semibold text-muted-foreground min-w-[160px]">
+                {DAYS.map((day) => {
+                  const ferie = isDayFerie(day.key);
+                  return (
+                  <th key={day.key} colSpan={2} className={`pb-2 text-center font-semibold text-muted-foreground min-w-[160px] ${ferie ? "bg-muted/40" : ""}`}>
                     <div className="flex items-center justify-center gap-1">
                       {copiedDay !== null && copiedDay !== day.key && (
                         <Checkbox
@@ -659,7 +661,7 @@ export function ScheduleEditor() {
                           </button>
                           <button
                             onClick={() => setDayFerie(day.key)}
-                            className={`p-0.5 rounded transition-colors ${isDayFerie(day.key) ? "bg-destructive/20 text-destructive" : "hover:bg-destructive/20 text-muted-foreground hover:text-destructive"}`}
+                            className={`p-0.5 rounded transition-colors ${ferie ? "bg-destructive/20 text-destructive" : "hover:bg-destructive/20 text-muted-foreground hover:text-destructive"}`}
                             title={`${t("schedule.holiday")} ${day.label}`}
                           >
                             <Flag className="h-3 w-3" />
@@ -670,8 +672,15 @@ export function ScheduleEditor() {
                         <span className="ml-1 text-xs text-primary font-normal">{t("copy.source")}</span>
                       )}
                     </div>
+                    {ferie && (
+                      <div className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-900 dark:bg-gray-100 text-[9px] font-bold text-white dark:text-gray-900 uppercase tracking-wider">
+                        <Flag className="h-2.5 w-2.5" />
+                        {t("schedule.holiday")}
+                      </div>
+                    )}
                   </th>
-                ))}
+                  );
+                })}
                 <th className="pb-2 text-center font-semibold text-muted-foreground min-w-[60px]">{t("schedule.total")}</th>
               </tr>
               {/* Day comments row */}
