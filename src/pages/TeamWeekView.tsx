@@ -311,7 +311,7 @@ const TeamWeekView = () => {
                             const hasShift = !!(start && end && !isExt && !isRoulement && start !== "FERIE" && end !== "FERIE");
 
                             return (
-                              <td key={day} className="border-r p-0 relative" style={{ height: 32 }}>
+                              <td key={day} className={`border-r p-0 relative ${isFerie ? "bg-amber-50/50 dark:bg-amber-950/10" : ""}`} style={{ height: 32 }}>
                                 <div className="absolute inset-0 flex">
                                   {HOURS.map(h => (
                                     <div key={h} className="flex-1 border-r border-border/10 last:border-r-0" />
