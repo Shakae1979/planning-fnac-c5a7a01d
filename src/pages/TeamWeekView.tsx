@@ -297,10 +297,10 @@ const TeamWeekView = () => {
                             const congeType = getConge(emp.id, di);
                             const start = schedule ? (schedule as any)[`${day}_start`] : null;
                             const end = schedule ? (schedule as any)[`${day}_end`] : null;
-                            const isFerie = start === "FERIE" || end === "FERIE";
+                            const isFerie = dayComments?.find(dc => dc.day_key === day)?.is_ferie ?? false;
                             const isExt = start === "EXT" || end === "EXT";
                             const isRoulement = start === "ROULEMENT" || end === "ROULEMENT";
-                            const hasShift = !!(start && end && !isFerie && !isExt && !isRoulement);
+                            const hasShift = !!(start && end && !isExt && !isRoulement && start !== "FERIE" && end !== "FERIE");
 
                             return (
                               <td key={day} className="border-r p-0 relative" style={{ height: 32 }}>
