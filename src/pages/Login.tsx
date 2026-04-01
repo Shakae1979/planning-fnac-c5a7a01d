@@ -38,7 +38,7 @@ export default function Login() {
           <div className="mx-auto mb-3 flex items-center justify-center gap-2">
             <Calendar className="h-7 w-7" style={{ color: "hsl(var(--sidebar-active))" }} />
             <span className="text-2xl font-extrabold tracking-tight" style={{ color: "hsl(var(--sidebar-active))" }}>
-              fnac
+              planning fnac
             </span>
           </div>
           <CardTitle className="text-lg font-semibold text-foreground">{t("login.title")}</CardTitle>
