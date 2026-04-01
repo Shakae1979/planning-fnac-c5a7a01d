@@ -860,6 +860,13 @@ export function ScheduleEditor() {
                                 </button>
                               )}
                             </div>
+                            {ferieDay && (
+                              <div className="text-center mt-0.5">
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0 rounded bg-gray-900 dark:bg-gray-200 text-[8px] font-bold text-white dark:text-gray-900 uppercase">
+                                  <Flag className="h-2 w-2" />{t("schedule.holiday")}
+                                </span>
+                              </div>
+                            )}
                           </td>
                         );
                       })}
