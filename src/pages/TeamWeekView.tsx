@@ -288,9 +288,9 @@ const TeamWeekView = () => {
                           <td className="sticky left-0 z-10 bg-card border-r px-2 py-1.5">
                             <div className="flex items-center gap-2">
                               <div className={`h-6 w-6 rounded-full ${colors.bar} flex items-center justify-center text-[10px] font-bold text-white`}>
-                                {emp.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
+                                {getDisplayName(emp).split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
                               </div>
-                              <span className="font-medium truncate max-w-[90px]">{emp.name}</span>
+                              <span className="font-medium truncate max-w-[120px]">{getDisplayName(emp)}</span>
                             </div>
                           </td>
                           {DAY_KEYS.map((day, di) => {
