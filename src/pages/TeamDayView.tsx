@@ -296,7 +296,7 @@ const TeamDayView = () => {
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("schedule.rotation")}</div>
                 <div className="flex flex-wrap gap-1">
                   {roulement.map((emp) => (
-                    <span key={emp.id} className="py-0.5 px-2 rounded bg-gray-200 dark:bg-gray-700/50 text-[11px] text-gray-600 dark:text-gray-300 font-medium">{emp.name}</span>
+                    <span key={emp.id} className="py-0.5 px-2 rounded bg-gray-200 dark:bg-gray-700/50 text-[11px] text-gray-600 dark:text-gray-300 font-medium">{getDisplayName(emp)}</span>
                   ))}
                 </div>
               </div>
