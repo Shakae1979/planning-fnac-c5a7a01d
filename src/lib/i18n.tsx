@@ -32,7 +32,7 @@ const translations = {
   "header.weekPlan": { fr: "Planning semaine", nl: "Weekplanning" },
   "header.myPlan": { fr: "Mon planning", nl: "Mijn planning" },
   "header.title": { fr: "Planning Fnac", nl: "Planning Fnac" },
-  "header.mgmt": { fr: "Gestion des horaires", nl: "Roosterbeheer" },
+  "header.mgmt": { fr: "Gestion des plannings", nl: "Roosterbeheer" },
 
   // ========== Days short ==========
   "day.short.lundi": { fr: "Lun", nl: "Ma" },
