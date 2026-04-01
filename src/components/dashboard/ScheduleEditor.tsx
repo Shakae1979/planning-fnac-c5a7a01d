@@ -794,7 +794,7 @@ export function ScheduleEditor() {
                         const ferieDay = isDayFerie(day.key);
                         if (leaveType) {
                           return (
-                            <td key={`${day.key}-leave`} colSpan={2} className={`py-1.5 px-0.5 text-center ${ferieDay ? "bg-amber-50/50 dark:bg-amber-950/10" : ""}`}>
+                            <td key={`${day.key}-leave`} colSpan={2} className={`py-1.5 px-0.5 text-center ${ferieDay ? "bg-gray-100 dark:bg-gray-800/50" : ""}`}>
                               <span className="inline-block px-2 py-1 text-xs font-semibold rounded bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300">
                                 {t(`leave.${leaveType}.short` as any)}
                               </span>
