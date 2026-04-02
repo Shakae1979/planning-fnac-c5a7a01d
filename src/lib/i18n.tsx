@@ -119,7 +119,11 @@ const translations = {
   "leave.formation": { fr: "Formation", nl: "Opleiding" },
   "leave.formation.short": { fr: "FORM", nl: "OPL" },
   "leave.autre": { fr: "Pas encodé", nl: "Niet ingevoerd" },
+  "leave.divers": { fr: "Autre", nl: "Andere" },
+  "leave.divers.short": { fr: "AUT", nl: "AND" },
   "leave.school": { fr: "Congé scolaire", nl: "Schoolvakantie" },
+  "leave.school.fr": { fr: "Congé scol. FR", nl: "Schoolvak. FR" },
+  "leave.school.nl": { fr: "Congé scol. NL", nl: "Schoolvak. NL" },
 
   // ========== Holidays ==========
   "holiday.nouvelAn": { fr: "Nouvel An", nl: "Nieuwjaar" },

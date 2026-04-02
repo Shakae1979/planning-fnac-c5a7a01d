@@ -13,13 +13,14 @@ import { cn } from "@/lib/utils";
 import { QuarterView } from "./conges/QuarterView";
 import { MonthGrid } from "./conges/MonthGrid";
 
-export const CONGE_TYPES_KEYS = ["conge", "rtt", "maladie", "formation", "autre"] as const;
+export const CONGE_TYPES_KEYS = ["conge", "rtt", "maladie", "formation", "autre", "divers"] as const;
 export const CONGE_TYPE_COLORS: Record<string, string> = {
   conge: "bg-blue-400",
   rtt: "bg-emerald-400",
   maladie: "bg-red-400",
   formation: "bg-purple-400",
   autre: "bg-muted-foreground",
+  divers: "bg-orange-400",
 };
 
 // Keep backward compat export
