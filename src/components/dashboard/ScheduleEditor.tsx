@@ -638,7 +638,16 @@ export function ScheduleEditor() {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="text-center">
-            <div className="text-sm font-semibold">S{getWeekNumber(currentMonday)} — {weekLabel} — {weekEndLabel}</div>
+            <div className="text-sm font-semibold flex items-center justify-center gap-2">
+              S{getWeekNumber(currentMonday)} — {weekLabel} — {weekEndLabel}
+              {hasABWeeks && detectedTemplate && (
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  detectedTemplate === "A" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" : "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300"
+                }`}>
+                  {t("schedule.week" as any)} {detectedTemplate}
+                </span>
+              )}
+            </div>
             <div className="text-xs text-muted-foreground">{t("schedule.weekOfDate")} {formatDateBE(currentMonday)}</div>
           </div>
           <Button variant="outline" size="icon" onClick={() => { setWeekOffset((w) => w + 1); setLocalEdits({}); setLocalDayComments({}); cancelCopy(); }}>
