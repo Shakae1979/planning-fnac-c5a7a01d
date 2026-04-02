@@ -417,12 +417,13 @@ export function ScheduleEditor() {
   const hasABWeeks = currentStore?.has_ab_weeks ?? false;
 
   const initAllMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (templateWeek?: string) => {
+      const tplWeek = templateWeek || TEMPLATE_WEEK;
       if (!employees) return;
       const { data: templates } = await supabase
         .from("weekly_schedules")
         .select("*")
-        .eq("week_start", TEMPLATE_WEEK);
+        .eq("week_start", tplWeek);
 
       const existingIds = schedules?.map((s) => s.employee_id) ?? [];
       const toCreate = employees.filter((e) => !existingIds.includes(e.id));
@@ -454,10 +455,17 @@ export function ScheduleEditor() {
         if (error) throw error;
       });
       await Promise.all(updatePromises);
+      return tplWeek;
     },
-    onSuccess: () => {
+    onSuccess: (tplWeek) => {
       queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
-      toast.success(t("schedule.templateApplied"));
+      if (tplWeek === TEMPLATE_WEEK_B) {
+        toast.success(t("schedule.templateBApplied" as any));
+      } else if (hasABWeeks) {
+        toast.success(t("schedule.templateAApplied" as any));
+      } else {
+        toast.success(t("schedule.templateApplied"));
+      }
     },
   });
 
