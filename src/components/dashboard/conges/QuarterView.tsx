@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback } from "react";
 import { CONGE_TYPES } from "../CongesCalendar";
-import { isSchoolHoliday } from "@/lib/school-holidays";
+import { getSchoolHolidayInfo } from "@/lib/school-holidays";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -104,7 +104,7 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
             const isWeekend = jsDay === 0 || jsDay === 6;
             const dateStr = formatDateStr(year, month, day);
             const holiday = HOLIDAYS[dateStr];
-            const schoolHol = isSchoolHoliday(dateStr);
+            const schoolHol = getSchoolHolidayInfo(dateStr);
             const isoWeek = getISOWeek(date);
             const isMonday = jsDay === 1;
             const showWeek = isMonday && isoWeek !== lastWeekShown;
@@ -112,8 +112,14 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
 
             const dateLabel = `${String(day).padStart(2, "0")}-${monthShort(month)}`;
 
+            const schoolBg = schoolHol && !isWeekend
+              ? schoolHol.community === "both" ? "bg-amber-400/15"
+              : schoolHol.community === "fr" ? "bg-amber-300/10"
+              : "bg-sky-300/10"
+              : "";
+
             return (
-              <tr key={i} className={`border-b border-border/40 ${holiday ? "bg-emerald-500/15" : schoolHol && !isWeekend ? "bg-amber-400/15" : isWeekend ? "bg-muted/40" : ""} ${isMonday ? "border-t-2 border-t-accent/40" : ""}`}>
+              <tr key={i} className={`border-b border-border/40 ${holiday ? "bg-emerald-500/15" : schoolBg || (isWeekend ? "bg-muted/40" : "")} ${isMonday ? "border-t-2 border-t-accent/40" : ""}`}>
                 <td className="px-1 py-0.5 text-muted-foreground whitespace-nowrap">
                   <div className="flex items-center gap-1">
                     <span>{dateLabel}</span>
