@@ -49,11 +49,16 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
     <header className="border-b" style={{ background: "hsl(var(--sidebar-bg))" }}>
       <div className="max-w-[1600px] mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate((role === "admin" || role === "editor") ? "/" : "/equipe-du-jour")} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <button onClick={() => { handleLogoClick(); navigate((role === "admin" || role === "editor") ? "/" : "/equipe-du-jour"); }} className="flex items-center gap-2 hover:opacity-80 transition-opacity relative">
             <Calendar className="h-5 w-5" style={{ color: "hsl(var(--sidebar-active))" }} />
             <span className="text-base font-extrabold tracking-tight" style={{ color: "hsl(var(--sidebar-active))" }}>
               planning fnac
             </span>
+            {showEaster && (
+              <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium px-2 py-0.5 rounded-full animate-fade-in" style={{ background: "hsl(var(--sidebar-active))", color: "hsl(var(--sidebar-bg))" }}>
+                Crafted with ❤️ by Karim
+              </span>
+            )}
           </button>
           <div className="h-5 w-px" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
 

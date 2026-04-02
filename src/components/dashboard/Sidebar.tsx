@@ -51,7 +51,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
         className={`${collapsed ? "w-16" : "w-60"} shrink-0 h-screen flex flex-col transition-all duration-200`}
         style={{ background: "hsl(var(--sidebar-bg))" }}
       >
-        <div className={`${collapsed ? "px-3 justify-center" : "px-5"} py-5 flex items-center gap-2.5 border-b border-white/10`}>
+        <div onClick={handleLogoClick} className={`${collapsed ? "px-3 justify-center" : "px-5"} py-5 flex items-center gap-2.5 border-b border-white/10 cursor-pointer relative`}>
           <Calendar className="h-6 w-6 shrink-0" style={{ color: "hsl(var(--sidebar-active))" }} />
           {!collapsed && (
             <>
@@ -62,6 +62,11 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
                 {t("nav.planning")}
               </span>
             </>
+          )}
+          {showEaster && (
+            <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium px-2 py-0.5 rounded-full animate-fade-in z-10" style={{ background: "hsl(var(--sidebar-active))", color: "hsl(var(--sidebar-bg))" }}>
+              Crafted with ❤️ by Karim
+            </span>
           )}
         </div>
 
