@@ -300,6 +300,8 @@ const translations = {
   "store.stores": { fr: "Magasins", nl: "Winkels" },
   "store.created": { fr: "Magasin créé !", nl: "Winkel aangemaakt!" },
   "store.updated": { fr: "Magasin mis à jour !", nl: "Winkel bijgewerkt!" },
+  "store.abWeeks": { fr: "Semaines A/B", nl: "Weken A/B" },
+  "store.abWeeksDesc": { fr: "Alterner entre deux semaines types", nl: "Afwisselen tussen twee modelweken" },
   "store.deleted": { fr: "Magasin supprimé !", nl: "Winkel verwijderd!" },
   "store.nameAndCity": { fr: "Nom et ville requis", nl: "Naam en stad vereist" },
   "store.noStores": { fr: "Aucun magasin", nl: "Geen winkels" },
