@@ -185,7 +185,11 @@ export function CongesCalendar() {
             ))}
             <span className="flex items-center gap-1">
               <span className="inline-block w-3 h-3 rounded bg-amber-400/40" />
-              {t("leave.school")}
+              {t("leave.school.fr")}
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="inline-block w-3 h-3 rounded bg-sky-300/30" />
+              {t("leave.school.nl")}
             </span>
           </div>
           <Button variant="outline" size="sm" onClick={() => window.print()}>
