@@ -309,6 +309,19 @@ export function StoreManager() {
                     </div>
                   </div>
 
+                  {/* A/B weeks toggle */}
+                  <div className="pl-11 flex items-center gap-2 py-1">
+                    <Switch
+                      checked={(store as any).has_ab_weeks ?? false}
+                      onCheckedChange={(checked) => toggleABMutation.mutate({ id: store.id, enabled: checked })}
+                      disabled={toggleABMutation.isPending}
+                    />
+                    <div>
+                      <span className="text-xs font-medium text-foreground">{t("store.abWeeks" as any)}</span>
+                      <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.abWeeksDesc" as any)}</span>
+                    </div>
+                  </div>
+
                   {/* Managers section */}
                   <div className="pl-11 space-y-1">
                     <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
