@@ -157,6 +157,7 @@ export function ScheduleEditor() {
     },
   });
 
+  const { data: conges } = useQuery({
     queryKey: ["conges-week", weekStr],
     queryFn: async () => {
       const { data, error } = await supabase
