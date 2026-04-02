@@ -604,12 +604,31 @@ export function ScheduleEditor() {
           <Button variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="h-3.5 w-3.5 mr-1" /> {t("action.print")}
           </Button>
-          <Button variant="outline" size="sm" onClick={() => saveAsTemplateMutation.mutate()} disabled={!schedules?.length}>
-            <Copy className="h-3.5 w-3.5 mr-1" /> {t("schedule.saveTemplate")}
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => initAllMutation.mutate()}>
-            <ClipboardPaste className="h-3.5 w-3.5 mr-1" /> {t("schedule.applyTemplate")}
-          </Button>
+          {hasABWeeks ? (
+            <>
+              <Button variant="outline" size="sm" onClick={() => saveAsTemplateMutation.mutate(TEMPLATE_WEEK)} disabled={!schedules?.length}>
+                <Copy className="h-3.5 w-3.5 mr-1" /> {t("schedule.saveTemplateA" as any)}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => saveAsTemplateMutation.mutate(TEMPLATE_WEEK_B)} disabled={!schedules?.length}>
+                <Copy className="h-3.5 w-3.5 mr-1" /> {t("schedule.saveTemplateB" as any)}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => initAllMutation.mutate(TEMPLATE_WEEK)}>
+                <ClipboardPaste className="h-3.5 w-3.5 mr-1" /> {t("schedule.applyTemplateA" as any)}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => initAllMutation.mutate(TEMPLATE_WEEK_B)}>
+                <ClipboardPaste className="h-3.5 w-3.5 mr-1" /> {t("schedule.applyTemplateB" as any)}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" onClick={() => saveAsTemplateMutation.mutate(TEMPLATE_WEEK)} disabled={!schedules?.length}>
+                <Copy className="h-3.5 w-3.5 mr-1" /> {t("schedule.saveTemplate")}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => initAllMutation.mutate(TEMPLATE_WEEK)}>
+                <ClipboardPaste className="h-3.5 w-3.5 mr-1" /> {t("schedule.applyTemplate")}
+              </Button>
+            </>
+          )}
           <Button variant="outline" size="sm" onClick={() => copyPreviousWeekMutation.mutate()}>
             <ChevronLeft className="h-3.5 w-3.5 mr-1" /> {t("schedule.copyPrevWeek")}
           </Button>
