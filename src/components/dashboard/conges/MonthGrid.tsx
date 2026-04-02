@@ -48,6 +48,7 @@ interface Selection {
 export function MonthGrid({ year, month, employees, conges, deleteMutation, onAddConge, readOnly = false }: MonthGridProps) {
   const { t, monthShort } = useI18n();
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; type: string } | null>(null);
+  const [deleteOptions, setDeleteOptions] = useState<{ id: string; name: string; type: string; start: string; end: string }[] | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
   const [showTypeDialog, setShowTypeDialog] = useState(false);
