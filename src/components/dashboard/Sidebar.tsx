@@ -27,6 +27,21 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const { role, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const { t } = useI18n();
+  const clickCountRef = useRef(0);
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showEaster, setShowEaster] = useState(false);
+
+  const handleLogoClick = () => {
+    clickCountRef.current += 1;
+    if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+    if (clickCountRef.current >= 3) {
+      clickCountRef.current = 0;
+      setShowEaster(true);
+      setTimeout(() => setShowEaster(false), 3000);
+    } else {
+      clickTimerRef.current = setTimeout(() => { clickCountRef.current = 0; }, 600);
+    }
+  };
 
   const links = linkDefs.map(l => ({ ...l, label: t(l.labelKey as any) }));
   const filteredLinks = role === "admin" ? links : (role === "editor" ? links.filter(l => l.id !== "stores") : []);

@@ -21,6 +21,21 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
   const { role, signOut } = useAuth();
   const { stores, currentStore, setCurrentStore } = useStore();
   const { t } = useI18n();
+  const clickCountRef = useRef(0);
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showEaster, setShowEaster] = useState(false);
+
+  const handleLogoClick = () => {
+    clickCountRef.current += 1;
+    if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+    if (clickCountRef.current >= 3) {
+      clickCountRef.current = 0;
+      setShowEaster(true);
+      setTimeout(() => setShowEaster(false), 3000);
+    } else {
+      clickTimerRef.current = setTimeout(() => { clickCountRef.current = 0; }, 600);
+    }
+  };
 
   const NAV_SHORTCUTS = [
     { label: t("header.teamDay"), path: "/equipe-du-jour", icon: Users },
