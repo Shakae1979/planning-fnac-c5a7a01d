@@ -590,6 +590,34 @@ export function ScheduleEditor() {
     },
   });
 
+  // Detect which template matches current week
+  const detectedTemplate = useMemo(() => {
+    if (!hasABWeeks || !schedules || schedules.length === 0) return null;
+    const dayFields = DAY_KEYS.flatMap((d) => [`${d}_start`, `${d}_end`]);
+
+    const matchScore = (templates: any[] | undefined) => {
+      if (!templates || templates.length === 0) return 0;
+      let matched = 0;
+      let total = 0;
+      for (const sched of schedules) {
+        const tpl = templates.find((t: any) => t.employee_id === sched.employee_id);
+        if (!tpl) continue;
+        for (const f of dayFields) {
+          const sv = (sched as any)[f] || "";
+          const tv = (tpl as any)[f] || "";
+          if (sv || tv) { total++; if (sv === tv) matched++; }
+        }
+      }
+      return total > 0 ? matched / total : 0;
+    };
+
+    const scoreA = matchScore(templatesA);
+    const scoreB = matchScore(templatesB);
+    if (scoreA > 0.8 && scoreA > scoreB) return "A";
+    if (scoreB > 0.8 && scoreB > scoreA) return "B";
+    return null;
+  }, [hasABWeeks, schedules, templatesA, templatesB]);
+
   const hasEdits = Object.keys(localEdits).length > 0 || Object.keys(localDayComments).length > 0;
 
   const weekLabel = formatDateLongBE(currentMonday);
