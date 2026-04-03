@@ -61,19 +61,22 @@ export function useStoreEmployees(sortByRole?: string[]) {
     let result: typeof regularEmployees = [];
     const storeNames: Record<string, string> = {};
 
-    if (isDirection) {
-      // Match store managers to employee records via email
-      const storeManagers = (allUsers || []).filter((u) =>
-        u.stores?.some((s) => s.is_manager)
+    if (isDirection && currentStore) {
+      // Show all users assigned to the direction store, matched to employee records via email
+      const directionStoreId = currentStore.id;
+      const assignedUsers = (allUsers || []).filter((u) =>
+        u.stores?.some((s) => s.store_id === directionStoreId)
       );
-      result = storeManagers
-        .map((mgr) => {
+      result = assignedUsers
+        .map((usr) => {
           const emp = (allEmployees || []).find(
-            (e) => e.email && mgr.email && e.email.toLowerCase() === mgr.email.toLowerCase()
+            (e) => e.email && usr.email && e.email.toLowerCase() === usr.email.toLowerCase()
           );
           if (emp) {
-            const mgrStores = mgr.stores.filter((s) => s.is_manager);
-            storeNames[emp.id] = mgrStores.map((s) => s.store_name).join(", ");
+            // Show their manager stores if any, otherwise show their assigned stores
+            const mgrStores = usr.stores.filter((s) => s.is_manager);
+            const displayStores = mgrStores.length > 0 ? mgrStores : usr.stores.filter((s) => s.store_id !== directionStoreId);
+            storeNames[emp.id] = displayStores.map((s) => s.store_name).join(", ");
           }
           return emp;
         })
