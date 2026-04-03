@@ -6,9 +6,10 @@ interface DirectionQuarterViewProps {
   months: number[];
   employees: any[] | undefined;
   conges: any[] | undefined;
+  managerStoreNames?: Record<string, string>;
 }
 
-export function DirectionQuarterView({ year, months, employees, conges }: DirectionQuarterViewProps) {
+export function DirectionQuarterView({ year, months, employees, conges, managerStoreNames }: DirectionQuarterViewProps) {
   const { monthName } = useI18n();
 
   return (

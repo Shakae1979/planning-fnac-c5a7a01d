@@ -109,10 +109,10 @@ export default function CongesView() {
         {isDirection ? (
           viewMode === "month" ? (
             <div className="kpi-card overflow-hidden">
-              <DirectionMonthGrid year={year} month={currentMonth} employees={employees} conges={conges} />
+              <DirectionMonthGrid year={year} month={currentMonth} employees={employees} conges={conges} managerStoreNames={managerStoreNames} />
             </div>
           ) : (
-            <DirectionQuarterView year={year} months={quarterMonths} employees={employees} conges={conges} />
+            <DirectionQuarterView year={year} months={quarterMonths} employees={employees} conges={conges} managerStoreNames={managerStoreNames} />
           )
         ) : viewMode === "month" ? (
           <div className="kpi-card overflow-hidden">
