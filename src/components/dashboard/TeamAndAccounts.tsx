@@ -91,10 +91,13 @@ export function TeamAndAccounts() {
 
   // Build employees list depending on mode
   const employees = (() => {
-    if (isDirection) {
-      const managers = (dirUsers || []).filter((u) => u.stores?.some((s) => s.is_manager));
-      return managers
-        .map((mgr) => (dirAllEmployees || []).find((e) => e.email && mgr.email && e.email.toLowerCase() === mgr.email.toLowerCase()))
+    if (isDirection && currentStore) {
+      const directionStoreId = currentStore.id;
+      const assignedUsers = (dirUsers || []).filter((u) =>
+        u.stores?.some((s) => s.store_id === directionStoreId)
+      );
+      return assignedUsers
+        .map((usr) => (dirAllEmployees || []).find((e) => e.email && usr.email && e.email.toLowerCase() === usr.email.toLowerCase()))
         .filter(Boolean) as NonNullable<typeof regularEmployees>;
     }
     return regularEmployees;
