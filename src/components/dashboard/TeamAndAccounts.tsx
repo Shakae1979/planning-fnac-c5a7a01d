@@ -55,19 +55,50 @@ export function TeamAndAccounts() {
   const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
 
-  // Fetch employees filtered by store
-  const { data: employees } = useQuery({
+  const isDirection = currentStore?.is_direction === true;
+
+  // Fetch employees filtered by store (non-direction)
+  const { data: regularEmployees } = useQuery({
     queryKey: ["employees", currentStore?.id],
+    enabled: !!currentStore && !isDirection,
     queryFn: async () => {
-      let query = supabase.from("employees").select("*").order("name");
-      if (currentStore) {
-        query = query.eq("store_id", currentStore.id);
-      }
-      const { data, error } = await query;
+      const { data, error } = await supabase.from("employees").select("*").eq("store_id", currentStore!.id).order("name");
       if (error) throw error;
       return data;
     },
   });
+
+  // Direction: fetch all users with store assignments + all employees
+  const { data: dirUsers } = useQuery({
+    queryKey: ["direction-all-users"],
+    enabled: isDirection,
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("manage-users", { body: { action: "list" } });
+      if (error) throw error;
+      return (data || []) as { id: string; email: string; role: string; stores: { store_id: string; store_name: string; is_manager: boolean }[] }[];
+    },
+  });
+
+  const { data: dirAllEmployees } = useQuery({
+    queryKey: ["direction-employees"],
+    enabled: isDirection,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("employees").select("*").eq("is_active", true);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Build employees list depending on mode
+  const employees = (() => {
+    if (isDirection) {
+      const managers = (dirUsers || []).filter((u) => u.stores?.some((s) => s.is_manager));
+      return managers
+        .map((mgr) => (dirAllEmployees || []).find((e) => e.email && mgr.email && e.email.toLowerCase() === mgr.email.toLowerCase()))
+        .filter(Boolean) as NonNullable<typeof regularEmployees>;
+    }
+    return regularEmployees;
+  })();
 
   // Fetch user accounts
   const [accounts, setAccounts] = useState<AppUser[]>([]);
