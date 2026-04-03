@@ -10,6 +10,8 @@ import { FnacHeader } from "@/components/FnacHeader";
 import { CONGE_TYPES_KEYS, CONGE_TYPE_COLORS } from "@/components/dashboard/CongesCalendar";
 import { QuarterView } from "@/components/dashboard/conges/QuarterView";
 import { MonthGrid } from "@/components/dashboard/conges/MonthGrid";
+import { DirectionMonthGrid } from "@/components/dashboard/conges/DirectionMonthGrid";
+import { DirectionQuarterView } from "@/components/dashboard/conges/DirectionQuarterView";
 
 type ViewMode = "month" | "quarter";
 
@@ -29,7 +31,7 @@ export default function CongesView() {
   }));
 
   const { currentStore } = useStore();
-  const { employees } = useStoreEmployees(roleOrder);
+  const { employees, isDirection } = useStoreEmployees(roleOrder);
 
   const { data: conges } = useQuery({
     queryKey: ["conges", year],
@@ -104,7 +106,15 @@ export default function CongesView() {
           </div>
         </div>
 
-        {viewMode === "month" ? (
+        {isDirection ? (
+          viewMode === "month" ? (
+            <div className="kpi-card overflow-hidden">
+              <DirectionMonthGrid year={year} month={currentMonth} employees={employees} conges={conges} />
+            </div>
+          ) : (
+            <DirectionQuarterView year={year} months={quarterMonths} employees={employees} conges={conges} />
+          )
+        ) : viewMode === "month" ? (
           <div className="kpi-card overflow-hidden">
             <MonthGrid year={year} month={currentMonth} employees={employees} conges={conges} readOnly />
           </div>
