@@ -158,10 +158,10 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
                   return (
                     <td
                       key={d.day}
-                      className="px-0 py-0.5 text-center border-r last:border-r-0 bg-emerald-500/15"
+                      className="px-0 py-1 text-center border-r last:border-r-0 bg-emerald-500/15"
                       title={d.holiday}
                     >
-                      <span className="text-emerald-600 dark:text-emerald-400 text-[8px]">●</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">●</span>
                     </td>
                   );
                 }
@@ -177,8 +177,8 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
                       onClick={() => handleCellClick(emp.id, d.dateStr, d.isWeekend)}
                       title={`${emp.name} — ${typeLabel}`}
                     >
-                      <span className={`${typeColor} text-white text-[7px] px-0.5 py-0 rounded inline-block leading-tight`}>
-                        {typeLabel.slice(0, 2)}
+                      <span className={`${typeColor} text-white text-[9px] px-0.5 py-0.5 rounded block mx-auto w-[26px] leading-tight font-medium`}>
+                        {typeLabel.slice(0, 3)}
                       </span>
                     </td>
                   );
@@ -187,7 +187,7 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
                 return (
                   <td
                     key={d.day}
-                    className={`px-0 py-0.5 text-center border-r last:border-r-0 ${
+                    className={`px-0 py-1 text-center border-r last:border-r-0 ${
                       d.isWeekend ? "bg-muted/40" : schoolBg
                     } ${d.isMonday ? "border-l-2 border-l-accent/40" : ""} ${isEditable && !d.isWeekend ? "cursor-pointer hover:bg-accent/30" : ""}`}
                     onClick={() => handleCellClick(emp.id, d.dateStr, d.isWeekend)}
