@@ -101,6 +101,34 @@ const FAQ_NL: FAQItem[] = [
     answer: "Vanuit het dashboard (voor admins), klik op 'Teamoverzicht' in het zijmenu voor een samenvatting van uren per medewerker.",
   },
   {
+    question: "Hoe deel ik het rooster van een medewerker?",
+    answer: "Ga in het dashboard naar 'Deellinks'. Daar vindt u een unieke link per medewerker die u kunt kopiëren en versturen. De medewerker kan zijn persoonlijk rooster bekijken zonder in te loggen.",
+  },
+  {
+    question: "Hoe markeer ik een dag als feestdag?",
+    answer: "Op de pagina 'Team van de dag', klik op het vlagicoon naast de datum om de dag als feestdag te markeren. U kunt ook een algemene opmerking voor de dag toevoegen.",
+  },
+  {
+    question: "Hoe gebruik ik de SAV- en Socloz-indicatoren?",
+    answer: "Op de pagina 'Team van de dag' heeft elke medewerker aankruisvakjes voor SAV en Socloz. Deze indicatoren signaleren snel de speciale taken die aan een medewerker zijn toegewezen voor die dag.",
+  },
+  {
+    question: "Hoe bekijk ik de individuele fiche van een medewerker?",
+    answer: "Klik op de naam van een medewerker vanuit 'Team van de dag' of de deellinks. U ziet dan het weekrooster, gewerkte uren en komend verlof.",
+  },
+  {
+    question: "Hoe wijzig ik de taal van de applicatie?",
+    answer: "Gebruik de taalkiezer (FR/NL) in de navigatiebalk bovenaan om te schakelen tussen Frans en Nederlands.",
+  },
+  {
+    question: "Hoe print ik het dagrooster?",
+    answer: "Op de pagina 'Team van de dag', klik op het printpictogram rechtsboven. Het rooster wordt automatisch opgemaakt voor afdrukken.",
+  },
+  {
+    question: "Hoe wijzig ik de gegevens van een medewerker?",
+    answer: "Ga in het dashboard naar 'Team & Accounts' en klik op een medewerker. U kunt dan naam, achternaam, e-mail, standaardrol en contracturen aanpassen.",
+  },
+  {
     question: "Hoe voeg ik een snelkoppeling toe op mijn telefoon of tablet?",
     answer: "Op iPhone/iPad (Safari): tik op het deelicoon (vierkant met pijl) en kies 'Zet op beginscherm'. Op Android (Chrome): tik op de 3 puntjes rechtsboven en kies 'Toevoegen aan startscherm'. De app opent dan als een native app vanaf uw startscherm.",
   },
