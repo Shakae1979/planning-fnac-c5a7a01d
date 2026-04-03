@@ -100,11 +100,6 @@ export function DashboardOverview() {
           );
         })}
       </div>
-
-      <div className="kpi-card">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-2">{t("overview.getStarted")}</h3>
-        <p className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: t("overview.getStartedText") }} />
-      </div>
     </div>
   );
 }
