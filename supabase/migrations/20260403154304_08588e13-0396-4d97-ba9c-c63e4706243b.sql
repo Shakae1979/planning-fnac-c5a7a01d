@@ -1,0 +1,2 @@
+ALTER TABLE public.day_comments DROP CONSTRAINT IF EXISTS day_comments_week_start_day_key_key;
+ALTER TABLE public.day_comments ADD CONSTRAINT day_comments_week_start_day_key_store_id_key UNIQUE (week_start, day_key, store_id);
