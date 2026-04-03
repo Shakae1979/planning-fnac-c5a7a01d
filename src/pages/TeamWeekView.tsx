@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ChevronLeft, ChevronRight, Users, Printer, Palmtree, AlertTriangle, Flag } from "lucide-react";
+import { ChevronLeft, ChevronRight, Users, Printer, Palmtree, AlertTriangle, Flag, MapPin } from "lucide-react";
 import { FnacHeader } from "@/components/FnacHeader";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
