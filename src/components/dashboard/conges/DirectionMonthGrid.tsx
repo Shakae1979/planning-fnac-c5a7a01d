@@ -201,9 +201,11 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
       {confirmDelete && (
         <AlertDialog open onOpenChange={() => setConfirmDelete(null)}>
           <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t("conges.confirmDelete")}</AlertDialogTitle>
-              <AlertDialogDescription>{t("conges.confirmDeleteDesc")}</AlertDialogDescription>
+          <AlertDialogHeader>
+              <AlertDialogTitle>{t("conges.deleteLeave")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("conges.deleteConfirm")} ({confirmDelete?.type}) ? {t("conges.irreversible")}
+              </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
