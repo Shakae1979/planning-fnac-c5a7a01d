@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle, ChevronLeft, ChevronRight, Flag, MessageSquare, Palmtree, Printer, Users } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Flag, MapPin, MessageSquare, Palmtree, Printer, Users } from "lucide-react";
 import HourlyGrid from "@/components/team-day/HourlyGrid";
 import { FnacHeader } from "@/components/FnacHeader";
 import { useState } from "react";
@@ -108,12 +108,14 @@ const TeamDayView = () => {
       const isFerie = start === "FERIE" || end === "FERIE"; // legacy data
       const isExt = start === "EXT" || end === "EXT";
       const isRoulement = start === "ROULEMENT" || end === "ROULEMENT";
-      const hasShift = !!(start && end && !isFerie && !isExt && !isRoulement);
+      const isRepos = start === "REPOS";
+      const isLocation = !!(start && (!end || end.trim() === "") && !isFerie && !isExt && !isRoulement && !isRepos && !/^\d{1,2}:\d{2}$/.test(start));
+      const hasShift = !!(start && end && !isFerie && !isExt && !isRoulement && !isLocation);
       const conge = conges?.find((c) => c.employee_id === emp.id);
       const notes = schedule?.notes || null;
       let netHours = 0;
       if (hasShift) netHours = timeToHours(end) - timeToHours(start) - BREAK_HOURS;
-      return { ...emp, start, end, hasShift, isFerie, isExt, isRoulement, netHours, conge, notes };
+      return { ...emp, start, end, hasShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes };
     })
     .sort((a, b) => {
       const orderA = ROLE_ORDER.indexOf(a.role);
@@ -127,7 +129,8 @@ const TeamDayView = () => {
   const ferie = teamDay?.filter((e) => e.isFerie && !e.conge) || []; // legacy
   const ext = teamDay?.filter((e) => e.isExt && !e.conge) || [];
   const roulement = teamDay?.filter((e) => e.isRoulement && !e.conge) || [];
-  const off = teamDay?.filter((e) => !e.hasShift && !e.conge && !e.isFerie && !e.isExt && !e.isRoulement) || [];
+  const locationEmps = teamDay?.filter((e) => e.isLocation && !e.conge) || [];
+  const off = teamDay?.filter((e) => !e.hasShift && !e.conge && !e.isFerie && !e.isExt && !e.isRoulement && !e.isLocation) || [];
   const isToday = dayOffset === 0;
 
   const workingByRole: Record<string, typeof working> = {};
@@ -292,7 +295,27 @@ const TeamDayView = () => {
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("schedule.rotation")}</div>
                 <div className="flex flex-wrap gap-1">
                   {roulement.map((emp) => (
-                    <span key={emp.id} className="py-0.5 px-2 rounded bg-gray-200 dark:bg-gray-700/50 text-[11px] text-gray-600 dark:text-gray-300 font-medium">{getDisplayName(emp)}</span>
+                    <span key={emp.id} className="py-0.5 px-2 rounded bg-muted/80 text-[11px] text-muted-foreground font-medium">{getDisplayName(emp)}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {locationEmps.length > 0 && (
+              <div>
+                <div className="flex items-center gap-1.5 mb-1">
+                  <MapPin className="h-3.5 w-3.5 text-indigo-500" />
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t("teamDay.travel" as any) || "Déplacements"}</span>
+                </div>
+                <div className="space-y-0.5">
+                  {locationEmps.map((emp) => (
+                    <div key={emp.id} className="flex items-center justify-between py-1 px-2 rounded bg-indigo-500/10 text-xs">
+                      <span className="font-medium">{getDisplayName(emp)}</span>
+                      <span className="text-indigo-600 dark:text-indigo-400 font-semibold text-[11px] flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        {emp.locationName}
+                      </span>
+                    </div>
                   ))}
                 </div>
               </div>

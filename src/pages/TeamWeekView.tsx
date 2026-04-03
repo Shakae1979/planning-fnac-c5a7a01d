@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ChevronLeft, ChevronRight, Users, Printer, Palmtree, AlertTriangle, Flag } from "lucide-react";
+import { ChevronLeft, ChevronRight, Users, Printer, Palmtree, AlertTriangle, Flag, MapPin } from "lucide-react";
 import { FnacHeader } from "@/components/FnacHeader";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -301,7 +301,9 @@ const TeamWeekView = () => {
                             const isFerie = isFerieFromComments || isLegacyFerie;
                             const isExt = !isLegacyFerie && (start === "EXT" || end === "EXT");
                             const isRoulement = !isLegacyFerie && (start === "ROULEMENT" || end === "ROULEMENT");
-                            const hasShift = !!(start && end && !isExt && !isRoulement && !isLegacyFerie);
+                            const isRepos = start === "REPOS";
+                            const isLocation = !!(start && (!end || end.trim() === "") && !isLegacyFerie && !isExt && !isRoulement && !isRepos && !/^\d{1,2}:\d{2}$/.test(start));
+                            const hasShift = !!(start && end && !isExt && !isRoulement && !isLegacyFerie && !isLocation);
 
                             return (
                               <td key={day} className={`border-r p-0 relative ${isFerie ? "bg-gray-100 dark:bg-gray-800/50" : ""}`} style={{ height: 32 }}>
@@ -360,35 +362,26 @@ const TeamWeekView = () => {
                                       {t("schedule.rotation")}
                                     </div>
                                   </div>
-                                ) : hasShift ? (
-                                  <div className="absolute inset-0 flex items-center">
-                                    {(() => {
-                                      const startMin = timeToMinutes(start);
-                                      const endMin = timeToMinutes(end);
-                                      const clampStart = Math.max(startMin, GRID_START);
-                                      const clampEnd = Math.min(endMin, GRID_END);
-                                      const leftPct = ((clampStart - GRID_START) / GRID_SPAN) * 100;
-                                      const widthPct = ((clampEnd - clampStart) / GRID_SPAN) * 100;
-                                      return (
-                                        <div
-                                          className={`absolute h-5 rounded ${colors.bar} opacity-80 flex items-center justify-center text-[9px] font-semibold text-white shadow-sm`}
-                                          style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
-                                          title={`${formatTimeBE(start)} — ${formatTimeBE(end)}`}
-                                        >
-                                          {widthPct > 12 && (
-                                            <span>{formatTimeBE(start)}–{formatTimeBE(end)}</span>
-                                          )}
-                                        </div>
-                                      );
-                                    })()}
-                                  </div>
-                                ) : (
+                                ) : isLocation ? (
                                   <div className="absolute inset-0 flex items-center px-0.5">
-                                    <div className="h-5 rounded bg-gray-400 opacity-70 flex items-center justify-center text-[9px] font-semibold text-white w-full">
-                                      Roulement
+                                    <div className="h-5 rounded bg-indigo-500 opacity-80 flex items-center justify-center text-[9px] font-semibold text-white w-full gap-0.5">
+                                      <MapPin className="h-3 w-3" />
+                                      {start}
                                     </div>
                                   </div>
-                                )}
+                                ) : isRepos ? (
+                                  <div className="absolute inset-0 flex items-center px-0.5">
+                                    <div className="h-5 rounded bg-muted opacity-70 flex items-center justify-center text-[9px] font-medium text-muted-foreground w-full">
+                                      Repos
+                                    </div>
+                                  </div>
+                                ) : isExt ? (
+                                  <div className="absolute inset-0 flex items-center px-0.5">
+                                    <div className="h-5 rounded bg-indigo-400 opacity-70 flex items-center justify-center text-[9px] font-semibold text-white w-full">
+                                      {t("teamWeek.exterior")}
+                                    </div>
+                                  </div>
+                                ) : null}
                               </td>
                             );
                           })}
