@@ -94,9 +94,16 @@ export function TeamAndAccounts() {
     if (isDirection && currentStore) {
       const directionStoreId = currentStore.id;
       const assignedUsers = (dirUsers || []).filter((u) =>
-        u.stores?.some((s) => s.store_id === directionStoreId)
+        u.stores?.some((s) => s.store_id === directionStoreId) ||
+        u.stores?.some((s) => s.is_manager)
       );
-      return assignedUsers
+      const seen = new Set<string>();
+      const uniqueUsers = assignedUsers.filter((u) => {
+        if (seen.has(u.id)) return false;
+        seen.add(u.id);
+        return true;
+      });
+      return uniqueUsers
         .map((usr) => (dirAllEmployees || []).find((e) => e.email && usr.email && e.email.toLowerCase() === usr.email.toLowerCase()))
         .filter(Boolean) as NonNullable<typeof regularEmployees>;
     }

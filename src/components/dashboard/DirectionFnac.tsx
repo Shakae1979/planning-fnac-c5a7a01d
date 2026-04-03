@@ -82,9 +82,16 @@ export function DirectionFnac() {
     const directionStoreId = currentStore?.id;
     if (!directionStoreId) return [];
     const assignedUsers = (allUsers || []).filter((u) =>
-      u.stores?.some((s) => s.store_id === directionStoreId)
+      u.stores?.some((s) => s.store_id === directionStoreId) ||
+      u.stores?.some((s) => s.is_manager)
     );
-    return assignedUsers.map((usr) => {
+    const seen = new Set<string>();
+    const uniqueUsers = seen.size >= 0 ? assignedUsers.filter((u) => {
+      if (seen.has(u.id)) return false;
+      seen.add(u.id);
+      return true;
+    }) : [];
+    return uniqueUsers.map((usr) => {
       const emp = (allEmployees || []).find(
         (e) => e.email && usr.email && e.email.toLowerCase() === usr.email.toLowerCase()
       );
