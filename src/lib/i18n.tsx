@@ -14,6 +14,8 @@ const translations = {
   "nav.direction": { fr: "Direction Fnac", nl: "Directie Fnac" },
   "direction.noManagers": { fr: "Aucun Store Manager trouvé. Promouvez des responsables depuis la gestion des magasins.", nl: "Geen Store Managers gevonden. Promoveer verantwoordelijken via winkelbeheer." },
   "direction.working": { fr: "En poste", nl: "Aan het werk" },
+  "direction.assignDesc": { fr: "Assignez les utilisateurs qui auront accès à la vue Direction", nl: "Wijs gebruikers toe die toegang krijgen tot de Directieweergave" },
+  "store.assignUser": { fr: "Assigner un utilisateur", nl: "Gebruiker toewijzen" },
   "nav.logout": { fr: "Déconnexion", nl: "Afmelden" },
   "nav.collapse": { fr: "Réduire", nl: "Inklappen" },
   "nav.expand": { fr: "Agrandir", nl: "Uitklappen" },
