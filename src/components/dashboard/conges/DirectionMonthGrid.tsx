@@ -23,9 +23,10 @@ interface DirectionMonthGridProps {
   month: number;
   employees: any[] | undefined;
   conges: any[] | undefined;
+  managerStoreNames?: Record<string, string>;
 }
 
-export function DirectionMonthGrid({ year, month, employees, conges }: DirectionMonthGridProps) {
+export function DirectionMonthGrid({ year, month, employees, conges, managerStoreNames = {} }: DirectionMonthGridProps) {
   const { t, monthShort } = useI18n();
   const HOLIDAYS = getHolidays2026(t);
   const DAY_NAMES = getDayNames(t);
@@ -72,6 +73,11 @@ export function DirectionMonthGrid({ year, month, employees, conges }: Direction
                 <div className="text-[10px] leading-tight truncate max-w-[90px]" title={[emp.name, emp.last_name].filter(Boolean).join(" ")}>
                   {emp.name}
                 </div>
+                {managerStoreNames[emp.id] && (
+                  <div className="text-[8px] text-muted-foreground font-normal truncate max-w-[90px]" title={managerStoreNames[emp.id]}>
+                    {managerStoreNames[emp.id]}
+                  </div>
+                )}
               </th>
             ))}
           </tr>

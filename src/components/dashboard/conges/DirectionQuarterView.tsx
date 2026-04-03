@@ -6,9 +6,10 @@ interface DirectionQuarterViewProps {
   months: number[];
   employees: any[] | undefined;
   conges: any[] | undefined;
+  managerStoreNames?: Record<string, string>;
 }
 
-export function DirectionQuarterView({ year, months, employees, conges }: DirectionQuarterViewProps) {
+export function DirectionQuarterView({ year, months, employees, conges, managerStoreNames }: DirectionQuarterViewProps) {
   const { monthName } = useI18n();
 
   return (
@@ -20,7 +21,7 @@ export function DirectionQuarterView({ year, months, employees, conges }: Direct
               <div className="text-sm font-bold text-center py-2 bg-muted/50 border-b">
                 {monthName(m)}
               </div>
-              <DirectionMonthGrid year={year} month={m} employees={employees} conges={conges} />
+              <DirectionMonthGrid year={year} month={m} employees={employees} conges={conges} managerStoreNames={managerStoreNames} />
             </div>
           ))}
         </div>

@@ -57,8 +57,9 @@ export function useStoreEmployees(sortByRole?: string[]) {
     },
   });
 
-  const employees = useMemo(() => {
+  const { employees, managerStoreNames } = useMemo(() => {
     let result: typeof regularEmployees = [];
+    const storeNames: Record<string, string> = {};
 
     if (isDirection) {
       // Match store managers to employee records via email
@@ -66,18 +67,23 @@ export function useStoreEmployees(sortByRole?: string[]) {
         u.stores?.some((s) => s.is_manager)
       );
       result = storeManagers
-        .map((mgr) =>
-          (allEmployees || []).find(
+        .map((mgr) => {
+          const emp = (allEmployees || []).find(
             (e) => e.email && mgr.email && e.email.toLowerCase() === mgr.email.toLowerCase()
-          )
-        )
+          );
+          if (emp) {
+            const mgrStores = mgr.stores.filter((s) => s.is_manager);
+            storeNames[emp.id] = mgrStores.map((s) => s.store_name).join(", ");
+          }
+          return emp;
+        })
         .filter(Boolean) as NonNullable<typeof regularEmployees>;
     } else {
       result = regularEmployees || [];
     }
 
     if (sortByRole && result) {
-      return [...result].sort((a, b) => {
+      result = [...result].sort((a, b) => {
         const ra = sortByRole.indexOf(a.role);
         const rb = sortByRole.indexOf(b.role);
         if (ra !== rb) return (ra === -1 ? 99 : ra) - (rb === -1 ? 99 : rb);
@@ -85,11 +91,12 @@ export function useStoreEmployees(sortByRole?: string[]) {
       });
     }
 
-    return result;
+    return { employees: result || [], managerStoreNames: storeNames };
   }, [isDirection, regularEmployees, allUsers, allEmployees, sortByRole]);
 
   return {
-    employees: employees || [],
+    employees,
+    managerStoreNames,
     isDirection,
     isLoading: isDirection ? loadingUsers || loadingAllEmp : loadingRegular,
   };
