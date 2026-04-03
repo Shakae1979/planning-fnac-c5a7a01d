@@ -135,18 +135,12 @@ const Index = () => {
         </header>
 
         <div className="p-6">
-          {isDirection ? (
-            <DirectionFnac />
-          ) : (
-            <>
-              {view === "overview" && <DashboardOverview />}
-              {view === "schedule" && <ScheduleEditor />}
-              {view === "recap" && <TeamRecap />}
-              {view === "team" && <TeamAndAccounts />}
-              {view === "conges" && <CongesCalendar />}
-              {view === "stores" && <StoreManager />}
-            </>
-          )}
+          {view === "overview" && (isDirection ? <DirectionFnac /> : <DashboardOverview />)}
+          {view === "schedule" && <ScheduleEditor />}
+          {view === "recap" && <TeamRecap />}
+          {view === "team" && <TeamAndAccounts />}
+          {view === "conges" && <CongesCalendar />}
+          {view === "stores" && <StoreManager />}
         </div>
       </main>
     </div>
