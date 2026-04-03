@@ -1,24 +1,23 @@
-import { BarChart3, Users, CalendarDays, Calendar, TableProperties, Palmtree, PanelLeftClose, PanelLeftOpen, LogOut, Store, UserCog, Crown } from "lucide-react";
+import { BarChart3, Users, CalendarDays, Calendar, TableProperties, Palmtree, PanelLeftClose, PanelLeftOpen, LogOut, Store, UserCog } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
 
-type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores" | "direction";
+type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores";
 
 interface SidebarProps {
   activeView: View;
   onViewChange: (view: View) => void;
 }
 
-const linkDefs: { id: View; labelKey: string; icon: React.ElementType; adminOnly?: boolean }[] = [
+const linkDefs: { id: View; labelKey: string; icon: React.ElementType }[] = [
   { id: "overview", labelKey: "nav.overview", icon: BarChart3 },
   { id: "schedule", labelKey: "nav.schedule", icon: CalendarDays },
   { id: "recap", labelKey: "nav.recap", icon: TableProperties },
   { id: "conges", labelKey: "nav.conges", icon: Palmtree },
   { id: "team", labelKey: "nav.team", icon: Users },
-  { id: "direction", labelKey: "nav.direction", icon: Crown, adminOnly: true },
   { id: "stores", labelKey: "nav.stores", icon: Store },
 ];
 
@@ -45,7 +44,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   };
 
   const links = linkDefs.map(l => ({ ...l, label: t(l.labelKey as any) }));
-  const filteredLinks = role === "admin" ? links : (role === "editor" ? links.filter(l => l.id !== "stores" && !linkDefs.find(d => d.id === l.id)?.adminOnly) : []);
+  const filteredLinks = role === "admin" ? links : (role === "editor" ? links.filter(l => l.id !== "stores") : []);
   return (
     <TooltipProvider delayDuration={0}>
       <aside

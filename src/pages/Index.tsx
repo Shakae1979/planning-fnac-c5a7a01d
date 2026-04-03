@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Calendar, Users, CalendarDays, User, Store, Palmtree } from "lucide-react";
+import { Calendar, Users, CalendarDays, User, Store, Palmtree, Crown } from "lucide-react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { ScheduleEditor } from "@/components/dashboard/ScheduleEditor";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
@@ -14,11 +14,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 
-type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores" | "direction";
+type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores";
+
+const DIRECTION_ID = "__direction__";
 
 const Index = () => {
   const [view, setView] = useState<View>("overview");
+  const [isDirection, setIsDirection] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { stores, currentStore, setCurrentStore } = useStore();
@@ -32,9 +36,22 @@ const Index = () => {
     { label: t("nav.conges"), path: "/conges", icon: Palmtree },
   ];
 
+  const handleStoreChange = (val: string) => {
+    if (val === DIRECTION_ID) {
+      setIsDirection(true);
+    } else {
+      setIsDirection(false);
+      const s = stores.find((st) => st.id === val);
+      if (s) setCurrentStore(s);
+    }
+  };
+
+  const selectorValue = isDirection ? DIRECTION_ID : (currentStore?.id || "");
+  const showStoreSelector = role === "admin" && (stores.length > 0);
+
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar activeView={view} onViewChange={setView} />
+      <Sidebar activeView={view} onViewChange={(v) => { setView(v); }} />
       <main className="flex-1 overflow-auto">
         <header className="sticky top-0 z-10 border-b px-6 py-3 flex items-center justify-between" style={{ background: "hsl(var(--sidebar-bg))" }}>
           <div className="flex items-center gap-3">
@@ -45,7 +62,36 @@ const Index = () => {
               </h1>
             </div>
 
-            {stores.length > 1 && (
+            {showStoreSelector && (
+              <>
+                <div className="h-5 w-px" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
+                <Select value={selectorValue} onValueChange={handleStoreChange}>
+                  <SelectTrigger className="w-[200px] h-8 text-xs border-none" style={{ background: "hsl(var(--sidebar-hover))", color: "hsl(var(--sidebar-fg))" }}>
+                    {isDirection ? <Crown className="h-3.5 w-3.5 mr-1 text-amber-500" /> : <Store className="h-3.5 w-3.5 mr-1" />}
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {stores.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        <span className="flex items-center gap-1.5">
+                          <Store className="h-3 w-3" />
+                          {s.name}
+                        </span>
+                      </SelectItem>
+                    ))}
+                    <Separator className="my-1" />
+                    <SelectItem value={DIRECTION_ID}>
+                      <span className="flex items-center gap-1.5 font-semibold">
+                        <Crown className="h-3 w-3 text-amber-500" />
+                        Direction Fnac
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </>
+            )}
+
+            {!showStoreSelector && stores.length > 1 && (
               <>
                 <div className="h-5 w-px" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
                 <Select
@@ -68,7 +114,7 @@ const Index = () => {
               </>
             )}
 
-            {stores.length === 1 && currentStore && (
+            {!showStoreSelector && stores.length === 1 && currentStore && (
               <>
                 <div className="h-5 w-px" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
                 <span className="text-xs font-medium flex items-center gap-1" style={{ color: "hsl(var(--sidebar-fg))" }}>
@@ -104,19 +150,24 @@ const Index = () => {
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
             <p className="text-xs" style={{ color: "hsl(var(--sidebar-fg) / 0.6)" }}>
-              {currentStore ? currentStore.name : t("header.mgmt")}
+              {isDirection ? "Direction Fnac" : (currentStore ? currentStore.name : t("header.mgmt"))}
             </p>
           </div>
         </header>
 
         <div className="p-6">
-          {view === "overview" && <DashboardOverview />}
-          {view === "schedule" && <ScheduleEditor />}
-          {view === "recap" && <TeamRecap />}
-          {view === "team" && <TeamAndAccounts />}
-          {view === "conges" && <CongesCalendar />}
-          {view === "stores" && <StoreManager />}
-          {view === "direction" && <DirectionFnac />}
+          {isDirection ? (
+            <DirectionFnac />
+          ) : (
+            <>
+              {view === "overview" && <DashboardOverview />}
+              {view === "schedule" && <ScheduleEditor />}
+              {view === "recap" && <TeamRecap />}
+              {view === "team" && <TeamAndAccounts />}
+              {view === "conges" && <CongesCalendar />}
+              {view === "stores" && <StoreManager />}
+            </>
+          )}
         </div>
       </main>
     </div>
