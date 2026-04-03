@@ -304,7 +304,7 @@ export function StoreManager() {
               <Button variant="outline" size="sm" className="h-7 text-xs mt-1"
                 onClick={() => { setAddingManagerStoreId(directionStore.id); setSelectedUserId(""); }}>
                 <UserPlus className="h-3 w-3 mr-1" />
-                {t("store.assignUser")}
+                {t("store.assignUser" as any)}
               </Button>
             )}
           </div>
