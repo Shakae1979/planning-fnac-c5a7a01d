@@ -8,13 +8,14 @@ import { TeamRecap } from "@/components/dashboard/TeamRecap";
 import { CongesCalendar } from "@/components/dashboard/CongesCalendar";
 import { TeamAndAccounts } from "@/components/dashboard/TeamAndAccounts";
 import { StoreManager } from "@/components/dashboard/StoreManager";
+import { DirectionFnac } from "@/components/dashboard/DirectionFnac";
 import { useStore } from "@/hooks/useStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores";
+type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores" | "direction";
 
 const Index = () => {
   const [view, setView] = useState<View>("overview");
@@ -115,6 +116,7 @@ const Index = () => {
           {view === "team" && <TeamAndAccounts />}
           {view === "conges" && <CongesCalendar />}
           {view === "stores" && <StoreManager />}
+          {view === "direction" && <DirectionFnac />}
         </div>
       </main>
     </div>
