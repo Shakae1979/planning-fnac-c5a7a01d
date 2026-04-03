@@ -57,6 +57,22 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
     );
   };
 
+  const isEditable = !!deleteMutation || !!onAddConge;
+  const [confirmDelete, setConfirmDelete] = useState<any>(null);
+  const [addDialog, setAddDialog] = useState<{ empId: string; date: string } | null>(null);
+  const [addType, setAddType] = useState("conge");
+
+  const handleCellClick = (empId: string, dateStr: string, isWeekend: boolean) => {
+    if (!isEditable || isWeekend) return;
+    const leave = getLeaveForDate(empId, dateStr);
+    if (leave && deleteMutation) {
+      setConfirmDelete(leave);
+    } else if (!leave && onAddConge) {
+      setAddDialog({ empId, date: dateStr });
+      setAddType("conge");
+    }
+  };
+
   let lastWeekShown = -1;
 
   return (
