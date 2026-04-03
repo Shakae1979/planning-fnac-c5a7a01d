@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { CONGE_TYPES, CONGE_TYPES_KEYS, CONGE_TYPE_COLORS } from "../CongesCalendar";
+import { CONGE_TYPES } from "../CongesCalendar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -73,135 +73,140 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
     }
   };
 
-  let lastWeekShown = -1;
+  // Build day metadata array
+  const days = useMemo(() => {
+    let lastWeek = -1;
+    return Array.from({ length: daysInMonth }, (_, i) => {
+      const day = i + 1;
+      const date = new Date(year, month, day);
+      const jsDay = date.getDay();
+      const isWeekend = jsDay === 0 || jsDay === 6;
+      const dateStr = formatDate(year, month, day);
+      const holiday = HOLIDAYS[dateStr];
+      const schoolHol = getSchoolHolidayInfo(dateStr);
+      const isoWeek = getISOWeek(date);
+      const isMonday = jsDay === 1;
+      const showWeek = isMonday && isoWeek !== lastWeek;
+      if (showWeek) lastWeek = isoWeek;
+      return { day, date, jsDay, isWeekend, dateStr, holiday, schoolHol, isoWeek, isMonday, showWeek };
+    });
+  }, [year, month, daysInMonth, HOLIDAYS]);
 
+  // Horizontal layout: employees as rows, days as columns
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-[11px] border-collapse">
         <thead>
+          {/* Row 1: day numbers */}
           <tr className="border-b bg-muted/30">
-            <th className="sticky left-0 bg-muted/30 px-1 py-1.5 text-left font-medium text-muted-foreground w-[70px] border-r z-10">
+            <th className="sticky left-0 bg-muted/30 px-1.5 py-1 text-left font-medium text-muted-foreground min-w-[100px] border-r z-10">
               {t("conges.date")}
             </th>
-            <th className="px-1 py-1.5 text-left font-medium text-muted-foreground w-[30px] border-r">
-              {t("conges.dayLabel")}
-            </th>
-            {sortedEmployees.map((emp) => (
-              <th
-                key={emp.id}
-                className="px-1.5 py-1.5 text-center font-semibold text-foreground border-r last:border-r-0 min-w-[80px] bg-amber-50 dark:bg-amber-900/20 border-l-2 border-l-amber-300 dark:border-l-amber-700"
-              >
-                <div className="text-[10px] leading-tight truncate max-w-[90px]" title={[emp.name, emp.last_name].filter(Boolean).join(" ")}>
-                  {emp.name}
-                </div>
-                {managerStoreNames[emp.id] && (
-                  <div className="text-[8px] text-muted-foreground font-normal truncate max-w-[90px]" title={managerStoreNames[emp.id]}>
-                    {managerStoreNames[emp.id]}
+            {days.map((d) => {
+              const schoolBg =
+                d.schoolHol && !d.isWeekend
+                  ? d.schoolHol.community === "both"
+                    ? "bg-amber-400/15"
+                    : d.schoolHol.community === "fr"
+                    ? "bg-amber-300/10"
+                    : "bg-sky-300/10"
+                  : "";
+              return (
+                <th
+                  key={d.day}
+                  className={`px-0 py-1 text-center font-medium min-w-[24px] w-[24px] border-r last:border-r-0 ${
+                    d.holiday
+                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                      : d.isWeekend
+                      ? "bg-muted/40 text-muted-foreground/50"
+                      : schoolBg
+                  } ${d.isMonday ? "border-l-2 border-l-accent/40" : ""}`}
+                  title={d.holiday || `${String(d.day).padStart(2, "0")} ${monthShort(month)}`}
+                >
+                  <div className="text-[9px] leading-tight">{String(d.day).padStart(2, "0")}</div>
+                  <div className={`text-[8px] leading-tight ${d.isWeekend ? "text-muted-foreground/40" : "text-muted-foreground"}`}>
+                    {DAY_NAMES[d.jsDay]}
                   </div>
-                )}
-              </th>
-            ))}
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>
-          {Array.from({ length: daysInMonth }, (_, i) => {
-            const day = i + 1;
-            const date = new Date(year, month, day);
-            const jsDay = date.getDay();
-            const isWeekend = jsDay === 0 || jsDay === 6;
-            const dateStr = formatDate(year, month, day);
-            const holiday = HOLIDAYS[dateStr];
-            const schoolHol = getSchoolHolidayInfo(dateStr);
-            const isoWeek = getISOWeek(date);
-            const isMonday = jsDay === 1;
-            const showWeek = isMonday && isoWeek !== lastWeekShown;
-            if (showWeek) lastWeekShown = isoWeek;
+          {sortedEmployees.map((emp) => (
+            <tr key={emp.id} className="border-b border-border/40 hover:bg-accent/5">
+              <td className="sticky left-0 bg-card px-1.5 py-1 border-r z-10 whitespace-nowrap">
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-foreground text-[10px] truncate max-w-[80px]" title={[emp.name, emp.last_name].filter(Boolean).join(" ")}>
+                    {emp.name}
+                  </span>
+                  {managerStoreNames[emp.id] && (
+                    <span className="text-[8px] text-muted-foreground truncate max-w-[60px]" title={managerStoreNames[emp.id]}>
+                      ({managerStoreNames[emp.id]})
+                    </span>
+                  )}
+                </div>
+              </td>
+              {days.map((d) => {
+                const leave = getLeaveForDate(emp.id, d.dateStr);
+                const schoolBg =
+                  d.schoolHol && !d.isWeekend
+                    ? d.schoolHol.community === "both"
+                      ? "bg-amber-400/15"
+                      : d.schoolHol.community === "fr"
+                      ? "bg-amber-300/10"
+                      : "bg-sky-300/10"
+                    : "";
 
-            const dateLabel = `${String(day).padStart(2, "0")}-${monthShort(month)}`;
+                if (d.holiday) {
+                  return (
+                    <td
+                      key={d.day}
+                      className="px-0 py-0.5 text-center border-r last:border-r-0 bg-emerald-500/15"
+                      title={d.holiday}
+                    >
+                      <span className="text-emerald-600 dark:text-emerald-400 text-[8px]">●</span>
+                    </td>
+                  );
+                }
 
-            const schoolBg =
-              schoolHol && !isWeekend
-                ? schoolHol.community === "both"
-                  ? "bg-amber-400/15"
-                  : schoolHol.community === "fr"
-                  ? "bg-amber-300/10"
-                  : "bg-sky-300/10"
-                : "";
-
-            return (
-              <tr
-                key={i}
-                className={`border-b border-border/40 ${
-                  holiday
-                    ? "bg-emerald-500/15"
-                    : schoolBg || (isWeekend ? "bg-muted/40" : "")
-                } ${isMonday ? "border-t-2 border-t-accent/40" : ""}`}
-              >
-                <td className="sticky left-0 bg-card px-1 py-0.5 text-muted-foreground whitespace-nowrap border-r z-10">
-                  <div className="flex items-center gap-1">
-                    <span>{dateLabel}</span>
-                    {showWeek && (
-                      <span className="text-[9px] font-bold text-primary/60 ml-auto">
-                        {isoWeek}
+                if (leave) {
+                  const ct = congeTypes.find((c) => c.value === leave.type);
+                  const typeColor = ct?.color ?? "bg-muted";
+                  const typeLabel = ct?.label ?? leave.type;
+                  return (
+                    <td
+                      key={d.day}
+                      className={`px-0 py-0.5 text-center border-r last:border-r-0 ${d.isMonday ? "border-l-2 border-l-accent/40" : ""} ${isEditable ? "cursor-pointer hover:bg-destructive/10" : ""}`}
+                      onClick={() => handleCellClick(emp.id, d.dateStr, d.isWeekend)}
+                      title={`${emp.name} — ${typeLabel}`}
+                    >
+                      <span className={`${typeColor} text-white text-[7px] px-0.5 py-0 rounded inline-block leading-tight`}>
+                        {typeLabel.slice(0, 2)}
                       </span>
-                    )}
-                  </div>
-                </td>
-                <td
-                  className={`px-1 py-0.5 font-medium border-r ${
-                    isWeekend ? "text-muted-foreground/50" : ""
-                  }`}
-                >
-                  {DAY_NAMES[jsDay]}
-                </td>
-                {holiday ? (
+                    </td>
+                  );
+                }
+
+                return (
                   <td
-                    colSpan={sortedEmployees.length}
-                    className="px-2 py-0.5 text-center font-semibold text-emerald-700 dark:text-emerald-400 text-[10px]"
-                  >
-                    {holiday}
-                  </td>
-                ) : (
-                  sortedEmployees.map((emp) => {
-                    const leave = getLeaveForDate(emp.id, dateStr);
-                    if (leave) {
-                      const ct = congeTypes.find((c) => c.value === leave.type);
-                      const typeColor = ct?.color ?? "bg-muted";
-                      const typeLabel = ct?.label ?? leave.type;
-                      return (
-                        <td
-                          key={emp.id}
-                          className={`px-0.5 py-0.5 text-center border-r last:border-r-0 border-l-2 border-l-amber-300/30 dark:border-l-amber-700/30 ${isEditable ? "cursor-pointer hover:bg-destructive/10" : ""}`}
-                          onClick={() => handleCellClick(emp.id, dateStr, isWeekend)}
-                        >
-                          <span
-                            className={`${typeColor} text-white text-[9px] px-1 py-0.5 rounded block truncate`}
-                            title={`${emp.name} — ${typeLabel}`}
-                          >
-                            {typeLabel.slice(0, 4)}
-                          </span>
-                        </td>
-                      );
-                    }
-                    return (
-                      <td
-                        key={emp.id}
-                        className={`px-0.5 py-0.5 text-center border-r last:border-r-0 border-l-2 border-l-amber-300/30 dark:border-l-amber-700/30 ${isEditable && !isWeekend ? "cursor-pointer hover:bg-accent/30" : ""}`}
-                        onClick={() => handleCellClick(emp.id, dateStr, isWeekend)}
-                      />
-                    );
-                  })
-                )}
-              </tr>
-            );
-          })}
+                    key={d.day}
+                    className={`px-0 py-0.5 text-center border-r last:border-r-0 ${
+                      d.isWeekend ? "bg-muted/40" : schoolBg
+                    } ${d.isMonday ? "border-l-2 border-l-accent/40" : ""} ${isEditable && !d.isWeekend ? "cursor-pointer hover:bg-accent/30" : ""}`}
+                    onClick={() => handleCellClick(emp.id, d.dateStr, d.isWeekend)}
+                  />
+                );
+              })}
+            </tr>
+          ))}
         </tbody>
       </table>
 
       {confirmDelete && (
         <AlertDialog open onOpenChange={() => setConfirmDelete(null)}>
           <AlertDialogContent>
-          <AlertDialogHeader>
+            <AlertDialogHeader>
               <AlertDialogTitle>{t("conges.deleteLeave")}</AlertDialogTitle>
               <AlertDialogDescription>
                 {t("conges.deleteConfirm")} ({confirmDelete?.type}) ? {t("conges.irreversible")}
