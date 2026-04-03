@@ -7,6 +7,7 @@ interface Store {
   name: string;
   city: string;
   has_ab_weeks?: boolean;
+  is_direction?: boolean;
 }
 
 interface StoreContextType {
