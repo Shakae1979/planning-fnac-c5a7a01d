@@ -169,7 +169,7 @@ export function DirectionFnac() {
             <ChevronRight className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="sm" className="no-print" onClick={() => setWeekOffset(0)}>
-            {t("schedule.today" as any)}
+            {t("teamDay.today" as any)}
           </Button>
           <Button variant="outline" size="sm" className="no-print gap-1.5" onClick={() => window.print()}>
             <Printer className="h-3.5 w-3.5" />{t("action.print")}
