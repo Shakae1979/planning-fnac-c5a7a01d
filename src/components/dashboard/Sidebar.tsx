@@ -1,11 +1,11 @@
-import { BarChart3, Users, CalendarDays, Calendar, TableProperties, Palmtree, PanelLeftClose, PanelLeftOpen, LogOut, Store, UserCog, Crown } from "lucide-react";
+import { BarChart3, Users, CalendarDays, Calendar, TableProperties, Palmtree, PanelLeftClose, PanelLeftOpen, LogOut, Store, UserCog } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
 
-type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores" | "direction";
+type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores";
 
 interface SidebarProps {
   activeView: View;
