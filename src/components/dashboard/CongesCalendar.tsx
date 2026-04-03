@@ -237,7 +237,15 @@ export function CongesCalendar() {
         </div>
       )}
 
-      {viewMode === "month" ? (
+      {isDirection ? (
+        viewMode === "month" ? (
+          <div className="kpi-card overflow-hidden">
+            <DirectionMonthGrid year={year} month={currentMonth} employees={employees} conges={conges} managerStoreNames={managerStoreNames} deleteMutation={deleteMutation} onAddConge={handleAddConge} />
+          </div>
+        ) : (
+          <DirectionQuarterView year={year} months={quarterMonths} employees={employees} conges={conges} managerStoreNames={managerStoreNames} deleteMutation={deleteMutation} onAddConge={handleAddConge} />
+        )
+      ) : viewMode === "month" ? (
         <div className="kpi-card overflow-hidden">
           <MonthGrid
             year={year}
