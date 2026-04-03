@@ -3,6 +3,11 @@ import { CONGE_TYPES } from "../CongesCalendar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { formatDateBE, formatLocalDate } from "@/lib/format";
 import { getSchoolHolidayInfo } from "@/lib/school-holidays";
 import { useI18n, getHolidays2026, getDayNames } from "@/lib/i18n";
 
