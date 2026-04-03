@@ -236,6 +236,34 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
             </DialogHeader>
             <div className="space-y-3">
               <div>
+                <label className="text-sm text-muted-foreground">{t("conges.start")}</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("mt-1 w-full justify-start text-left font-normal", !addStart && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                      {addStart ? formatDateBE(addStart) : t("action.choose")}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={addStart} onSelect={setAddStart} weekStartsOn={1} initialFocus className="p-3 pointer-events-auto" />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground">{t("conges.end")}</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("mt-1 w-full justify-start text-left font-normal", !addEnd && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                      {addEnd ? formatDateBE(addEnd) : t("action.choose")}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={addEnd} onSelect={setAddEnd} weekStartsOn={1} disabled={(date) => addStart ? date < addStart : false} initialFocus className="p-3 pointer-events-auto" />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div>
                 <label className="text-sm text-muted-foreground">{t("conges.type")}</label>
                 <select value={addType} onChange={(e) => setAddType(e.target.value)} className="w-full mt-1 px-3 py-2 text-sm rounded-md border bg-background">
                   {congeTypes.map((ct) => <option key={ct.value} value={ct.value}>{ct.label}</option>)}
@@ -244,7 +272,15 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setAddDialog(null)}>{t("action.cancel")}</Button>
-              <Button onClick={() => { onAddConge?.(addDialog.empId, addDialog.date, addDialog.date, addType); setAddDialog(null); }}>
+              <Button
+                disabled={!addStart || !addEnd}
+                onClick={() => {
+                  if (addStart && addEnd) {
+                    onAddConge?.(addDialog.empId, formatLocalDate(addStart), formatLocalDate(addEnd), addType);
+                    setAddDialog(null);
+                  }
+                }}
+              >
                 {t("action.validate")}
               </Button>
             </DialogFooter>
