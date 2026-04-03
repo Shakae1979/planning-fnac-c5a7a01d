@@ -301,7 +301,9 @@ const TeamWeekView = () => {
                             const isFerie = isFerieFromComments || isLegacyFerie;
                             const isExt = !isLegacyFerie && (start === "EXT" || end === "EXT");
                             const isRoulement = !isLegacyFerie && (start === "ROULEMENT" || end === "ROULEMENT");
-                            const hasShift = !!(start && end && !isExt && !isRoulement && !isLegacyFerie);
+                            const isRepos = start === "REPOS";
+                            const isLocation = !!(start && (!end || end.trim() === "") && !isLegacyFerie && !isExt && !isRoulement && !isRepos && !/^\d{1,2}:\d{2}$/.test(start));
+                            const hasShift = !!(start && end && !isExt && !isRoulement && !isLegacyFerie && !isLocation);
 
                             return (
                               <td key={day} className={`border-r p-0 relative ${isFerie ? "bg-gray-100 dark:bg-gray-800/50" : ""}`} style={{ height: 32 }}>
