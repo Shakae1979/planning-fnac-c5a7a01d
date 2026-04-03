@@ -95,12 +95,10 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
   // Horizontal layout: employees as rows, days as columns
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-[11px] border-collapse">
+      <table className="text-xs border-collapse">
         <thead>
-          {/* Row 1: day numbers */}
           <tr className="border-b bg-muted/30">
-            <th className="sticky left-0 bg-muted/30 px-1.5 py-1 text-left font-medium text-muted-foreground min-w-[100px] border-r z-10">
-              {t("conges.date")}
+            <th className="sticky left-0 bg-muted/30 px-2 py-1.5 text-left font-medium text-muted-foreground w-[60px] border-r z-10">
             </th>
             {days.map((d) => {
               const schoolBg =
@@ -114,7 +112,7 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
               return (
                 <th
                   key={d.day}
-                  className={`px-0 py-1 text-center font-medium min-w-[24px] w-[24px] border-r last:border-r-0 ${
+                  className={`px-0 py-1.5 text-center font-medium min-w-[30px] w-[30px] border-r last:border-r-0 ${
                     d.holiday
                       ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
                       : d.isWeekend
@@ -123,8 +121,8 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
                   } ${d.isMonday ? "border-l-2 border-l-accent/40" : ""}`}
                   title={d.holiday || `${String(d.day).padStart(2, "0")} ${monthShort(month)}`}
                 >
-                  <div className="text-[9px] leading-tight">{String(d.day).padStart(2, "0")}</div>
-                  <div className={`text-[8px] leading-tight ${d.isWeekend ? "text-muted-foreground/40" : "text-muted-foreground"}`}>
+                  <div className="text-[10px] leading-tight font-bold">{d.day}</div>
+                  <div className={`text-[9px] leading-tight ${d.isWeekend ? "text-muted-foreground/40" : "text-muted-foreground"}`}>
                     {DAY_NAMES[d.jsDay]}
                   </div>
                 </th>
@@ -135,17 +133,15 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
         <tbody>
           {sortedEmployees.map((emp) => (
             <tr key={emp.id} className="border-b border-border/40 hover:bg-accent/5">
-              <td className="sticky left-0 bg-card px-1.5 py-1 border-r z-10 whitespace-nowrap">
-                <div className="flex items-center gap-1">
-                  <span className="font-semibold text-foreground text-[10px] truncate max-w-[80px]" title={[emp.name, emp.last_name].filter(Boolean).join(" ")}>
-                    {emp.name}
-                  </span>
-                  {managerStoreNames[emp.id] && (
-                    <span className="text-[8px] text-muted-foreground truncate max-w-[60px]" title={managerStoreNames[emp.id]}>
-                      ({managerStoreNames[emp.id]})
-                    </span>
-                  )}
+              <td className="sticky left-0 bg-card px-2 py-1.5 border-r z-10 whitespace-nowrap">
+                <div className="font-semibold text-foreground text-xs truncate" title={[emp.name, emp.last_name].filter(Boolean).join(" ")}>
+                  {emp.name}
                 </div>
+                {managerStoreNames[emp.id] && (
+                  <div className="text-[9px] text-muted-foreground truncate" title={managerStoreNames[emp.id]}>
+                    {managerStoreNames[emp.id]}
+                  </div>
+                )}
               </td>
               {days.map((d) => {
                 const leave = getLeaveForDate(emp.id, d.dateStr);
