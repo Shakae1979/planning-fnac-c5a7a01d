@@ -40,6 +40,7 @@ const LEAVE_COLORS: Record<string, string> = {
 
 export function DirectionFnac() {
   const { t, formatDateLong } = useI18n();
+  const { currentStore } = useStore();
   const [weekOffset, setWeekOffset] = useState(0);
   const currentMonday = addWeeks(getMonday(new Date()), weekOffset);
   const weekStr = formatLocalDate(currentMonday);
