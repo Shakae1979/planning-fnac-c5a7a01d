@@ -18,16 +18,19 @@ import { Separator } from "@/components/ui/separator";
 
 type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores";
 
-const DIRECTION_ID = "__direction__";
-
 const Index = () => {
   const [view, setView] = useState<View>("overview");
-  const [isDirection, setIsDirection] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { stores, currentStore, setCurrentStore } = useStore();
   const { role } = useAuth();
   const { t } = useI18n();
+
+  const isDirection = currentStore?.is_direction === true;
+
+  // Separate direction store from regular stores
+  const regularStores = stores.filter((s) => !s.is_direction);
+  const directionStore = stores.find((s) => s.is_direction);
 
   const NAV_SHORTCUTS = [
     { label: t("header.teamDay"), path: "/equipe-du-jour", icon: Users },
@@ -36,22 +39,11 @@ const Index = () => {
     { label: t("nav.conges"), path: "/conges", icon: Palmtree },
   ];
 
-  const handleStoreChange = (val: string) => {
-    if (val === DIRECTION_ID) {
-      setIsDirection(true);
-    } else {
-      setIsDirection(false);
-      const s = stores.find((st) => st.id === val);
-      if (s) setCurrentStore(s);
-    }
-  };
-
-  const selectorValue = isDirection ? DIRECTION_ID : (currentStore?.id || "");
-  const showStoreSelector = role === "admin" && (stores.length > 0);
+  const showStoreSelector = stores.length > 1 || directionStore;
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar activeView={view} onViewChange={(v) => { setView(v); }} />
+      <Sidebar activeView={view} onViewChange={setView} />
       <main className="flex-1 overflow-auto">
         <header className="sticky top-0 z-10 border-b px-6 py-3 flex items-center justify-between" style={{ background: "hsl(var(--sidebar-bg))" }}>
           <div className="flex items-center gap-3">
@@ -65,35 +57,6 @@ const Index = () => {
             {showStoreSelector && (
               <>
                 <div className="h-5 w-px" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
-                <Select value={selectorValue} onValueChange={handleStoreChange}>
-                  <SelectTrigger className="w-[200px] h-8 text-xs border-none" style={{ background: "hsl(var(--sidebar-hover))", color: "hsl(var(--sidebar-fg))" }}>
-                    {isDirection ? <Crown className="h-3.5 w-3.5 mr-1 text-amber-500" /> : <Store className="h-3.5 w-3.5 mr-1" />}
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stores.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        <span className="flex items-center gap-1.5">
-                          <Store className="h-3 w-3" />
-                          {s.name}
-                        </span>
-                      </SelectItem>
-                    ))}
-                    <Separator className="my-1" />
-                    <SelectItem value={DIRECTION_ID}>
-                      <span className="flex items-center gap-1.5 font-semibold">
-                        <Crown className="h-3 w-3 text-amber-500" />
-                        Direction Fnac
-                      </span>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </>
-            )}
-
-            {!showStoreSelector && stores.length > 1 && (
-              <>
-                <div className="h-5 w-px" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
                 <Select
                   value={currentStore?.id || ""}
                   onValueChange={(val) => {
@@ -101,14 +64,30 @@ const Index = () => {
                     if (s) setCurrentStore(s);
                   }}
                 >
-                  <SelectTrigger className="w-[180px] h-8 text-xs border-none" style={{ background: "hsl(var(--sidebar-hover))", color: "hsl(var(--sidebar-fg))" }}>
-                    <Store className="h-3.5 w-3.5 mr-1" />
+                  <SelectTrigger className="w-[200px] h-8 text-xs border-none" style={{ background: "hsl(var(--sidebar-hover))", color: "hsl(var(--sidebar-fg))" }}>
+                    {isDirection ? <Crown className="h-3.5 w-3.5 mr-1 text-amber-500" /> : <Store className="h-3.5 w-3.5 mr-1" />}
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {stores.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                    {regularStores.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        <span className="flex items-center gap-1.5">
+                          <Store className="h-3 w-3" />
+                          {s.name}
+                        </span>
+                      </SelectItem>
                     ))}
+                    {directionStore && (
+                      <>
+                        {regularStores.length > 0 && <Separator className="my-1" />}
+                        <SelectItem value={directionStore.id}>
+                          <span className="flex items-center gap-1.5 font-semibold">
+                            <Crown className="h-3 w-3 text-amber-500" />
+                            {directionStore.name}
+                          </span>
+                        </SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </>
@@ -150,7 +129,7 @@ const Index = () => {
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
             <p className="text-xs" style={{ color: "hsl(var(--sidebar-fg) / 0.6)" }}>
-              {isDirection ? "Direction Fnac" : (currentStore ? currentStore.name : t("header.mgmt"))}
+              {currentStore ? currentStore.name : t("header.mgmt")}
             </p>
           </div>
         </header>

@@ -213,6 +213,7 @@ export type Database = {
           created_at: string
           has_ab_weeks: boolean
           id: string
+          is_direction: boolean
           name: string
         }
         Insert: {
@@ -220,6 +221,7 @@ export type Database = {
           created_at?: string
           has_ab_weeks?: boolean
           id?: string
+          is_direction?: boolean
           name: string
         }
         Update: {
@@ -227,6 +229,7 @@ export type Database = {
           created_at?: string
           has_ab_weeks?: boolean
           id?: string
+          is_direction?: boolean
           name?: string
         }
         Relationships: []
@@ -378,6 +381,7 @@ export type Database = {
         Returns: {
           store_city: string
           store_id: string
+          store_is_direction: boolean
           store_name: string
         }[]
       }
