@@ -10,8 +10,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { formatDateBE, formatLocalDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { QuarterView } from "./conges/QuarterView";
 import { MonthGrid } from "./conges/MonthGrid";
+import { DirectionMonthGrid } from "./conges/DirectionMonthGrid";
+import { DirectionQuarterView } from "./conges/DirectionQuarterView";
 
 export const CONGE_TYPES_KEYS = ["conge", "rtt", "maladie", "formation", "autre", "divers"] as const;
 export const CONGE_TYPE_COLORS: Record<string, string> = {
