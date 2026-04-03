@@ -1,5 +1,8 @@
-import { useMemo } from "react";
-import { CONGE_TYPES } from "../CongesCalendar";
+import { useState, useMemo } from "react";
+import { CONGE_TYPES, CONGE_TYPES_KEYS, CONGE_TYPE_COLORS } from "../CongesCalendar";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { getSchoolHolidayInfo } from "@/lib/school-holidays";
 import { useI18n, getHolidays2026, getDayNames } from "@/lib/i18n";
 
