@@ -95,10 +95,10 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
   // Horizontal layout: employees as rows, days as columns
   return (
     <div className="overflow-x-auto">
-      <table className="text-xs border-collapse">
+      <table className="w-full text-xs border-collapse table-fixed">
         <thead>
           <tr className="border-b bg-muted/30">
-            <th className="sticky left-0 bg-muted/30 px-2 py-1.5 text-left font-medium text-muted-foreground w-[60px] border-r z-10">
+            <th className="sticky left-0 bg-muted/30 px-2 py-1.5 text-left font-medium text-muted-foreground w-[120px] min-w-[120px] border-r z-10">
             </th>
             {days.map((d) => {
               const schoolBg =
@@ -112,7 +112,7 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
               return (
                 <th
                   key={d.day}
-                  className={`px-0 py-1.5 text-center font-medium min-w-[30px] w-[30px] border-r last:border-r-0 ${
+                  className={`px-0 py-1.5 text-center font-medium border-r last:border-r-0 ${
                     d.holiday
                       ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
                       : d.isWeekend
