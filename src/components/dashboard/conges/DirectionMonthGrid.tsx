@@ -171,7 +171,8 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
                       return (
                         <td
                           key={emp.id}
-                          className="px-0.5 py-0.5 text-center border-r last:border-r-0 border-l-2 border-l-amber-300/30 dark:border-l-amber-700/30"
+                          className={`px-0.5 py-0.5 text-center border-r last:border-r-0 border-l-2 border-l-amber-300/30 dark:border-l-amber-700/30 ${isEditable ? "cursor-pointer hover:bg-destructive/10" : ""}`}
+                          onClick={() => handleCellClick(emp.id, dateStr, isWeekend)}
                         >
                           <span
                             className={`${typeColor} text-white text-[9px] px-1 py-0.5 rounded block truncate`}
@@ -185,7 +186,8 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
                     return (
                       <td
                         key={emp.id}
-                        className="px-0.5 py-0.5 text-center border-r last:border-r-0 border-l-2 border-l-amber-300/30 dark:border-l-amber-700/30"
+                        className={`px-0.5 py-0.5 text-center border-r last:border-r-0 border-l-2 border-l-amber-300/30 dark:border-l-amber-700/30 ${isEditable && !isWeekend ? "cursor-pointer hover:bg-accent/30" : ""}`}
+                        onClick={() => handleCellClick(emp.id, dateStr, isWeekend)}
                       />
                     );
                   })
@@ -195,6 +197,47 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
           })}
         </tbody>
       </table>
+
+      {confirmDelete && (
+        <AlertDialog open onOpenChange={() => setConfirmDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("conges.confirmDelete")}</AlertDialogTitle>
+              <AlertDialogDescription>{t("conges.confirmDeleteDesc")}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { deleteMutation?.mutate(confirmDelete.id); setConfirmDelete(null); }}>
+                {t("action.delete")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+
+      {addDialog && (
+        <Dialog open onOpenChange={() => setAddDialog(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t("conges.addLeave")}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm text-muted-foreground">{t("conges.type")}</label>
+                <select value={addType} onChange={(e) => setAddType(e.target.value)} className="w-full mt-1 px-3 py-2 text-sm rounded-md border bg-background">
+                  {congeTypes.map((ct) => <option key={ct.value} value={ct.value}>{ct.label}</option>)}
+                </select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setAddDialog(null)}>{t("action.cancel")}</Button>
+              <Button onClick={() => { onAddConge?.(addDialog.empId, addDialog.date, addDialog.date, addType); setAddDialog(null); }}>
+                {t("action.validate")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
