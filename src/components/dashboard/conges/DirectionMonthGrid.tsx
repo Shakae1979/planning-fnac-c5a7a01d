@@ -66,6 +66,8 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
   const [confirmDelete, setConfirmDelete] = useState<any>(null);
   const [addDialog, setAddDialog] = useState<{ empId: string; date: string } | null>(null);
   const [addType, setAddType] = useState("conge");
+  const [addStart, setAddStart] = useState<Date | undefined>();
+  const [addEnd, setAddEnd] = useState<Date | undefined>();
 
   const handleCellClick = (empId: string, dateStr: string, isWeekend: boolean) => {
     if (!isEditable || isWeekend) return;
