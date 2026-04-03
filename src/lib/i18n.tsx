@@ -122,6 +122,7 @@ const translations = {
   "leave.formation": { fr: "Formation", nl: "Opleiding" },
   "leave.formation.short": { fr: "FORM", nl: "OPL" },
   "leave.autre": { fr: "Pas encodé", nl: "Niet ingevoerd" },
+  "leave.autre.short": { fr: "AUT", nl: "AND" },
   "leave.divers": { fr: "Autre", nl: "Andere" },
   "leave.divers.short": { fr: "AUT", nl: "AND" },
   "leave.school": { fr: "Congé scolaire", nl: "Schoolvakantie" },
