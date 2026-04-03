@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, ChevronRight, Crown, Palmtree, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { formatDateLongBE, formatLocalDate, getWeekNumber, formatTimeBE } from "@/lib/format";
+import { formatLocalDate, getWeekNumber, formatTimeBE } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
@@ -50,7 +49,7 @@ export function DirectionFnac() {
   }));
 
   // Fetch all users with store assignments (via manage-users edge function)
-  const { data: allUsers } = useQuery({
+  const { data: allUsers, isLoading: loadingUsers } = useQuery({
     queryKey: ["direction-all-users"],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke("manage-users", {
@@ -66,12 +65,7 @@ export function DirectionFnac() {
     },
   });
 
-  // Get store managers (is_manager = true)
-  const storeManagers = (allUsers || []).filter((u) =>
-    u.stores?.some((s) => s.is_manager)
-  );
-
-  // Fetch all employees to match by email
+  // Fetch all active employees
   const { data: allEmployees } = useQuery({
     queryKey: ["direction-employees"],
     queryFn: async () => {
@@ -81,25 +75,36 @@ export function DirectionFnac() {
     },
   });
 
-  // Get employee IDs for store managers (match by email)
-  const managerEmployees = storeManagers.map((mgr) => {
-    const emp = (allEmployees || []).find(
-      (e) => e.email && mgr.email && e.email.toLowerCase() === mgr.email.toLowerCase()
+  // Get store managers (is_manager = true) and match to employees
+  const managerEmployees = useMemo(() => {
+    const storeManagers = (allUsers || []).filter((u) =>
+      u.stores?.some((s) => s.is_manager)
     );
-    const managerStores = mgr.stores.filter((s) => s.is_manager);
-    return {
-      userId: mgr.id,
-      email: mgr.email,
-      employee: emp || null,
-      storeNames: managerStores.map((s) => s.store_name),
-    };
-  });
+    return storeManagers.map((mgr) => {
+      const emp = (allEmployees || []).find(
+        (e) => e.email && mgr.email && e.email.toLowerCase() === mgr.email.toLowerCase()
+      );
+      const managerStores = mgr.stores.filter((s) => s.is_manager);
+      return {
+        userId: mgr.id,
+        email: mgr.email,
+        employee: emp || null,
+        storeNames: managerStores.map((s) => s.store_name),
+      };
+    });
+  }, [allUsers, allEmployees]);
 
-  const employeeIds = managerEmployees.filter((m) => m.employee).map((m) => m.employee!.id);
+  const employeeIds = useMemo(
+    () => managerEmployees.filter((m) => m.employee).map((m) => m.employee!.id),
+    [managerEmployees]
+  );
+
+  // Stable string key for queries
+  const employeeIdsKey = employeeIds.sort().join(",");
 
   // Fetch schedules for these employees
   const { data: schedules } = useQuery({
-    queryKey: ["direction-schedules", weekStr, employeeIds],
+    queryKey: ["direction-schedules", weekStr, employeeIdsKey],
     enabled: employeeIds.length > 0,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -118,7 +123,7 @@ export function DirectionFnac() {
   const weekEndStr = formatLocalDate(weekEnd);
 
   const { data: conges } = useQuery({
-    queryKey: ["direction-conges", weekStr, weekEndStr, employeeIds],
+    queryKey: ["direction-conges", weekStr, weekEndStr, employeeIdsKey],
     enabled: employeeIds.length > 0,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -172,7 +177,11 @@ export function DirectionFnac() {
         </div>
       </div>
 
-      {managerEmployees.length === 0 ? (
+      {loadingUsers ? (
+        <div className="kpi-card text-center py-8">
+          <p className="text-sm text-muted-foreground">Chargement...</p>
+        </div>
+      ) : managerEmployees.length === 0 ? (
         <div className="kpi-card text-center py-8">
           <Crown className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
           <p className="text-sm text-muted-foreground">
