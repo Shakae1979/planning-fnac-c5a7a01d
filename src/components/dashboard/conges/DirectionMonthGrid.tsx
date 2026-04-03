@@ -23,6 +23,7 @@ interface DirectionMonthGridProps {
   month: number;
   employees: any[] | undefined;
   conges: any[] | undefined;
+  managerStoreNames?: Record<string, string>;
 }
 
 export function DirectionMonthGrid({ year, month, employees, conges }: DirectionMonthGridProps) {
