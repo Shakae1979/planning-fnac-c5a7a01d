@@ -38,6 +38,34 @@ const FAQ_FR: FAQItem[] = [
     answer: "Depuis le tableau de bord (accessible aux admins), cliquez sur 'Récap équipe' dans le menu latéral pour voir un résumé des heures par employé.",
   },
   {
+    question: "Comment partager le planning d'un employé ?",
+    answer: "Depuis le tableau de bord, allez dans 'Liens de partage'. Vous y trouverez un lien unique pour chaque employé que vous pouvez copier et envoyer. L'employé pourra consulter son planning personnel sans avoir besoin de se connecter.",
+  },
+  {
+    question: "Comment marquer un jour comme férié ?",
+    answer: "Sur la page 'Équipe du jour', cliquez sur l'icône drapeau à côté de la date pour marquer le jour comme férié. Vous pouvez aussi ajouter un commentaire général pour la journée.",
+  },
+  {
+    question: "Comment utiliser les indicateurs SAV et Socloz ?",
+    answer: "Sur la page 'Équipe du jour', chaque employé dispose de cases SAV et Socloz cochables. Ces indicateurs permettent de signaler rapidement les missions spéciales assignées à un employé pour la journée.",
+  },
+  {
+    question: "Comment consulter la fiche individuelle d'un employé ?",
+    answer: "Cliquez sur le nom d'un employé depuis la vue 'Équipe du jour' ou les liens de partage. Vous verrez son planning de la semaine, ses heures travaillées et ses congés à venir.",
+  },
+  {
+    question: "Comment changer la langue de l'application ?",
+    answer: "Utilisez le sélecteur de langue (FR/NL) situé dans la barre de navigation en haut de page pour basculer entre le français et le néerlandais.",
+  },
+  {
+    question: "Comment imprimer la grille du jour ?",
+    answer: "Sur la page 'Équipe du jour', cliquez sur l'icône d'impression en haut à droite. La grille sera mise en forme automatiquement pour l'impression.",
+  },
+  {
+    question: "Comment modifier les informations d'un employé ?",
+    answer: "Depuis le tableau de bord, allez dans 'Équipe & Comptes' et cliquez sur un employé. Vous pourrez modifier son nom, prénom, email, rôle par défaut et heures contractuelles.",
+  },
+  {
     question: "Comment ajouter un raccourci sur mon téléphone ou ma tablette ?",
     answer: "Sur iPhone/iPad (Safari) : appuyez sur l'icône de partage (carré avec flèche) puis 'Sur l'écran d'accueil'. Sur Android (Chrome) : appuyez sur les 3 points en haut à droite puis 'Ajouter à l'écran d'accueil'. L'application s'ouvrira ensuite comme une app native depuis votre écran d'accueil.",
   },
@@ -71,6 +99,34 @@ const FAQ_NL: FAQItem[] = [
   {
     question: "Hoe bekijk ik het uren-overzicht van het team?",
     answer: "Vanuit het dashboard (voor admins), klik op 'Teamoverzicht' in het zijmenu voor een samenvatting van uren per medewerker.",
+  },
+  {
+    question: "Hoe deel ik het rooster van een medewerker?",
+    answer: "Ga in het dashboard naar 'Deellinks'. Daar vindt u een unieke link per medewerker die u kunt kopiëren en versturen. De medewerker kan zijn persoonlijk rooster bekijken zonder in te loggen.",
+  },
+  {
+    question: "Hoe markeer ik een dag als feestdag?",
+    answer: "Op de pagina 'Team van de dag', klik op het vlagicoon naast de datum om de dag als feestdag te markeren. U kunt ook een algemene opmerking voor de dag toevoegen.",
+  },
+  {
+    question: "Hoe gebruik ik de SAV- en Socloz-indicatoren?",
+    answer: "Op de pagina 'Team van de dag' heeft elke medewerker aankruisvakjes voor SAV en Socloz. Deze indicatoren signaleren snel de speciale taken die aan een medewerker zijn toegewezen voor die dag.",
+  },
+  {
+    question: "Hoe bekijk ik de individuele fiche van een medewerker?",
+    answer: "Klik op de naam van een medewerker vanuit 'Team van de dag' of de deellinks. U ziet dan het weekrooster, gewerkte uren en komend verlof.",
+  },
+  {
+    question: "Hoe wijzig ik de taal van de applicatie?",
+    answer: "Gebruik de taalkiezer (FR/NL) in de navigatiebalk bovenaan om te schakelen tussen Frans en Nederlands.",
+  },
+  {
+    question: "Hoe print ik het dagrooster?",
+    answer: "Op de pagina 'Team van de dag', klik op het printpictogram rechtsboven. Het rooster wordt automatisch opgemaakt voor afdrukken.",
+  },
+  {
+    question: "Hoe wijzig ik de gegevens van een medewerker?",
+    answer: "Ga in het dashboard naar 'Team & Accounts' en klik op een medewerker. U kunt dan naam, achternaam, e-mail, standaardrol en contracturen aanpassen.",
   },
   {
     question: "Hoe voeg ik een snelkoppeling toe op mijn telefoon of tablet?",
