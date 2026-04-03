@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/hooks/useStore";
-import { ChevronLeft, ChevronRight, Crown, Palmtree, Printer } from "lucide-react";
+import { ChevronLeft, ChevronRight, Crown, Palmtree, Printer, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatLocalDate, getWeekNumber, formatTimeBE } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
@@ -274,17 +274,21 @@ export function DirectionFnac() {
                         );
                       }
 
-                      // Handle special values (EXT, FERIE, Roulement, etc.)
-                      const specialValues = ["FERIE", "EXT", "Roulement", "ROUL"];
+                      // Handle location values (no end time = location mode)
+                      const isLocationMode = !end || end.trim() === "";
+                      const specialValues = ["FERIE", "EXT", "Roulement", "ROUL", "REPOS"];
                       const isSpecialStart = specialValues.some((sv) => start.toUpperCase().includes(sv.toUpperCase()));
-                      const isSpecialEnd = !end || end.trim() === "" || specialValues.some((sv) => end.toUpperCase().includes(sv.toUpperCase()));
 
-                      if (isSpecialStart || isSpecialEnd) {
-                        const label = start;
+                      if (isLocationMode || isSpecialStart) {
+                        const isRepos = start.toUpperCase() === "REPOS";
+                        const isLocation = !isSpecialStart && isLocationMode;
                         return (
                           <td key={dayKey} className="px-1 py-2 text-center border-r last:border-r-0">
-                            <div className="bg-muted/50 rounded-md px-2 py-1.5">
-                              <span className="text-[10px] font-medium text-muted-foreground">{label}</span>
+                            <div className={`rounded-md px-2 py-1.5 ${isRepos ? "bg-muted/30" : isLocation ? "bg-indigo-500/15 text-indigo-700 dark:text-indigo-400" : "bg-muted/50"}`}>
+                              <div className="flex items-center justify-center gap-1">
+                                {isLocation && <MapPin className="h-3 w-3" />}
+                                <span className={`text-[10px] font-semibold ${isRepos ? "text-muted-foreground" : ""}`}>{start}</span>
+                              </div>
                             </div>
                           </td>
                         );
