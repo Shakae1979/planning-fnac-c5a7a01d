@@ -37,13 +37,19 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
     }
   };
 
-  const NAV_SHORTCUTS = [
-    { label: t("header.teamDay"), path: "/equipe-du-jour", icon: Users },
-    { label: t("header.weekPlan"), path: "/planning-equipe", icon: CalendarDays },
-    { label: t("header.myPlan"), path: "/mon-planning", icon: User },
-    { label: t("nav.conges"), path: "/conges", icon: Palmtree },
-    { label: t("nav.myAccount"), path: "/mon-compte", icon: UserCog },
+  const isDirection = currentStore?.is_direction === true;
+
+  const ALL_NAV_SHORTCUTS = [
+    { label: t("header.teamDay"), path: "/equipe-du-jour", icon: Users, hideDirection: false },
+    { label: t("header.weekPlan"), path: "/planning-equipe", icon: CalendarDays, hideDirection: false },
+    { label: t("header.myPlan"), path: "/mon-planning", icon: User, hideDirection: true },
+    { label: t("nav.conges"), path: "/conges", icon: Palmtree, hideDirection: false },
+    { label: t("nav.myAccount"), path: "/mon-compte", icon: UserCog, hideDirection: true },
   ];
+
+  const NAV_SHORTCUTS = isDirection
+    ? ALL_NAV_SHORTCUTS.filter((s) => !s.hideDirection)
+    : ALL_NAV_SHORTCUTS;
 
   return (
     <header className="border-b" style={{ background: "hsl(var(--sidebar-bg))" }}>
