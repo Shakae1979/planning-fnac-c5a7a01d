@@ -62,11 +62,19 @@ export function useStoreEmployees(sortByRole?: string[]) {
     const storeNames: Record<string, string> = {};
 
     if (isDirection && currentStore) {
-      // Show all users assigned to the direction store, matched to employee records via email
+      // Show users assigned to direction store OR who are store managers anywhere
       const directionStoreId = currentStore.id;
       const assignedUsers = (allUsers || []).filter((u) =>
-        u.stores?.some((s) => s.store_id === directionStoreId)
+        u.stores?.some((s) => s.store_id === directionStoreId) ||
+        u.stores?.some((s) => s.is_manager)
       );
+      // Deduplicate by user id
+      const seen = new Set<string>();
+      const uniqueUsers = assignedUsers.filter((u) => {
+        if (seen.has(u.id)) return false;
+        seen.add(u.id);
+        return true;
+      });
       result = assignedUsers
         .map((usr) => {
           const emp = (allEmployees || []).find(
