@@ -10,6 +10,8 @@ import { FnacHeader } from "@/components/FnacHeader";
 import { CONGE_TYPES_KEYS, CONGE_TYPE_COLORS } from "@/components/dashboard/CongesCalendar";
 import { QuarterView } from "@/components/dashboard/conges/QuarterView";
 import { MonthGrid } from "@/components/dashboard/conges/MonthGrid";
+import { DirectionMonthGrid } from "@/components/dashboard/conges/DirectionMonthGrid";
+import { DirectionQuarterView } from "@/components/dashboard/conges/DirectionQuarterView";
 
 type ViewMode = "month" | "quarter";
 
