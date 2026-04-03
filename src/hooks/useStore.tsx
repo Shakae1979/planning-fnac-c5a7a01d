@@ -51,6 +51,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           id: s.store_id,
           name: s.store_name,
           city: s.store_city,
+          is_direction: s.store_is_direction ?? false,
         }));
         setStores(storeList);
         if (!currentStore && storeList.length > 0) {
