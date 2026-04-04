@@ -54,6 +54,7 @@ export default function CongesView() {
     <div className="min-h-screen bg-background">
       <FnacHeader title={t("nav.conges")} subtitle="Consultation" />
       <div className={`mx-auto px-4 py-6 space-y-4 ${isDirection ? "max-w-full" : "max-w-[1600px]"}`}>
+        <PrintLegend />
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1 mr-2">
