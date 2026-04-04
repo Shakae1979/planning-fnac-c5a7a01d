@@ -128,6 +128,7 @@ export function CongesCalendar() {
 
   return (
     <div className="space-y-4">
+      <PrintLegend />
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 mr-2">
