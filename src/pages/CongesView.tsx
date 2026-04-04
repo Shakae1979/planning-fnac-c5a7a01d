@@ -13,6 +13,7 @@ import { QuarterView } from "@/components/dashboard/conges/QuarterView";
 import { MonthGrid } from "@/components/dashboard/conges/MonthGrid";
 import { DirectionMonthGrid } from "@/components/dashboard/conges/DirectionMonthGrid";
 import { DirectionQuarterView } from "@/components/dashboard/conges/DirectionQuarterView";
+import { PrintLegend } from "@/components/dashboard/conges/PrintLegend";
 
 type ViewMode = "month" | "quarter";
 
