@@ -167,4 +167,13 @@
   .print\:hidden {
     display: none !important;
   }
+  .print-legend {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 9px;
+    margin-bottom: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid #ddd;
+  }
 }
