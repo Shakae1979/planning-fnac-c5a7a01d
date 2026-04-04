@@ -167,23 +167,32 @@ export function CongesCalendar() {
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-xs">
-            {congeTypes.map((ct) => (
-              <span key={ct.value} className="flex items-center gap-1">
-                <span className={`inline-block w-3 h-3 rounded ${ct.color}`} />
-                {ct.label}
-              </span>
-            ))}
-            <span className="flex items-center gap-1">
-              <span className="inline-block w-3 h-3 rounded bg-amber-400/40" />
-              {t("leave.school.fr")}
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="inline-block w-3 h-3 rounded bg-sky-300/30" />
-              {t("leave.school.nl")}
-            </span>
-          </div>
+          <div className="flex items-center gap-3">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Info className="h-3.5 w-3.5 mr-1" /> {t("conges.legend")}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-3" align="end">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                  {congeTypes.map((ct) => (
+                    <span key={ct.value} className="flex items-center gap-1.5">
+                      <span className={`inline-block w-3 h-3 rounded ${ct.color}`} />
+                      {ct.label}
+                    </span>
+                  ))}
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-3 h-3 rounded bg-amber-400/40" />
+                    {t("leave.school.fr")}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-3 h-3 rounded bg-sky-300/30" />
+                    {t("leave.school.nl")}
+                  </span>
+                </div>
+              </PopoverContent>
+            </Popover>
           <Button variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="h-3.5 w-3.5 mr-1" /> {t("action.print")}
           </Button>
