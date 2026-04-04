@@ -5,7 +5,7 @@ import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Plus, ChevronLeft, ChevronRight, Printer, CalendarIcon } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Printer, CalendarIcon, Info } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { formatDateBE, formatLocalDate } from "@/lib/format";
