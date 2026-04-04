@@ -15,6 +15,7 @@ import { QuarterView } from "./conges/QuarterView";
 import { MonthGrid } from "./conges/MonthGrid";
 import { DirectionMonthGrid } from "./conges/DirectionMonthGrid";
 import { DirectionQuarterView } from "./conges/DirectionQuarterView";
+import { PrintLegend } from "./conges/PrintLegend";
 
 export const CONGE_TYPES_KEYS = ["conge", "rtt", "maladie", "formation", "autre", "divers", "parental", "medical", "fincarriere"] as const;
 export const CONGE_TYPE_COLORS: Record<string, string> = {
