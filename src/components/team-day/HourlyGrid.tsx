@@ -66,9 +66,11 @@ function RolePicker({ anchorRect, onSelect, onClose, roleLabels, multi }: {
 
 export default function HourlyGrid({ employees, date }: { employees: Employee[]; date: string }) {
   const { t } = useI18n();
+  const { scheduleStart, scheduleEnd } = useStoreSettings();
+  const HALF_HOURS = useMemo(() => buildHalfHours(scheduleStart, scheduleEnd), [scheduleStart, scheduleEnd]);
   const active = employees.filter((e) => e.hasShift && !e.conge);
   const [overrides, setOverrides] = useState<Overrides>({});
-  
+
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [empComments, setEmpComments] = useState<Record<string, string>>({});
