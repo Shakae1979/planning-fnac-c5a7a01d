@@ -9,6 +9,7 @@ import { CongesCalendar } from "@/components/dashboard/CongesCalendar";
 import { TeamAndAccounts } from "@/components/dashboard/TeamAndAccounts";
 import { StoreManager } from "@/components/dashboard/StoreManager";
 import { DirectionFnac } from "@/components/dashboard/DirectionFnac";
+import { StoreSettingsPanel } from "@/components/dashboard/StoreSettingsPanel";
 import { useStore } from "@/hooks/useStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
