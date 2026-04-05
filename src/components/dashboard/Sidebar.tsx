@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
 
-type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores";
+type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores" | "settings";
 
 interface SidebarProps {
   activeView: View;
