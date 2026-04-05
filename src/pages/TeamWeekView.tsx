@@ -76,6 +76,8 @@ const TeamWeekView = () => {
 
   const { currentStore } = useStore();
   const { employees } = useStoreEmployees(ROLE_ORDER);
+  const { scheduleStart, scheduleEnd } = useStoreSettings();
+  const HOURS = Array.from({ length: scheduleEnd - scheduleStart }, (_, i) => i + scheduleStart);
 
   const { data: schedules } = useQuery({
     queryKey: ["team-week-schedules", weekStr],
