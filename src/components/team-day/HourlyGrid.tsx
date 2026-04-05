@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Printer, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,11 +6,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 
-const HALF_HOURS: { hour: number; minute: number; label: string }[] = [];
-for (let h = 9; h <= 19; h++) {
-  HALF_HOURS.push({ hour: h, minute: 0, label: `${h}h` });
-  HALF_HOURS.push({ hour: h, minute: 30, label: `${h}h30` });
+function buildHalfHours(startHour: number, endHour: number) {
+  const slots: { hour: number; minute: number; label: string }[] = [];
+  for (let h = startHour; h < endHour; h++) {
+    slots.push({ hour: h, minute: 0, label: `${h}h` });
+    slots.push({ hour: h, minute: 30, label: `${h}h30` });
+  }
+  return slots;
 }
 
 const ROLES = [
@@ -62,9 +66,11 @@ function RolePicker({ anchorRect, onSelect, onClose, roleLabels, multi }: {
 
 export default function HourlyGrid({ employees, date }: { employees: Employee[]; date: string }) {
   const { t } = useI18n();
+  const { scheduleStart, scheduleEnd } = useStoreSettings();
+  const HALF_HOURS = useMemo(() => buildHalfHours(scheduleStart, scheduleEnd), [scheduleStart, scheduleEnd]);
   const active = employees.filter((e) => e.hasShift && !e.conge);
   const [overrides, setOverrides] = useState<Overrides>({});
-  
+
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [empComments, setEmpComments] = useState<Record<string, string>>({});

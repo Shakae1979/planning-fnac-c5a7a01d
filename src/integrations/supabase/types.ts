@@ -207,6 +207,38 @@ export type Database = {
           },
         ]
       }
+      store_settings: {
+        Row: {
+          created_at: string
+          id: string
+          schedule_end_hour: number
+          schedule_start_hour: number
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          schedule_end_hour?: number
+          schedule_start_hour?: number
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          schedule_end_hour?: number
+          schedule_start_hour?: number
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stores: {
         Row: {
           city: string

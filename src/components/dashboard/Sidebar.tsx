@@ -1,11 +1,11 @@
-import { BarChart3, Users, CalendarDays, Calendar, TableProperties, Palmtree, PanelLeftClose, PanelLeftOpen, LogOut, Store, UserCog } from "lucide-react";
+import { BarChart3, Users, CalendarDays, Calendar, TableProperties, Palmtree, PanelLeftClose, PanelLeftOpen, LogOut, Store, UserCog, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
 
-type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores";
+type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores" | "settings";
 
 interface SidebarProps {
   activeView: View;
@@ -19,6 +19,7 @@ const linkDefs: { id: View; labelKey: string; icon: React.ElementType }[] = [
   { id: "conges", labelKey: "nav.conges", icon: Palmtree },
   { id: "team", labelKey: "nav.team", icon: Users },
   { id: "stores", labelKey: "nav.stores", icon: Store },
+  { id: "settings", labelKey: "nav.settings", icon: Settings },
 ];
 
 

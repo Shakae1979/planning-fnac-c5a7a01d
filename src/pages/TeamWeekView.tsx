@@ -10,6 +10,7 @@ import { useStore } from "@/hooks/useStore";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { useI18n } from "@/lib/i18n";
 import React from "react";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
 
@@ -27,7 +28,6 @@ const CONGE_COLORS: Record<string, string> = {
 };
 
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"] as const;
-const HOURS = Array.from({ length: 12 }, (_, i) => i + 9);
 
 function getMonday(date: Date): Date {
   const d = new Date(date);
@@ -76,6 +76,8 @@ const TeamWeekView = () => {
 
   const { currentStore } = useStore();
   const { employees } = useStoreEmployees(ROLE_ORDER);
+  const { scheduleStart, scheduleEnd } = useStoreSettings();
+  const HOURS = Array.from({ length: scheduleEnd - scheduleStart }, (_, i) => i + scheduleStart);
 
   const { data: schedules } = useQuery({
     queryKey: ["team-week-schedules", weekStr],
@@ -123,8 +125,8 @@ const TeamWeekView = () => {
     return match ? match.type : null;
   };
 
-  const GRID_START = 9 * 60;
-  const GRID_END = 21 * 60;
+  const GRID_START = scheduleStart * 60;
+  const GRID_END = scheduleEnd * 60;
   const GRID_SPAN = GRID_END - GRID_START;
 
   const grouped = employees?.reduce((acc, emp) => {

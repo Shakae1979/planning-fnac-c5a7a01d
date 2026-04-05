@@ -11,6 +11,7 @@ const translations = {
   "nav.conges": { fr: "Congés", nl: "Verlof" },
   "nav.team": { fr: "Équipe & Comptes", nl: "Team & Accounts" },
   "nav.stores": { fr: "Magasins", nl: "Winkels" },
+  "nav.settings": { fr: "Paramètres", nl: "Instellingen" },
   "nav.direction": { fr: "Direction Fnac", nl: "Directie Fnac" },
   "direction.noManagers": { fr: "Aucun Store Manager trouvé. Promouvez des responsables depuis la gestion des magasins.", nl: "Geen Store Managers gevonden. Promoveer verantwoordelijken via winkelbeheer." },
   "direction.working": { fr: "En poste", nl: "Aan het werk" },
