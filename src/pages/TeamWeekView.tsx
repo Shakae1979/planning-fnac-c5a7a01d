@@ -10,6 +10,7 @@ import { useStore } from "@/hooks/useStore";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { useI18n } from "@/lib/i18n";
 import React from "react";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
 
