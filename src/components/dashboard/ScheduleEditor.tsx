@@ -102,7 +102,17 @@ export function ScheduleEditor() {
   }));
 
   const { currentStore } = useStore();
+  const { scheduleStart, scheduleEnd } = useStoreSettings();
   const isDirection = currentStore?.is_direction === true;
+
+  const TIME_SLOTS = useMemo(() => {
+    const slots: string[] = [];
+    for (let h = scheduleStart; h <= scheduleEnd; h++) {
+      slots.push(`${String(h).padStart(2, "0")}:00`);
+      if (h < scheduleEnd) slots.push(`${String(h).padStart(2, "0")}:30`);
+    }
+    return slots;
+  }, [scheduleStart, scheduleEnd]);
 
   // Fetch all non-direction stores for location options in direction mode
   const { data: allStores } = useQuery({
