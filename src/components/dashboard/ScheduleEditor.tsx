@@ -9,6 +9,7 @@ import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber } from "@/lib/format";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 
 /** Convert "HHhMM" or "HH:MM" or "HHMM" to "HH:MM" for storage */
 function parseTimeBE(input: string): string {
@@ -49,15 +50,8 @@ const DEPT_COLORS: Record<string, { bg: string; border: string }> = {
   editorial: { bg: "bg-yellow-100 dark:bg-yellow-950/40", border: "border-l-yellow-500" },
   stock: { bg: "bg-blue-100 dark:bg-blue-950/40", border: "border-l-blue-500" },
   caisse: { bg: "bg-emerald-100 dark:bg-emerald-950/40", border: "border-l-emerald-500" },
+  stagiaire: { bg: "bg-pink-100 dark:bg-pink-950/40", border: "border-l-pink-500" },
 };
-
-/** Generate time slots from 09:00 to 20:00 every 30 min */
-const TIME_SLOTS: string[] = [];
-for (let h = 9; h <= 20; h++) {
-  TIME_SLOTS.push(`${String(h).padStart(2, "0")}:00`);
-  if (h < 20) TIME_SLOTS.push(`${String(h).padStart(2, "0")}:30`);
-}
-
 type DayKey = (typeof DAY_KEYS)[number];
 
 function getMonday(date: Date): Date {
@@ -110,7 +104,17 @@ export function ScheduleEditor() {
   }));
 
   const { currentStore } = useStore();
+  const { scheduleStart, scheduleEnd } = useStoreSettings();
   const isDirection = currentStore?.is_direction === true;
+
+  const TIME_SLOTS = useMemo(() => {
+    const slots: string[] = [];
+    for (let h = scheduleStart; h <= scheduleEnd; h++) {
+      slots.push(`${String(h).padStart(2, "0")}:00`);
+      if (h < scheduleEnd) slots.push(`${String(h).padStart(2, "0")}:30`);
+    }
+    return slots;
+  }, [scheduleStart, scheduleEnd]);
 
   // Fetch all non-direction stores for location options in direction mode
   const { data: allStores } = useQuery({
