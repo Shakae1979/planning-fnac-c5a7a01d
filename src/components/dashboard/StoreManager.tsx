@@ -544,6 +544,7 @@ export function StoreManager() {
                       </div>
                     )}
                   </div>
+                  <InlineStoreSettings storeId={store.id} storeName={store.name} />
                 </div>
               );
             })}
@@ -552,9 +553,6 @@ export function StoreManager() {
             )}
           </div>
         )}
-      </div>
-      <div className="mt-8">
-        <StoreSettingsPanel />
       </div>
     </div>
   );
