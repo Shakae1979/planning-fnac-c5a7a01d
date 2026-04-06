@@ -55,12 +55,11 @@ export function TeamAndAccounts() {
   const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
 
-  const isDirection = currentStore?.is_direction === true;
 
-  // Fetch employees filtered by store (non-direction)
-  const { data: regularEmployees } = useQuery({
+  // Fetch employees filtered by store
+  const { data: storeEmployees } = useQuery({
     queryKey: ["employees", currentStore?.id],
-    enabled: !!currentStore && !isDirection,
+    enabled: !!currentStore,
     queryFn: async () => {
       const { data, error } = await supabase.from("employees").select("*").eq("store_id", currentStore!.id).order("name");
       if (error) throw error;
@@ -68,47 +67,7 @@ export function TeamAndAccounts() {
     },
   });
 
-  // Direction: fetch all users with store assignments + all employees
-  const { data: dirUsers } = useQuery({
-    queryKey: ["direction-all-users"],
-    enabled: isDirection,
-    queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke("manage-users", { body: { action: "list" } });
-      if (error) throw error;
-      return (data || []) as { id: string; email: string; role: string; stores: { store_id: string; store_name: string; is_manager: boolean }[] }[];
-    },
-  });
-
-  const { data: dirAllEmployees } = useQuery({
-    queryKey: ["direction-employees"],
-    enabled: isDirection,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("employees").select("*").eq("is_active", true);
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // Build employees list depending on mode
-  const employees = (() => {
-    if (isDirection && currentStore) {
-      const directionStoreId = currentStore.id;
-      const assignedUsers = (dirUsers || []).filter((u) =>
-        u.stores?.some((s) => s.store_id === directionStoreId) ||
-        u.stores?.some((s) => s.is_manager)
-      );
-      const seen = new Set<string>();
-      const uniqueUsers = assignedUsers.filter((u) => {
-        if (seen.has(u.id)) return false;
-        seen.add(u.id);
-        return true;
-      });
-      return uniqueUsers
-        .map((usr) => (dirAllEmployees || []).find((e) => e.email && usr.email && e.email.toLowerCase() === usr.email.toLowerCase()))
-        .filter(Boolean) as NonNullable<typeof regularEmployees>;
-    }
-    return regularEmployees;
-  })();
+  const employees = storeEmployees;
 
   // Fetch user accounts
   const [accounts, setAccounts] = useState<AppUser[]>([]);
