@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
 
-type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores" | "settings";
+type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores";
 
 interface SidebarProps {
   activeView: View;
@@ -19,7 +19,6 @@ const linkDefs: { id: View; labelKey: string; icon: React.ElementType }[] = [
   { id: "conges", labelKey: "nav.conges", icon: Palmtree },
   { id: "team", labelKey: "nav.team", icon: Users },
   { id: "stores", labelKey: "nav.stores", icon: Store },
-  { id: "settings", labelKey: "nav.settings", icon: Settings },
 ];
 
 
