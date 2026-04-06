@@ -17,7 +17,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 
-type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores" | "settings";
+type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores";
 
 const Index = () => {
   const [view, setView] = useState<View>("overview");
