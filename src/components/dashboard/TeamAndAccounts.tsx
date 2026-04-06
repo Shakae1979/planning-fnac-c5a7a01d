@@ -440,7 +440,7 @@ export function TeamAndAccounts() {
                         <SelectTrigger className="h-8 text-sm mt-1"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {myRole === "admin" && <SelectItem value="admin">{t("access.admin" as any)}</SelectItem>}
-                          {myRole === "admin" && <SelectItem value="editor">{t("access.editor" as any)}</SelectItem>}
+                          {canCreateEditors && <SelectItem value="editor">{t("access.editor" as any)}</SelectItem>}
                           <SelectItem value="user">{t("access.user" as any)}</SelectItem>
                         </SelectContent>
                       </Select>
