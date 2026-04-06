@@ -41,17 +41,7 @@ export function StoreManager() {
   const { data: stores, isLoading } = useQuery({
     queryKey: ["stores"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("stores").select("*").eq("is_direction", false).order("name");
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // Fetch the Direction store separately
-  const { data: directionStore } = useQuery({
-    queryKey: ["direction-store"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("stores").select("*").eq("is_direction", true).maybeSingle();
+      const { data, error } = await supabase.from("stores").select("*").order("name");
       if (error) throw error;
       return data;
     },
