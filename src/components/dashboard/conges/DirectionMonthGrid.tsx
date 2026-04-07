@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatDateBE, formatLocalDate } from "@/lib/format";
+import { formatDateBE, formatLocalDate, getDisplayName } from "@/lib/format";
 import { getSchoolHolidayInfo } from "@/lib/school-holidays";
 import { useI18n, getHolidays2026, getDayNames } from "@/lib/i18n";
 
