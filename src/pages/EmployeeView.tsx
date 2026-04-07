@@ -118,7 +118,7 @@ const EmployeeView = () => {
     },
   });
 
-  const employee = employees?.find((e) => e.name === decodedName);
+  const employee = employees?.find((e) => getDisplayName(e) === decodedName || e.name === decodedName);
   const weeks = Array.from({ length: 4 }, (_, i) => formatWeekDate(addWeeks(currentMonday, i)));
   const firstMonday = formatWeekDate(currentMonday);
   const lastSunday = getDayDate(addWeeks(currentMonday, 3), 6);
