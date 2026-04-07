@@ -262,7 +262,7 @@ export function ScheduleEditor() {
     setCopiedDay(null);
     setSelectedTargets(new Set());
     setSelectedDays(new Set());
-    const empName = employees?.find((e) => e.id === empId)?.name ?? "";
+    const empName = employees?.find((e) => e.id === empId) ? getDisplayName(employees.find((e) => e.id === empId)!) : "";
     toast.info(`${empName} ${t("copy.copied")} — ${t("copy.checkTargets")}`);
   };
 
