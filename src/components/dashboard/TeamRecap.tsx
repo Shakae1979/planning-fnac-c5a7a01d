@@ -325,9 +325,9 @@ export function TeamRecap() {
                     <td className="py-2">
                       <div className="flex items-center gap-2">
                         <div className="h-7 w-7 rounded-full bg-accent/20 flex items-center justify-center text-xs font-bold text-accent">
-                          {emp.name.charAt(0)}
+                          {getDisplayName(emp).split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
                         </div>
-                        <span className="font-medium">{emp.name}</span>
+                        <span className="font-medium">{getDisplayName(emp)}</span>
                       </div>
                     </td>
                     <td className={`py-2 text-center text-xs font-medium ${catColor}`}>

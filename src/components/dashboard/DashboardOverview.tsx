@@ -88,10 +88,10 @@ export function DashboardOverview() {
                 {roleEmps.map((emp) => (
                   <div key={emp.id} className="flex items-center gap-2 p-2 rounded-md bg-secondary/50">
                     <div className={`h-8 w-8 rounded-full ${meta.bg} flex items-center justify-center text-xs font-bold ${meta.text}`}>
-                      {emp.name.charAt(0)}
+                      {getDisplayName(emp).split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <div className="text-sm font-medium">{emp.name}</div>
+                      <div className="text-sm font-medium">{getDisplayName(emp)}</div>
                       <div className="text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h</div>
                     </div>
                   </div>
