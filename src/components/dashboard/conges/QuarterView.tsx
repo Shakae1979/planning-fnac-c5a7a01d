@@ -4,7 +4,7 @@ import { getSchoolHolidayInfo } from "@/lib/school-holidays";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { formatDateBE } from "@/lib/format";
+import { formatDateBE, getDisplayName } from "@/lib/format";
 import { useI18n, getHolidays2026, getDayNames } from "@/lib/i18n";
 
 const ROLE_COLUMNS = [
