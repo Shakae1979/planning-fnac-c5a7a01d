@@ -731,7 +731,7 @@ export function ScheduleEditor() {
         <div className="flex items-center gap-3 p-3 rounded-lg border border-accent bg-accent/10">
           <ClipboardPaste className="h-4 w-4 text-accent-foreground" />
           <span className="text-sm font-medium">
-            {copiedEmployee && `${employees?.find((e) => e.id === copiedEmployee)?.name} ${t("copy.copied")}`}
+            {copiedEmployee && `${employees?.find((e) => e.id === copiedEmployee) ? getDisplayName(employees.find((e) => e.id === copiedEmployee)!) : ""} ${t("copy.copied")}`}
             {copiedDay && `${DAYS.find((d) => d.key === copiedDay)?.label} ${t("copy.copied")}`}
             {" — "}
             {copiedEmployee && `${t("copy.checkTargets")} (${selectedTargets.size} ${t("copy.selected")})`}
