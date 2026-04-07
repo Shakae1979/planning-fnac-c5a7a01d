@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, ChevronRight, Users, AlertTriangle, CheckCircle2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateBE, formatLocalDate, getWeekNumber } from "@/lib/format";
+import { formatDateLongBE, formatDateBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
 
