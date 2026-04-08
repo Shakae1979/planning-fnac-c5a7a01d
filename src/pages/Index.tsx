@@ -4,7 +4,7 @@ import { Calendar, Users, CalendarDays, User, Store, Palmtree, Crown } from "luc
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { ScheduleEditor } from "@/components/dashboard/ScheduleEditor";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
-import { TeamRecap } from "@/components/dashboard/TeamRecap";
+
 import { CongesCalendar } from "@/components/dashboard/CongesCalendar";
 import { TeamAndAccounts } from "@/components/dashboard/TeamAndAccounts";
 import { StoreManager } from "@/components/dashboard/StoreManager";
@@ -17,7 +17,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 
-type View = "overview" | "schedule" | "recap" | "team" | "conges" | "stores";
+type View = "overview" | "schedule" | "team" | "conges" | "stores";
 
 const Index = () => {
   const [view, setView] = useState<View>("overview");
@@ -138,7 +138,6 @@ const Index = () => {
         <div className="p-6">
           {view === "overview" && (isDirection ? <DirectionFnac /> : <DashboardOverview />)}
           {view === "schedule" && <ScheduleEditor />}
-          {view === "recap" && <TeamRecap />}
           {view === "team" && <TeamAndAccounts />}
           {view === "conges" && <CongesCalendar />}
           {view === "stores" && <StoreManager />}
