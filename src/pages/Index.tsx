@@ -4,7 +4,7 @@ import { Calendar, Users, CalendarDays, User, Store, Palmtree, Crown } from "luc
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { ScheduleEditor } from "@/components/dashboard/ScheduleEditor";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
-import { TeamRecap } from "@/components/dashboard/TeamRecap";
+
 import { CongesCalendar } from "@/components/dashboard/CongesCalendar";
 import { TeamAndAccounts } from "@/components/dashboard/TeamAndAccounts";
 import { StoreManager } from "@/components/dashboard/StoreManager";
