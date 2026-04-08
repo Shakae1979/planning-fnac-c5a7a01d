@@ -138,7 +138,6 @@ const Index = () => {
         <div className="p-6">
           {view === "overview" && (isDirection ? <DirectionFnac /> : <DashboardOverview />)}
           {view === "schedule" && <ScheduleEditor />}
-          {view === "recap" && <TeamRecap />}
           {view === "team" && <TeamAndAccounts />}
           {view === "conges" && <CongesCalendar />}
           {view === "stores" && <StoreManager />}

@@ -15,7 +15,6 @@ interface SidebarProps {
 const linkDefs: { id: View; labelKey: string; icon: React.ElementType }[] = [
   { id: "overview", labelKey: "nav.overview", icon: BarChart3 },
   { id: "schedule", labelKey: "nav.schedule", icon: CalendarDays },
-  { id: "recap", labelKey: "nav.recap", icon: TableProperties },
   { id: "conges", labelKey: "nav.conges", icon: Palmtree },
   { id: "team", labelKey: "nav.team", icon: Users },
   { id: "stores", labelKey: "nav.stores", icon: Store },
