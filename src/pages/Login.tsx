@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Calendar, LogIn, Loader2, Users, Clock, BarChart3 } from "lucide-react";
+import { LogIn, Loader2, Users, Clock, BarChart3, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,12 +47,7 @@ export default function Login() {
 
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-2">
-            <div
-              className="h-10 w-10 rounded-xl flex items-center justify-center"
-              style={{ background: "hsl(var(--sidebar-active))" }}
-            >
-              <Calendar className="h-5 w-5 text-white" />
-            </div>
+            <img src="/favicon.png" alt="Planning Fnac" className="h-10 w-10 rounded-xl" />
             <span
               className="text-2xl font-extrabold tracking-tight"
               style={{ color: "hsl(var(--sidebar-active))" }}
@@ -105,12 +100,7 @@ export default function Login() {
           {/* Mobile-only branding */}
           <div className="lg:hidden text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-2">
-              <div
-                className="h-9 w-9 rounded-xl flex items-center justify-center"
-                style={{ background: "hsl(var(--sidebar-active))" }}
-              >
-                <Calendar className="h-4.5 w-4.5 text-white" />
-              </div>
+              <img src="/favicon.png" alt="Planning Fnac" className="h-9 w-9 rounded-xl" />
               <span
                 className="text-xl font-extrabold tracking-tight"
                 style={{ color: "hsl(var(--sidebar-active))" }}
