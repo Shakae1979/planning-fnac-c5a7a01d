@@ -9,6 +9,7 @@ import { CongesCalendar } from "@/components/dashboard/CongesCalendar";
 import { TeamAndAccounts } from "@/components/dashboard/TeamAndAccounts";
 import { StoreManager } from "@/components/dashboard/StoreManager";
 import { DirectionFnac } from "@/components/dashboard/DirectionFnac";
+import { ContactMessages } from "@/components/dashboard/ContactMessages";
 
 import { useStore } from "@/hooks/useStore";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,7 +18,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 
-type View = "overview" | "schedule" | "team" | "conges" | "stores";
+type View = "overview" | "schedule" | "team" | "conges" | "stores" | "messages";
 
 const Index = () => {
   const [view, setView] = useState<View>("overview");
@@ -141,6 +142,7 @@ const Index = () => {
           {view === "team" && <TeamAndAccounts />}
           {view === "conges" && <CongesCalendar />}
           {view === "stores" && <StoreManager />}
+          {view === "messages" && <ContactMessages />}
         </div>
       </main>
     </div>

@@ -14,6 +14,7 @@ import TeamWeekView from "./pages/TeamWeekView.tsx";
 import CongesView from "./pages/CongesView.tsx";
 import MyAccount from "./pages/MyAccount.tsx";
 import Login from "./pages/Login.tsx";
+import ContactForm from "./pages/ContactForm.tsx";
 import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
@@ -56,6 +57,7 @@ function AppRoutes() {
       <Route path="/planning-equipe" element={<ProtectedRoute><TeamWeekView /></ProtectedRoute>} />
       <Route path="/conges" element={<ProtectedRoute><CongesView /></ProtectedRoute>} />
       <Route path="/mon-compte" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
+      <Route path="/nous-contacter" element={<ContactForm />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
