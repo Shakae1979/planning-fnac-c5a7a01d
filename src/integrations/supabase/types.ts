@@ -52,6 +52,42 @@ export type Database = {
           },
         ]
       }
+      contact_messages: {
+        Row: {
+          attachment_url: string | null
+          created_at: string
+          email: string
+          id: string
+          is_read: boolean
+          message: string
+          name: string
+          subject: string
+          ticket_number: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          is_read?: boolean
+          message: string
+          name: string
+          subject: string
+          ticket_number: string
+        }
+        Update: {
+          attachment_url?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          name?: string
+          subject?: string
+          ticket_number?: string
+        }
+        Relationships: []
+      }
       day_comments: {
         Row: {
           comment: string
