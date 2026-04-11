@@ -367,22 +367,6 @@ export function TeamAndAccounts() {
                     {account ? (
                       <>
                         <Button variant="ghost" size="sm"
-                          className="text-xs gap-1"
-                          onClick={async () => {
-                            try {
-                              const { error } = await supabase.auth.resetPasswordForEmail(account.email, {
-                                redirectTo: `${window.location.origin}/reset-password`,
-                              });
-                              if (error) throw error;
-                              toast.success(t("team.resetEmailSent" as any));
-                            } catch (e: any) {
-                              toast.error(e.message || t("team.serverError" as any));
-                            }
-                          }}>
-                          <RotateCcw className="h-3.5 w-3.5" />
-                          {t("team.resetPassword" as any)}
-                        </Button>
-                        <Button variant="ghost" size="sm"
                           className="text-destructive/60 hover:text-destructive text-xs gap-1"
                           onClick={() => handleDeleteAccount(account.id)}
                           disabled={deletingAccountId === account.id}>
