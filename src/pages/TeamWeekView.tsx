@@ -88,15 +88,6 @@ const TeamWeekView = () => {
     },
   });
 
-  const TEMPLATE_WEEK = "1970-01-05";
-  const { data: templateSchedules } = useQuery({
-    queryKey: ["team-week-templates"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("weekly_schedules").select("*").eq("week_start", TEMPLATE_WEEK);
-      if (error) throw error;
-      return data;
-    },
-  });
 
   const { data: conges } = useQuery({
     queryKey: ["team-week-conges", weekStr],
