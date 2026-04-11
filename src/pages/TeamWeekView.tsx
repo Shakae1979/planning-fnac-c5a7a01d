@@ -88,15 +88,6 @@ const TeamWeekView = () => {
     },
   });
 
-  const TEMPLATE_WEEK = "1970-01-05";
-  const { data: templateSchedules } = useQuery({
-    queryKey: ["team-week-templates"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("weekly_schedules").select("*").eq("week_start", TEMPLATE_WEEK);
-      if (error) throw error;
-      return data;
-    },
-  });
 
   const { data: conges } = useQuery({
     queryKey: ["team-week-conges", weekStr],
@@ -135,40 +126,6 @@ const TeamWeekView = () => {
     return acc;
   }, {} as Record<string, typeof employees>);
 
-  const getWeekTotal = (empId: string): { total: number; creditedHours: number } => {
-    const schedule = schedules?.find(s => s.employee_id === empId);
-    if (!schedule) return { total: 0, creditedHours: 0 };
-    const template = templateSchedules?.find(s => s.employee_id === empId);
-    let totalMin = 0;
-    let workedDays = 0;
-    let creditedHours = 0;
-    DAY_KEYS.forEach((day, di) => {
-      const congeType = getConge(empId, di);
-      const isFerieDay = dayComments?.find(dc => dc.day_key === day)?.is_ferie ?? false;
-      const start = (schedule as any)[`${day}_start`];
-      const end = (schedule as any)[`${day}_end`];
-      const isLegacyFerie = start === "FERIE" || end === "FERIE";
-
-      if (congeType || (isFerieDay && !start) || isLegacyFerie) {
-        // Crédit virtuel basé sur la semaine type
-        if (template) {
-          const tStart = (template as any)[`${day}_start`];
-          const tEnd = (template as any)[`${day}_end`];
-          if (tStart && tEnd && tStart !== "EXT" && tStart !== "ROULEMENT" && tStart !== "FERIE") {
-            const templateMin = timeToMinutes(tEnd) - timeToMinutes(tStart) - 60; // -1h pause
-            creditedHours += templateMin / 60;
-          }
-        }
-        return;
-      }
-      if (start && end && start !== "EXT" && start !== "ROULEMENT" && start !== "FERIE") {
-        totalMin += timeToMinutes(end) - timeToMinutes(start);
-        workedDays++;
-      }
-    });
-    const total = Math.round(((totalMin - workedDays * 60) / 60 + creditedHours) * 100) / 100;
-    return { total, creditedHours };
-  };
 
   // Férié is now managed via day_comments.is_ferie only (no schedule overwrite)
 
@@ -231,7 +188,7 @@ const TeamWeekView = () => {
                     </th>
                   );
                 })}
-                <th className="border-b px-2 py-2 text-center font-semibold text-muted-foreground w-[50px]">{t("teamWeek.total")}</th>
+                
               </tr>
               <tr>
                 <th className="sticky left-0 z-20 bg-card border-b border-r" />
@@ -247,7 +204,6 @@ const TeamWeekView = () => {
                   </th>
                   );
                 })}
-                <th className="border-b" />
               </tr>
               {dayComments && dayComments.some(dc => dc.comment.trim()) && (
                 <tr>
@@ -264,7 +220,6 @@ const TeamWeekView = () => {
                       </th>
                     );
                   })}
-                  <th className="border-b" />
                 </tr>
               )}
             </thead>
@@ -276,14 +231,12 @@ const TeamWeekView = () => {
                 return (
                   <React.Fragment key={role}>
                     <tr>
-                      <td colSpan={DAY_KEYS.length + 2} className={`px-3 py-1.5 font-bold text-xs ${colors.text} ${colors.headerBg} border-b`}>
+                      <td colSpan={DAY_KEYS.length + 1} className={`px-3 py-1.5 font-bold text-xs ${colors.text} ${colors.headerBg} border-b`}>
                         {roleLabels(role)} ({emps.length})
                       </td>
                     </tr>
                     {emps.map(emp => {
                       const schedule = schedules?.find(s => s.employee_id === emp.id);
-                      const { total: weekTotal, creditedHours } = getWeekTotal(emp.id);
-                      const diff = weekTotal - emp.contract_hours;
                       return (
                         <tr key={emp.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
                           <td className="sticky left-0 z-10 bg-card border-r px-2 py-1.5">
@@ -387,20 +340,6 @@ const TeamWeekView = () => {
                               </td>
                             );
                           })}
-                          <td className="px-2 py-1.5 text-center font-mono-data">
-                            {weekTotal > 0 ? (
-                              <div>
-                                <span className="font-semibold">{weekTotal}h</span>
-                                {diff !== 0 && (
-                                  <div className={`text-[9px] ${diff > 0 ? "text-amber-600" : "text-red-600"}`}>
-                                    {diff > 0 ? "+" : ""}{diff}h
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <span className="text-muted-foreground/40">—</span>
-                            )}
-                          </td>
                         </tr>
                       );
                     })}
