@@ -58,7 +58,7 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
           <button onClick={() => { handleLogoClick(); navigate((role === "admin" || role === "editor") ? "/" : "/equipe-du-jour"); }} className="flex items-center gap-2 hover:opacity-80 transition-opacity relative">
             <img src="/favicon.png" alt="Planning Fnac" className="h-6 w-6" />
             <span className="text-base font-extrabold tracking-tight" style={{ color: "hsl(var(--sidebar-active))" }}>
-              planning fnac
+              Planning Fnac
             </span>
             {showEaster && (
               <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium px-2 py-0.5 rounded-full animate-fade-in" style={{ background: "hsl(var(--sidebar-active))", color: "hsl(var(--sidebar-bg))" }}>
