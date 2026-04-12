@@ -35,9 +35,9 @@ export default function Login() {
       </div>
       <Card className="w-full max-w-sm border-0 shadow-2xl">
         <CardHeader className="text-center pb-2">
-          <div className="mx-auto mb-3 flex items-center justify-center gap-2">
-            <img src="/favicon.png" alt="Planning Fnac" className="h-12 w-12" />
-            <span className="text-2xl font-extrabold tracking-tight" style={{ color: "hsl(var(--sidebar-active))" }}>
+          <div className="mx-auto mb-3 flex flex-col items-center gap-2">
+            <img src="/favicon.png" alt="Planning Fnac" className="h-14 w-14 animate-scale-in hover-scale" />
+            <span className="text-2xl font-extrabold tracking-tight animate-fade-in" style={{ color: "hsl(var(--sidebar-active))" }}>
               Planning Fnac
             </span>
           </div>
