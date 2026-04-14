@@ -1016,7 +1016,6 @@ export function ScheduleEditor() {
                                 placeholder="—"
                                 className="flex-1 min-w-0 px-0.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center"
                               />
-                              </select>
                               {!isCopyMode && !isCellCopyMode && hasValue && (
                                 <button
                                   onClick={() => copyCellSchedule(emp.id, day.key)}
