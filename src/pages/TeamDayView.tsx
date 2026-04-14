@@ -114,7 +114,10 @@ const TeamDayView = () => {
       const conge = conges?.find((c) => c.employee_id === emp.id);
       const notes = schedule?.notes || null;
       let netHours = 0;
-      if (hasShift) netHours = timeToHours(end) - timeToHours(start) - BREAK_HOURS;
+      if (hasShift) {
+        const gross = timeToHours(end) - timeToHours(start);
+        netHours = gross >= 6 ? gross - BREAK_HOURS : gross;
+      }
       return { ...emp, start, end, hasShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes };
     })
     .sort((a, b) => {

@@ -19,7 +19,7 @@ function timeToHours(t: string | null): number {
 
 function computeNetHours(schedule: any, conges: any[], dayComments: any[], monday: Date, template: any | null): { gross: number; breaks: number; net: number; credited: number } {
   const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
-  let gross = 0; let workedDays = 0; let credited = 0;
+  let gross = 0; let breakMinutes = 0; let credited = 0;
   for (let i = 0; i < days.length; i++) {
     const d = days[i];
     const dayDate = getDayDate(monday, i);
@@ -29,20 +29,22 @@ function computeNetHours(schedule: any, conges: any[], dayComments: any[], monda
     const isLegacyFerie = start === "FERIE" || end === "FERIE";
 
     if (conge || (isFerieDay && !start) || isLegacyFerie) {
-      // Crédit basé sur la semaine type
       if (template) {
         const tStart = template[`${d}_start`]; const tEnd = template[`${d}_end`];
         if (tStart && tEnd && tStart !== "EXT" && tStart !== "ROULEMENT" && tStart !== "FERIE") {
-          credited += timeToHours(tEnd) - timeToHours(tStart) - BREAK_HOURS;
+          const tGross = timeToHours(tEnd) - timeToHours(tStart);
+          credited += tGross >= 6 ? tGross - BREAK_HOURS : tGross;
         }
       }
       continue;
     }
     if (start && end && start !== "EXT" && start !== "ROULEMENT") {
-      gross += timeToHours(end) - timeToHours(start); workedDays++;
+      const dayGross = timeToHours(end) - timeToHours(start);
+      gross += dayGross;
+      if (dayGross >= 6) breakMinutes += 60;
     }
   }
-  const breaks = workedDays * BREAK_HOURS;
+  const breaks = breakMinutes / 60;
   return { gross, breaks, net: gross - breaks + credited, credited };
 }
 
@@ -305,7 +307,7 @@ const EmployeeView = () => {
                           <div className={`font-mono-data font-semibold ${shiftColor ? shiftColor.text : ""}`}>
                             {formatTimeBE(start)} — {formatTimeBE(end)}
                             <div className="text-[10px] text-muted-foreground mt-0.5 font-normal">
-                              {(timeToHours(end) - timeToHours(start) - BREAK_HOURS).toFixed(1)}h {t("empView.net")}
+                              {(() => { const g = timeToHours(end) - timeToHours(start); return (g >= 6 ? g - BREAK_HOURS : g).toFixed(1); })()}h {t("empView.net")}
                             </div>
                           </div>
                         ) : isSpecial ? (
