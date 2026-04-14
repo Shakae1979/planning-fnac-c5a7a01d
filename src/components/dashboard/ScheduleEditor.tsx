@@ -42,6 +42,7 @@ function displayTimeBE(value: string): string {
   return formatTimeBE(value);
 }
 
+const SPECIAL_KEYWORDS = ["roulement", "ext", "ferie", "repos"];
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
 
 const DEPT_COLORS: Record<string, { bg: string; border: string }> = {
@@ -240,6 +241,7 @@ export function ScheduleEditor() {
   const [selectedTargets, setSelectedTargets] = useState<Set<string>>(new Set());
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set());
   const [copiedCell, setCopiedCell] = useState<{ empId: string; dayKey: string } | null>(null);
+  const [activeInput, setActiveInput] = useState<{ key: string; raw: string } | null>(null);
 
   const toggleTarget = (empId: string) => {
     setSelectedTargets((prev) => {
@@ -368,12 +370,28 @@ export function ScheduleEditor() {
     return (schedule as any)[field] ?? "";
   };
 
-  const handleTimeInput = (empId: string, field: string, displayValue: string) => {
-    const stored = parseTimeBE(displayValue);
-    setLocalEdits((prev) => ({
-      ...prev,
-      [empId]: { ...prev[empId], [field]: stored },
-    }));
+  const getTimeInputValue = (empId: string, field: string): string => {
+    const inputKey = `${empId}__${field}`;
+    if (activeInput && activeInput.key === inputKey) return activeInput.raw;
+    const val = getValue(empId, field);
+    if (SPECIAL_KEYWORDS.includes(val.toLowerCase())) return val;
+    return displayTimeBE(val);
+  };
+
+  const handleTimeBlur = (empId: string, field: string) => {
+    if (!activeInput) return;
+    const raw = activeInput.raw.trim();
+    setActiveInput(null);
+    if (!raw) {
+      handleChange(empId, field, "");
+      return;
+    }
+    if (SPECIAL_KEYWORDS.includes(raw.toLowerCase())) {
+      handleChange(empId, field, raw.toUpperCase());
+      return;
+    }
+    const stored = parseTimeBE(raw);
+    handleChange(empId, field, stored);
   };
 
   const handleChange = (empId: string, field: string, value: string) => {
