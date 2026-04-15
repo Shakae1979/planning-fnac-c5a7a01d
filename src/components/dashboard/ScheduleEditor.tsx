@@ -905,7 +905,7 @@ export function ScheduleEditor() {
 
                   return (
                     <tr key={emp.id} className={`border-b border-border/50 border-l-4 ${deptColor.border} ${isUnderstaffed ? "bg-destructive/10" : isSource ? "bg-primary/10" : deptColor.bg}`}>
-                      <td className={`py-1.5 pr-2 sticky left-0 z-10 ${isUnderstaffed ? "bg-destructive/10" : isSource ? "bg-primary/10" : deptColor.bg}`}>
+                      <td className={`py-0.5 pr-1 sticky left-0 z-10 ${isUnderstaffed ? "bg-destructive/10" : isSource ? "bg-primary/10" : deptColor.bg}`}>
                         <div className="flex items-center gap-2">
                           {copiedEmployee !== null && !isSource && (
                             <Checkbox
