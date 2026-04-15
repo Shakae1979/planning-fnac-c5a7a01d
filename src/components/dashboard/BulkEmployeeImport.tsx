@@ -10,6 +10,9 @@ import { Upload, Download, FileSpreadsheet, CheckCircle2, XCircle, AlertTriangle
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 
+const VALID_CATEGORIES = ["responsable", "technique", "éditorial", "caisse", "stock"];
+const VALID_CATEGORIES_DISPLAY = ["Responsable", "Technique", "Éditorial", "Caisse", "Stock"];
+
 interface ImportRow {
   nom: string;
   prenom: string;
@@ -41,9 +44,16 @@ export function BulkEmployeeImport() {
   const downloadTemplate = () => {
     const ws = XLSX.utils.aoa_to_sheet([
       ["Nom", "Prénom", "Email", "Heures_contrat", "Catégorie", "Magasin"],
-      ["Dupont", "Marie", "marie.dupont@email.com", 36, "vendeur", "Fnac Bellecour"],
+      ["Dupont", "Marie", "marie.dupont@email.com", 36, "Responsable", "Fnac Bellecour"],
     ]);
     ws["!cols"] = [{ wch: 15 }, { wch: 15 }, { wch: 30 }, { wch: 15 }, { wch: 15 }, { wch: 20 }];
+    // Add dropdown data validation for Catégorie column (E2:E1000)
+    ws["!dataValidation"] = ws["!dataValidation"] || [];
+    (ws as any)["!dataValidation"] = [{
+      type: "list",
+      sqref: "E2:E1000",
+      formula1: `"${VALID_CATEGORIES_DISPLAY.join(",")}"`,
+    }];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Employés");
     XLSX.writeFile(wb, "modele_import_employes.xlsx");
@@ -77,6 +87,7 @@ export function BulkEmployeeImport() {
         if (!nom) errors.push("Nom manquant");
         if (!email || !email.includes("@")) errors.push("Email invalide");
         if (isNaN(heures) || heures <= 0) errors.push("Heures invalides");
+        if (!VALID_CATEGORIES.includes(categorie)) errors.push(`Catégorie invalide "${categorie}" (attendu: ${VALID_CATEGORIES_DISPLAY.join(", ")})`);
 
         return {
           nom, prenom, email, heures_contrat: heures, categorie, magasin,
