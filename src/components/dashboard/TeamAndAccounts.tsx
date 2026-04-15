@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { BulkEmployeeImport } from "./BulkEmployeeImport";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -522,6 +523,12 @@ export function TeamAndAccounts() {
           fetchAccounts();
         }}
       />
+
+      {myRole === "admin" && (
+        <div className="mt-6">
+          <BulkEmployeeImport />
+        </div>
+      )}
     </div>
   );
 }

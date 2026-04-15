@@ -14,6 +14,7 @@ import TeamWeekView from "./pages/TeamWeekView.tsx";
 import CongesView from "./pages/CongesView.tsx";
 import MyAccount from "./pages/MyAccount.tsx";
 import Login from "./pages/Login.tsx";
+import ChangePassword from "./pages/ChangePassword.tsx";
 import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
+      <Route path="/changer-mot-de-passe" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
       <Route path="/" element={<ProtectedRoute adminOnly><Index /></ProtectedRoute>} />
       <Route path="/mon-planning/:employeeName" element={<ProtectedRoute><EmployeeView /></ProtectedRoute>} />
       <Route path="/mon-planning" element={<ProtectedRoute><EmployeeView /></ProtectedRoute>} />
