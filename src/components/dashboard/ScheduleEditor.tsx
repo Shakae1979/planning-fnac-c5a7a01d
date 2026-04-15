@@ -950,7 +950,7 @@ export function ScheduleEditor() {
                         const showPaste = isCellCopyMode && !isCellSource;
                         const isRoulement = startVal?.toLowerCase() === "roulement" || endVal?.toLowerCase() === "roulement";
                         return (
-                          <td key={`${day.key}-cell`} colSpan={2} className={`py-1.5 px-0.5 ${isRoulement ? "bg-muted/60" : isCellSource ? "bg-primary/10" : ferieDay ? "bg-muted/50" : ""}`}>
+                          <td key={`${day.key}-cell`} colSpan={2} className={`py-0.5 px-0.5 ${isRoulement ? "bg-muted/60" : isCellSource ? "bg-primary/10" : ferieDay ? "bg-muted/50" : ""}`}>
                             {isDirection ? (
                               /* Direction mode: single location select */
                               <div className="flex items-center gap-0.5">
