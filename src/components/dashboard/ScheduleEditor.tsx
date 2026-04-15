@@ -1005,7 +1005,7 @@ export function ScheduleEditor() {
                                 onChange={(e) => setActiveInput({ key: `${emp.id}__${day.key}_start`, raw: e.target.value })}
                                 onBlur={() => handleTimeBlur(emp.id, `${day.key}_start`)}
                                 placeholder="—"
-                                className="flex-1 min-w-0 px-0.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center"
+                                className="flex-1 min-w-0 px-0 py-0.5 text-[11px] rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center"
                               />
                               <input
                                 type="text"
@@ -1014,7 +1014,7 @@ export function ScheduleEditor() {
                                 onChange={(e) => setActiveInput({ key: `${emp.id}__${day.key}_end`, raw: e.target.value })}
                                 onBlur={() => handleTimeBlur(emp.id, `${day.key}_end`)}
                                 placeholder="—"
-                                className="flex-1 min-w-0 px-0.5 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center"
+                                className="flex-1 min-w-0 px-0 py-0.5 text-[11px] rounded border bg-background focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center"
                               />
                               {!isCopyMode && !isCellCopyMode && hasValue && (
                                 <button
