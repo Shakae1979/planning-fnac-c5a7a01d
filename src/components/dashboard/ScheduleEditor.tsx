@@ -827,9 +827,9 @@ export function ScheduleEditor() {
               </tr>
               {/* Day comments row */}
               <tr className="border-b bg-muted/30">
-                <td className="py-1 pr-2 sticky left-0 bg-muted/30 z-10">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <MessageSquare className="h-3 w-3" />
+                <td className="py-0.5 pr-1 sticky left-0 bg-muted/30 z-10">
+                  <div className="flex items-center gap-0.5 text-[9px] text-muted-foreground">
+                    <MessageSquare className="h-2.5 w-2.5" />
                     <span>{t("schedule.notes")}</span>
                   </div>
                 </td>
@@ -837,13 +837,13 @@ export function ScheduleEditor() {
                   const savedComment = dayComments?.find((dc) => dc.day_key === day.key)?.comment ?? "";
                   const value = localDayComments[day.key] ?? savedComment;
                   return (
-                    <td key={day.key + "-comment"} colSpan={2} className="py-1 px-0.5">
+                    <td key={day.key + "-comment"} colSpan={2} className="py-0.5 px-0.5">
                       <input
                         type="text"
                         value={value}
                         onChange={(e) => setLocalDayComments((prev) => ({ ...prev, [day.key]: e.target.value }))}
                         placeholder="—"
-                        className={`w-full px-1.5 py-0.5 text-xs text-center rounded border focus:outline-none focus:ring-1 focus:ring-accent ${
+                        className={`w-full px-1 py-0 text-[10px] text-center rounded border focus:outline-none focus:ring-1 focus:ring-accent ${
                           value.trim() ? "bg-warning/15 text-warning font-semibold border-warning/30" : "bg-background"
                         }`}
                       />
