@@ -312,11 +312,20 @@ Deno.serve(async (req) => {
         imported: 0, duplicates: 0, errors: 0, details: [],
       };
 
+      const validCategories = ["responsable", "technique", "éditorial", "caisse", "stock"];
+
       for (const emp of employees) {
         const { nom, prenom, email, heures_contrat, categorie, magasin_id } = emp;
         if (!email || !nom) {
           results.errors++;
           results.details.push({ email: email || "?", reason: "Données manquantes (nom ou email)" });
+          continue;
+        }
+
+        const catLower = (categorie || "").toLowerCase();
+        if (!validCategories.includes(catLower)) {
+          results.errors++;
+          results.details.push({ email, reason: `Catégorie invalide "${categorie}"` });
           continue;
         }
 
@@ -371,7 +380,7 @@ Deno.serve(async (req) => {
             last_name: nom,
             email,
             contract_hours: heures_contrat || 36,
-            role: categorie || "vendeur",
+            role: catLower,
             store_id: magasin_id || null,
             must_change_password: true,
           });
