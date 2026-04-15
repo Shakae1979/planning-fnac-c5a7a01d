@@ -823,7 +823,7 @@ export function ScheduleEditor() {
                   </th>
                   );
                 })}
-                <th className="pb-2 text-center font-semibold text-muted-foreground min-w-[50px]">{t("schedule.total")}</th>
+                <th className="pb-1 text-center font-semibold text-muted-foreground min-w-[40px]">{t("schedule.total")}</th>
               </tr>
               {/* Day comments row */}
               <tr className="border-b bg-muted/30">
