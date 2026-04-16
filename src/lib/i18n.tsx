@@ -125,7 +125,7 @@ const translations = {
   "leave.formation": { fr: "Formation", nl: "Opleiding" },
   "leave.formation.short": { fr: "FORM", nl: "OPL" },
   "leave.autre": { fr: "Pas encodé", nl: "Niet ingevoerd" },
-  "leave.autre.short": { fr: "AUT", nl: "AND" },
+  "leave.autre.short": { fr: "N/E", nl: "N/I" },
   "leave.divers": { fr: "Autre", nl: "Andere" },
   "leave.divers.short": { fr: "AUT", nl: "AND" },
   "leave.parental": { fr: "Congé parental", nl: "Ouderschapsverlof" },
@@ -217,7 +217,7 @@ const translations = {
   "schedule.exterior": { fr: "Extérieur", nl: "Extern" },
   "schedule.holiday": { fr: "Férié", nl: "Feestdag" },
   "schedule.rotation": { fr: "Roulement", nl: "Wekelijks vrij" },
-  "schedule.breakNote": { fr: "Les heures affichées sont brutes. Le total soustrait 1h de pause par jour travaillé.", nl: "De getoonde uren zijn bruto. Het totaal trekt 1u pauze per gewerkte dag af." },
+  "schedule.breakNote": { fr: "Les heures affichées sont brutes. Le total soustrait 1h de pause par jour travaillé (≥ 6h).", nl: "De getoonde uren zijn bruto. Het totaal trekt 1u pauze af per gewerkte dag (≥ 6u)." },
 
   // ========== Recap ==========
   "recap.contractHours": { fr: "Heures contrat", nl: "Contracturen" },
@@ -288,7 +288,7 @@ const translations = {
   "team.orphanAccounts": { fr: "Comptes sans collaborateur", nl: "Accounts zonder medewerker" },
   "team.orphanDesc": { fr: "Ces comptes ne sont liés à aucun collaborateur (email différent ou non renseigné).", nl: "Deze accounts zijn niet gekoppeld aan een medewerker (ander of ontbrekend e-mailadres)." },
   "team.deleteConfirmTitle": { fr: "Supprimer", nl: "Verwijderen" },
-  "team.deleteConfirmDesc": { fr: "Cette action est irréversible. Toutes les données liées seront supprimées.", nl: "Deze actie is onomkeerbaar. Alle gerelateerde gegevens worden verwijderd." },
+  "team.deleteConfirmDesc": { fr: "Voulez-vous vraiment supprimer ? Cette action est irréversible.", nl: "Wilt u echt verwijderen? Deze actie is onomkeerbaar." },
   "team.deleteAccountConfirm": { fr: "Supprimer ce compte d'accès ?", nl: "Dit toegangsaccount verwijderen?" },
   "team.notConnected": { fr: "Non connecté", nl: "Niet verbonden" },
   "team.serverError": { fr: "Erreur serveur", nl: "Serverfout" },
@@ -342,7 +342,7 @@ const translations = {
   "teamWeek.notes": { fr: "📝 Notes", nl: "📝 Notities" },
   "teamWeek.ferie": { fr: "Férié", nl: "Feestdag" },
   "teamWeek.exterior": { fr: "Extérieur", nl: "Extern" },
-  "teamWeek.breakNote": { fr: "Les heures affichées sont brutes. Le total soustrait 1h de pause par jour travaillé.", nl: "De getoonde uren zijn bruto. Het totaal trekt 1u pauze per gewerkte dag af." },
+  "teamWeek.breakNote": { fr: "Les heures affichées sont brutes. Le total soustrait 1h de pause par jour travaillé (≥ 6h).", nl: "De getoonde uren zijn bruto. Het totaal trekt 1u pauze af per gewerkte dag (≥ 6u)." },
   "teamWeek.markHoliday": { fr: "Jour marqué comme férié pour tous les employés", nl: "Dag gemarkeerd als feestdag voor alle medewerkers" },
   "teamWeek.markedHoliday": { fr: "Jour marqué comme férié !", nl: "Dag gemarkeerd als feestdag!" },
 
