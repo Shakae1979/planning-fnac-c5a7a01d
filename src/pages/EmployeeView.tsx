@@ -171,6 +171,14 @@ const EmployeeView = () => {
 
   const shiftColorMap = useMemo(() => buildShiftColorMap(schedules), [schedules]);
 
+  // Responsive: nouvelle vue mobile/tablette < 1024px
+  const [isCompact, setIsCompact] = useState<boolean>(() => typeof window !== "undefined" ? window.innerWidth < 1024 : false);
+  useEffect(() => {
+    const onResize = () => setIsCompact(window.innerWidth < 1024);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   if (!decodedName) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
