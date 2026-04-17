@@ -166,7 +166,7 @@ export const EmployeeMobileView = ({ employee }: Props) => {
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="bg-card border-b sticky top-0 z-10">
+      <div className="bg-card border-b shrink-0">
         <div className="px-4 pt-4 pb-3 flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
             <div className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${roleColor.chip} ${roleColor.chipText}`}>
