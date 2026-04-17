@@ -85,14 +85,21 @@ export const EmployeeMobileView = ({ employee }: Props) => {
   const dayKey = DAY_KEYS[selectedIdx];
   const dateStr = formatLocalDate(selectedDate);
 
-  const { data: schedule } = useQuery({
-    queryKey: ["mobile-schedule", employee.id, weekStr],
+  // 4 semaines à partir de la semaine courante (basée sur today, pas selectedDate)
+  const todayMonday = useMemo(() => getMonday(today), []);
+  const fourWeeks = useMemo(() => Array.from({ length: 4 }, (_, i) => addDays(todayMonday, i * 7)), [todayMonday]);
+  const fourWeeksStr = useMemo(() => fourWeeks.map(formatLocalDate), [fourWeeks]);
+
+  const { data: schedules } = useQuery({
+    queryKey: ["mobile-4w-schedules", employee.id, fourWeeksStr.join(",")],
     queryFn: async () => {
-      const { data, error } = await supabase.from("weekly_schedules").select("*").eq("employee_id", employee.id).eq("week_start", weekStr).maybeSingle();
+      const { data, error } = await supabase.from("weekly_schedules").select("*").eq("employee_id", employee.id).in("week_start", fourWeeksStr);
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
+
+  const schedule = schedules?.find((s: any) => s.week_start === weekStr);
 
   const { data: weekSchedules } = useQuery({
     queryKey: ["mobile-week-all-schedules", currentStore?.id, weekStr],
