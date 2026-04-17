@@ -257,15 +257,8 @@ export const EmployeeMobileView = ({ employee }: Props) => {
                   </div>
                 )}
 
-                {currentStore && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-3">
-                    <MapPin className="h-4 w-4 shrink-0" />
-                    <span>{currentStore.name}</span>
-                  </div>
-                )}
-
                 {(dayFlags?.sav || dayFlags?.socloz) && (
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1.5 border-t pt-3">
                     {dayFlags.sav && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-800">SAV</span>}
                     {dayFlags.socloz && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-fuchsia-100 text-fuchsia-800">SOCLOZ</span>}
                   </div>
@@ -275,28 +268,6 @@ export const EmployeeMobileView = ({ employee }: Props) => {
                   <div className="flex items-start gap-2 text-sm bg-muted/50 rounded-md p-2">
                     <MessageSquare className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
                     <span>{dayFlags.comment}</span>
-                  </div>
-                )}
-
-                {colleagues.length > 0 && (
-                  <div className="border-t pt-3">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
-                      <Users className="h-3.5 w-3.5" />
-                      <span>{t("mobile.colleagues")} ({colleagues.length})</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {colleagues.slice(0, 8).map((c: any) => {
-                        const cc = getRoleColor(c.role);
-                        return (
-                          <span key={c.id} className={`text-xs px-2 py-1 rounded-full ${cc.chip} ${cc.chipText}`}>
-                            {getDisplayName(c)}
-                          </span>
-                        );
-                      })}
-                      {colleagues.length > 8 && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">+{colleagues.length - 8}</span>
-                      )}
-                    </div>
                   </div>
                 )}
               </div>
