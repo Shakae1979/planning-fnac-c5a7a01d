@@ -101,24 +101,19 @@ export const EmployeeMobileView = ({ employee }: Props) => {
 
   const schedule = schedules?.find((s: any) => s.week_start === weekStr);
 
-  const { data: weekSchedules } = useQuery({
-    queryKey: ["mobile-week-all-schedules", currentStore?.id, weekStr],
+  const lastSunday = formatLocalDate(addDays(todayMonday, 27));
+  const firstMonday = formatLocalDate(todayMonday);
+
+  const { data: conges } = useQuery({
+    queryKey: ["mobile-4w-conges", employee.id, firstMonday, lastSunday],
     queryFn: async () => {
-      let q = supabase.from("weekly_schedules").select("*, employees!inner(id,name,last_name,role,store_id,is_active)").eq("week_start", weekStr);
-      const { data, error } = await q;
+      const { data, error } = await supabase.from("conges").select("*").eq("employee_id", employee.id).lte("date_start", lastSunday).gte("date_end", firstMonday);
       if (error) throw error;
-      return (data || []).filter((r: any) => r.employees?.is_active && (!currentStore || r.employees?.store_id === currentStore.id));
+      return data || [];
     },
   });
 
-  const { data: conge } = useQuery({
-    queryKey: ["mobile-conge", employee.id, dateStr],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("conges").select("*").eq("employee_id", employee.id).lte("date_start", dateStr).gte("date_end", dateStr).maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
+  const conge = conges?.find((c: any) => dateStr >= c.date_start && dateStr <= c.date_end) || null;
 
   const { data: dayComment } = useQuery({
     queryKey: ["mobile-day-comment", weekStr, dayKey, currentStore?.id],
