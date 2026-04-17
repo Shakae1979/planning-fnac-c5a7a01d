@@ -146,22 +146,20 @@ export const EmployeeMobileView = ({ employee }: Props) => {
   const grossHours = hasShift ? timeToHours(end) - timeToHours(start) : 0;
   const netHours = grossHours >= 6 ? grossHours - BREAK_HOURS : grossHours;
 
-  // Collègues du même créneau
-  const colleagues = useMemo(() => {
-    if (!hasShift || !weekSchedules) return [];
-    return weekSchedules
-      .filter((s: any) => {
-        if (s.employee_id === employee.id) return false;
-        const cs = s[`${dayKey}_start`]; const ce = s[`${dayKey}_end`];
-        if (!cs || !ce || cs === "EXT" || cs === "ROULEMENT" || cs === "FERIE") return false;
-        // Chevauchement
-        return timeToHours(cs) < timeToHours(end) && timeToHours(ce) > timeToHours(start);
-      })
-      .map((s: any) => s.employees);
-  }, [weekSchedules, hasShift, dayKey, employee.id, start, end]);
-
   const roleColor = getRoleColor(employee.role);
-  const shiftColorMap = useMemo(() => buildShiftColorMap(schedule), [schedule]);
+  const shiftColorMap = useMemo(() => {
+    const map = new Map<string, number>(); if (!schedules) return map; let idx = 0;
+    for (const sched of schedules) {
+      for (const day of DAY_KEYS) {
+        const s = (sched as any)[`${day}_start`]; const e = (sched as any)[`${day}_end`];
+        if (s && e && s !== "FERIE" && s !== "EXT" && s !== "ROULEMENT") {
+          const key = `${s}-${e}`;
+          if (!map.has(key)) { map.set(key, idx % SHIFT_COLORS.length); idx++; }
+        }
+      }
+    }
+    return map;
+  }, [schedules]);
 
   const dayLongLabel = selectedDate.toLocaleDateString(lang === "nl" ? "nl-BE" : "fr-BE", { weekday: "long", day: "numeric", month: "long" });
 
