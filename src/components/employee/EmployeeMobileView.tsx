@@ -12,6 +12,29 @@ const BREAK_HOURS = 1;
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
 type DayKey = typeof DAY_KEYS[number];
 
+const SHIFT_COLORS = [
+  { bg: "bg-emerald-100 border-emerald-300", text: "text-emerald-800" },
+  { bg: "bg-sky-100 border-sky-300", text: "text-sky-800" },
+  { bg: "bg-amber-100 border-amber-300", text: "text-amber-800" },
+  { bg: "bg-violet-100 border-violet-300", text: "text-violet-800" },
+  { bg: "bg-rose-100 border-rose-300", text: "text-rose-800" },
+  { bg: "bg-teal-100 border-teal-300", text: "text-teal-800" },
+  { bg: "bg-orange-100 border-orange-300", text: "text-orange-800" },
+  { bg: "bg-fuchsia-100 border-fuchsia-300", text: "text-fuchsia-800" },
+];
+
+function buildShiftColorMap(schedule: any): Map<string, number> {
+  const map = new Map<string, number>(); if (!schedule) return map; let idx = 0;
+  for (const day of DAY_KEYS) {
+    const s = schedule[`${day}_start`]; const e = schedule[`${day}_end`];
+    if (s && e && s !== "FERIE" && s !== "EXT" && s !== "ROULEMENT") {
+      const key = `${s}-${e}`;
+      if (!map.has(key)) { map.set(key, idx % SHIFT_COLORS.length); idx++; }
+    }
+  }
+  return map;
+}
+
 const ROLE_COLORS: Record<string, { bar: string; chip: string; chipText: string }> = {
   responsable: { bar: "bg-amber-500", chip: "bg-amber-100", chipText: "text-amber-800" },
   technique: { bar: "bg-sky-500", chip: "bg-sky-100", chipText: "text-sky-800" },
@@ -136,6 +159,7 @@ export const EmployeeMobileView = ({ employee }: Props) => {
   }, [weekSchedules, hasShift, dayKey, employee.id, start, end]);
 
   const roleColor = getRoleColor(employee.role);
+  const shiftColorMap = useMemo(() => buildShiftColorMap(schedule), [schedule]);
 
   const dayLongLabel = selectedDate.toLocaleDateString(lang === "nl" ? "nl-BE" : "fr-BE", { weekday: "long", day: "numeric", month: "long" });
 
@@ -310,20 +334,44 @@ export const EmployeeMobileView = ({ employee }: Props) => {
             <div className="grid grid-cols-7 gap-1">
               {DAY_KEYS.map((dk, i) => {
                 const s = (schedule as any)[`${dk}_start`]; const e = (schedule as any)[`${dk}_end`];
-                const has = !!(s && e && s !== "EXT" && s !== "ROULEMENT" && s !== "FERIE");
+                const isSpecial = s === "EXT" || s === "ROULEMENT" || s === "FERIE";
+                const has = !!(s && e && !isSpecial);
                 const g = has ? timeToHours(e) - timeToHours(s) : 0;
                 const n = g >= 6 ? g - BREAK_HOURS : g;
                 const isSelectedDay = i === selectedIdx;
+                const shiftKey = has ? `${s}-${e}` : null;
+                const colorIdx = shiftKey ? shiftColorMap.get(shiftKey) : undefined;
+                const shiftColor = colorIdx !== undefined ? SHIFT_COLORS[colorIdx] : null;
                 return (
                   <button
                     key={dk}
                     onClick={() => setSelectedDate(addDays(monday, i))}
-                    className={`text-center p-1.5 rounded ${isSelectedDay ? "bg-primary/10 ring-1 ring-primary" : ""}`}
+                    className={`text-center p-1 rounded border transition-all ${
+                      isSelectedDay ? "ring-2 ring-primary" : ""
+                    } ${has && shiftColor ? shiftColor.bg : "border-transparent bg-muted/30"}`}
                   >
-                    <div className="text-[9px] uppercase text-muted-foreground">{t(`day.short.${dk}` as any)}</div>
-                    <div className={`text-xs font-mono-data font-semibold mt-0.5 ${has ? "" : "text-muted-foreground"}`}>
-                      {has ? `${n.toFixed(1)}` : "—"}
+                    <div className={`text-[9px] uppercase ${has && shiftColor ? shiftColor.text : "text-muted-foreground"}`}>
+                      {t(`day.short.${dk}` as any)}
                     </div>
+                    {has ? (
+                      <>
+                        <div className={`text-[10px] font-mono-data font-semibold leading-tight mt-0.5 ${shiftColor ? shiftColor.text : ""}`}>
+                          {formatTimeBE(s)}
+                        </div>
+                        <div className={`text-[10px] font-mono-data leading-tight ${shiftColor ? shiftColor.text : ""}`}>
+                          {formatTimeBE(e)}
+                        </div>
+                        <div className={`text-[9px] font-mono-data mt-0.5 opacity-70 ${shiftColor ? shiftColor.text : ""}`}>
+                          {n.toFixed(1)}h
+                        </div>
+                      </>
+                    ) : isSpecial ? (
+                      <div className="text-[9px] text-muted-foreground mt-1">
+                        {s === "EXT" ? "EXT" : s === "ROULEMENT" ? "ROUL" : "FÉR"}
+                      </div>
+                    ) : (
+                      <div className="text-xs text-muted-foreground mt-1">—</div>
+                    )}
                   </button>
                 );
               })}
