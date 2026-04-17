@@ -3,11 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/hooks/useStore";
 import { Calendar, ChevronLeft, ChevronRight, Clock, User, Palmtree, Flag } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
 import { FnacHeader } from "@/components/FnacHeader";
 import { useI18n } from "@/lib/i18n";
+import { EmployeeMobileView } from "@/components/employee/EmployeeMobileView";
 
 const BREAK_HOURS = 1;
 
@@ -170,6 +171,14 @@ const EmployeeView = () => {
 
   const shiftColorMap = useMemo(() => buildShiftColorMap(schedules), [schedules]);
 
+  // Responsive: nouvelle vue mobile/tablette < 1024px
+  const [isCompact, setIsCompact] = useState<boolean>(() => typeof window !== "undefined" ? window.innerWidth < 1024 : false);
+  useEffect(() => {
+    const onResize = () => setIsCompact(window.innerWidth < 1024);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   if (!decodedName) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
@@ -206,6 +215,10 @@ const EmployeeView = () => {
         </div>
       </div>
     );
+  }
+
+  if (isCompact) {
+    return <EmployeeMobileView employee={employee} />;
   }
 
   const weekLabel = formatDateLongBE(currentMonday);

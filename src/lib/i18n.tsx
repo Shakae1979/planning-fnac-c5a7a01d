@@ -427,6 +427,13 @@ const translations = {
   "empView.weeklyContract": { fr: "/ semaine", nl: "/ week" },
   "empView.contract": { fr: "Contrat", nl: "Contract" },
 
+  // ========== Mobile employee view ==========
+  "mobile.breakIncluded": { fr: "Inclut 1h de pause", nl: "Inclusief 1u pauze" },
+  "mobile.colleagues": { fr: "Collègues", nl: "Collega's" },
+  "mobile.dayOff": { fr: "Jour de repos", nl: "Rustdag" },
+  "mobile.dayOffDesc": { fr: "Profitez de votre journée 🌿", nl: "Geniet van je dag 🌿" },
+  "mobile.weekOverview": { fr: "Aperçu de la semaine", nl: "Weekoverzicht" },
+
   // ========== Store delete confirm ==========
   "store.deleteConfirm": { fr: "Supprimer", nl: "Verwijderen" },
   "store.deleteTitle": { fr: "Supprimer ce magasin ?", nl: "Winkel verwijderen?" },
