@@ -334,20 +334,44 @@ export const EmployeeMobileView = ({ employee }: Props) => {
             <div className="grid grid-cols-7 gap-1">
               {DAY_KEYS.map((dk, i) => {
                 const s = (schedule as any)[`${dk}_start`]; const e = (schedule as any)[`${dk}_end`];
-                const has = !!(s && e && s !== "EXT" && s !== "ROULEMENT" && s !== "FERIE");
+                const isSpecial = s === "EXT" || s === "ROULEMENT" || s === "FERIE";
+                const has = !!(s && e && !isSpecial);
                 const g = has ? timeToHours(e) - timeToHours(s) : 0;
                 const n = g >= 6 ? g - BREAK_HOURS : g;
                 const isSelectedDay = i === selectedIdx;
+                const shiftKey = has ? `${s}-${e}` : null;
+                const colorIdx = shiftKey ? shiftColorMap.get(shiftKey) : undefined;
+                const shiftColor = colorIdx !== undefined ? SHIFT_COLORS[colorIdx] : null;
                 return (
                   <button
                     key={dk}
                     onClick={() => setSelectedDate(addDays(monday, i))}
-                    className={`text-center p-1.5 rounded ${isSelectedDay ? "bg-primary/10 ring-1 ring-primary" : ""}`}
+                    className={`text-center p-1 rounded border transition-all ${
+                      isSelectedDay ? "ring-2 ring-primary" : ""
+                    } ${has && shiftColor ? shiftColor.bg : "border-transparent bg-muted/30"}`}
                   >
-                    <div className="text-[9px] uppercase text-muted-foreground">{t(`day.short.${dk}` as any)}</div>
-                    <div className={`text-xs font-mono-data font-semibold mt-0.5 ${has ? "" : "text-muted-foreground"}`}>
-                      {has ? `${n.toFixed(1)}` : "—"}
+                    <div className={`text-[9px] uppercase ${has && shiftColor ? shiftColor.text : "text-muted-foreground"}`}>
+                      {t(`day.short.${dk}` as any)}
                     </div>
+                    {has ? (
+                      <>
+                        <div className={`text-[10px] font-mono-data font-semibold leading-tight mt-0.5 ${shiftColor ? shiftColor.text : ""}`}>
+                          {formatTimeBE(s)}
+                        </div>
+                        <div className={`text-[10px] font-mono-data leading-tight ${shiftColor ? shiftColor.text : ""}`}>
+                          {formatTimeBE(e)}
+                        </div>
+                        <div className={`text-[9px] font-mono-data mt-0.5 opacity-70 ${shiftColor ? shiftColor.text : ""}`}>
+                          {n.toFixed(1)}h
+                        </div>
+                      </>
+                    ) : isSpecial ? (
+                      <div className="text-[9px] text-muted-foreground mt-1">
+                        {s === "EXT" ? "EXT" : s === "ROULEMENT" ? "ROUL" : "FÉR"}
+                      </div>
+                    ) : (
+                      <div className="text-xs text-muted-foreground mt-1">—</div>
+                    )}
                   </button>
                 );
               })}
