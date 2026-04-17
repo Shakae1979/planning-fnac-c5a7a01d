@@ -164,7 +164,7 @@ export const EmployeeMobileView = ({ employee }: Props) => {
   const dayLongLabel = selectedDate.toLocaleDateString(lang === "nl" ? "nl-BE" : "fr-BE", { weekday: "long", day: "numeric", month: "long" });
 
   return (
-    <div className="min-h-screen bg-background pb-8">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header */}
       <div className="bg-card border-b sticky top-0 z-10">
         <div className="px-4 pt-4 pb-3 flex items-center justify-between">
