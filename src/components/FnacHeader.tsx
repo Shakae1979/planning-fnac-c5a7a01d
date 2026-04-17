@@ -1,4 +1,4 @@
-import { Users, CalendarDays, User, UserCog, LogOut, Palmtree, Store, Menu } from "lucide-react";
+import { Users, CalendarDays, User, UserCog, LogOut, Palmtree, Store } from "lucide-react";
 import { HelpFAQ } from "@/components/HelpFAQ";
 import { ReactNode, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -7,8 +7,6 @@ import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 
 interface FnacHeaderProps {
   title: string;
