@@ -24,7 +24,6 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
   const clickCountRef = useRef(0);
   const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showEaster, setShowEaster] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogoClick = () => {
     clickCountRef.current += 1;
