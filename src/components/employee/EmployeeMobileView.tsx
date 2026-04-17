@@ -293,17 +293,72 @@ export const EmployeeMobileView = ({ employee }: Props) => {
           </div>
         )}
 
-        {/* Week summary */}
-        {schedule && (
-          <div className="rounded-lg border bg-card p-4 mt-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-sm font-semibold">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                {t("mobile.weekOverview")}
-              </div>
-            </div>
-            <div className="grid grid-cols-7 gap-1">
-              {DAY_KEYS.map((dk, i) => {
+        {/* 4-week overview */}
+        <div className="rounded-lg border bg-card p-3 mt-2 flex-1 min-h-0 flex flex-col">
+          <div className="flex items-center gap-2 text-xs font-semibold mb-2 shrink-0">
+            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+            {t("mobile.weekOverview")} <span className="text-muted-foreground font-normal">· {t("empView.4weeks")}</span>
+          </div>
+          <div className="flex-1 min-h-0 flex flex-col gap-1.5">
+            {fourWeeks.map((wMonday, wIdx) => {
+              const ws = fourWeeksStr[wIdx];
+              const wSchedule = schedules?.find((s: any) => s.week_start === ws);
+              const isCurrentWeek = ws === formatLocalDate(todayMonday);
+              const wMondayStr = formatLocalDate(wMonday);
+              return (
+                <div key={ws} className="flex-1 min-h-0 flex flex-col">
+                  <div className={`text-[10px] mb-0.5 shrink-0 ${isCurrentWeek ? "text-primary font-semibold" : "text-muted-foreground"}`}>
+                    S{getWeekNumber(wMonday)} · {wMondayStr.slice(8, 10)}/{wMondayStr.slice(5, 7)}
+                  </div>
+                  <div className="grid grid-cols-7 gap-0.5 flex-1 min-h-0">
+                    {DAY_KEYS.map((dk, i) => {
+                      const s = wSchedule ? (wSchedule as any)[`${dk}_start`] : null;
+                      const e = wSchedule ? (wSchedule as any)[`${dk}_end`] : null;
+                      const isSpecial = s === "EXT" || s === "ROULEMENT" || s === "FERIE";
+                      const has = !!(s && e && !isSpecial);
+                      const dayDate = addDays(wMonday, i);
+                      const dayDateStr = formatLocalDate(dayDate);
+                      const dayConge = conges?.find((c: any) => dayDateStr >= c.date_start && dayDateStr <= c.date_end);
+                      const isSelectedDay = dayDateStr === dateStr;
+                      const shiftKey = has ? `${s}-${e}` : null;
+                      const colorIdx = shiftKey ? shiftColorMap.get(shiftKey) : undefined;
+                      const shiftColor = colorIdx !== undefined ? SHIFT_COLORS[colorIdx] : null;
+                      return (
+                        <button
+                          key={dk}
+                          onClick={() => setSelectedDate(dayDate)}
+                          className={`text-center px-0.5 py-1 rounded border transition-all flex flex-col justify-center min-h-0 ${
+                            isSelectedDay ? "ring-2 ring-primary" : ""
+                          } ${dayConge ? "bg-primary/10 border-primary/30" : has && shiftColor ? shiftColor.bg : "border-transparent bg-muted/30"}`}
+                        >
+                          <div className={`text-[8px] uppercase leading-none ${has && shiftColor ? shiftColor.text : "text-muted-foreground"}`}>
+                            {t(`day.short.${dk}` as any)} {dayDate.getDate()}
+                          </div>
+                          {dayConge ? (
+                            <div className="text-[9px] font-semibold text-primary leading-tight mt-0.5">
+                              {((t(`leave.${dayConge.type}.short` as any) || "CG") as string).slice(0, 4)}
+                            </div>
+                          ) : has ? (
+                            <div className={`text-[9px] font-mono-data font-semibold leading-tight mt-0.5 ${shiftColor ? shiftColor.text : ""}`}>
+                              {formatTimeBE(s).replace("h", "")}
+                              <div className="text-[8px] font-normal opacity-80">{formatTimeBE(e).replace("h", "")}</div>
+                            </div>
+                          ) : isSpecial ? (
+                            <div className="text-[8px] text-muted-foreground mt-0.5">
+                              {s === "EXT" ? "EXT" : s === "ROULEMENT" ? "ROUL" : "FÉR"}
+                            </div>
+                          ) : (
+                            <div className="text-[10px] text-muted-foreground/60 mt-0.5">—</div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
                 const s = (schedule as any)[`${dk}_start`]; const e = (schedule as any)[`${dk}_end`];
                 const isSpecial = s === "EXT" || s === "ROULEMENT" || s === "FERIE";
                 const has = !!(s && e && !isSpecial);
