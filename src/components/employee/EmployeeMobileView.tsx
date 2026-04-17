@@ -85,33 +85,35 @@ export const EmployeeMobileView = ({ employee }: Props) => {
   const dayKey = DAY_KEYS[selectedIdx];
   const dateStr = formatLocalDate(selectedDate);
 
-  const { data: schedule } = useQuery({
-    queryKey: ["mobile-schedule", employee.id, weekStr],
+  // 4 semaines à partir de la semaine courante (basée sur today, pas selectedDate)
+  const todayMonday = useMemo(() => getMonday(today), []);
+  const fourWeeks = useMemo(() => Array.from({ length: 4 }, (_, i) => addDays(todayMonday, i * 7)), [todayMonday]);
+  const fourWeeksStr = useMemo(() => fourWeeks.map(formatLocalDate), [fourWeeks]);
+
+  const { data: schedules } = useQuery({
+    queryKey: ["mobile-4w-schedules", employee.id, fourWeeksStr.join(",")],
     queryFn: async () => {
-      const { data, error } = await supabase.from("weekly_schedules").select("*").eq("employee_id", employee.id).eq("week_start", weekStr).maybeSingle();
+      const { data, error } = await supabase.from("weekly_schedules").select("*").eq("employee_id", employee.id).in("week_start", fourWeeksStr);
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
-  const { data: weekSchedules } = useQuery({
-    queryKey: ["mobile-week-all-schedules", currentStore?.id, weekStr],
+  const schedule = schedules?.find((s: any) => s.week_start === weekStr);
+
+  const lastSunday = formatLocalDate(addDays(todayMonday, 27));
+  const firstMonday = formatLocalDate(todayMonday);
+
+  const { data: conges } = useQuery({
+    queryKey: ["mobile-4w-conges", employee.id, firstMonday, lastSunday],
     queryFn: async () => {
-      let q = supabase.from("weekly_schedules").select("*, employees!inner(id,name,last_name,role,store_id,is_active)").eq("week_start", weekStr);
-      const { data, error } = await q;
+      const { data, error } = await supabase.from("conges").select("*").eq("employee_id", employee.id).lte("date_start", lastSunday).gte("date_end", firstMonday);
       if (error) throw error;
-      return (data || []).filter((r: any) => r.employees?.is_active && (!currentStore || r.employees?.store_id === currentStore.id));
+      return data || [];
     },
   });
 
-  const { data: conge } = useQuery({
-    queryKey: ["mobile-conge", employee.id, dateStr],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("conges").select("*").eq("employee_id", employee.id).lte("date_start", dateStr).gte("date_end", dateStr).maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
+  const conge = conges?.find((c: any) => dateStr >= c.date_start && dateStr <= c.date_end) || null;
 
   const { data: dayComment } = useQuery({
     queryKey: ["mobile-day-comment", weekStr, dayKey, currentStore?.id],
@@ -144,22 +146,20 @@ export const EmployeeMobileView = ({ employee }: Props) => {
   const grossHours = hasShift ? timeToHours(end) - timeToHours(start) : 0;
   const netHours = grossHours >= 6 ? grossHours - BREAK_HOURS : grossHours;
 
-  // Collègues du même créneau
-  const colleagues = useMemo(() => {
-    if (!hasShift || !weekSchedules) return [];
-    return weekSchedules
-      .filter((s: any) => {
-        if (s.employee_id === employee.id) return false;
-        const cs = s[`${dayKey}_start`]; const ce = s[`${dayKey}_end`];
-        if (!cs || !ce || cs === "EXT" || cs === "ROULEMENT" || cs === "FERIE") return false;
-        // Chevauchement
-        return timeToHours(cs) < timeToHours(end) && timeToHours(ce) > timeToHours(start);
-      })
-      .map((s: any) => s.employees);
-  }, [weekSchedules, hasShift, dayKey, employee.id, start, end]);
-
   const roleColor = getRoleColor(employee.role);
-  const shiftColorMap = useMemo(() => buildShiftColorMap(schedule), [schedule]);
+  const shiftColorMap = useMemo(() => {
+    const map = new Map<string, number>(); if (!schedules) return map; let idx = 0;
+    for (const sched of schedules) {
+      for (const day of DAY_KEYS) {
+        const s = (sched as any)[`${day}_start`]; const e = (sched as any)[`${day}_end`];
+        if (s && e && s !== "FERIE" && s !== "EXT" && s !== "ROULEMENT") {
+          const key = `${s}-${e}`;
+          if (!map.has(key)) { map.set(key, idx % SHIFT_COLORS.length); idx++; }
+        }
+      }
+    }
+    return map;
+  }, [schedules]);
 
   const dayLongLabel = selectedDate.toLocaleDateString(lang === "nl" ? "nl-BE" : "fr-BE", { weekday: "long", day: "numeric", month: "long" });
 
@@ -293,62 +293,72 @@ export const EmployeeMobileView = ({ employee }: Props) => {
           </div>
         )}
 
-        {/* Week summary */}
-        {schedule && (
-          <div className="rounded-lg border bg-card p-4 mt-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-sm font-semibold">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                {t("mobile.weekOverview")}
-              </div>
-            </div>
-            <div className="grid grid-cols-7 gap-1">
-              {DAY_KEYS.map((dk, i) => {
-                const s = (schedule as any)[`${dk}_start`]; const e = (schedule as any)[`${dk}_end`];
-                const isSpecial = s === "EXT" || s === "ROULEMENT" || s === "FERIE";
-                const has = !!(s && e && !isSpecial);
-                const g = has ? timeToHours(e) - timeToHours(s) : 0;
-                const n = g >= 6 ? g - BREAK_HOURS : g;
-                const isSelectedDay = i === selectedIdx;
-                const shiftKey = has ? `${s}-${e}` : null;
-                const colorIdx = shiftKey ? shiftColorMap.get(shiftKey) : undefined;
-                const shiftColor = colorIdx !== undefined ? SHIFT_COLORS[colorIdx] : null;
-                return (
-                  <button
-                    key={dk}
-                    onClick={() => setSelectedDate(addDays(monday, i))}
-                    className={`text-center p-1 rounded border transition-all ${
-                      isSelectedDay ? "ring-2 ring-primary" : ""
-                    } ${has && shiftColor ? shiftColor.bg : "border-transparent bg-muted/30"}`}
-                  >
-                    <div className={`text-[9px] uppercase ${has && shiftColor ? shiftColor.text : "text-muted-foreground"}`}>
-                      {t(`day.short.${dk}` as any)}
-                    </div>
-                    {has ? (
-                      <>
-                        <div className={`text-[10px] font-mono-data font-semibold leading-tight mt-0.5 ${shiftColor ? shiftColor.text : ""}`}>
-                          {formatTimeBE(s)}
-                        </div>
-                        <div className={`text-[10px] font-mono-data leading-tight ${shiftColor ? shiftColor.text : ""}`}>
-                          {formatTimeBE(e)}
-                        </div>
-                        <div className={`text-[9px] font-mono-data mt-0.5 opacity-70 ${shiftColor ? shiftColor.text : ""}`}>
-                          {n.toFixed(1)}h
-                        </div>
-                      </>
-                    ) : isSpecial ? (
-                      <div className="text-[9px] text-muted-foreground mt-1">
-                        {s === "EXT" ? "EXT" : s === "ROULEMENT" ? "ROUL" : "FÉR"}
-                      </div>
-                    ) : (
-                      <div className="text-xs text-muted-foreground mt-1">—</div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+        {/* 4-week overview */}
+        <div className="rounded-lg border bg-card p-3 mt-2 flex-1 min-h-0 flex flex-col">
+          <div className="flex items-center gap-2 text-xs font-semibold mb-2 shrink-0">
+            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+            {t("mobile.weekOverview")} <span className="text-muted-foreground font-normal">· {t("empView.4weeks")}</span>
           </div>
-        )}
+          <div className="flex-1 min-h-0 flex flex-col gap-1.5">
+            {fourWeeks.map((wMonday, wIdx) => {
+              const ws = fourWeeksStr[wIdx];
+              const wSchedule = schedules?.find((s: any) => s.week_start === ws);
+              const isCurrentWeek = ws === formatLocalDate(todayMonday);
+              const wMondayStr = formatLocalDate(wMonday);
+              return (
+                <div key={ws} className="flex-1 min-h-0 flex flex-col">
+                  <div className={`text-[10px] mb-0.5 shrink-0 ${isCurrentWeek ? "text-primary font-semibold" : "text-muted-foreground"}`}>
+                    S{getWeekNumber(wMonday)} · {wMondayStr.slice(8, 10)}/{wMondayStr.slice(5, 7)}
+                  </div>
+                  <div className="grid grid-cols-7 gap-0.5 flex-1 min-h-0">
+                    {DAY_KEYS.map((dk, i) => {
+                      const s = wSchedule ? (wSchedule as any)[`${dk}_start`] : null;
+                      const e = wSchedule ? (wSchedule as any)[`${dk}_end`] : null;
+                      const isSpecial = s === "EXT" || s === "ROULEMENT" || s === "FERIE";
+                      const has = !!(s && e && !isSpecial);
+                      const dayDate = addDays(wMonday, i);
+                      const dayDateStr = formatLocalDate(dayDate);
+                      const dayConge = conges?.find((c: any) => dayDateStr >= c.date_start && dayDateStr <= c.date_end);
+                      const isSelectedDay = dayDateStr === dateStr;
+                      const shiftKey = has ? `${s}-${e}` : null;
+                      const colorIdx = shiftKey ? shiftColorMap.get(shiftKey) : undefined;
+                      const shiftColor = colorIdx !== undefined ? SHIFT_COLORS[colorIdx] : null;
+                      return (
+                        <button
+                          key={dk}
+                          onClick={() => setSelectedDate(dayDate)}
+                          className={`text-center px-0.5 py-1 rounded border transition-all flex flex-col justify-center min-h-0 ${
+                            isSelectedDay ? "ring-2 ring-primary" : ""
+                          } ${dayConge ? "bg-primary/10 border-primary/30" : has && shiftColor ? shiftColor.bg : "border-transparent bg-muted/30"}`}
+                        >
+                          <div className={`text-[8px] uppercase leading-none ${has && shiftColor ? shiftColor.text : "text-muted-foreground"}`}>
+                            {t(`day.short.${dk}` as any)} {dayDate.getDate()}
+                          </div>
+                          {dayConge ? (
+                            <div className="text-[9px] font-semibold text-primary leading-tight mt-0.5">
+                              {((t(`leave.${dayConge.type}.short` as any) || "CG") as string).slice(0, 4)}
+                            </div>
+                          ) : has ? (
+                            <div className={`text-[9px] font-mono-data font-semibold leading-tight mt-0.5 ${shiftColor ? shiftColor.text : ""}`}>
+                              {formatTimeBE(s).replace("h", "")}
+                              <div className="text-[8px] font-normal opacity-80">{formatTimeBE(e).replace("h", "")}</div>
+                            </div>
+                          ) : isSpecial ? (
+                            <div className="text-[8px] text-muted-foreground mt-0.5">
+                              {s === "EXT" ? "EXT" : s === "ROULEMENT" ? "ROUL" : "FÉR"}
+                            </div>
+                          ) : (
+                            <div className="text-[10px] text-muted-foreground/60 mt-0.5">—</div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
