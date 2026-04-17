@@ -165,136 +165,133 @@ export const EmployeeMobileView = ({ employee }: Props) => {
 
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
-      {/* Header */}
+      {/* Header compact */}
       <div className="bg-card border-b shrink-0">
-        <div className="px-4 pt-4 pb-3 flex items-center justify-between">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${roleColor.chip} ${roleColor.chipText}`}>
+        <div className="px-3 pt-2 pb-2 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${roleColor.chip} ${roleColor.chipText}`}>
               {getDisplayName(employee).split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <div className="font-semibold truncate">{getDisplayName(employee)}</div>
-              <div className="text-xs text-muted-foreground font-mono-data">{employee.contract_hours}h {t("empView.weeklyContract")}</div>
+              <div className="font-semibold truncate text-sm leading-tight">{getDisplayName(employee)}</div>
+              <div className="text-[10px] text-muted-foreground font-mono-data leading-tight">{employee.contract_hours}h {t("empView.weeklyContract")}</div>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigate("/mon-planning")}>{t("action.change")}</Button>
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2" onClick={() => navigate("/mon-planning")}>{t("action.change")}</Button>
         </div>
 
-        {/* Week nav */}
-        <div className="px-4 pb-2 flex items-center justify-between">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedDate(addDays(selectedDate, -7))}>
+        {/* Week nav + day strip combined */}
+        <div className="px-1 pb-2 flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="h-8 w-7 shrink-0" onClick={() => setSelectedDate(addDays(selectedDate, -7))}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <div className="text-center">
-            <div className="text-xs font-semibold">S{getWeekNumber(monday)} — {formatDateMonthBE(monday)}</div>
+          <div className="flex-1 flex items-center justify-between gap-0.5">
+            {weekDays.map((d, i) => {
+              const isSelected = formatLocalDate(d) === dateStr;
+              const isToday = formatLocalDate(d) === formatLocalDate(today);
+              return (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDate(d)}
+                  className={`flex-1 flex flex-col items-center py-1 rounded-md transition-all ${
+                    isSelected ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-muted"
+                  }`}
+                >
+                  <span className={`text-[9px] uppercase tracking-wide leading-none ${isSelected ? "" : "text-muted-foreground"}`}>
+                    {t(`day.short.${DAY_KEYS[i]}` as any).slice(0, 3)}
+                  </span>
+                  <span className={`text-sm font-semibold mt-0.5 leading-none ${isToday && !isSelected ? "text-primary" : ""}`}>
+                    {d.getDate()}
+                  </span>
+                </button>
+              );
+            })}
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedDate(addDays(selectedDate, 7))}>
+          <Button variant="ghost" size="icon" className="h-8 w-7 shrink-0" onClick={() => setSelectedDate(addDays(selectedDate, 7))}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-
-        {/* Day strip */}
-        <div className="px-2 pb-3 flex items-center justify-between gap-1">
-          {weekDays.map((d, i) => {
-            const isSelected = formatLocalDate(d) === dateStr;
-            const isToday = formatLocalDate(d) === formatLocalDate(today);
-            return (
-              <button
-                key={i}
-                onClick={() => setSelectedDate(d)}
-                className={`flex-1 flex flex-col items-center py-2 rounded-lg transition-all ${
-                  isSelected ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-muted"
-                }`}
-              >
-                <span className={`text-[10px] uppercase tracking-wide ${isSelected ? "" : "text-muted-foreground"}`}>
-                  {t(`day.short.${DAY_KEYS[i]}` as any)}
-                </span>
-                <span className={`text-base font-semibold mt-0.5 ${isToday && !isSelected ? "text-primary" : ""}`}>
-                  {d.getDate()}
-                </span>
-              </button>
-            );
-          })}
+        <div className="px-3 pb-1 text-[10px] text-muted-foreground text-center">
+          S{getWeekNumber(monday)} — {formatDateMonthBE(monday)}
         </div>
       </div>
 
-      {/* Day content */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-4 pb-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold capitalize">{dayLongLabel}</h2>
+      {/* Day content - compact, no scroll */}
+      <div className="flex-1 min-h-0 px-3 pt-2 pb-2 flex flex-col gap-2 overflow-hidden">
+        <div className="flex items-center justify-between shrink-0">
+          <h2 className="text-sm font-semibold capitalize truncate">{dayLongLabel}</h2>
           {isFerie && (
-            <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-              <Flag className="h-3 w-3" /> {t("schedule.holiday")}
+            <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">
+              <Flag className="h-2.5 w-2.5" /> {t("schedule.holiday")}
             </span>
           )}
         </div>
 
         {conge ? (
-          <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 text-center">
-            <Palmtree className="h-10 w-10 mx-auto text-primary mb-2" />
-            <div className="font-semibold text-primary">{t(`leave.${conge.type}` as any) || conge.type}</div>
-            {conge.notes && <div className="text-sm text-muted-foreground mt-1">{conge.notes}</div>}
+          <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-center shrink-0">
+            <Palmtree className="h-6 w-6 mx-auto text-primary mb-1" />
+            <div className="font-semibold text-primary text-sm">{t(`leave.${conge.type}` as any) || conge.type}</div>
+            {conge.notes && <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{conge.notes}</div>}
           </div>
         ) : hasShift ? (
-          <div className="rounded-xl border bg-card overflow-hidden shadow-sm">
+          <div className="rounded-lg border bg-card overflow-hidden shadow-sm shrink-0">
             <div className="flex">
-              <div className={`w-1.5 ${roleColor.bar}`} />
-              <div className="flex-1 p-4 space-y-3">
+              <div className={`w-1 ${roleColor.bar}`} />
+              <div className="flex-1 p-2.5 space-y-1.5">
                 <div className="flex items-baseline justify-between">
-                  <div className="text-2xl font-bold font-mono-data">
-                    {formatTimeBE(start)} <span className="text-muted-foreground text-base font-normal">→</span> {formatTimeBE(end)}
+                  <div className="text-lg font-bold font-mono-data leading-tight">
+                    {formatTimeBE(start)} <span className="text-muted-foreground text-sm font-normal">→</span> {formatTimeBE(end)}
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-semibold font-mono-data">{netHours.toFixed(1)}h</div>
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{t("empView.net")}</div>
+                    <div className="text-sm font-semibold font-mono-data leading-tight">{netHours.toFixed(1)}h</div>
+                    <div className="text-[9px] text-muted-foreground uppercase tracking-wide leading-none">{t("empView.net")}</div>
                   </div>
                 </div>
 
                 {grossHours >= 6 && (
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Coffee className="h-3.5 w-3.5" />
+                  <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <Coffee className="h-3 w-3" />
                     <span>{t("mobile.breakIncluded")}</span>
                   </div>
                 )}
 
                 {(dayFlags?.sav || dayFlags?.socloz) && (
-                  <div className="flex flex-wrap gap-1.5 border-t pt-3">
-                    {dayFlags.sav && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-800">SAV</span>}
-                    {dayFlags.socloz && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-fuchsia-100 text-fuchsia-800">SOCLOZ</span>}
+                  <div className="flex flex-wrap gap-1">
+                    {dayFlags.sav && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-800">SAV</span>}
+                    {dayFlags.socloz && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-fuchsia-100 text-fuchsia-800">SOCLOZ</span>}
                   </div>
                 )}
 
                 {dayFlags?.comment && (
-                  <div className="flex items-start gap-2 text-sm bg-muted/50 rounded-md p-2">
-                    <MessageSquare className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
-                    <span>{dayFlags.comment}</span>
+                  <div className="flex items-start gap-1.5 text-xs bg-muted/50 rounded p-1.5">
+                    <MessageSquare className="h-3 w-3 shrink-0 mt-0.5 text-muted-foreground" />
+                    <span className="line-clamp-2">{dayFlags.comment}</span>
                   </div>
                 )}
               </div>
             </div>
           </div>
         ) : isExt || isRoulement ? (
-          <div className="rounded-xl border bg-card p-5 text-center">
-            <Sparkles className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-            <div className="font-semibold">{isExt ? t("schedule.exterior") : t("schedule.rotation")}</div>
+          <div className="rounded-lg border bg-card p-3 text-center shrink-0">
+            <Sparkles className="h-6 w-6 mx-auto text-muted-foreground mb-1" />
+            <div className="font-semibold text-sm">{isExt ? t("schedule.exterior") : t("schedule.rotation")}</div>
           </div>
         ) : (
-          <div className="rounded-xl border-2 border-dashed bg-muted/30 p-8 text-center">
-            <Sun className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-            <div className="font-semibold text-muted-foreground">{t("mobile.dayOff")}</div>
-            <div className="text-xs text-muted-foreground mt-1">{t("mobile.dayOffDesc")}</div>
+          <div className="rounded-lg border-2 border-dashed bg-muted/30 p-3 text-center shrink-0">
+            <Sun className="h-6 w-6 mx-auto text-muted-foreground mb-1" />
+            <div className="font-semibold text-muted-foreground text-sm">{t("mobile.dayOff")}</div>
           </div>
         )}
 
         {dayComment?.comment && (
-          <div className="rounded-lg border bg-card p-3 flex items-start gap-2">
-            <MessageSquare className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
-            <div className="text-sm">{dayComment.comment}</div>
+          <div className="rounded-md border bg-card p-2 flex items-start gap-1.5 shrink-0">
+            <MessageSquare className="h-3 w-3 shrink-0 mt-0.5 text-muted-foreground" />
+            <div className="text-xs line-clamp-2">{dayComment.comment}</div>
           </div>
         )}
 
-        {/* 4-week overview */}
-        <div className="rounded-lg border bg-card p-3 mt-2 flex-1 min-h-0 flex flex-col">
+        {/* 4-week overview - prend tout l'espace restant */}
+        <div className="rounded-lg border bg-card p-2 flex-1 min-h-0 flex flex-col">
           <div className="flex items-center gap-2 text-xs font-semibold mb-2 shrink-0">
             <Clock className="h-3.5 w-3.5 text-muted-foreground" />
             {t("mobile.weekOverview")} <span className="text-muted-foreground font-normal">· {t("empView.4weeks")}</span>
