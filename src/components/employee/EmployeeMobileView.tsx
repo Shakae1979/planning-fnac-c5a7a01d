@@ -164,9 +164,9 @@ export const EmployeeMobileView = ({ employee }: Props) => {
   const dayLongLabel = selectedDate.toLocaleDateString(lang === "nl" ? "nl-BE" : "fr-BE", { weekday: "long", day: "numeric", month: "long" });
 
   return (
-    <div className="min-h-screen bg-background pb-8">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="bg-card border-b sticky top-0 z-10">
+      <div className="bg-card border-b shrink-0">
         <div className="px-4 pt-4 pb-3 flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
             <div className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${roleColor.chip} ${roleColor.chipText}`}>
@@ -219,7 +219,7 @@ export const EmployeeMobileView = ({ employee }: Props) => {
       </div>
 
       {/* Day content */}
-      <div className="px-4 pt-4 space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-4 pb-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold capitalize">{dayLongLabel}</h2>
           {isFerie && (
