@@ -53,55 +53,49 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
 
   return (
     <header className="border-b" style={{ background: "hsl(var(--sidebar-bg))" }}>
-      <div className="max-w-[1600px] mx-auto px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap min-w-0">
-          <button onClick={() => { handleLogoClick(); navigate((role === "admin" || role === "editor") ? "/" : "/equipe-du-jour"); }} className="flex items-center gap-2 hover:opacity-80 transition-opacity relative shrink-0">
+      <div className="max-w-[1600px] mx-auto px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+          <button onClick={() => { handleLogoClick(); navigate((role === "admin" || role === "editor") ? "/" : "/equipe-du-jour"); }} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity relative shrink-0">
             <img src="/favicon.png" alt="Planning Fnac" className="h-6 w-6" />
-            <span className="text-base font-extrabold tracking-tight" style={{ color: "hsl(var(--sidebar-active))" }}>
+            <span className="hidden sm:inline text-base font-extrabold tracking-tight" style={{ color: "hsl(var(--sidebar-active))" }}>
               Planning Fnac
             </span>
             {showEaster && (
-              <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium px-2 py-0.5 rounded-full animate-fade-in" style={{ background: "hsl(var(--sidebar-active))", color: "hsl(var(--sidebar-bg))" }}>
+              <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium px-2 py-0.5 rounded-full animate-fade-in z-50" style={{ background: "hsl(var(--sidebar-active))", color: "hsl(var(--sidebar-bg))" }}>
                 Crafted with ❤️ by Karim
               </span>
             )}
           </button>
-          <div className="hidden sm:block h-5 w-px shrink-0" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
 
           {stores.length > 1 && (
-            <>
-              <Select
-                value={currentStore?.id || ""}
-                onValueChange={(val) => {
-                  const s = stores.find((st) => st.id === val);
-                  if (s) setCurrentStore(s);
-                }}
-              >
-                <SelectTrigger className="w-[140px] sm:w-[180px] h-8 text-xs border-none shrink-0" style={{ background: "hsl(var(--sidebar-hover))", color: "hsl(var(--sidebar-fg))" }}>
-                  <Store className="h-3.5 w-3.5 mr-1" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {stores.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className="hidden sm:block h-5 w-px shrink-0" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
-            </>
+            <Select
+              value={currentStore?.id || ""}
+              onValueChange={(val) => {
+                const s = stores.find((st) => st.id === val);
+                if (s) setCurrentStore(s);
+              }}
+            >
+              <SelectTrigger className="w-auto max-w-[120px] sm:max-w-[180px] h-8 text-xs border-none shrink-0 gap-1" style={{ background: "hsl(var(--sidebar-hover))", color: "hsl(var(--sidebar-fg))" }}>
+                <Store className="h-3.5 w-3.5 shrink-0" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {stores.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
 
           {stores.length === 1 && currentStore && (
-            <>
-              <span className="hidden sm:flex text-xs font-medium items-center gap-1 shrink-0" style={{ color: "hsl(var(--sidebar-fg))" }}>
-                <Store className="h-3.5 w-3.5" />
-                {currentStore.name}
-              </span>
-              <div className="hidden sm:block h-5 w-px shrink-0" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
-            </>
+            <span className="hidden md:flex text-xs font-medium items-center gap-1 shrink-0" style={{ color: "hsl(var(--sidebar-fg))" }}>
+              <Store className="h-3.5 w-3.5" />
+              {currentStore.name}
+            </span>
           )}
 
-          <div className="hidden md:flex items-center gap-2 min-w-0">
+          <div className="hidden xl:flex items-center gap-2 min-w-0">
+            <div className="h-5 w-px shrink-0" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
             {Icon && <Icon className="h-5 w-5 shrink-0" style={{ color: "hsl(var(--sidebar-fg))" }} />}
             <div className="min-w-0">
               <h1 className="text-sm font-bold truncate" style={{ color: "hsl(var(--sidebar-fg))" }}>{title}</h1>
@@ -110,15 +104,15 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
               )}
             </div>
           </div>
-          <div className="hidden md:block h-5 w-px ml-1 shrink-0" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
-          <nav className="flex items-center gap-1 flex-wrap">
+
+          <nav className="flex items-center gap-1 ml-auto sm:ml-1">
             {NAV_SHORTCUTS.map((s) => {
               const active = location.pathname.startsWith(s.path);
               return (
                 <button
                   key={s.path}
                   onClick={() => navigate(s.path)}
-                  className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  className={`flex items-center justify-center gap-1.5 h-8 px-2 lg:px-2.5 rounded-md text-xs font-medium transition-colors shrink-0 ${
                     active ? "" : "hover:opacity-80"
                   }`}
                   style={{
@@ -126,29 +120,31 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
                     color: active ? "hsl(var(--accent-foreground))" : "hsl(var(--sidebar-fg))",
                   }}
                   title={s.label}
+                  aria-label={s.label}
                 >
                   <s.icon className="h-3.5 w-3.5" />
-                  <span className="hidden lg:inline">{s.label}</span>
+                  <span className="hidden xl:inline">{s.label}</span>
                 </button>
               );
             })}
           </nav>
         </div>
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           {children}
           <HelpFAQ />
           <LanguageSwitcher />
           <button
             onClick={signOut}
-            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:opacity-80"
+            className="flex items-center justify-center gap-1.5 h-8 px-2 lg:px-2.5 rounded-md text-xs font-medium transition-colors hover:opacity-80"
             style={{
               background: "hsl(var(--sidebar-hover))",
               color: "hsl(var(--sidebar-fg))",
             }}
             title={t("nav.logout")}
+            aria-label={t("nav.logout")}
           >
             <LogOut className="h-3.5 w-3.5" />
-            <span className="hidden lg:inline">{t("nav.logout")}</span>
+            <span className="hidden xl:inline">{t("nav.logout")}</span>
           </button>
         </div>
       </div>
