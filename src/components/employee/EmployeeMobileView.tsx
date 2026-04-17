@@ -337,8 +337,8 @@ export const EmployeeMobileView = ({ employee }: Props) => {
                             </div>
                           ) : has ? (
                             <div className={`text-[9px] font-mono-data font-semibold leading-tight mt-0.5 ${shiftColor ? shiftColor.text : ""}`}>
-                              {formatTimeBE(s).replace("h", "")}
-                              <div className="text-[8px] font-normal opacity-80">{formatTimeBE(e).replace("h", "")}</div>
+                              {formatTimeBE(s)}
+                              <div className="text-[8px] font-normal opacity-80">{formatTimeBE(e)}</div>
                             </div>
                           ) : isSpecial ? (
                             <div className="text-[8px] text-muted-foreground mt-0.5">
