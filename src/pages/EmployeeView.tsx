@@ -3,13 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/hooks/useStore";
 import { Calendar, ChevronLeft, ChevronRight, Clock, User, Palmtree, Flag } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
 import { FnacHeader } from "@/components/FnacHeader";
 import { useI18n } from "@/lib/i18n";
 import { EmployeeMobileView } from "@/components/employee/EmployeeMobileView";
-import { useEffect, useState as useStateReact } from "react";
 
 const BREAK_HOURS = 1;
 
