@@ -181,19 +181,19 @@ const EmployeeView = () => {
 
   if (!decodedName) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="h-screen bg-background flex flex-col overflow-hidden">
         <FnacHeader title={t("empView.myPlanning")} subtitle={t("empView.selectYourName")} icon={Calendar} />
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="max-w-md w-full">
-            <p className="text-muted-foreground mb-6">{t("empView.selectName")}</p>
-            <div className="space-y-2">
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6">
+          <div className="max-w-3xl mx-auto">
+            <p className="text-sm text-muted-foreground mb-3 sm:mb-4">{t("empView.selectName")}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-2">
               {employees?.map((emp) => (
                 <button key={emp.id} onClick={() => navigate(`/mon-planning/${encodeURIComponent(getDisplayName(emp))}`)}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-secondary transition-colors text-left">
-                  <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center text-sm font-bold text-accent">{getDisplayName(emp).split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}</div>
-                  <div>
-                    <div className="font-medium">{getDisplayName(emp)}</div>
-                    <div className="text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h {t("empView.weeklyContract")}</div>
+                  className="w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border bg-card hover:bg-secondary transition-colors text-left">
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-accent/20 flex items-center justify-center text-xs sm:text-sm font-bold text-accent shrink-0">{getDisplayName(emp).split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}</div>
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm truncate">{getDisplayName(emp)}</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground font-mono-data">{emp.contract_hours}h</div>
                   </div>
                 </button>
               ))}
