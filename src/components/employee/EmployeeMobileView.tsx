@@ -159,6 +159,7 @@ export const EmployeeMobileView = ({ employee }: Props) => {
   }, [weekSchedules, hasShift, dayKey, employee.id, start, end]);
 
   const roleColor = getRoleColor(employee.role);
+  const shiftColorMap = useMemo(() => buildShiftColorMap(schedule), [schedule]);
 
   const dayLongLabel = selectedDate.toLocaleDateString(lang === "nl" ? "nl-BE" : "fr-BE", { weekday: "long", day: "numeric", month: "long" });
 
