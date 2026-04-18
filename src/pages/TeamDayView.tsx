@@ -225,7 +225,7 @@ const TeamDayView = () => {
           </div>
         )}
 
-        <HourlyGrid employees={teamDay || []} date={dateStr} />
+        <HourlyGrid ref={gridRef} employees={teamDay || []} date={dateStr} onStateChange={handleGridStateChange} />
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-3">
