@@ -159,9 +159,9 @@ const TeamDayView = () => {
   return (
     <div className="min-h-screen bg-background">
       <FnacHeader title={t("teamDay.title")} subtitle={t("teamDay.subtitle")} icon={Users}>
-        <Button variant="outline" size="sm" className="no-print hidden sm:inline-flex h-8 text-xs gap-1.5 border-foreground/20 text-foreground hover:bg-foreground/10" onClick={() => window.print()}>
+        <Button variant="outline" size="sm" className="no-print h-8 px-2 sm:px-3 text-xs gap-1.5 border-foreground/20 text-foreground hover:bg-foreground/10" onClick={() => window.print()} title={t("action.print")} aria-label={t("action.print")}>
           <Printer className="h-3.5 w-3.5" />
-          {t("action.print")}
+          <span className="hidden sm:inline">{t("action.print")}</span>
         </Button>
       </FnacHeader>
 
