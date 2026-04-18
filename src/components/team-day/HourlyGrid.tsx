@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, forwardRef, useImperativeHandle } from "react";
 import { Printer, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,12 @@ import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
+
+export interface HourlyGridHandle {
+  save: () => Promise<void>;
+  canSave: boolean;
+  saving: boolean;
+}
 
 function buildHalfHours(startHour: number, endHour: number) {
   const slots: { hour: number; minute: number; label: string }[] = [];
@@ -64,7 +70,7 @@ function RolePicker({ anchorRect, onSelect, onClose, roleLabels, multi }: {
   );
 }
 
-export default function HourlyGrid({ employees, date }: { employees: Employee[]; date: string }) {
+const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: string; onStateChange?: (s: { canSave: boolean; saving: boolean }) => void }>(function HourlyGridImpl({ employees, date, onStateChange }, ref) {
   const { t } = useI18n();
   const { scheduleStart, scheduleEnd } = useStoreSettings();
   const HALF_HOURS = useMemo(() => buildHalfHours(scheduleStart, scheduleEnd), [scheduleStart, scheduleEnd]);
