@@ -253,4 +253,6 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
       {multiPicker && <RolePicker anchorRect={multiPicker.rect} onSelect={handleMultiApply} onClose={() => setMultiPicker(null)} roleLabels={roleLabels} multi />}
     </div>
   );
-}
+});
+
+export default HourlyGrid;
