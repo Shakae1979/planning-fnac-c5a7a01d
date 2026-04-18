@@ -46,6 +46,9 @@ function getDayKeyFromDate(date: Date): string {
 const TeamDayView = () => {
   const { t } = useI18n();
   const [dayOffset, setDayOffset] = useState(0);
+  const gridRef = useRef<HourlyGridHandle>(null);
+  const [gridState, setGridState] = useState<{ canSave: boolean; saving: boolean }>({ canSave: false, saving: false });
+  const handleGridStateChange = useCallback((s: { canSave: boolean; saving: boolean }) => setGridState(s), []);
   const today = new Date();
   const selectedDate = new Date(today);
   selectedDate.setDate(today.getDate() + dayOffset);
@@ -159,6 +162,17 @@ const TeamDayView = () => {
   return (
     <div className="min-h-screen bg-background">
       <FnacHeader title={t("teamDay.title")} subtitle={t("teamDay.subtitle")} icon={Users}>
+        <Button
+          size="sm"
+          className="no-print h-8 px-2 sm:px-3 text-xs gap-1.5"
+          onClick={() => gridRef.current?.save()}
+          disabled={!gridState.canSave}
+          title={t("action.save")}
+          aria-label={t("action.save")}
+        >
+          <Save className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">{gridState.saving ? t("hourlyGrid.saving") : t("action.save")}</span>
+        </Button>
         <Button variant="outline" size="sm" className="no-print h-8 px-2 sm:px-3 text-xs gap-1.5 border-foreground/20 text-foreground hover:bg-foreground/10" onClick={() => window.print()} title={t("action.print")} aria-label={t("action.print")}>
           <Printer className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">{t("action.print")}</span>
