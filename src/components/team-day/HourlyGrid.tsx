@@ -116,6 +116,16 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
     load();
   }, [date]);
 
+  const dirtyRef = useRef(dirty);
+  dirtyRef.current = dirty;
+  const handleSaveRef = useRef<() => Promise<void>>(async () => {});
+  useImperativeHandle(ref, () => ({
+    save: () => handleSaveRef.current(),
+    canSave: dirty && !saving,
+    saving,
+  }), [dirty, saving]);
+  useEffect(() => { onStateChange?.({ canSave: dirty && !saving, saving }); }, [dirty, saving, onStateChange]);
+
   if (active.length === 0) return null;
 
   const handleCellClick = (empId: string, hour: number, e: React.MouseEvent, minute: number = 0) => {
@@ -171,10 +181,8 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
       toast.error(t("misc.errorSaving"));
     } finally { setSaving(false); }
   };
+  handleSaveRef.current = handleSave;
 
-  const canSave = dirty && !saving;
-  useImperativeHandle(ref, () => ({ save: handleSave, canSave, saving }), [canSave, saving, handleSave]);
-  useEffect(() => { onStateChange?.({ canSave, saving }); }, [canSave, saving, onStateChange]);
 
   return (
     <div className="mb-6">
