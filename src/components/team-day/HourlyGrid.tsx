@@ -184,10 +184,10 @@ export default function HourlyGrid({ employees, date }: { employees: Employee[];
               Appliquer ({selected.size})
             </Button>
           )}
-          <Button variant="outline" size="sm" className="no-print h-7 text-xs gap-1.5" onClick={() => window.print()}>
+          <Button variant="outline" size="sm" className="no-print hidden sm:inline-flex h-7 text-xs gap-1.5" onClick={() => window.print()}>
             <Printer className="h-3.5 w-3.5" />{t("action.print")}
           </Button>
-          <Button size="sm" className="no-print h-7 text-xs gap-1.5" onClick={handleSave} disabled={saving || !dirty}>
+          <Button size="sm" className="no-print hidden sm:inline-flex h-7 text-xs gap-1.5" onClick={handleSave} disabled={saving || !dirty}>
             <Save className="h-3.5 w-3.5" />{saving ? t("hourlyGrid.saving") : t("action.save")}
           </Button>
         </div>
