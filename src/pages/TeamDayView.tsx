@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle, ChevronLeft, ChevronRight, Flag, MapPin, MessageSquare, Palmtree, Printer, Users } from "lucide-react";
-import HourlyGrid from "@/components/team-day/HourlyGrid";
+import { AlertTriangle, ChevronLeft, ChevronRight, Flag, MapPin, MessageSquare, Palmtree, Printer, Save, Users } from "lucide-react";
+import HourlyGrid, { type HourlyGridHandle } from "@/components/team-day/HourlyGrid";
 import { FnacHeader } from "@/components/FnacHeader";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName } from "@/lib/format";
 import { useStore } from "@/hooks/useStore";
