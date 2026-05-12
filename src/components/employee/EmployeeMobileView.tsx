@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/hooks/useStore";
 import { formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { getRoleColors } from "@/lib/role-colors";
 
 const BREAK_HOURS = 1;
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
@@ -35,21 +36,9 @@ function buildShiftColorMap(schedule: any): Map<string, number> {
   return map;
 }
 
-const ROLE_COLORS: Record<string, { bar: string; chip: string; chipText: string }> = {
-  responsable: { bar: "bg-amber-500", chip: "bg-amber-100", chipText: "text-amber-800" },
-  technique: { bar: "bg-sky-500", chip: "bg-sky-100", chipText: "text-sky-800" },
-  editorial: { bar: "bg-violet-500", chip: "bg-violet-100", chipText: "text-violet-800" },
-  stock: { bar: "bg-emerald-500", chip: "bg-emerald-100", chipText: "text-emerald-800" },
-  caisse: { bar: "bg-rose-500", chip: "bg-rose-100", chipText: "text-rose-800" },
-  stagiaire: { bar: "bg-teal-500", chip: "bg-teal-100", chipText: "text-teal-800" },
-  vendeur: { bar: "bg-primary", chip: "bg-primary/15", chipText: "text-primary" },
-};
-
 function getRoleColor(role?: string) {
-  if (!role) return ROLE_COLORS.vendeur;
-  const key = role.toLowerCase();
-  for (const [k, v] of Object.entries(ROLE_COLORS)) if (key.includes(k)) return v;
-  return ROLE_COLORS.vendeur;
+  const c = getRoleColors((role || "caisse").toLowerCase());
+  return { bar: c.bar, chip: c.bgChip };
 }
 
 function timeToHours(t: string | null): number {
@@ -169,7 +158,7 @@ export const EmployeeMobileView = ({ employee }: Props) => {
       <div className="bg-card border-b shrink-0">
         <div className="px-3 pt-2 pb-2 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${roleColor.chip} ${roleColor.chipText}`}>
+            <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${roleColor.chip}`}>
               {getDisplayName(employee).split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
