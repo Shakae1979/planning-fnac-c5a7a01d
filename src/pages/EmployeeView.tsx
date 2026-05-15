@@ -323,10 +323,13 @@ const EmployeeView = () => {
 
                     if (conge) {
                       const dot = CONGE_DOT_COLORS[conge.type] || CONGE_DOT_COLORS.autre;
+                      const Icon = CONGE_ICONS[conge.type] || CONGE_ICONS.autre;
                       return (
                         <div key={day.key} className="rounded-md p-2 text-center text-xs border bg-muted/60 border-border">
                           <div className="font-medium text-muted-foreground mb-1">{day.label}</div>
-                          <span className={`inline-block h-3 w-3 rounded-full mx-auto mb-1 ring-2 ring-background ${dot}`} />
+                          <span className={`inline-flex items-center justify-center h-6 w-6 rounded-full mx-auto mb-1 text-white ${dot}`}>
+                            <Icon className="h-3.5 w-3.5" />
+                          </span>
                           <div className="font-medium text-[11px] text-foreground">{congeLabels(conge.type)}</div>
                         </div>
                       );
