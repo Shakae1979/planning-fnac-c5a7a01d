@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/hooks/useStore";
-import { Calendar, ChevronLeft, ChevronRight, Clock, User, Palmtree, Flag, Thermometer, GraduationCap, Baby, Stethoscope, Hourglass, MoreHorizontal, HelpCircle, Sun, type LucideIcon } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, User, Palmtree, Flag, Thermometer, GraduationCap, Baby, Stethoscope, Hourglass, MoreHorizontal, HelpCircle, Sun, RefreshCw, MapPin, type LucideIcon } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
@@ -357,9 +357,19 @@ const EmployeeView = () => {
                             </div>
                           </div>
                         ) : isSpecial ? (
-                          <div className={`font-semibold ${isRoulement ? "text-indigo-800 dark:text-indigo-200" : isFerieCell ? "text-amber-800 dark:text-amber-200" : "text-slate-700 dark:text-slate-200"}`}>{isRoulement ? t("schedule.rotation") : isExt ? t("schedule.exterior") : t("schedule.holiday")}</div>
+                          <div className="flex flex-col items-center gap-0.5">
+                            {isRoulement && <RefreshCw className="h-3.5 w-3.5 text-indigo-700 dark:text-indigo-300" />}
+                            {isFerieCell && <Flag className="h-3.5 w-3.5 text-amber-700 dark:text-amber-300" />}
+                            {isExt && <MapPin className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" />}
+                            <div className={`font-semibold ${isRoulement ? "text-indigo-800 dark:text-indigo-200" : isFerieCell ? "text-amber-800 dark:text-amber-200" : "text-slate-700 dark:text-slate-200"}`}>
+                              {isRoulement ? t("schedule.rotation") : isExt ? t("schedule.exterior") : t("schedule.holiday")}
+                            </div>
+                          </div>
                         ) : isFerieCell ? (
-                          <div className="font-semibold text-amber-800 dark:text-amber-200">{t("schedule.holiday")}</div>
+                          <div className="flex flex-col items-center gap-0.5">
+                            <Flag className="h-3.5 w-3.5 text-amber-700 dark:text-amber-300" />
+                            <div className="font-semibold text-amber-800 dark:text-amber-200">{t("schedule.holiday")}</div>
+                          </div>
                         ) : (
                           <div className="text-muted-foreground">{t("misc.rest")}</div>
                         )}
