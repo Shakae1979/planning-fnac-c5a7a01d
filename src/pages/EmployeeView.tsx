@@ -63,16 +63,16 @@ const SHIFT_COLORS = [
 ];
 
 const CONGE_CELL_COLORS: Record<string, { bg: string; text: string; icon: string }> = {
-  // Style distinct des horaires : fond très pâle + bordure pointillée épaisse colorée
-  conge:      { bg: "bg-lime-50 border-2 border-dashed border-lime-500 dark:bg-lime-950/40 dark:border-lime-600",          text: "text-lime-900 dark:text-lime-100",       icon: "text-lime-700 dark:text-lime-300" },
-  rtt:        { bg: "bg-purple-50 border-2 border-dashed border-purple-500 dark:bg-purple-950/40 dark:border-purple-600", text: "text-purple-900 dark:text-purple-100", icon: "text-purple-700 dark:text-purple-300" },
-  maladie:    { bg: "bg-red-50 border-2 border-dashed border-red-500 dark:bg-red-950/40 dark:border-red-600",             text: "text-red-900 dark:text-red-100",         icon: "text-red-700 dark:text-red-300" },
-  formation:  { bg: "bg-yellow-50 border-2 border-dashed border-yellow-500 dark:bg-yellow-950/40 dark:border-yellow-600", text: "text-yellow-900 dark:text-yellow-100", icon: "text-yellow-700 dark:text-yellow-300" },
-  parental:   { bg: "bg-pink-50 border-2 border-dashed border-pink-500 dark:bg-pink-950/40 dark:border-pink-600",         text: "text-pink-900 dark:text-pink-100",       icon: "text-pink-700 dark:text-pink-300" },
-  medical:    { bg: "bg-red-50 border-2 border-dashed border-red-600 dark:bg-red-950/40 dark:border-red-700",             text: "text-red-900 dark:text-red-100",         icon: "text-red-700 dark:text-red-300" },
-  fincarriere:{ bg: "bg-stone-50 border-2 border-dashed border-stone-500 dark:bg-stone-950/40 dark:border-stone-600",     text: "text-stone-900 dark:text-stone-100",     icon: "text-stone-700 dark:text-stone-300" },
-  divers:     { bg: "bg-zinc-50 border-2 border-dashed border-zinc-500 dark:bg-zinc-950/40 dark:border-zinc-600",         text: "text-zinc-900 dark:text-zinc-100",       icon: "text-zinc-700 dark:text-zinc-300" },
-  autre:      { bg: "bg-muted border-2 border-dashed border-muted-foreground/40", text: "text-muted-foreground", icon: "text-muted-foreground" },
+  // Couleurs vives alignées sur la palette CONGE_TYPE_COLORS du planning principal
+  conge:      { bg: "bg-blue-500 border-blue-600",       text: "text-white", icon: "text-white" },
+  rtt:        { bg: "bg-emerald-500 border-emerald-600", text: "text-white", icon: "text-white" },
+  maladie:    { bg: "bg-red-600 border-red-700",         text: "text-white", icon: "text-white" },
+  formation:  { bg: "bg-violet-500 border-violet-600",   text: "text-white", icon: "text-white" },
+  parental:   { bg: "bg-fuchsia-500 border-fuchsia-600", text: "text-white", icon: "text-white" },
+  medical:    { bg: "bg-yellow-500 border-yellow-600",   text: "text-black", icon: "text-black" },
+  fincarriere:{ bg: "bg-teal-500 border-teal-600",       text: "text-white", icon: "text-white" },
+  divers:     { bg: "bg-amber-500 border-amber-600",     text: "text-black", icon: "text-black" },
+  autre:      { bg: "bg-slate-500 border-slate-600",     text: "text-white", icon: "text-white" },
 };
 const DEFAULT_CONGE_COLOR = CONGE_CELL_COLORS.divers;
 
