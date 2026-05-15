@@ -63,15 +63,16 @@ const SHIFT_COLORS = [
 ];
 
 const CONGE_CELL_COLORS: Record<string, { bg: string; text: string; icon: string }> = {
-  conge:      { bg: "bg-lime-100 border-lime-300 dark:bg-lime-900/30 dark:border-lime-700",       text: "text-lime-800 dark:text-lime-200",       icon: "text-lime-700 dark:text-lime-300" },
-  rtt:        { bg: "bg-cyan-100 border-cyan-300 dark:bg-cyan-900/30 dark:border-cyan-700",       text: "text-cyan-800 dark:text-cyan-200",       icon: "text-cyan-700 dark:text-cyan-300" },
-  maladie:    { bg: "bg-rose-100 border-rose-300 dark:bg-rose-900/30 dark:border-rose-700",       text: "text-rose-800 dark:text-rose-200",       icon: "text-rose-700 dark:text-rose-300" },
-  formation:  { bg: "bg-violet-100 border-violet-300 dark:bg-violet-900/30 dark:border-violet-700", text: "text-violet-800 dark:text-violet-200", icon: "text-violet-700 dark:text-violet-300" },
-  parental:   { bg: "bg-pink-100 border-pink-300 dark:bg-pink-900/30 dark:border-pink-700",       text: "text-pink-800 dark:text-pink-200",       icon: "text-pink-700 dark:text-pink-300" },
-  medical:    { bg: "bg-fuchsia-100 border-fuchsia-300 dark:bg-fuchsia-900/30 dark:border-fuchsia-700", text: "text-fuchsia-800 dark:text-fuchsia-200", icon: "text-fuchsia-700 dark:text-fuchsia-300" },
-  fincarriere:{ bg: "bg-teal-100 border-teal-300 dark:bg-teal-900/30 dark:border-teal-700",       text: "text-teal-800 dark:text-teal-200",       icon: "text-teal-700 dark:text-teal-300" },
-  divers:     { bg: "bg-yellow-100 border-yellow-300 dark:bg-yellow-900/30 dark:border-yellow-700", text: "text-yellow-800 dark:text-yellow-200", icon: "text-yellow-700 dark:text-yellow-300" },
-  autre:      { bg: "bg-muted border-border", text: "text-muted-foreground", icon: "text-muted-foreground" },
+  // Style distinct des horaires : fond très pâle + bordure pointillée épaisse colorée
+  conge:      { bg: "bg-lime-50 border-2 border-dashed border-lime-500 dark:bg-lime-950/40 dark:border-lime-600",          text: "text-lime-900 dark:text-lime-100",       icon: "text-lime-700 dark:text-lime-300" },
+  rtt:        { bg: "bg-purple-50 border-2 border-dashed border-purple-500 dark:bg-purple-950/40 dark:border-purple-600", text: "text-purple-900 dark:text-purple-100", icon: "text-purple-700 dark:text-purple-300" },
+  maladie:    { bg: "bg-red-50 border-2 border-dashed border-red-500 dark:bg-red-950/40 dark:border-red-600",             text: "text-red-900 dark:text-red-100",         icon: "text-red-700 dark:text-red-300" },
+  formation:  { bg: "bg-yellow-50 border-2 border-dashed border-yellow-500 dark:bg-yellow-950/40 dark:border-yellow-600", text: "text-yellow-900 dark:text-yellow-100", icon: "text-yellow-700 dark:text-yellow-300" },
+  parental:   { bg: "bg-pink-50 border-2 border-dashed border-pink-500 dark:bg-pink-950/40 dark:border-pink-600",         text: "text-pink-900 dark:text-pink-100",       icon: "text-pink-700 dark:text-pink-300" },
+  medical:    { bg: "bg-red-50 border-2 border-dashed border-red-600 dark:bg-red-950/40 dark:border-red-700",             text: "text-red-900 dark:text-red-100",         icon: "text-red-700 dark:text-red-300" },
+  fincarriere:{ bg: "bg-stone-50 border-2 border-dashed border-stone-500 dark:bg-stone-950/40 dark:border-stone-600",     text: "text-stone-900 dark:text-stone-100",     icon: "text-stone-700 dark:text-stone-300" },
+  divers:     { bg: "bg-zinc-50 border-2 border-dashed border-zinc-500 dark:bg-zinc-950/40 dark:border-zinc-600",         text: "text-zinc-900 dark:text-zinc-100",       icon: "text-zinc-700 dark:text-zinc-300" },
+  autre:      { bg: "bg-muted border-2 border-dashed border-muted-foreground/40", text: "text-muted-foreground", icon: "text-muted-foreground" },
 };
 const DEFAULT_CONGE_COLOR = CONGE_CELL_COLORS.divers;
 
