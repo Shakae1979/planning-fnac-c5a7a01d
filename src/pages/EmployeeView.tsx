@@ -324,13 +324,14 @@ const EmployeeView = () => {
                     if (conge) {
                       const dot = CONGE_DOT_COLORS[conge.type] || CONGE_DOT_COLORS.autre;
                       const Icon = CONGE_ICONS[conge.type] || CONGE_ICONS.autre;
+                      const isMaladie = conge.type === "maladie";
                       return (
-                        <div key={day.key} className="rounded-md p-2 text-center text-xs border bg-muted/60 border-border">
-                          <div className="font-medium text-muted-foreground mb-1">{day.label}</div>
+                        <div key={day.key} className={`rounded-md p-2 text-center text-xs border ${isMaladie ? "bg-red-100 border-red-300 dark:bg-red-900/30 dark:border-red-700" : "bg-muted/60 border-border"}`}>
+                          <div className={`font-medium mb-1 ${isMaladie ? "text-red-700 dark:text-red-200" : "text-muted-foreground"}`}>{day.label}</div>
                           <span className={`inline-flex items-center justify-center h-6 w-6 rounded-full mx-auto mb-1 text-white ${dot}`}>
                             <Icon className="h-3.5 w-3.5" />
                           </span>
-                          <div className="font-medium text-[11px] text-foreground">{congeLabels(conge.type)}</div>
+                          <div className={`font-medium text-[11px] ${isMaladie ? "text-red-800 dark:text-red-100" : "text-foreground"}`}>{congeLabels(conge.type)}</div>
                         </div>
                       );
                     }
