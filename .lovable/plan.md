@@ -1,42 +1,23 @@
 ## Objectif
 
-Aligner la palette des **rôles/départements dans la vue "Mon Planning"** (mobile et desktop) sur la charte centralisée déjà utilisée par les autres vues planning (Équipe du jour, Planning équipe, Éditeur, Congés).
+Dans **Planning Fnac → Planning**, ajouter une séparation visuelle entre les différents rayons (rôles) de la grille des horaires, pour faciliter le repérage lors de la saisie.
 
-## Incohérence détectée
+## Contexte
 
-La vue "Mon planning" (`EmployeeMobileView.tsx`) utilise une palette divergente :
+Les employés sont déjà triés par rôle (Responsables → Technique → Éditorial → Stock → Caisse → Stagiaires) dans `src/components/dashboard/ScheduleEditor.tsx` (ligne 148-153). Chaque ligne a déjà une bordure gauche colorée par département, mais aucune séparation horizontale ne marque le passage d'un rayon à l'autre.
 
-| Rôle | Vues planning (charte officielle) | Mon Planning (actuel) |
-|---|---|---|
-| Responsable | 🔴 Rouge | 🟡 Ambre |
-| Technique | 🟠 Orange | 🔵 Sky |
-| Éditorial | 🟡 Jaune | 🟣 Violet |
-| Stock | 🔵 Bleu | 🟢 Émeraude |
-| Caisse | 🟢 Émeraude | 🌹 Rose |
-| Stagiaire | 🌸 Rose | 🩵 Teal |
+Le même pattern existe déjà dans `HourlyGrid.tsx` (vue jour) avec `isFirstOfRole` + `border-t-4 border-t-foreground/25`. On va reproduire ce comportement dans l'éditeur de planning hebdo.
 
-Résultat : un même collaborateur apparaît avec une couleur **différente** entre la vue admin et sa vue personnelle.
+## Changement
 
-## Modifications
+Dans `src/components/dashboard/ScheduleEditor.tsx`, au niveau du `.map((emp) => ...)` ligne 876 :
 
-### 1. `src/components/employee/EmployeeMobileView.tsx`
-- Supprimer la constante locale `ROLE_COLORS` et la fonction `getRoleColor`.
-- Importer `getRoleColors` depuis `@/lib/role-colors`.
-- Remplacer l'usage `roleColor.bar` / `roleColor.chip` / `roleColor.chipText` par les variantes centralisées (`bar`, `bgChip`).
+1. Capturer l'index dans le map : `employees?.map((emp, idx) => { ... })`.
+2. Calculer `const isFirstOfRole = idx > 0 && employees[idx - 1].role !== emp.role;`
+3. Ajouter à la className du `<tr>` (ligne 904) un séparateur top épais quand `isFirstOfRole` est vrai : `${isFirstOfRole ? "border-t-4 border-t-foreground/25" : ""}`.
 
-### Hors périmètre (volontairement préservé)
+Cela donnera une ligne horizontale marquée à chaque changement de rayon, cohérente visuellement avec la grille horaire du jour.
 
-- **`SHIFT_COLORS`** dans `EmployeeView.tsx` et `EmployeeMobileView.tsx` : palette dédiée aux **shifts récurrents** (différents créneaux horaires d'une semaine). Ce n'est pas une couleur de rôle, c'est un code visuel pour distinguer les blocs horaires identiques. À conserver intact.
-- **`CONGE_COLORS`** dans `TeamWeekView.tsx` : couleurs des statuts d'absence (lime/cyan/rose…), hors périmètre puisque la demande concerne uniquement les rôles.
-- Couleurs des **vacances scolaires**, **jours fériés** et **badges techniques** (SAV orange, semaines A/B bleu/violet) : sémantiques propres, à ne pas toucher.
+## Fichier modifié
 
-## Détails techniques
-
-- Aucune migration DB.
-- Aucun changement d'API.
-- Refactor purement visuel sur 1 fichier.
-- Tailwind JIT : les classes finales sont déjà dans `role-colors.ts` (chaînes littérales), donc aucun ajout de safelist.
-
-## Bénéfice
-
-Un collaborateur identifie immédiatement son département avec **la même couleur** qu'il voit dans le planning collectif, l'éditeur admin et le calendrier des congés.
+- `src/components/dashboard/ScheduleEditor.tsx` (≈3 lignes modifiées, aucune logique métier touchée)

@@ -873,7 +873,7 @@ export function ScheduleEditor() {
                   </td>
                 </tr>
               ) : (
-                employees?.map((emp) => {
+                employees?.map((emp, idx) => {
                   let totalMinutes = 0;
                   let breakMinutes = 0;
                   for (const day of DAYS) {
@@ -899,9 +899,10 @@ export function ScheduleEditor() {
                   }
                   const isUnderstaffed = leaveDays === 0 && totalH > 0 && totalH < emp.contract_hours;
                   const isSource = copiedEmployee === emp.id;
+                  const isFirstOfRole = idx > 0 && employees![idx - 1].role !== emp.role;
 
                   return (
-                    <tr key={emp.id} className={`border-b border-border/50 border-l-4 ${deptColor.border} ${isUnderstaffed ? "bg-destructive/10" : isSource ? "bg-primary/10" : deptColor.bg}`}>
+                    <tr key={emp.id} className={`border-b border-border/50 border-l-4 ${deptColor.border} ${isFirstOfRole ? "border-t-4 border-t-foreground/25" : ""} ${isUnderstaffed ? "bg-destructive/10" : isSource ? "bg-primary/10" : deptColor.bg}`}>
                       <td className={`py-0.5 pr-1 sticky left-0 z-10 ${isUnderstaffed ? "bg-destructive/10" : isSource ? "bg-primary/10" : deptColor.bg}`}>
                         <div className="flex items-center gap-2">
                           {copiedEmployee !== null && !isSource && (
