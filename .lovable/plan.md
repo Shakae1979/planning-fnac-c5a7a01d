@@ -1,23 +1,47 @@
 ## Objectif
 
-Dans **Planning Fnac → Planning**, ajouter une séparation visuelle entre les différents rayons (rôles) de la grille des horaires, pour faciliter le repérage lors de la saisie.
+Permettre de sauter rapidement à n'importe quelle semaine sans cliquer 20 fois sur les flèches, dans les vues planning concernées.
 
-## Contexte
+## Composant central : `WeekNavigator`
 
-Les employés sont déjà triés par rôle (Responsables → Technique → Éditorial → Stock → Caisse → Stagiaires) dans `src/components/dashboard/ScheduleEditor.tsx` (ligne 148-153). Chaque ligne a déjà une bordure gauche colorée par département, mais aucune séparation horizontale ne marque le passage d'un rayon à l'autre.
+Nouveau composant réutilisable `src/components/WeekNavigator.tsx` qui remplace le bloc actuel (flèche ← / date / flèche →).
 
-Le même pattern existe déjà dans `HourlyGrid.tsx` (vue jour) avec `isFirstOfRole` + `border-t-4 border-t-foreground/25`. On va reproduire ce comportement dans l'éditeur de planning hebdo.
+Contenu :
+- **◀ / ▶** : navigation semaine par semaine (comportement actuel conservé).
+- **Date cliquable** (ex: `18/05/2026 — 23/05/2026`) qui ouvre un **Popover** contenant un mini calendrier (`<Calendar mode="single">` shadcn). Cliquer un jour calcule le lundi de la semaine et y saute. La semaine active est surlignée.
+- **Champ « S__ »** : petit input numérique à droite. Tape `23` + Entrée → saute à la semaine ISO 23 de l'année en cours. Tape `23/2027` → saute à la S23 de 2027.
+- **Bouton « Aujourd'hui »** : revient à la semaine courante (`weekOffset = 0`), désactivé si déjà dessus.
 
-## Changement
+## Raccourcis clavier (globaux à la page)
 
-Dans `src/components/dashboard/ScheduleEditor.tsx`, au niveau du `.map((emp) => ...)` ligne 876 :
+Hook `useWeekShortcuts` :
+- `←` / `→` : semaine précédente / suivante
+- `Shift+←` / `Shift+→` : −4 / +4 semaines (mois)
+- `T` ou `Home` : Aujourd'hui
+- `G` : ouvre le popover calendrier (Go to)
 
-1. Capturer l'index dans le map : `employees?.map((emp, idx) => { ... })`.
-2. Calculer `const isFirstOfRole = idx > 0 && employees[idx - 1].role !== emp.role;`
-3. Ajouter à la className du `<tr>` (ligne 904) un séparateur top épais quand `isFirstOfRole` est vrai : `${isFirstOfRole ? "border-t-4 border-t-foreground/25" : ""}`.
+Désactivés quand le focus est dans un input/textarea/contenteditable pour ne pas casser la saisie d'horaires.
 
-Cela donnera une ligne horizontale marquée à chaque changement de rayon, cohérente visuellement avec la grille horaire du jour.
+## Intégration
 
-## Fichier modifié
+Remplacer le bloc de navigation dans :
+- `src/pages/TeamWeekView.tsx` (Planning semaine — vue principale concernée)
+- `src/components/dashboard/ScheduleEditor.tsx` (Planning Fnac — éditeur)
+- `src/pages/TeamDayView.tsx` (Équipe du jour — adapté pour navigation par jour, même UX)
+- `src/pages/EmployeeView.tsx` (Mon planning)
 
-- `src/components/dashboard/ScheduleEditor.tsx` (≈3 lignes modifiées, aucune logique métier touchée)
+L'API du composant accepte `weekOffset`, `onChange(offset)` et un mode optionnel `"day" | "week"` pour TeamDayView.
+
+## Détails techniques
+
+- Calcul ISO week : helper `getISOWeek(date)` et `getDateFromISOWeek(week, year)` dans `src/lib/format.ts` (déjà utilisé pour l'affichage `S12`, on factorise).
+- Popover shadcn déjà disponible, Calendar shadcn aussi (`pointer-events-auto`).
+- Affichage du numéro de semaine ISO à côté de la date (ex: `S21 · 18/05 → 23/05`) pour aider à se repérer.
+- i18n FR/NL : nouvelles clés `nav.today`, `nav.goToWeek`, `nav.weekNumber`, `nav.shortcuts`.
+- Tooltip sur l'input et les boutons listant les raccourcis.
+
+## Hors scope
+
+- Pas de changement aux données ni à la sauvegarde.
+- Pas de modification de la sidebar ni de l'en-tête global.
+- Pas de bookmarks/favoris de semaines (peut venir plus tard si besoin).
