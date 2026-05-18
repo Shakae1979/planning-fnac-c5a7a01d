@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
-import { ChevronLeft, ChevronRight, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin } from "lucide-react";
+import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin } from "lucide-react";
+import { WeekNavigator } from "@/components/WeekNavigator";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -682,25 +683,18 @@ export function ScheduleEditor() {
       {/* Week navigation */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="icon" onClick={() => { setWeekOffset((w) => w - 1); setLocalEdits({}); setLocalDayComments({}); cancelCopy(); }}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <div className="text-center">
-            <div className="text-sm font-semibold flex items-center justify-center gap-2">
-              S{getWeekNumber(currentMonday)} — {weekLabel} — {weekEndLabel}
-              {hasABWeeks && detectedTemplate && (
-                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                  detectedTemplate === "A" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" : "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300"
-                }`}>
-                  {t("schedule.week" as any)} {detectedTemplate}
-                </span>
-              )}
-            </div>
-            <div className="text-xs text-muted-foreground">{t("schedule.weekOfDate")} {formatDateBE(currentMonday)}</div>
-          </div>
-          <Button variant="outline" size="icon" onClick={() => { setWeekOffset((w) => w + 1); setLocalEdits({}); setLocalDayComments({}); cancelCopy(); }}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          <WeekNavigator
+            offset={weekOffset}
+            onChange={setWeekOffset}
+            onBeforeChange={() => { setLocalEdits({}); setLocalDayComments({}); cancelCopy(); }}
+            rightLabel={hasABWeeks && detectedTemplate ? (
+              <span className={`ml-1.5 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                detectedTemplate === "A" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" : "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300"
+              }`}>
+                {t("schedule.week" as any)} {detectedTemplate}
+              </span>
+            ) : null}
+          />
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={() => window.print()}>
