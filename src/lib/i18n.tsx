@@ -169,6 +169,16 @@ const translations = {
   "action.reactivate": { fr: "Réactiver", nl: "Heractiveren" },
   "action.deletePermanent": { fr: "Supprimer définitivement", nl: "Definitief verwijderen" },
 
+  // ========== Week navigation ==========
+  "nav.today": { fr: "Aujourd'hui", nl: "Vandaag" },
+  "nav.goToWeek": { fr: "Aller à la semaine", nl: "Ga naar week" },
+  "nav.weekNumber": { fr: "N° semaine", nl: "Weeknr." },
+  "nav.weekNumberPh": { fr: "S23 ou 23/2027", nl: "W23 of 23/2027" },
+  "nav.pickDate": { fr: "Choisir une date", nl: "Kies een datum" },
+  "nav.shortcuts": { fr: "Raccourcis : ← → semaine · Shift+← → mois · T aujourd'hui · G calendrier", nl: "Snelkoppelingen: ← → week · Shift+← → maand · T vandaag · G kalender" },
+  "nav.shortcutsDay": { fr: "Raccourcis : ← → jour · Shift+← → semaine · T aujourd'hui · G calendrier", nl: "Snelkoppelingen: ← → dag · Shift+← → week · T vandaag · G kalender" },
+  "nav.go": { fr: "OK", nl: "OK" },
+
   // ========== Login ==========
   "login.title": { fr: "Connexion au Planning", nl: "Aanmelden bij Planning" },
   "login.email": { fr: "Email", nl: "E-mail" },
