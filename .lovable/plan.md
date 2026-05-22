@@ -1,38 +1,40 @@
-## Objectif
+# Plan — Améliorations Compteur d'heures
 
-Revenir à un calcul simple : seules les heures **réellement prestées** comptent. Les absences (congés, maladie, fériés) ne génèrent plus aucune heure créditée. L'écart se calcule directement contre le contrat.
+Deux ajouts au composant `HoursCounter`, sans toucher à la logique métier (`computeNetHours` reste inchangé).
 
-## Changements
+## 1. Barre de filtres, tri et recherche
 
-### 1. `src/lib/hours.ts`
-- Simplifier `computeNetHours` pour retourner uniquement `{ worked, net }` (alias).
-- Supprimer les champs `credited`, `missingFerieCredits` et toute la logique de forfait `contrat / jours_semaine`.
-- Garder la règle pause 1h si shift ≥ 6h, et statuts spéciaux (Roulement / Extérieur = 0h).
+Au-dessus du tableau, une ligne d'outils :
 
-### 2. `src/components/dashboard/HoursCounter.tsx`
-- Supprimer les colonnes **Crédité** et **Total**.
-- Garder uniquement : Collaborateur, Contrat, Presté (semaine), Écart semaine, Presté (mois), Écart mois.
-- Supprimer la section **"Fériés à saisir"** et toute la UI liée à la saisie manuelle de crédits.
-- Mettre à jour l'export CSV en conséquence.
-- Retirer les requêtes vers `ferie_credits`.
+- **Recherche** : input texte qui filtre les lignes par nom (insensible casse/accents).
+- **Filtre département** : sélecteur multi-choix (Popover + checkboxes) avec les 6 catégories de `ROLE_ORDER` (Responsables, Technique, Éditorial, Stock, Caisse, Stagiaires). Badge avec compteur quand un filtre est actif. Bouton « Réinitialiser ».
+- **Tri** : en-têtes de colonnes cliquables (Collaborateur, Contrat, Écart sem., Écart mois) avec icône ↑/↓. Tri par défaut : ordre hiérarchique actuel (préservé). Cliquer sur "Écart sem." ou "Écart mois" trie du plus déficitaire au plus excédentaire (ou inverse).
 
-### 3. `src/pages/EmployeeView.tsx`
-- Retirer toute référence à `credited` / `missingFerieCredits` si présente.
+La ligne TOTAL du `tfoot` recalcule à partir des lignes visibles après filtrage (le total reflète ce que l'utilisateur voit).
 
-### 4. `src/lib/i18n.tsx`
-- Supprimer les clés FR/NL liées à : `credited`, `total`, `ferieCreditsToFill`, etc.
+## 2. Colonne « Tendance 4 semaines »
 
-### 5. Base de données
-- Créer une migration qui **DROP** la table `public.ferie_credits` (devenue inutile).
+Nouvelle colonne entre « Écart sem. » et la séparation mois, intitulée « Tendance 4 sem. ».
 
-### 6. Mémoire projet
-- Mettre à jour `mem://features/planning/calcul-heures-nettes` pour acter que les absences ne génèrent aucune heure et que l'écart se calcule strictement sur le presté vs contrat.
+- Pour chaque collaborateur, on calcule les heures prestées des 4 dernières semaines glissantes (semaine courante incluse).
+- Affichage : **mini-sparkline SVG inline** (~80×24px) montrant l'évolution + petite flèche colorée (↗ vert / → gris / ↘ rouge) indiquant la tendance globale (régression linéaire simple sur 4 points).
+- Tooltip natif (`title`) au survol listant les 4 valeurs : ex. `S46: 34h · S47: 36h · S48: 38h · S49: 35h`.
 
-## Résultat attendu
+### Récupération des données
 
-| Colonne | Valeur |
-|---|---|
-| Presté | Heures réellement travaillées (net) |
-| Écart | Presté − Contrat |
+Étendre `weekStarts` pour inclure aussi les 3 semaines précédant `currentMonday` (en plus du mois en cours). La requête `weekly_schedules` existante les récupère en une seule passe. Aucun nouvel appel réseau.
 
-Un Total ne peut donc plus dépasser le contrat puisque la notion même de Total disparaît. Affichage clair et sans ambiguïté.
+### Composant sparkline
+
+Petit composant local `<TrendSparkline values={number[]} />` (SVG path, pas de dépendance). Pas de lib externe.
+
+## Fichiers touchés
+
+- `src/components/dashboard/HoursCounter.tsx` — ajout barre d'outils, état tri/filtres/recherche, calcul tendance, nouvelle colonne, sparkline inline, totals recalculés sur les lignes visibles.
+- `src/lib/i18n.tsx` — nouvelles clés FR/NL : `hours.search`, `hours.searchPlaceholder`, `hours.filterDept`, `hours.allDepts`, `hours.reset`, `hours.trend4w`, `hours.sortAsc`, `hours.sortDesc`.
+
+## Hors-scope (non touché)
+
+- `computeNetHours` et `EmployeeHoursDetailDialog` : aucun changement.
+- Pas de modification de base de données.
+- Pas de changement à la mémoire projet (règle de calcul inchangée).
