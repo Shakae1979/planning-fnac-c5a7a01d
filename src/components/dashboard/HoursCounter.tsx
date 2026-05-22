@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Clock, Printer, Download, Search, Filter, ArrowUp, ArrowDown, ArrowUpDown, X, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Clock, Printer, Download, Search, Filter, ArrowUp, ArrowDown, ArrowUpDown, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/hooks/useStore";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
