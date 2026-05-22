@@ -368,8 +368,9 @@ export function HoursCounter() {
             {rows.map((r) => {
               const wTot = r.weekWorked + r.weekCredited;
               const mTot = r.monthWorked + r.monthCredited;
-              const weekGap = wTot - r.contract;
-              const monthGap = mTot - r.monthContract;
+              // Écart = heures réellement prestées − contrat (les crédits d'absence ne comblent PAS l'écart)
+              const weekGap = r.weekWorked - r.contract;
+              const monthGap = r.monthWorked - r.monthContract;
               return (
                 <tr key={r.id} className="border-t hover:bg-muted/30">
                   <td className="px-3 py-1.5 font-medium">{r.name}</td>
