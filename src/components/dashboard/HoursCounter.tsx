@@ -397,12 +397,12 @@ export function HoursCounter() {
                 <td className="px-3 py-2 text-right font-mono border-l">{totals.weekWorked.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono text-blue-700">+{totals.weekCredited.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono">{(totals.weekWorked + totals.weekCredited).toFixed(1)}h</td>
-                <td className={`px-3 py-2 text-right font-mono ${gapClass(totals.weekWorked + totals.weekCredited - totals.contract)}`}>{((totals.weekWorked + totals.weekCredited - totals.contract) >= 0 ? "+" : "")}{(totals.weekWorked + totals.weekCredited - totals.contract).toFixed(1)}h</td>
+                <td className={`px-3 py-2 text-right font-mono ${gapClass(totals.weekWorked - totals.contract)}`}>{((totals.weekWorked - totals.contract) >= 0 ? "+" : "")}{(totals.weekWorked - totals.contract).toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono border-l">{totals.monthWorked.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono text-blue-700">+{totals.monthCredited.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono">{(totals.monthWorked + totals.monthCredited).toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono text-muted-foreground">{totals.monthContract.toFixed(1)}h</td>
-                <td className={`px-3 py-2 text-right font-mono ${gapClass(totals.monthWorked + totals.monthCredited - totals.monthContract)}`}>{((totals.monthWorked + totals.monthCredited - totals.monthContract) >= 0 ? "+" : "")}{(totals.monthWorked + totals.monthCredited - totals.monthContract).toFixed(1)}h</td>
+                <td className={`px-3 py-2 text-right font-mono ${gapClass(totals.monthWorked - totals.monthContract)}`}>{((totals.monthWorked - totals.monthContract) >= 0 ? "+" : "")}{(totals.monthWorked - totals.monthContract).toFixed(1)}h</td>
               </tr>
             </tfoot>
           )}
