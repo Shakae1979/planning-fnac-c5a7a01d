@@ -292,12 +292,12 @@ export function HoursCounter() {
         r.weekWorked.toFixed(1),
         r.weekCredited.toFixed(1),
         wTot.toFixed(1),
-        (wTot - r.contract).toFixed(1),
+        (r.weekWorked - r.contract).toFixed(1),
         r.monthWorked.toFixed(1),
         r.monthCredited.toFixed(1),
         mTot.toFixed(1),
         r.monthContract.toFixed(1),
-        (mTot - r.monthContract).toFixed(1),
+        (r.monthWorked - r.monthContract).toFixed(1),
       ].join(";"));
     }
     const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
@@ -368,8 +368,9 @@ export function HoursCounter() {
             {rows.map((r) => {
               const wTot = r.weekWorked + r.weekCredited;
               const mTot = r.monthWorked + r.monthCredited;
-              const weekGap = wTot - r.contract;
-              const monthGap = mTot - r.monthContract;
+              // Écart = heures réellement prestées − contrat (les crédits d'absence ne comblent PAS l'écart)
+              const weekGap = r.weekWorked - r.contract;
+              const monthGap = r.monthWorked - r.monthContract;
               return (
                 <tr key={r.id} className="border-t hover:bg-muted/30">
                   <td className="px-3 py-1.5 font-medium">{r.name}</td>
@@ -396,12 +397,12 @@ export function HoursCounter() {
                 <td className="px-3 py-2 text-right font-mono border-l">{totals.weekWorked.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono text-blue-700">+{totals.weekCredited.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono">{(totals.weekWorked + totals.weekCredited).toFixed(1)}h</td>
-                <td className={`px-3 py-2 text-right font-mono ${gapClass(totals.weekWorked + totals.weekCredited - totals.contract)}`}>{((totals.weekWorked + totals.weekCredited - totals.contract) >= 0 ? "+" : "")}{(totals.weekWorked + totals.weekCredited - totals.contract).toFixed(1)}h</td>
+                <td className={`px-3 py-2 text-right font-mono ${gapClass(totals.weekWorked - totals.contract)}`}>{((totals.weekWorked - totals.contract) >= 0 ? "+" : "")}{(totals.weekWorked - totals.contract).toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono border-l">{totals.monthWorked.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono text-blue-700">+{totals.monthCredited.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono">{(totals.monthWorked + totals.monthCredited).toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono text-muted-foreground">{totals.monthContract.toFixed(1)}h</td>
-                <td className={`px-3 py-2 text-right font-mono ${gapClass(totals.monthWorked + totals.monthCredited - totals.monthContract)}`}>{((totals.monthWorked + totals.monthCredited - totals.monthContract) >= 0 ? "+" : "")}{(totals.monthWorked + totals.monthCredited - totals.monthContract).toFixed(1)}h</td>
+                <td className={`px-3 py-2 text-right font-mono ${gapClass(totals.monthWorked - totals.monthContract)}`}>{((totals.monthWorked - totals.monthContract) >= 0 ? "+" : "")}{(totals.monthWorked - totals.monthContract).toFixed(1)}h</td>
               </tr>
             </tfoot>
           )}
