@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName, formatDateLongBE, formatDateBE, formatLocalDate, getWeekNumber } from "@/lib/format";
+import { HoursCounter } from "./HoursCounter";
 
 const ROLE_META: Record<string, { label: string; bg: string; text: string }> = {
   responsable: { label: "Resp.", bg: "bg-red-100", text: "text-red-800" },
@@ -326,61 +327,7 @@ export function DashboardOverview() {
 
       {/* Per-employee summary */}
       <div className="kpi-card">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-4">{t("recap.perSeller")}</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b">
-                <th className="pb-2 text-left font-semibold text-muted-foreground">{t("schedule.seller")}</th>
-                <th className="pb-2 text-center font-semibold text-muted-foreground">{t("recap.category")}</th>
-                <th className="pb-2 text-center font-semibold text-muted-foreground">{t("recap.contract")}</th>
-                <th className="pb-2 text-center font-semibold text-muted-foreground">{t("recap.planned")}</th>
-                <th className="pb-2 text-center font-semibold text-muted-foreground">{t("recap.diff")}</th>
-                <th className="pb-2 text-center font-semibold text-muted-foreground">{t("recap.days")}</th>
-                <th className="pb-2 text-center font-semibold text-muted-foreground">{t("recap.status")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedEmpSummary?.map((emp) => {
-                const catColor = CATEGORIES.find((c) => c.key === emp.role)?.color ?? "text-muted-foreground";
-                return (
-                  <tr key={emp.id} className="border-b border-border/30 table-row-hover">
-                    <td className="py-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-full bg-accent/20 flex items-center justify-center text-xs font-bold text-accent">
-                          {getDisplayName(emp).split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
-                        </div>
-                        <span className="font-medium">{getDisplayName(emp)}</span>
-                      </div>
-                    </td>
-                    <td className={`py-2 text-center text-xs font-medium ${catColor}`}>
-                      {roleLabels(emp.role)}
-                    </td>
-                    <td className="py-2 text-center font-mono-data">{emp.contract_hours}h</td>
-                    <td className="py-2 text-center font-mono-data">{emp.hasSchedule ? `${emp.hoursWorked}h` : "—"}</td>
-                    <td className="py-2 text-center">
-                      {emp.hasSchedule ? (
-                        <span className={`font-mono-data font-medium ${emp.diff === 0 ? "text-accent" : emp.diff > 0 ? "text-warning" : "text-destructive"}`}>
-                          {emp.diff === 0 ? "OK" : `${emp.diff > 0 ? "+" : ""}${emp.diff}h`}
-                        </span>
-                      ) : "—"}
-                    </td>
-                    <td className="py-2 text-center font-mono-data">{emp.hasSchedule ? `${emp.daysWorked}j` : "—"}</td>
-                    <td className="py-2 text-center">
-                      {emp.isRoulement ? (
-                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground">{t("schedule.rotation")}</span>
-                      ) : emp.hasSchedule ? (
-                        <span className="badge-positive">{t("recap.statusPlanned")}</span>
-                      ) : (
-                        <span className="badge-negative">{t("recap.statusUnplanned")}</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <HoursCounter />
       </div>
     </div>
   );
