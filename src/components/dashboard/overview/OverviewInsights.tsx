@@ -129,33 +129,65 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
 
   return (
     <div className="space-y-4">
-      {/* Alerts banner */}
-      {alerts.length === 0 ? (
-        <div className="kpi-card flex items-center gap-2 py-3 border-l-4 border-l-emerald-500">
-          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-          <span className="text-sm text-muted-foreground">{t("insights.allGood")}</span>
-        </div>
-      ) : (
-        <div className="kpi-card py-3 border-l-4 border-l-warning">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="h-4 w-4 text-warning" />
-            <span className="text-sm font-semibold">{t("insights.weekAlerts")}</span>
+      {/* Top row: alerts (2/3) + upcoming leaves (1/3) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {alerts.length === 0 ? (
+          <div className="kpi-card lg:col-span-2 flex items-center gap-2 py-3 border-l-4 border-l-emerald-500">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <span className="text-sm text-muted-foreground">{t("insights.allGood")}</span>
           </div>
-          <ul className="space-y-1.5 text-sm">
-            {alerts.map((a, i) => (
-              <li key={i} className="text-muted-foreground">
-                <div>· <span className="font-medium text-foreground">{a.text}</span></div>
-                {a.detail && (
-                  <div className="ml-3 text-xs opacity-80 leading-relaxed">{a.detail}</div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        ) : (
+          <div className="kpi-card lg:col-span-2 py-3 border-l-4 border-l-warning">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="h-4 w-4 text-warning" />
+              <span className="text-sm font-semibold">{t("insights.weekAlerts")}</span>
+            </div>
+            <ul className="space-y-1.5 text-sm">
+              {alerts.map((a, i) => (
+                <li key={i} className="text-muted-foreground">
+                  <div>· <span className="font-medium text-foreground">{a.text}</span></div>
+                  {a.detail && (
+                    <div className="ml-3 text-xs opacity-80 leading-relaxed">{a.detail}</div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-      {/* Mini cards row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Upcoming leaves 7d */}
+        <div className="kpi-card">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <CalendarOff className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-semibold">{t("insights.upcomingLeaves")}</span>
+            </div>
+            <span className="text-lg font-bold font-mono-data">{upcoming.length}</span>
+          </div>
+          {upcoming.length === 0 ? (
+            <div className="text-xs text-muted-foreground">{t("insights.noLeaves")}</div>
+          ) : (
+            <ul className="text-xs text-muted-foreground space-y-0.5">
+              {upcoming.slice(0, 6).map((c: any) => {
+                const emp = empById.get(c.employee_id);
+                const name = emp ? getDisplayName(emp as any) : "—";
+                const typeShort = t(`leave.${c.type}.short` as any) || c.type;
+                return (
+                  <li key={c.id} className="truncate">
+                    · <span className="text-foreground">{name}</span>{" "}
+                    <span className="opacity-70">({typeShort})</span>{" "}
+                    {formatDateBE(new Date(c.date_start))}→{formatDateBE(new Date(c.date_end))}
+                  </li>
+                );
+              })}
+              {upcoming.length > 6 && <li className="italic">+ {upcoming.length - 6}…</li>}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom row: occupancy + by department */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Occupancy */}
         <div className="kpi-card">
           <div className="flex items-center justify-between mb-2">
@@ -207,32 +239,6 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
                   </li>
                 );
               })}
-            </ul>
-          )}
-        </div>
-
-        {/* Upcoming leaves 7d */}
-        <div className="kpi-card">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-muted-foreground">{t("insights.upcomingLeaves")}</span>
-            <CalendarOff className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <span className="text-2xl font-bold font-mono-data">{upcoming.length}</span>
-          {upcoming.length === 0 ? (
-            <div className="text-xs text-muted-foreground mt-1.5">{t("insights.noLeaves")}</div>
-          ) : (
-            <ul className="text-xs text-muted-foreground mt-1.5 space-y-0.5">
-              {upcoming.slice(0, 3).map((c: any) => {
-                const emp = empById.get(c.employee_id);
-                const name = emp ? getDisplayName(emp as any) : "—";
-                const typeShort = t(`leave.${c.type}.short` as any) || c.type;
-                return (
-                  <li key={c.id} className="truncate">
-                    · {name} <span className="opacity-70">({typeShort})</span> {formatDateBE(new Date(c.date_start))}→{formatDateBE(new Date(c.date_end))}
-                  </li>
-                );
-              })}
-              {upcoming.length > 3 && <li className="italic">+ {upcoming.length - 3}…</li>}
             </ul>
           )}
         </div>
