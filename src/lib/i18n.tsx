@@ -255,6 +255,7 @@ const translations = {
   "insights.upcomingLeaves": { fr: "Absences (7 j)", nl: "Afwezigheden (7 d)" },
   "insights.noLeaves": { fr: "Aucune absence prévue.", nl: "Geen geplande afwezigheid." },
   "insights.byDepartment": { fr: "Par département (planifiés / total)", nl: "Per afdeling (gepland / totaal)" },
+  "insights.dragToReorder": { fr: "Glisser pour réorganiser", nl: "Sleep om te herschikken" },
 
   // ========== Schedule editor ==========
   "schedule.weekOf": { fr: "Semaine du", nl: "Week van" },

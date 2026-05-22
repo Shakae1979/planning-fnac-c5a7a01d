@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, CheckCircle2, CalendarOff, Gauge, Users2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CalendarOff, Gauge, Users2, GripVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { formatDateBE, formatLocalDate, getDisplayName } from "@/lib/format";
@@ -20,6 +20,16 @@ const CRITICAL_ROLES = ["responsable", "caisse"] as const;
 const ALERT_HOURS = Array.from({ length: 12 }, (_, i) => i + 9); // 9-20h
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
 
+type CardId = "alerts" | "leaves" | "occupancy" | "byDept";
+const DEFAULT_ORDER: CardId[] = ["alerts", "leaves", "occupancy", "byDept"];
+const STORAGE_KEY = "overview-insights-order-v1";
+const CARD_SPAN: Record<CardId, string> = {
+  alerts: "lg:col-span-2",
+  leaves: "lg:col-span-1",
+  occupancy: "lg:col-span-1",
+  byDept: "lg:col-span-1",
+};
+
 function addDays(d: Date, n: number) {
   const x = new Date(d);
   x.setDate(x.getDate() + n);
@@ -28,6 +38,37 @@ function addDays(d: Date, n: number) {
 
 export function OverviewInsights({ employees, schedules, coverage, dayKeys, weekMonday }: Props) {
   const { t } = useI18n();
+
+  // ---- Persisted card order ----
+  const [order, setOrder] = useState<CardId[]>(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return DEFAULT_ORDER;
+      const parsed = JSON.parse(raw) as CardId[];
+      const valid = parsed.filter((x): x is CardId => DEFAULT_ORDER.includes(x as CardId));
+      const missing = DEFAULT_ORDER.filter((x) => !valid.includes(x));
+      return [...valid, ...missing];
+    } catch {
+      return DEFAULT_ORDER;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(order));
+    } catch {}
+  }, [order]);
+  const [dragId, setDragId] = useState<CardId | null>(null);
+  const [overId, setOverId] = useState<CardId | null>(null);
+
+  const moveCard = (from: CardId, to: CardId) => {
+    if (from === to) return;
+    setOrder((prev) => {
+      const next = prev.filter((x) => x !== from);
+      const idx = next.indexOf(to);
+      next.splice(idx, 0, from);
+      return next;
+    });
+  };
 
   // ---- Occupation ----
   const totalContract = employees.reduce((s, e) => s + Number(e.contract_hours || 0), 0);
@@ -127,42 +168,57 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
 
   const empById = useMemo(() => new Map(employees.map((e) => [e.id, e])), [employees]);
 
-  return (
-    <div className="space-y-4">
-      {/* Top row: alerts (2/3) + upcoming leaves (1/3) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {alerts.length === 0 ? (
-          <div className="kpi-card lg:col-span-2 flex items-center gap-2 py-3 border-l-4 border-l-emerald-500">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            <span className="text-sm text-muted-foreground">{t("insights.allGood")}</span>
-          </div>
-        ) : (
-          <div className="kpi-card lg:col-span-2 py-3 border-l-4 border-l-warning">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="h-4 w-4 text-warning" />
-              <span className="text-sm font-semibold">{t("insights.weekAlerts")}</span>
-            </div>
-            <ul className="space-y-1.5 text-sm">
-              {alerts.map((a, i) => (
-                <li key={i} className="text-muted-foreground">
-                  <div>· <span className="font-medium text-foreground">{a.text}</span></div>
-                  {a.detail && (
-                    <div className="ml-3 text-xs opacity-80 leading-relaxed">{a.detail}</div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+  const DragHandle = () => (
+    <span
+      className="cursor-grab active:cursor-grabbing text-muted-foreground/60 hover:text-foreground transition-colors"
+      title={t("insights.dragToReorder")}
+      aria-label={t("insights.dragToReorder")}
+    >
+      <GripVertical className="h-4 w-4" />
+    </span>
+  );
 
-        {/* Upcoming leaves 7d */}
-        <div className="kpi-card">
+  const renderCard = (id: CardId) => {
+    if (id === "alerts") {
+      if (alerts.length === 0) {
+        return (
+          <div className="flex items-center gap-2 py-3">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <span className="text-sm text-muted-foreground flex-1">{t("insights.allGood")}</span>
+            <DragHandle />
+          </div>
+        );
+      }
+      return (
+        <div className="py-1">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle className="h-4 w-4 text-warning" />
+            <span className="text-sm font-semibold flex-1">{t("insights.weekAlerts")}</span>
+            <DragHandle />
+          </div>
+          <ul className="space-y-1.5 text-sm">
+            {alerts.map((a, i) => (
+              <li key={i} className="text-muted-foreground">
+                <div>· <span className="font-medium text-foreground">{a.text}</span></div>
+                {a.detail && (
+                  <div className="ml-3 text-xs opacity-80 leading-relaxed">{a.detail}</div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+    if (id === "leaves") {
+      return (
+        <>
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-1">
               <CalendarOff className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-semibold">{t("insights.upcomingLeaves")}</span>
             </div>
-            <span className="text-lg font-bold font-mono-data">{upcoming.length}</span>
+            <span className="text-lg font-bold font-mono-data mr-2">{upcoming.length}</span>
+            <DragHandle />
           </div>
           {upcoming.length === 0 ? (
             <div className="text-xs text-muted-foreground">{t("insights.noLeaves")}</div>
@@ -183,16 +239,16 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
               {upcoming.length > 6 && <li className="italic">+ {upcoming.length - 6}…</li>}
             </ul>
           )}
-        </div>
-      </div>
-
-      {/* Bottom row: occupancy + by department */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Occupancy */}
-        <div className="kpi-card">
+        </>
+      );
+    }
+    if (id === "occupancy") {
+      return (
+        <>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-muted-foreground">{t("insights.occupancy")}</span>
-            <Gauge className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground flex-1">{t("insights.occupancy")}</span>
+            <Gauge className="h-4 w-4 text-muted-foreground mr-2" />
+            <DragHandle />
           </div>
           <div className="flex items-baseline gap-2">
             <span className={`text-2xl font-bold font-mono-data ${occupancyColor}`}>{occupancy}%</span>
@@ -212,37 +268,84 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
               {diffHours > 0 ? "+" : ""}{diffHours}h
             </span>
           </div>
+        </>
+      );
+    }
+    // byDept
+    return (
+      <>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-muted-foreground flex-1">{t("insights.byDepartment")}</span>
+          <Users2 className="h-4 w-4 text-muted-foreground mr-2" />
+          <DragHandle />
         </div>
-
-        {/* Headcount by department */}
-        <div className="kpi-card">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-muted-foreground">{t("insights.byDepartment")}</span>
-            <Users2 className="h-4 w-4 text-muted-foreground" />
-          </div>
-          {headcountByRole.length === 0 ? (
-            <div className="text-xs text-muted-foreground mt-1">—</div>
-          ) : (
-            <ul className="text-xs space-y-1 mt-1">
-              {headcountByRole.map((r) => {
-                const label = t(`role.${r.role}.plural` as any) || r.role;
-                const missing = r.total - r.planned;
-                return (
-                  <li key={r.role} className="flex items-center justify-between gap-2">
-                    <span className="text-muted-foreground truncate">{label}</span>
-                    <span className="font-mono-data">
-                      <span className={missing > 0 ? "text-destructive font-semibold" : "text-foreground"}>
-                        {r.planned}
-                      </span>
-                      <span className="text-muted-foreground">/{r.total}</span>
+        {headcountByRole.length === 0 ? (
+          <div className="text-xs text-muted-foreground mt-1">—</div>
+        ) : (
+          <ul className="text-xs space-y-1 mt-1">
+            {headcountByRole.map((r) => {
+              const label = t(`role.${r.role}.plural` as any) || r.role;
+              const missing = r.total - r.planned;
+              return (
+                <li key={r.role} className="flex items-center justify-between gap-2">
+                  <span className="text-muted-foreground truncate">{label}</span>
+                  <span className="font-mono-data">
+                    <span className={missing > 0 ? "text-destructive font-semibold" : "text-foreground"}>
+                      {r.planned}
                     </span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+                    <span className="text-muted-foreground">/{r.total}</span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </>
+    );
+  };
+
+  const accentClass = (id: CardId): string => {
+    if (id === "alerts") {
+      return alerts.length === 0 ? "border-l-4 border-l-emerald-500" : "border-l-4 border-l-warning";
+    }
+    return "";
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {order.map((id) => (
+        <div
+          key={id}
+          draggable
+          onDragStart={(e) => {
+            setDragId(id);
+            e.dataTransfer.effectAllowed = "move";
+          }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+            if (dragId && dragId !== id) setOverId(id);
+          }}
+          onDragLeave={() => {
+            if (overId === id) setOverId(null);
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            if (dragId) moveCard(dragId, id);
+            setDragId(null);
+            setOverId(null);
+          }}
+          onDragEnd={() => {
+            setDragId(null);
+            setOverId(null);
+          }}
+          className={`kpi-card transition-all ${CARD_SPAN[id]} ${accentClass(id)} ${
+            dragId === id ? "opacity-50" : ""
+          } ${overId === id ? "ring-2 ring-primary ring-offset-1" : ""}`}
+        >
+          {renderCard(id)}
         </div>
-      </div>
+      ))}
     </div>
   );
 }
