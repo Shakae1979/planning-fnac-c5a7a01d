@@ -254,6 +254,7 @@ const translations = {
   "insights.allPlanned": { fr: "Tout le monde est planifié.", nl: "Iedereen is ingepland." },
   "insights.upcomingLeaves": { fr: "Absences (7 j)", nl: "Afwezigheden (7 d)" },
   "insights.noLeaves": { fr: "Aucune absence prévue.", nl: "Geen geplande afwezigheid." },
+  "insights.byDepartment": { fr: "Par département (planifiés / total)", nl: "Per afdeling (gepland / totaal)" },
 
   // ========== Schedule editor ==========
   "schedule.weekOf": { fr: "Semaine du", nl: "Week van" },
