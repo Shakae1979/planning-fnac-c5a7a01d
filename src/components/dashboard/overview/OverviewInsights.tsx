@@ -24,7 +24,7 @@ type CardId = "alerts" | "leaves" | "occupancy" | "byDept";
 const DEFAULT_ORDER: CardId[] = ["alerts", "leaves", "occupancy", "byDept"];
 const STORAGE_KEY = "overview-insights-order-v1";
 const CARD_SPAN: Record<CardId, string> = {
-  alerts: "lg:col-span-2",
+  alerts: "lg:col-span-1",
   leaves: "lg:col-span-1",
   occupancy: "lg:col-span-1",
   byDept: "lg:col-span-1",
@@ -312,7 +312,7 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {order.map((id) => (
         <div
           key={id}
