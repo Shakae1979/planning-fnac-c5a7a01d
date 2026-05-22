@@ -11,44 +11,7 @@ import { FnacHeader } from "@/components/FnacHeader";
 import { useI18n } from "@/lib/i18n";
 import { EmployeeMobileView } from "@/components/employee/EmployeeMobileView";
 
-const BREAK_HOURS = 1;
-
-function timeToHours(t: string | null): number {
-  if (!t) return 0;
-  const [h, m] = t.split(":").map(Number);
-  return h + (m || 0) / 60;
-}
-
-function computeNetHours(schedule: any, conges: any[], dayComments: any[], monday: Date, template: any | null): { gross: number; breaks: number; net: number; credited: number } {
-  const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
-  let gross = 0; let breakMinutes = 0; let credited = 0;
-  for (let i = 0; i < days.length; i++) {
-    const d = days[i];
-    const dayDate = getDayDate(monday, i);
-    const conge = conges.find(c => dayDate >= c.date_start && dayDate <= c.date_end);
-    const isFerieDay = dayComments.find(dc => dc.day_key === d)?.is_ferie ?? false;
-    const start = schedule[`${d}_start`]; const end = schedule[`${d}_end`];
-    const isLegacyFerie = start === "FERIE" || end === "FERIE";
-
-    if (conge || (isFerieDay && !start) || isLegacyFerie) {
-      if (template) {
-        const tStart = template[`${d}_start`]; const tEnd = template[`${d}_end`];
-        if (tStart && tEnd && tStart !== "EXT" && tStart !== "ROULEMENT" && tStart !== "FERIE") {
-          const tGross = timeToHours(tEnd) - timeToHours(tStart);
-          credited += tGross >= 6 ? tGross - BREAK_HOURS : tGross;
-        }
-      }
-      continue;
-    }
-    if (start && end && start !== "EXT" && start !== "ROULEMENT") {
-      const dayGross = timeToHours(end) - timeToHours(start);
-      gross += dayGross;
-      if (dayGross >= 6) breakMinutes += 60;
-    }
-  }
-  const breaks = breakMinutes / 60;
-  return { gross, breaks, net: gross - breaks + credited, credited };
-}
+import { computeNetHours, timeToHours, getDayDate, BREAK_HOURS } from "@/lib/hours";
 
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
 
