@@ -52,43 +52,6 @@ function getISOWeek(d: Date): number {
   return Math.ceil((((t.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 }
 
-function TrendSparkline({ values, weeks }: { values: number[]; weeks: Date[] }) {
-  const max = Math.max(...values, 1);
-  const w = 72;
-  const h = 22;
-  const stepX = values.length > 1 ? w / (values.length - 1) : 0;
-  const points = values.map((v, i) => {
-    const x = i * stepX;
-    const y = h - (v / max) * (h - 4) - 2;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  });
-  const slope = values.length > 1 ? values[values.length - 1] - values[0] : 0;
-  const TrendIcon = slope > 1 ? TrendingUp : slope < -1 ? TrendingDown : Minus;
-  const iconColor = slope > 1 ? "text-emerald-600" : slope < -1 ? "text-red-600" : "text-muted-foreground";
-  const tip = values.map((v, i) => `S${getISOWeek(weeks[i])}: ${v.toFixed(1)}h`).join(" · ");
-  return (
-    <span className="inline-flex items-center gap-1.5" title={tip}>
-      <svg width={w} height={h} className="overflow-visible">
-        <polyline
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="text-accent"
-          points={points.join(" ")}
-        />
-        {values.map((v, i) => {
-          const x = i * stepX;
-          const y = h - (v / max) * (h - 4) - 2;
-          return <circle key={i} cx={x} cy={y} r="1.5" className="fill-accent" />;
-        })}
-      </svg>
-      <TrendIcon className={`h-3.5 w-3.5 ${iconColor}`} />
-    </span>
-  );
-}
-
 type SortKey = "name" | "contract" | "weekGap" | "monthGap" | null;
 type SortDir = "asc" | "desc";
 
