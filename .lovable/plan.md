@@ -1,40 +1,55 @@
-# Plan — Améliorations Compteur d'heures
+## Vue d'ensemble enrichie — version épurée
 
-Deux ajouts au composant `HoursCounter`, sans toucher à la logique métier (`computeNetHours` reste inchangé).
+Objectif : ajouter de la valeur sans alourdir. **1 bandeau d'alertes** + **1 ligne de mini-cartes synthétiques**. Pas de tableau supplémentaire, pas de répliques du compteur d'heures déjà présent.
 
-## 1. Barre de filtres, tri et recherche
+### Disposition
 
-Au-dessus du tableau, une ligne d'outils :
+```text
+[ KPIs existants ]
+─────────────────────────────────────────────
+[ Alertes de la semaine ]               ← unique bandeau, visible seulement s'il y a qqch
+─────────────────────────────────────────────
+[ Occupation % ] [ Non planifiés ] [ Absences 7j ]   ← 3 mini-cartes compactes
+─────────────────────────────────────────────
+[ Compteur d'heures (existant) ]
+```
 
-- **Recherche** : input texte qui filtre les lignes par nom (insensible casse/accents).
-- **Filtre département** : sélecteur multi-choix (Popover + checkboxes) avec les 6 catégories de `ROLE_ORDER` (Responsables, Technique, Éditorial, Stock, Caisse, Stagiaires). Badge avec compteur quand un filtre est actif. Bouton « Réinitialiser ».
-- **Tri** : en-têtes de colonnes cliquables (Collaborateur, Contrat, Écart sem., Écart mois) avec icône ↑/↓. Tri par défaut : ordre hiérarchique actuel (préservé). Cliquer sur "Écart sem." ou "Écart mois" trie du plus déficitaire au plus excédentaire (ou inverse).
+### Contenu des 4 blocs
 
-La ligne TOTAL du `tfoot` recalcule à partir des lignes visibles après filtrage (le total reflète ce que l'utilisateur voit).
+**1. Bandeau « Alertes de la semaine »** (masqué si rien à signaler)
+- Détection automatique :
+  - Employés actifs sans heures planifiées
+  - Créneaux 09–20h sans Responsable ou sans Caisse
+- Affichage : 1 ligne par alerte, icône + texte court. Pas d'actions complexes, juste de l'info.
 
-## 2. Colonne « Tendance 4 semaines »
+**2. Mini-carte « Occupation »**
+- Un chiffre : `Σ heures planifiées / Σ heures contrat` en %.
+- Libellé court (Sous-effectif / Optimal / Sur-effectif) + petite barre.
 
-Nouvelle colonne entre « Écart sem. » et la séparation mois, intitulée « Tendance 4 sem. ».
+**3. Mini-carte « Non planifiés »**
+- Compteur `N collaborateurs sans planning`.
+- Liste des 3 premiers noms (texte plein, pas de boutons). Si 0 → message positif.
 
-- Pour chaque collaborateur, on calcule les heures prestées des 4 dernières semaines glissantes (semaine courante incluse).
-- Affichage : **mini-sparkline SVG inline** (~80×24px) montrant l'évolution + petite flèche colorée (↗ vert / → gris / ↘ rouge) indiquant la tendance globale (régression linéaire simple sur 4 points).
-- Tooltip natif (`title`) au survol listant les 4 valeurs : ex. `S46: 34h · S47: 36h · S48: 38h · S49: 35h`.
+**4. Mini-carte « Absences à venir (7j) »**
+- Compteur d'absences sur les 7 prochains jours.
+- Liste des 3 premières : nom · type · dates `DD/MM → DD/MM`.
 
-### Récupération des données
+### Ce qu'on NE fait PAS (volontairement)
 
-Étendre `weekStarts` pour inclure aussi les 3 semaines précédant `currentMonday` (en plus du mois en cours). La requête `weekly_schedules` existante les récupère en une seule passe. Aucun nouvel appel réseau.
+- Pas de répartition par département (l'info est déjà visible dans le compteur).
+- Pas de synthèse heures par catégorie (doublon avec compteur).
+- Pas de boutons d'action dans les cartes (clic sur compteur suffit).
+- Pas de tableau replié.
 
-### Composant sparkline
+### Technique
 
-Petit composant local `<TrendSparkline values={number[]} />` (SVG path, pas de dépendance). Pas de lib externe.
+- Tout côté client à partir de `useStore` (employees + weekly_schedules semaine courante + conges).
+- Réutiliser : `CATEGORIES`, formule heures nettes, `getDisplayName`, `formatDateLongBE`.
+- I18n FR/NL via `useI18n` (préfixe `overview.*`).
+- Cartes shadcn existantes, tokens sémantiques, couleurs département existantes.
 
-## Fichiers touchés
+### Fichiers touchés
 
-- `src/components/dashboard/HoursCounter.tsx` — ajout barre d'outils, état tri/filtres/recherche, calcul tendance, nouvelle colonne, sparkline inline, totals recalculés sur les lignes visibles.
-- `src/lib/i18n.tsx` — nouvelles clés FR/NL : `hours.search`, `hours.searchPlaceholder`, `hours.filterDept`, `hours.allDepts`, `hours.reset`, `hours.trend4w`, `hours.sortAsc`, `hours.sortDesc`.
-
-## Hors-scope (non touché)
-
-- `computeNetHours` et `EmployeeHoursDetailDialog` : aucun changement.
-- Pas de modification de base de données.
-- Pas de changement à la mémoire projet (règle de calcul inchangée).
+- `src/components/dashboard/DashboardOverview.tsx` — insertion des blocs.
+- 1 nouveau fichier : `src/components/dashboard/overview/OverviewInsights.tsx` (regroupe les 4 blocs pour rester compact).
+- `src/lib/i18n.tsx` — quelques clés FR/NL.

@@ -240,6 +240,21 @@ const translations = {
     nl: "Ga naar <strong>Werkroosters</strong> om weekplanningen aan te maken en te wijzigen. Deel vervolgens de <strong>Medewerkerslinks</strong> zodat iedereen zijn planning kan raadplegen."
   },
 
+  // ========== Overview insights ==========
+  "insights.weekAlerts": { fr: "Alertes de la semaine", nl: "Waarschuwingen van de week" },
+  "insights.allGood": { fr: "Aucune alerte — tout est en ordre.", nl: "Geen waarschuwingen — alles in orde." },
+  "insights.unplannedSingular": { fr: "collaborateur sans planning", nl: "medewerker zonder planning" },
+  "insights.unplannedPlural": { fr: "collaborateurs sans planning", nl: "medewerkers zonder planning" },
+  "insights.noRole": { fr: "Aucun(e) en 09–20h —", nl: "Niemand om 09–20u —" },
+  "insights.occupancy": { fr: "Taux d'occupation", nl: "Bezettingsgraad" },
+  "insights.under": { fr: "Sous-effectif", nl: "Onderbezet" },
+  "insights.optimal": { fr: "Optimal", nl: "Optimaal" },
+  "insights.over": { fr: "Sur-effectif", nl: "Overbezet" },
+  "insights.unplannedTitle": { fr: "Non planifiés", nl: "Niet ingepland" },
+  "insights.allPlanned": { fr: "Tout le monde est planifié.", nl: "Iedereen is ingepland." },
+  "insights.upcomingLeaves": { fr: "Absences (7 j)", nl: "Afwezigheden (7 d)" },
+  "insights.noLeaves": { fr: "Aucune absence prévue.", nl: "Geen geplande afwezigheid." },
+
   // ========== Schedule editor ==========
   "schedule.weekOf": { fr: "Semaine du", nl: "Week van" },
   "schedule.seller": { fr: "Vendeur", nl: "Verkoper" },

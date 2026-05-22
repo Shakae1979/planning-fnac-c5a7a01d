@@ -7,6 +7,7 @@ import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName, formatDateLongBE, formatDateBE, formatLocalDate, getWeekNumber } from "@/lib/format";
 import { HoursCounter } from "./HoursCounter";
+import { OverviewInsights } from "./overview/OverviewInsights";
 
 const ROLE_META: Record<string, { label: string; bg: string; text: string }> = {
   responsable: { label: "Resp.", bg: "bg-red-100", text: "text-red-800" },
@@ -228,6 +229,15 @@ export function DashboardOverview() {
           </span>
         </div>
       </div>
+
+      {/* Insights: alerts + mini cards */}
+      <OverviewInsights
+        employees={(employees ?? []) as any}
+        schedules={(schedules ?? []) as any}
+        coverage={coverage}
+        dayKeys={DAY_KEYS}
+        weekMonday={currentMonday}
+      />
 
       {/* Coverage heatmap */}
       <div className="kpi-card overflow-hidden">
