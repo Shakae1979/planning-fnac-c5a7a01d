@@ -70,15 +70,24 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
     });
   };
 
-  // ---- Occupation ----
+  // ---- Occupation (global + per rayon) ----
   const totalContract = employees.reduce((s, e) => s + Number(e.contract_hours || 0), 0);
-  const totalPlanned = schedules.reduce((s, sc: any) => s + Number(sc.hours_modified ?? sc.hours_base ?? 0), 0);
+  const plannedByEmp = new Map<string, number>();
+  for (const sc of schedules as any[]) {
+    const h = Number(sc.hours_modified ?? sc.hours_base ?? 0);
+    plannedByEmp.set(sc.employee_id, (plannedByEmp.get(sc.employee_id) ?? 0) + h);
+  }
+  const totalPlanned = Array.from(plannedByEmp.values()).reduce((s, v) => s + v, 0);
   const occupancy = totalContract > 0 ? Math.round((totalPlanned / totalContract) * 100) : 0;
-  const occupancyLabel =
-    occupancy < 90 ? t("insights.under") : occupancy > 105 ? t("insights.over") : t("insights.optimal");
-  const occupancyColor =
-    occupancy < 90 ? "text-destructive" : occupancy > 105 ? "text-warning" : "text-emerald-600";
   const diffHours = totalPlanned - totalContract;
+
+  const occupancyByRole = ROLE_ORDER.map((role) => {
+    const emps = employees.filter((e) => e.role === role);
+    const contract = emps.reduce((s, e) => s + Number(e.contract_hours || 0), 0);
+    const planned = emps.reduce((s, e) => s + (plannedByEmp.get(e.id) ?? 0), 0);
+    const pct = contract > 0 ? Math.round((planned / contract) * 100) : 0;
+    return { role, contract, planned, pct, count: emps.length };
+  }).filter((r) => r.count > 0);
 
   // ---- Unplanned employees (full list, sorted by role hierarchy) ----
   const scheduledIds = new Set(schedules.map((s) => s.employee_id));
@@ -243,31 +252,60 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
       );
     }
     if (id === "occupancy") {
+      const colorFor = (pct: number) =>
+        pct < 90 ? "bg-destructive" : pct > 105 ? "bg-warning" : "bg-emerald-500";
+      const textFor = (pct: number) =>
+        pct < 90 ? "text-destructive" : pct > 105 ? "text-warning" : "text-emerald-600";
+      const globalText = textFor(occupancy);
       return (
         <>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-muted-foreground flex-1">{t("insights.occupancy")}</span>
+            <span className="text-sm font-medium text-muted-foreground flex-1">
+              {t("insights.occupancyByDept")}
+            </span>
+            <span className={`text-sm font-bold font-mono-data mr-2 ${globalText}`}>
+              {occupancy}%
+              <span className="text-muted-foreground font-normal ml-1">
+                ({diffHours > 0 ? "+" : ""}{diffHours}h)
+              </span>
+            </span>
             <Gauge className="h-4 w-4 text-muted-foreground mr-2" />
             <DragHandle />
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className={`text-2xl font-bold font-mono-data ${occupancyColor}`}>{occupancy}%</span>
-            <span className={`text-xs ${occupancyColor}`}>{occupancyLabel}</span>
-          </div>
-          <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
-            <div
-              className={`h-full ${
-                occupancy < 90 ? "bg-destructive" : occupancy > 105 ? "bg-warning" : "bg-emerald-500"
-              }`}
-              style={{ width: `${Math.min(occupancy, 130)}%` }}
-            />
-          </div>
-          <div className="text-xs text-muted-foreground mt-1.5 flex items-center justify-between">
-            <span>{totalPlanned}h / {totalContract}h</span>
-            <span className={diffHours === 0 ? "" : diffHours > 0 ? "text-warning" : "text-destructive"}>
-              {diffHours > 0 ? "+" : ""}{diffHours}h
-            </span>
-          </div>
+          {occupancyByRole.length === 0 ? (
+            <div className="text-xs text-muted-foreground">—</div>
+          ) : (
+            <ul className="space-y-1.5">
+              {occupancyByRole.map((r) => {
+                const label = t(`role.${r.role}.plural` as any) || r.role;
+                const diff = r.planned - r.contract;
+                return (
+                  <li key={r.role} className="text-xs">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-muted-foreground truncate flex-1">{label}</span>
+                      <span className={`font-mono-data font-semibold ${textFor(r.pct)}`}>{r.pct}%</span>
+                      <span className="text-muted-foreground font-mono-data tabular-nums w-20 text-right">
+                        {r.planned}h/{r.contract}h
+                      </span>
+                      <span
+                        className={`font-mono-data tabular-nums w-10 text-right ${
+                          diff === 0 ? "text-muted-foreground" : diff > 0 ? "text-warning" : "text-destructive"
+                        }`}
+                      >
+                        {diff > 0 ? "+" : ""}{diff}h
+                      </span>
+                    </div>
+                    <div className="mt-0.5 h-1 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className={`h-full ${colorFor(r.pct)}`}
+                        style={{ width: `${Math.min(r.pct, 130)}%` }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </>
       );
     }
