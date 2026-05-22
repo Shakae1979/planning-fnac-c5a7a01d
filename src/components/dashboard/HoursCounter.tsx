@@ -292,12 +292,12 @@ export function HoursCounter() {
         r.weekWorked.toFixed(1),
         r.weekCredited.toFixed(1),
         wTot.toFixed(1),
-        (wTot - r.contract).toFixed(1),
+        (r.weekWorked - r.contract).toFixed(1),
         r.monthWorked.toFixed(1),
         r.monthCredited.toFixed(1),
         mTot.toFixed(1),
         r.monthContract.toFixed(1),
-        (mTot - r.monthContract).toFixed(1),
+        (r.monthWorked - r.monthContract).toFixed(1),
       ].join(";"));
     }
     const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
