@@ -10,6 +10,7 @@ import { WeekNavigator } from "@/components/WeekNavigator";
 import { ROLE_ORDER } from "@/lib/role-colors";
 import { computeNetHours } from "@/lib/hours";
 import { formatLocalDate, getDisplayName, getMondayOf } from "@/lib/format";
+import { EmployeeHoursDetailDialog } from "./EmployeeHoursDetailDialog";
 
 function addDays(d: Date, n: number) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
 function addWeeks(d: Date, n: number) { return addDays(d, n * 7); }
@@ -39,6 +40,7 @@ export function HoursCounter() {
   const { t, lang } = useI18n();
   const { currentStore } = useStore();
   const { employees, isLoading: empLoading } = useStoreEmployees(ROLE_ORDER as unknown as string[]);
+  const [detailEmp, setDetailEmp] = useState<any | null>(null);
 
   const [weekOffset, setWeekOffset] = useState(0);
   const todayMonday = useMemo(() => getMondayOf(new Date()), []);
@@ -209,7 +211,15 @@ export function HoursCounter() {
               const monthGap = r.monthWorked - r.monthContract;
               return (
                 <tr key={r.id} className="border-t hover:bg-muted/30">
-                  <td className="px-3 py-1.5 font-medium">{r.name}</td>
+                  <td className="px-3 py-1.5 font-medium">
+                    <button
+                      type="button"
+                      onClick={() => setDetailEmp((employees || []).find((e) => e.id === r.id) || null)}
+                      className="text-left hover:text-accent hover:underline underline-offset-2 transition-colors"
+                    >
+                      {r.name}
+                    </button>
+                  </td>
                   <td className="px-3 py-1.5 text-xs text-muted-foreground capitalize">{r.role}</td>
                   <td className="px-3 py-1.5 text-right font-mono">{r.contract.toFixed(1)}h</td>
                   <td className="px-3 py-1.5 text-right font-mono border-l">{r.weekWorked.toFixed(1)}h</td>
