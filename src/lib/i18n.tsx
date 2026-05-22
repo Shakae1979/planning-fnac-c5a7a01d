@@ -11,6 +11,22 @@ const translations = {
   "nav.conges": { fr: "Congés", nl: "Verlof" },
   "nav.team": { fr: "Équipe & Comptes", nl: "Team & Accounts" },
   "nav.stores": { fr: "Magasins", nl: "Winkels" },
+  "nav.hours": { fr: "Compteur d'heures", nl: "Urenteller" },
+
+  // ========== Hours counter ==========
+  "hours.title": { fr: "Compteur d'heures", nl: "Urenteller" },
+  "hours.subtitle": { fr: "Heures planifiées vs contrat", nl: "Geplande uren vs contract" },
+  "hours.employee": { fr: "Collaborateur", nl: "Medewerker" },
+  "hours.role": { fr: "Rôle", nl: "Rol" },
+  "hours.contract": { fr: "Contrat", nl: "Contract" },
+  "hours.weekPlanned": { fr: "Sem. planifiée", nl: "Week gepland" },
+  "hours.weekGap": { fr: "Écart sem.", nl: "Verschil week" },
+  "hours.monthPlanned": { fr: "Mois planifié", nl: "Maand gepland" },
+  "hours.monthContract": { fr: "Contrat mois", nl: "Maandcontract" },
+  "hours.monthGap": { fr: "Écart mois", nl: "Verschil maand" },
+  "hours.total": { fr: "TOTAL", nl: "TOTAAL" },
+  "hours.export": { fr: "Exporter CSV", nl: "CSV exporteren" },
+  "hours.month": { fr: "Mois", nl: "Maand" },
   
   "nav.direction": { fr: "Direction Fnac", nl: "Directie Fnac" },
   "direction.noManagers": { fr: "Aucun Store Manager trouvé. Promouvez des responsables depuis la gestion des magasins.", nl: "Geen Store Managers gevonden. Promoveer verantwoordelijken via winkelbeheer." },
