@@ -211,6 +211,33 @@ export type Database = {
           },
         ]
       }
+      ferie_credits: {
+        Row: {
+          created_at: string
+          date: string
+          employee_id: string
+          hours: number
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          employee_id: string
+          hours?: number
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          employee_id?: string
+          hours?: number
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       schedule_role_overrides: {
         Row: {
           created_at: string
