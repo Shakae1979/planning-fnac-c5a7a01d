@@ -255,7 +255,7 @@ const EmployeeView = () => {
                   {schedule && (() => {
                     const wsConges = conges?.filter(c => c.employee_id === employee!.id) || [];
                     const wsDayComments = dayComments?.filter(dc => dc.week_start === ws) || [];
-                    const { net, breaks, credited } = computeNetHours(schedule, wsConges, wsDayComments, monday, templateSchedule || null);
+                    const { net, breaks } = computeNetHours(schedule, wsConges, wsDayComments, monday, templateSchedule || null);
                     return (
                       <div className="flex items-center gap-1.5" title={`Brut - ${breaks}h pause = ${net.toFixed(1)}h net`}>
                         <Clock className="h-3.5 w-3.5 text-muted-foreground" />

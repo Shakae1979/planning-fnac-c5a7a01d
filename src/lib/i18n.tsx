@@ -28,23 +28,7 @@ const translations = {
   "hours.export": { fr: "Exporter CSV", nl: "CSV exporteren" },
   "hours.month": { fr: "Mois", nl: "Maand" },
   "hours.weekWorked": { fr: "Sem. prestée", nl: "Week gewerkt" },
-  "hours.weekCredited": { fr: "Sem. créditée", nl: "Week gecrediteerd" },
-  "hours.weekTotal": { fr: "Sem. total", nl: "Week totaal" },
   "hours.monthWorked": { fr: "Mois presté", nl: "Maand gewerkt" },
-  "hours.monthCredited": { fr: "Mois crédité", nl: "Maand gecrediteerd" },
-  "hours.monthTotal": { fr: "Mois total", nl: "Maand totaal" },
-  "hours.creditRule": {
-    fr: "Crédit absence = contrat ÷ jours travaillés habituels (semaine type). Sans semaine type : fallback 5 jours.",
-    nl: "Krediet afwezigheid = contract ÷ gebruikelijke werkdagen (typeweek). Zonder typeweek: 5 dagen.",
-  },
-  "hours.ferieToFill": { fr: "Fériés à saisir", nl: "Feestdagen in te voeren" },
-  "hours.ferieToFillDesc": {
-    fr: "Aucun planning n'était saisi pour ces jours fériés. Indiquez les heures à créditer pour chaque collaborateur.",
-    nl: "Geen planning ingevoerd voor deze feestdagen. Geef het aantal te crediteren uren op per medewerker.",
-  },
-  "hours.ferieCreditSaved": { fr: "Heures fériées enregistrées", nl: "Feestdaguren opgeslagen" },
-  "hours.invalidHours": { fr: "Valeur d'heures invalide", nl: "Ongeldig aantal uren" },
-  "hours.save": { fr: "Enregistrer", nl: "Opslaan" },
   
   "nav.direction": { fr: "Direction Fnac", nl: "Directie Fnac" },
   "direction.noManagers": { fr: "Aucun Store Manager trouvé. Promouvez des responsables depuis la gestion des magasins.", nl: "Geen Store Managers gevonden. Promoveer verantwoordelijken via winkelbeheer." },
