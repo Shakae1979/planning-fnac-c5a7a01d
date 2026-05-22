@@ -1,0 +1,66 @@
+import { formatLocalDate } from "./format";
+
+export const BREAK_HOURS = 1;
+
+export function timeToHours(t: string | null | undefined): number {
+  if (!t) return 0;
+  const [h, m] = t.split(":").map(Number);
+  return h + (m || 0) / 60;
+}
+
+export function getDayDate(monday: Date, offset: number): string {
+  const d = new Date(monday);
+  d.setDate(d.getDate() + offset);
+  return formatLocalDate(d);
+}
+
+const DAYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
+
+/**
+ * Net hours rules (Planning Fnac):
+ * - 1h break deducted ONLY if a single shift >= 6h
+ * - 'ROULEMENT' and 'EXT' (Extérieur) count as 0h
+ * - On a conge/ferie day, if a template exists we credit the template's net hours
+ */
+export function computeNetHours(
+  schedule: any | null | undefined,
+  conges: any[] | null | undefined,
+  dayComments: any[] | null | undefined,
+  monday: Date,
+  template: any | null = null
+): { gross: number; breaks: number; net: number; credited: number } {
+  const sch = schedule || {};
+  const cgs = conges || [];
+  const dcs = dayComments || [];
+  let gross = 0;
+  let breakMinutes = 0;
+  let credited = 0;
+  for (let i = 0; i < DAYS.length; i++) {
+    const d = DAYS[i];
+    const dayDate = getDayDate(monday, i);
+    const conge = cgs.find((c) => dayDate >= c.date_start && dayDate <= c.date_end);
+    const isFerieDay = dcs.find((dc) => dc.day_key === d)?.is_ferie ?? false;
+    const start = sch[`${d}_start`];
+    const end = sch[`${d}_end`];
+    const isLegacyFerie = start === "FERIE" || end === "FERIE";
+
+    if (conge || (isFerieDay && !start) || isLegacyFerie) {
+      if (template) {
+        const tStart = template[`${d}_start`];
+        const tEnd = template[`${d}_end`];
+        if (tStart && tEnd && tStart !== "EXT" && tStart !== "ROULEMENT" && tStart !== "FERIE") {
+          const tGross = timeToHours(tEnd) - timeToHours(tStart);
+          credited += tGross >= 6 ? tGross - BREAK_HOURS : tGross;
+        }
+      }
+      continue;
+    }
+    if (start && end && start !== "EXT" && start !== "ROULEMENT") {
+      const dayGross = timeToHours(end) - timeToHours(start);
+      gross += dayGross;
+      if (dayGross >= 6) breakMinutes += 60;
+    }
+  }
+  const breaks = breakMinutes / 60;
+  return { gross, breaks, net: gross - breaks + credited, credited };
+}

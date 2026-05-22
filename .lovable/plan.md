@@ -1,47 +1,58 @@
-## Objectif
+## Compteur d'heures (responsables)
 
-Permettre de sauter rapidement à n'importe quelle semaine sans cliquer 20 fois sur les flèches, dans les vues planning concernées.
+Nouvelle page dédiée affichant, par collaborateur du magasin courant, les heures **nettes planifiées** vs les **heures contractuelles**, sur la semaine en cours **et** le cumul du mois en cours. Réservée aux rôles admin et éditeur.
 
-## Composant central : `WeekNavigator`
+### Accès et navigation
 
-Nouveau composant réutilisable `src/components/WeekNavigator.tsx` qui remplace le bloc actuel (flèche ← / date / flèche →).
+- Ajouter une entrée sidebar **« Compteur d'heures »** (icône `Clock`), visible uniquement pour `admin` et `editor`. Le rôle `user` ne la voit pas.
+- Nouvelle vue interne `"hours"` ajoutée à `Sidebar.tsx` (linkDefs) et au switch de `Index.tsx`.
+- Pas de nouvelle route publique : page intégrée au dashboard comme les autres vues.
 
-Contenu :
-- **◀ / ▶** : navigation semaine par semaine (comportement actuel conservé).
-- **Date cliquable** (ex: `18/05/2026 — 23/05/2026`) qui ouvre un **Popover** contenant un mini calendrier (`<Calendar mode="single">` shadcn). Cliquer un jour calcule le lundi de la semaine et y saute. La semaine active est surlignée.
-- **Champ « S__ »** : petit input numérique à droite. Tape `23` + Entrée → saute à la semaine ISO 23 de l'année en cours. Tape `23/2027` → saute à la S23 de 2027.
-- **Bouton « Aujourd'hui »** : revient à la semaine courante (`weekOffset = 0`), désactivé si déjà dessus.
+### Contenu de la page
 
-## Raccourcis clavier (globaux à la page)
+Tableau unique (un collaborateur par ligne, triés par hiérarchie de rôle comme dans le planning équipe) :
 
-Hook `useWeekShortcuts` :
-- `←` / `→` : semaine précédente / suivante
-- `Shift+←` / `Shift+→` : −4 / +4 semaines (mois)
-- `T` ou `Home` : Aujourd'hui
-- `G` : ouvre le popover calendrier (Go to)
+| Collaborateur | Rôle | Contrat | Sem. planifiée | Écart sem. | Mois planifié | Contrat mois* | Écart mois |
+|---|---|---|---|---|---|---|---|
 
-Désactivés quand le focus est dans un input/textarea/contenteditable pour ne pas casser la saisie d'horaires.
+\* Contrat mois = `contract_hours × nombre de semaines ISO commençant dans le mois affiché` (approche simple, alignée sur la planification hebdo Belge).
 
-## Intégration
+- Colonnes **Écart** colorées : vert (±1h), orange (>1h sous-contrat ou sur-contrat), rouge (>4h).
+- Ligne **TOTAL** en bas (somme équipe).
+- En haut : `WeekNavigator` existant pour changer de semaine de référence, + un libellé du mois courant déduit du lundi de la semaine. Bouton **Imprimer** + **Export CSV**.
 
-Remplacer le bloc de navigation dans :
-- `src/pages/TeamWeekView.tsx` (Planning semaine — vue principale concernée)
-- `src/components/dashboard/ScheduleEditor.tsx` (Planning Fnac — éditeur)
-- `src/pages/TeamDayView.tsx` (Équipe du jour — adapté pour navigation par jour, même UX)
-- `src/pages/EmployeeView.tsx` (Mon planning)
+### Calcul
 
-L'API du composant accepte `weekOffset`, `onChange(offset)` et un mode optionnel `"day" | "week"` pour TeamDayView.
+- Réutilisation **stricte** de la fonction `computeNetHours` déjà utilisée dans `EmployeeView.tsx` (extraction dans `src/lib/hours.ts` pour partage propre). Règles inchangées : pause 1h déduite si shift ≥ 6h ; `Roulement`/`Extérieur` = 0h ; congés et fériés créditent les heures du template si présent.
+- Semaine = lundi → dimanche affichés par le navigateur.
+- Mois = mois calendaire contenant ce lundi. On itère sur toutes les semaines ISO dont le lundi tombe dans ce mois, on charge les `weekly_schedules`, `conges`, `day_comments` et le template du magasin, puis on somme.
 
-## Détails techniques
+### Données
 
-- Calcul ISO week : helper `getISOWeek(date)` et `getDateFromISOWeek(week, year)` dans `src/lib/format.ts` (déjà utilisé pour l'affichage `S12`, on factorise).
-- Popover shadcn déjà disponible, Calendar shadcn aussi (`pointer-events-auto`).
-- Affichage du numéro de semaine ISO à côté de la date (ex: `S21 · 18/05 → 23/05`) pour aider à se repérer.
-- i18n FR/NL : nouvelles clés `nav.today`, `nav.goToWeek`, `nav.weekNumber`, `nav.shortcuts`.
-- Tooltip sur l'input et les boutons listant les raccourcis.
+- Aucune migration. Lectures uniquement sur `weekly_schedules`, `employees`, `conges`, `day_comments`, et template (`weekly_schedules` aux dates `1970-01-05`/`1970-01-12` pour A/B si applicable, sinon template standard déjà utilisé).
+- Tout passe par le `store_id` courant via `useStoreEmployees`.
 
-## Hors scope
+### Détails techniques
 
-- Pas de changement aux données ni à la sauvegarde.
-- Pas de modification de la sidebar ni de l'en-tête global.
-- Pas de bookmarks/favoris de semaines (peut venir plus tard si besoin).
+- Nouveau fichier `src/lib/hours.ts` exportant `computeNetHours` (déplacée depuis `EmployeeView.tsx`, l'import est mis à jour côté EmployeeView).
+- Nouveau composant `src/components/dashboard/HoursCounter.tsx`.
+- `Sidebar.tsx` : ajout du link `{ id: "hours", labelKey: "nav.hours", icon: Clock }` ; `filteredLinks` autorise `admin` + `editor` (déjà le cas pour la plupart des liens, `stores` reste admin-only).
+- `Index.tsx` : ajout du case `"hours"` qui rend `<HoursCounter />`.
+- `src/lib/i18n.tsx` : clés `nav.hours`, `hours.title`, `hours.weekPlanned`, `hours.monthPlanned`, `hours.contract`, `hours.gap`, `hours.total`, `hours.export` (FR + NL).
+- Chargement des données via `react-query` : une query par employé serait coûteuse → une seule query `weekly_schedules` filtrée sur `employee_id IN (...)` et `week_start IN (...)`, puis agrégation côté client.
+- Export CSV : génération inline (pas de lib), encodage UTF-8 BOM pour Excel.
+
+### Hors scope
+
+- Pas de colonne ajoutée dans le planning équipe (option écartée).
+- Pas de widget dashboard.
+- Pas de période trimestre/année.
+- Pas d'historique ni de stockage du compteur (recalculé à chaque ouverture).
+
+### Étapes
+
+1. Extraire `computeNetHours` dans `src/lib/hours.ts` ; mettre à jour l'import dans `EmployeeView.tsx`.
+2. Créer `HoursCounter.tsx` (tableau, calculs semaine + mois, navigateur, export, impression).
+3. Brancher dans `Sidebar.tsx` (entrée admin/editor) et `Index.tsx`.
+4. Ajouter les clés i18n FR/NL.
+5. Vérifier visuellement sur le magasin courant.
