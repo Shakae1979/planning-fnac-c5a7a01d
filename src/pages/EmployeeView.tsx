@@ -77,10 +77,6 @@ function addWeeks(date: Date, n: number): Date {
 
 function formatWeekDate(date: Date): string { return formatLocalDate(date); }
 
-function getDayDate(monday: Date, offset: number): string {
-  const d = new Date(monday); d.setDate(d.getDate() + offset); return formatLocalDate(d);
-}
-
 function getCongeForDate(dateStr: string, conges: any[]): any | null {
   return conges.find((c) => dateStr >= c.date_start && dateStr <= c.date_end) || null;
 }
