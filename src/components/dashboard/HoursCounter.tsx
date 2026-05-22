@@ -70,10 +70,6 @@ export function HoursCounter() {
   const todayMonday = useMemo(() => getMondayOf(new Date()), []);
   const currentMonday = useMemo(() => addWeeks(todayMonday, weekOffset), [todayMonday, weekOffset]);
   const monthMondays = useMemo(() => getMonthWeekMondays(currentMonday), [currentMonday]);
-  const trendMondays = useMemo(
-    () => [addWeeks(currentMonday, -3), addWeeks(currentMonday, -2), addWeeks(currentMonday, -1), currentMonday],
-    [currentMonday]
-  );
 
   const monthLabel = currentMonday.toLocaleDateString(lang === "nl" ? "nl-BE" : "fr-BE", { month: "long", year: "numeric" });
 
@@ -82,9 +78,8 @@ export function HoursCounter() {
     const set = new Set<string>();
     set.add(formatLocalDate(currentMonday));
     monthMondays.forEach((m) => set.add(formatLocalDate(m)));
-    trendMondays.forEach((m) => set.add(formatLocalDate(m)));
     return Array.from(set);
-  }, [currentMonday, monthMondays, trendMondays]);
+  }, [currentMonday, monthMondays]);
 
   const { data: schedules } = useQuery({
     queryKey: ["hours-schedules", employeeIds, weekStarts],
@@ -108,7 +103,6 @@ export function HoursCounter() {
     weekWorked: number;
     monthWorked: number;
     monthContract: number;
-    trend: number[];
   };
 
   const rows: Row[] = useMemo(() => {
@@ -130,12 +124,6 @@ export function HoursCounter() {
         monthWorked += r.worked;
       }
 
-      const trend = trendMondays.map((m) => {
-        const ms = formatLocalDate(m);
-        const sch = schedulesByKey.get(`${emp.id}|${ms}`) || {};
-        return computeNetHours(sch).worked;
-      });
-
       const monthContract = contract * monthMondays.length;
       return {
         id: emp.id,
@@ -145,10 +133,9 @@ export function HoursCounter() {
         weekWorked: w.worked,
         monthWorked,
         monthContract,
-        trend,
       };
     });
-  }, [employees, schedules, currentMonday, monthMondays, trendMondays]);
+  }, [employees, schedules, currentMonday, monthMondays]);
 
   const visibleRows = useMemo(() => {
     const q = normalize(search.trim());
