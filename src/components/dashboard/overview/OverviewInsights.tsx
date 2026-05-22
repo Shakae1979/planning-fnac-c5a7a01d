@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, CheckCircle2, UserX, CalendarOff, Gauge } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CalendarOff, Gauge, Users2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { formatDateBE, formatLocalDate, getDisplayName } from "@/lib/format";
@@ -18,6 +18,7 @@ type Props = {
 
 const CRITICAL_ROLES = ["responsable", "caisse"] as const;
 const ALERT_HOURS = Array.from({ length: 12 }, (_, i) => i + 9); // 9-20h
+const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
 
 function addDays(d: Date, n: number) {
   const x = new Date(d);
@@ -36,19 +37,47 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
     occupancy < 90 ? t("insights.under") : occupancy > 105 ? t("insights.over") : t("insights.optimal");
   const occupancyColor =
     occupancy < 90 ? "text-destructive" : occupancy > 105 ? "text-warning" : "text-emerald-600";
+  const diffHours = totalPlanned - totalContract;
 
-  // ---- Unplanned employees ----
+  // ---- Unplanned employees (full list, sorted by role hierarchy) ----
   const scheduledIds = new Set(schedules.map((s) => s.employee_id));
-  const unplanned = employees.filter((e) => !scheduledIds.has(e.id));
+  const unplanned = employees
+    .filter((e) => !scheduledIds.has(e.id))
+    .sort((a, b) => {
+      const ra = ROLE_ORDER.indexOf(a.role as any);
+      const rb = ROLE_ORDER.indexOf(b.role as any);
+      const oa = ra === -1 ? 999 : ra;
+      const ob = rb === -1 ? 999 : rb;
+      if (oa !== ob) return oa - ob;
+      return getDisplayName(a as any).localeCompare(getDisplayName(b as any), "fr");
+    });
+
+  // ---- Headcount per department ----
+  const headcountByRole = ROLE_ORDER.map((role) => ({
+    role,
+    total: employees.filter((e) => e.role === role).length,
+    planned: employees.filter((e) => e.role === role && scheduledIds.has(e.id)).length,
+  })).filter((r) => r.total > 0);
 
   // ---- Alerts ----
-  const alerts: { icon: "warn" | "info"; text: string }[] = [];
+  type Alert = { kind: "unplanned" | "role-gap"; text: string; detail?: string };
+  const alerts: Alert[] = [];
+
   if (unplanned.length > 0) {
+    const label = unplanned.length > 1 ? t("insights.unplannedPlural") : t("insights.unplannedSingular");
+    const names = unplanned
+      .map((e) => {
+        const roleShort = t(`role.${e.role}.short` as any) || e.role;
+        return `${getDisplayName(e as any)} (${roleShort})`;
+      })
+      .join(" · ");
     alerts.push({
-      icon: "warn",
-      text: `${unplanned.length} ${unplanned.length > 1 ? t("insights.unplannedPlural") : t("insights.unplannedSingular")}`,
+      kind: "unplanned",
+      text: `${unplanned.length} ${label}`,
+      detail: names,
     });
   }
+
   // Critical category gaps in 9-20h
   for (const role of CRITICAL_ROLES) {
     const missingSlots: string[] = [];
@@ -65,7 +94,7 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
     if (missingSlots.length > 0) {
       const roleLabel = t(`role.${role}.plural` as any) || role;
       alerts.push({
-        icon: "warn",
+        kind: "role-gap",
         text: `${t("insights.noRole")} ${roleLabel}: ${missingSlots.join(", ")}`,
       });
     }
@@ -112,10 +141,13 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
             <AlertTriangle className="h-4 w-4 text-warning" />
             <span className="text-sm font-semibold">{t("insights.weekAlerts")}</span>
           </div>
-          <ul className="space-y-1 text-sm">
+          <ul className="space-y-1.5 text-sm">
             {alerts.map((a, i) => (
               <li key={i} className="text-muted-foreground">
-                · {a.text}
+                <div>· <span className="font-medium text-foreground">{a.text}</span></div>
+                {a.detail && (
+                  <div className="ml-3 text-xs opacity-80 leading-relaxed">{a.detail}</div>
+                )}
               </li>
             ))}
           </ul>
@@ -142,28 +174,39 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
               style={{ width: `${Math.min(occupancy, 130)}%` }}
             />
           </div>
-          <div className="text-xs text-muted-foreground mt-1.5">
-            {totalPlanned}h / {totalContract}h
+          <div className="text-xs text-muted-foreground mt-1.5 flex items-center justify-between">
+            <span>{totalPlanned}h / {totalContract}h</span>
+            <span className={diffHours === 0 ? "" : diffHours > 0 ? "text-warning" : "text-destructive"}>
+              {diffHours > 0 ? "+" : ""}{diffHours}h
+            </span>
           </div>
         </div>
 
-        {/* Unplanned */}
+        {/* Headcount by department */}
         <div className="kpi-card">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-muted-foreground">{t("insights.unplannedTitle")}</span>
-            <UserX className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground">{t("insights.byDepartment")}</span>
+            <Users2 className="h-4 w-4 text-muted-foreground" />
           </div>
-          <span className={`text-2xl font-bold font-mono-data ${unplanned.length > 0 ? "text-destructive" : "text-emerald-600"}`}>
-            {unplanned.length}
-          </span>
-          {unplanned.length === 0 ? (
-            <div className="text-xs text-muted-foreground mt-1.5">{t("insights.allPlanned")}</div>
+          {headcountByRole.length === 0 ? (
+            <div className="text-xs text-muted-foreground mt-1">—</div>
           ) : (
-            <ul className="text-xs text-muted-foreground mt-1.5 space-y-0.5">
-              {unplanned.slice(0, 3).map((e) => (
-                <li key={e.id} className="truncate">· {getDisplayName(e as any)}</li>
-              ))}
-              {unplanned.length > 3 && <li className="italic">+ {unplanned.length - 3}…</li>}
+            <ul className="text-xs space-y-1 mt-1">
+              {headcountByRole.map((r) => {
+                const label = t(`role.${r.role}.plural` as any) || r.role;
+                const missing = r.total - r.planned;
+                return (
+                  <li key={r.role} className="flex items-center justify-between gap-2">
+                    <span className="text-muted-foreground truncate">{label}</span>
+                    <span className="font-mono-data">
+                      <span className={missing > 0 ? "text-destructive font-semibold" : "text-foreground"}>
+                        {r.planned}
+                      </span>
+                      <span className="text-muted-foreground">/{r.total}</span>
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
