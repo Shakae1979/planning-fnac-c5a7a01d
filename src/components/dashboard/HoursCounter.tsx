@@ -337,7 +337,7 @@ export function HoursCounter() {
                   {t("hours.weekGap")} {sortIcon("weekGap")}
                 </button>
               </th>
-              <th className="text-center px-3 py-2 font-semibold border-l">{t("hours.trend4w")}</th>
+              <th className="text-right px-3 py-2 font-semibold border-l">{t("hours.monthWorked")}</th>
               <th className="text-right px-3 py-2 font-semibold border-l">{t("hours.monthWorked")}</th>
               <th className="text-right px-3 py-2 font-semibold">{t("hours.monthContract")}</th>
               <th className="text-right px-3 py-2 font-semibold">
@@ -349,13 +349,13 @@ export function HoursCounter() {
           </thead>
           <tbody>
             {empLoading && (
-              <tr><td colSpan={9} className="px-3 py-6 text-center text-muted-foreground">…</td></tr>
+              <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">…</td></tr>
             )}
             {!empLoading && rows.length === 0 && (
-              <tr><td colSpan={9} className="px-3 py-6 text-center text-muted-foreground">—</td></tr>
+              <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">—</td></tr>
             )}
             {!empLoading && rows.length > 0 && visibleRows.length === 0 && (
-              <tr><td colSpan={9} className="px-3 py-6 text-center text-muted-foreground">{t("hours.noResults")}</td></tr>
+              <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">{t("hours.noResults")}</td></tr>
             )}
             {visibleRows.map((r) => {
               const weekGap = r.weekWorked - r.contract;
@@ -375,9 +375,7 @@ export function HoursCounter() {
                   <td className="px-3 py-1.5 text-right font-mono">{r.contract.toFixed(1)}h</td>
                   <td className="px-3 py-1.5 text-right font-mono border-l">{r.weekWorked.toFixed(1)}h</td>
                   <td className={`px-3 py-1.5 text-right font-mono font-semibold ${gapClass(weekGap)}`}>{weekGap >= 0 ? "+" : ""}{weekGap.toFixed(1)}h</td>
-                  <td className="px-3 py-1.5 text-center border-l">
-                    <TrendSparkline values={r.trend} weeks={trendMondays} />
-                  </td>
+                  <td className="px-3 py-1.5 text-right font-mono border-l">{r.monthWorked.toFixed(1)}h</td>
                   <td className="px-3 py-1.5 text-right font-mono border-l">{r.monthWorked.toFixed(1)}h</td>
                   <td className="px-3 py-1.5 text-right font-mono text-muted-foreground">{r.monthContract.toFixed(1)}h</td>
                   <td className={`px-3 py-1.5 text-right font-mono font-semibold ${gapClass(monthGap)}`}>{monthGap >= 0 ? "+" : ""}{monthGap.toFixed(1)}h</td>
@@ -392,7 +390,7 @@ export function HoursCounter() {
                 <td className="px-3 py-2 text-right font-mono">{totals.contract.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono border-l">{totals.weekWorked.toFixed(1)}h</td>
                 <td className={`px-3 py-2 text-right font-mono ${gapClass(totals.weekWorked - totals.contract)}`}>{((totals.weekWorked - totals.contract) >= 0 ? "+" : "")}{(totals.weekWorked - totals.contract).toFixed(1)}h</td>
-                <td className="px-3 py-2 border-l"></td>
+                <td className="px-3 py-2 text-right font-mono border-l">{totals.monthWorked.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono border-l">{totals.monthWorked.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono text-muted-foreground">{totals.monthContract.toFixed(1)}h</td>
                 <td className={`px-3 py-2 text-right font-mono ${gapClass(totals.monthWorked - totals.monthContract)}`}>{((totals.monthWorked - totals.monthContract) >= 0 ? "+" : "")}{(totals.monthWorked - totals.monthContract).toFixed(1)}h</td>
