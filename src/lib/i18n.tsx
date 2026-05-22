@@ -44,6 +44,14 @@ const translations = {
   "hours.detailRotation": { fr: "Roulement", nl: "Rotatie" },
   "hours.detailExterior": { fr: "Extérieur", nl: "Buitenshuis" },
   "hours.detailHoliday": { fr: "Férié", nl: "Feestdag" },
+
+  "hours.search": { fr: "Recherche", nl: "Zoeken" },
+  "hours.searchPlaceholder": { fr: "Rechercher un nom…", nl: "Zoek een naam…" },
+  "hours.filterDept": { fr: "Département", nl: "Afdeling" },
+  "hours.allDepts": { fr: "Tous les départements", nl: "Alle afdelingen" },
+  "hours.reset": { fr: "Réinitialiser", nl: "Resetten" },
+  "hours.trend4w": { fr: "Tendance 4 sem.", nl: "Trend 4 wkn" },
+  "hours.noResults": { fr: "Aucun résultat", nl: "Geen resultaten" },
   
   "nav.direction": { fr: "Direction Fnac", nl: "Directie Fnac" },
   "direction.noManagers": { fr: "Aucun Store Manager trouvé. Promouvez des responsables depuis la gestion des magasins.", nl: "Geen Store Managers gevonden. Promoveer verantwoordelijken via winkelbeheer." },
