@@ -1,13 +1,17 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Clock, Printer, Download } from "lucide-react";
+import { Clock, Printer, Download, Search, Filter, ArrowUp, ArrowDown, ArrowUpDown, X, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/hooks/useStore";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { WeekNavigator } from "@/components/WeekNavigator";
-import { ROLE_ORDER } from "@/lib/role-colors";
+import { ROLE_ORDER, ROLE_KEYS } from "@/lib/role-colors";
 import { computeNetHours } from "@/lib/hours";
 import { formatLocalDate, getDisplayName, getMondayOf } from "@/lib/format";
 import { EmployeeHoursDetailDialog } from "./EmployeeHoursDetailDialog";
@@ -36,6 +40,58 @@ function gapClass(gap: number): string {
   return "text-red-600";
 }
 
+function normalize(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function getISOWeek(d: Date): number {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  return Math.ceil((((t.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+}
+
+function TrendSparkline({ values, weeks }: { values: number[]; weeks: Date[] }) {
+  const max = Math.max(...values, 1);
+  const w = 72;
+  const h = 22;
+  const stepX = values.length > 1 ? w / (values.length - 1) : 0;
+  const points = values.map((v, i) => {
+    const x = i * stepX;
+    const y = h - (v / max) * (h - 4) - 2;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const slope = values.length > 1 ? values[values.length - 1] - values[0] : 0;
+  const TrendIcon = slope > 1 ? TrendingUp : slope < -1 ? TrendingDown : Minus;
+  const iconColor = slope > 1 ? "text-emerald-600" : slope < -1 ? "text-red-600" : "text-muted-foreground";
+  const tip = values.map((v, i) => `S${getISOWeek(weeks[i])}: ${v.toFixed(1)}h`).join(" · ");
+  return (
+    <span className="inline-flex items-center gap-1.5" title={tip}>
+      <svg width={w} height={h} className="overflow-visible">
+        <polyline
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-accent"
+          points={points.join(" ")}
+        />
+        {values.map((v, i) => {
+          const x = i * stepX;
+          const y = h - (v / max) * (h - 4) - 2;
+          return <circle key={i} cx={x} cy={y} r="1.5" className="fill-accent" />;
+        })}
+      </svg>
+      <TrendIcon className={`h-3.5 w-3.5 ${iconColor}`} />
+    </span>
+  );
+}
+
+type SortKey = "name" | "contract" | "weekGap" | "monthGap" | null;
+type SortDir = "asc" | "desc";
+
 export function HoursCounter() {
   const { t, lang } = useI18n();
   const { currentStore } = useStore();
@@ -43,9 +99,18 @@ export function HoursCounter() {
   const [detailEmp, setDetailEmp] = useState<any | null>(null);
 
   const [weekOffset, setWeekOffset] = useState(0);
+  const [search, setSearch] = useState("");
+  const [deptFilter, setDeptFilter] = useState<Set<string>>(new Set());
+  const [sortKey, setSortKey] = useState<SortKey>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
   const todayMonday = useMemo(() => getMondayOf(new Date()), []);
   const currentMonday = useMemo(() => addWeeks(todayMonday, weekOffset), [todayMonday, weekOffset]);
   const monthMondays = useMemo(() => getMonthWeekMondays(currentMonday), [currentMonday]);
+  const trendMondays = useMemo(
+    () => [addWeeks(currentMonday, -3), addWeeks(currentMonday, -2), addWeeks(currentMonday, -1), currentMonday],
+    [currentMonday]
+  );
 
   const monthLabel = currentMonday.toLocaleDateString(lang === "nl" ? "nl-BE" : "fr-BE", { month: "long", year: "numeric" });
 
@@ -54,8 +119,9 @@ export function HoursCounter() {
     const set = new Set<string>();
     set.add(formatLocalDate(currentMonday));
     monthMondays.forEach((m) => set.add(formatLocalDate(m)));
+    trendMondays.forEach((m) => set.add(formatLocalDate(m)));
     return Array.from(set);
-  }, [currentMonday, monthMondays]);
+  }, [currentMonday, monthMondays, trendMondays]);
 
   const { data: schedules } = useQuery({
     queryKey: ["hours-schedules", employeeIds, weekStarts],
@@ -79,6 +145,7 @@ export function HoursCounter() {
     weekWorked: number;
     monthWorked: number;
     monthContract: number;
+    trend: number[];
   };
 
   const rows: Row[] = useMemo(() => {
@@ -100,6 +167,12 @@ export function HoursCounter() {
         monthWorked += r.worked;
       }
 
+      const trend = trendMondays.map((m) => {
+        const ms = formatLocalDate(m);
+        const sch = schedulesByKey.get(`${emp.id}|${ms}`) || {};
+        return computeNetHours(sch).worked;
+      });
+
       const monthContract = contract * monthMondays.length;
       return {
         id: emp.id,
@@ -109,12 +182,37 @@ export function HoursCounter() {
         weekWorked: w.worked,
         monthWorked,
         monthContract,
+        trend,
       };
     });
-  }, [employees, schedules, currentMonday, monthMondays]);
+  }, [employees, schedules, currentMonday, monthMondays, trendMondays]);
+
+  const visibleRows = useMemo(() => {
+    const q = normalize(search.trim());
+    let r = rows.filter((row) => {
+      if (q && !normalize(row.name).includes(q)) return false;
+      if (deptFilter.size > 0 && !deptFilter.has(row.role)) return false;
+      return true;
+    });
+    if (sortKey) {
+      const dir = sortDir === "asc" ? 1 : -1;
+      r = [...r].sort((a, b) => {
+        let av: number | string = 0;
+        let bv: number | string = 0;
+        if (sortKey === "name") { av = normalize(a.name); bv = normalize(b.name); }
+        else if (sortKey === "contract") { av = a.contract; bv = b.contract; }
+        else if (sortKey === "weekGap") { av = a.weekWorked - a.contract; bv = b.weekWorked - b.contract; }
+        else if (sortKey === "monthGap") { av = a.monthWorked - a.monthContract; bv = b.monthWorked - b.monthContract; }
+        if (av < bv) return -1 * dir;
+        if (av > bv) return 1 * dir;
+        return 0;
+      });
+    }
+    return r;
+  }, [rows, search, deptFilter, sortKey, sortDir]);
 
   const totals = useMemo(() => {
-    return rows.reduce(
+    return visibleRows.reduce(
       (acc, r) => ({
         contract: acc.contract + r.contract,
         weekWorked: acc.weekWorked + r.weekWorked,
@@ -123,7 +221,39 @@ export function HoursCounter() {
       }),
       { contract: 0, weekWorked: 0, monthWorked: 0, monthContract: 0 }
     );
-  }, [rows]);
+  }, [visibleRows]);
+
+  const toggleSort = (key: Exclude<SortKey, null>) => {
+    if (sortKey === key) {
+      if (sortDir === "asc") setSortDir("desc");
+      else { setSortKey(null); setSortDir("asc"); }
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const sortIcon = (key: Exclude<SortKey, null>) => {
+    if (sortKey !== key) return <ArrowUpDown className="h-3 w-3 opacity-40" />;
+    return sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
+  };
+
+  const toggleDept = (role: string) => {
+    setDeptFilter((prev) => {
+      const next = new Set(prev);
+      if (next.has(role)) next.delete(role); else next.add(role);
+      return next;
+    });
+  };
+
+  const resetFilters = () => {
+    setSearch("");
+    setDeptFilter(new Set());
+    setSortKey(null);
+    setSortDir("asc");
+  };
+
+  const hasFilters = !!search || deptFilter.size > 0 || sortKey !== null;
 
   const exportCsv = () => {
     const headers = [
@@ -137,7 +267,7 @@ export function HoursCounter() {
       t("hours.monthGap"),
     ];
     const lines = [headers.join(";")];
-    for (const r of rows) {
+    for (const r of visibleRows) {
       lines.push([
         r.name,
         r.role,
@@ -185,28 +315,99 @@ export function HoursCounter() {
         </div>
       </div>
 
+      <div className="flex items-center gap-2 flex-wrap no-print">
+        <div className="relative flex-1 min-w-[200px] max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t("hours.searchPlaceholder")}
+            className="h-8 pl-8 text-sm"
+          />
+        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-1.5 h-8">
+              <Filter className="h-3.5 w-3.5" />
+              {t("hours.filterDept")}
+              {deptFilter.size > 0 && (
+                <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{deptFilter.size}</Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56 p-2" align="start">
+            <div className="text-xs font-semibold text-muted-foreground px-2 py-1.5">
+              {t("hours.filterDept")}
+            </div>
+            <div className="space-y-1">
+              {ROLE_KEYS.map((role) => (
+                <label
+                  key={role}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted/50 cursor-pointer text-sm"
+                >
+                  <Checkbox
+                    checked={deptFilter.has(role)}
+                    onCheckedChange={() => toggleDept(role)}
+                  />
+                  <span>{t(`role.${role}.plural` as any)}</span>
+                </label>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+        {hasFilters && (
+          <Button variant="ghost" size="sm" className="gap-1.5 h-8 text-muted-foreground" onClick={resetFilters}>
+            <X className="h-3.5 w-3.5" />
+            {t("hours.reset")}
+          </Button>
+        )}
+        <div className="ml-auto text-xs text-muted-foreground">
+          {visibleRows.length} / {rows.length}
+        </div>
+      </div>
+
       <div className="rounded-lg border overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs uppercase">
             <tr>
-              <th className="text-left px-3 py-2 font-semibold">{t("hours.employee")}</th>
+              <th className="text-left px-3 py-2 font-semibold">
+                <button type="button" onClick={() => toggleSort("name")} className="inline-flex items-center gap-1 uppercase hover:text-foreground">
+                  {t("hours.employee")} {sortIcon("name")}
+                </button>
+              </th>
               <th className="text-left px-3 py-2 font-semibold">{t("hours.role")}</th>
-              <th className="text-right px-3 py-2 font-semibold">{t("hours.contract")}</th>
+              <th className="text-right px-3 py-2 font-semibold">
+                <button type="button" onClick={() => toggleSort("contract")} className="inline-flex items-center gap-1 uppercase hover:text-foreground">
+                  {t("hours.contract")} {sortIcon("contract")}
+                </button>
+              </th>
               <th className="text-right px-3 py-2 font-semibold border-l">{t("hours.weekWorked")}</th>
-              <th className="text-right px-3 py-2 font-semibold">{t("hours.weekGap")}</th>
+              <th className="text-right px-3 py-2 font-semibold">
+                <button type="button" onClick={() => toggleSort("weekGap")} className="inline-flex items-center gap-1 uppercase hover:text-foreground">
+                  {t("hours.weekGap")} {sortIcon("weekGap")}
+                </button>
+              </th>
+              <th className="text-center px-3 py-2 font-semibold border-l">{t("hours.trend4w")}</th>
               <th className="text-right px-3 py-2 font-semibold border-l">{t("hours.monthWorked")}</th>
               <th className="text-right px-3 py-2 font-semibold">{t("hours.monthContract")}</th>
-              <th className="text-right px-3 py-2 font-semibold">{t("hours.monthGap")}</th>
+              <th className="text-right px-3 py-2 font-semibold">
+                <button type="button" onClick={() => toggleSort("monthGap")} className="inline-flex items-center gap-1 uppercase hover:text-foreground">
+                  {t("hours.monthGap")} {sortIcon("monthGap")}
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody>
             {empLoading && (
-              <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">…</td></tr>
+              <tr><td colSpan={9} className="px-3 py-6 text-center text-muted-foreground">…</td></tr>
             )}
             {!empLoading && rows.length === 0 && (
-              <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">—</td></tr>
+              <tr><td colSpan={9} className="px-3 py-6 text-center text-muted-foreground">—</td></tr>
             )}
-            {rows.map((r) => {
+            {!empLoading && rows.length > 0 && visibleRows.length === 0 && (
+              <tr><td colSpan={9} className="px-3 py-6 text-center text-muted-foreground">{t("hours.noResults")}</td></tr>
+            )}
+            {visibleRows.map((r) => {
               const weekGap = r.weekWorked - r.contract;
               const monthGap = r.monthWorked - r.monthContract;
               return (
@@ -224,6 +425,9 @@ export function HoursCounter() {
                   <td className="px-3 py-1.5 text-right font-mono">{r.contract.toFixed(1)}h</td>
                   <td className="px-3 py-1.5 text-right font-mono border-l">{r.weekWorked.toFixed(1)}h</td>
                   <td className={`px-3 py-1.5 text-right font-mono font-semibold ${gapClass(weekGap)}`}>{weekGap >= 0 ? "+" : ""}{weekGap.toFixed(1)}h</td>
+                  <td className="px-3 py-1.5 text-center border-l">
+                    <TrendSparkline values={r.trend} weeks={trendMondays} />
+                  </td>
                   <td className="px-3 py-1.5 text-right font-mono border-l">{r.monthWorked.toFixed(1)}h</td>
                   <td className="px-3 py-1.5 text-right font-mono text-muted-foreground">{r.monthContract.toFixed(1)}h</td>
                   <td className={`px-3 py-1.5 text-right font-mono font-semibold ${gapClass(monthGap)}`}>{monthGap >= 0 ? "+" : ""}{monthGap.toFixed(1)}h</td>
@@ -231,13 +435,14 @@ export function HoursCounter() {
               );
             })}
           </tbody>
-          {rows.length > 0 && (
+          {visibleRows.length > 0 && (
             <tfoot className="bg-muted/30 font-semibold">
               <tr className="border-t-2">
                 <td className="px-3 py-2" colSpan={2}>{t("hours.total")}</td>
                 <td className="px-3 py-2 text-right font-mono">{totals.contract.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono border-l">{totals.weekWorked.toFixed(1)}h</td>
                 <td className={`px-3 py-2 text-right font-mono ${gapClass(totals.weekWorked - totals.contract)}`}>{((totals.weekWorked - totals.contract) >= 0 ? "+" : "")}{(totals.weekWorked - totals.contract).toFixed(1)}h</td>
+                <td className="px-3 py-2 border-l"></td>
                 <td className="px-3 py-2 text-right font-mono border-l">{totals.monthWorked.toFixed(1)}h</td>
                 <td className="px-3 py-2 text-right font-mono text-muted-foreground">{totals.monthContract.toFixed(1)}h</td>
                 <td className={`px-3 py-2 text-right font-mono ${gapClass(totals.monthWorked - totals.monthContract)}`}>{((totals.monthWorked - totals.monthContract) >= 0 ? "+" : "")}{(totals.monthWorked - totals.monthContract).toFixed(1)}h</td>
