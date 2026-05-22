@@ -246,6 +246,14 @@ export function HoursCounter() {
           )}
         </table>
       </div>
+
+      <EmployeeHoursDetailDialog
+        employee={detailEmp}
+        weekMonday={currentMonday}
+        monthMondays={monthMondays}
+        storeId={currentStore?.id}
+        onClose={() => setDetailEmp(null)}
+      />
     </div>
   );
 }
