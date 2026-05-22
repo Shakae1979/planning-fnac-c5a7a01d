@@ -230,6 +230,15 @@ export function DashboardOverview() {
         </div>
       </div>
 
+      {/* Insights: alerts + mini cards */}
+      <OverviewInsights
+        employees={(employees ?? []) as any}
+        schedules={(schedules ?? []) as any}
+        coverage={coverage}
+        dayKeys={DAY_KEYS}
+        weekMonday={currentMonday}
+      />
+
       {/* Coverage heatmap */}
       <div className="kpi-card overflow-hidden">
         <h3 className="text-sm font-semibold text-muted-foreground mb-4">{t("recap.coverage")}</h3>
