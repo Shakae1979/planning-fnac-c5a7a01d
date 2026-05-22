@@ -247,6 +247,7 @@ const translations = {
   "insights.unplannedPlural": { fr: "collaborateurs sans planning", nl: "medewerkers zonder planning" },
   "insights.noRole": { fr: "Aucun(e) en 09–20h —", nl: "Niemand om 09–20u —" },
   "insights.occupancy": { fr: "Taux d'occupation", nl: "Bezettingsgraad" },
+  "insights.occupancyByDept": { fr: "Taux d'occupation par rayon", nl: "Bezettingsgraad per afdeling" },
   "insights.under": { fr: "Sous-effectif", nl: "Onderbezet" },
   "insights.optimal": { fr: "Optimal", nl: "Optimaal" },
   "insights.over": { fr: "Sur-effectif", nl: "Overbezet" },
