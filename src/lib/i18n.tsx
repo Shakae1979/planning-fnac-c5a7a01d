@@ -50,7 +50,7 @@ const translations = {
   "hours.filterDept": { fr: "Département", nl: "Afdeling" },
   "hours.allDepts": { fr: "Tous les départements", nl: "Alle afdelingen" },
   "hours.reset": { fr: "Réinitialiser", nl: "Resetten" },
-  "hours.trend4w": { fr: "Tendance 4 sem.", nl: "Trend 4 wkn" },
+  
   "hours.noResults": { fr: "Aucun résultat", nl: "Geen resultaten" },
   
   "nav.direction": { fr: "Direction Fnac", nl: "Directie Fnac" },
