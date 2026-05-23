@@ -198,7 +198,7 @@ export function HoursCounter() {
 
   const hasFilters = !!search || deptFilter.size > 0 || sortKey !== null;
 
-  const exportCsv = async () => {
+  const exportExcel = async () => {
     const XLSX = await import("xlsx");
     const headers = [
       t("hours.employee"),
@@ -241,7 +241,7 @@ export function HoursCounter() {
           </div>
         </div>
         <div className="flex items-center gap-2 no-print">
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={exportCsv}>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={exportExcel}>
             <Download className="h-3.5 w-3.5" /> {t("hours.export")}
           </Button>
           <Button variant="outline" size="sm" className="gap-1.5" onClick={() => window.print()}>
