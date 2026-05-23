@@ -25,7 +25,7 @@ const translations = {
   "hours.monthContract": { fr: "Contrat mois", nl: "Maandcontract" },
   "hours.monthGap": { fr: "Écart mois", nl: "Verschil maand" },
   "hours.total": { fr: "TOTAL", nl: "TOTAAL" },
-  "hours.export": { fr: "Exporter CSV", nl: "CSV exporteren" },
+  "hours.export": { fr: "Exporter Excel", nl: "Excel exporteren" },
   "hours.month": { fr: "Mois", nl: "Maand" },
   "hours.weekWorked": { fr: "Sem. prestée", nl: "Week gewerkt" },
   "hours.monthWorked": { fr: "Mois presté", nl: "Maand gewerkt" },

@@ -198,7 +198,8 @@ export function HoursCounter() {
 
   const hasFilters = !!search || deptFilter.size > 0 || sortKey !== null;
 
-  const exportCsv = () => {
+  const exportCsv = async () => {
+    const XLSX = await import("xlsx");
     const headers = [
       t("hours.employee"),
       t("hours.role"),
@@ -209,26 +210,24 @@ export function HoursCounter() {
       t("hours.monthContract"),
       t("hours.monthGap"),
     ];
-    const lines = [headers.join(";")];
-    for (const r of visibleRows) {
-      lines.push([
+    const data = [
+      headers,
+      ...visibleRows.map((r) => [
         r.name,
         r.role,
-        r.contract.toFixed(1),
-        r.weekWorked.toFixed(1),
-        (r.weekWorked - r.contract).toFixed(1),
-        r.monthWorked.toFixed(1),
-        r.monthContract.toFixed(1),
-        (r.monthWorked - r.monthContract).toFixed(1),
-      ].join(";"));
-    }
-    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `compteur-heures-${formatLocalDate(currentMonday)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+        Number(r.contract.toFixed(1)),
+        Number(r.weekWorked.toFixed(1)),
+        Number((r.weekWorked - r.contract).toFixed(1)),
+        Number(r.monthWorked.toFixed(1)),
+        Number(r.monthContract.toFixed(1)),
+        Number((r.monthWorked - r.monthContract).toFixed(1)),
+      ]),
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    ws["!cols"] = headers.map((h, i) => ({ wch: i < 2 ? 20 : 14 }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Heures");
+    XLSX.writeFile(wb, `compteur-heures-${formatLocalDate(currentMonday)}.xlsx`);
   };
 
   return (
