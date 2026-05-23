@@ -198,7 +198,7 @@ export function HoursCounter() {
 
   const hasFilters = !!search || deptFilter.size > 0 || sortKey !== null;
 
-  const exportCsv = async () => {
+  const exportExcel = async () => {
     const XLSX = await import("xlsx");
     const headers = [
       t("hours.employee"),
