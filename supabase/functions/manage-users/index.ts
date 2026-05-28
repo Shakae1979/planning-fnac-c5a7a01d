@@ -71,9 +71,27 @@ Deno.serve(async (req) => {
       return callerRole === "admin" || callerManagedStoreIds.has(storeId);
     };
 
+    const listAllUsers = async () => {
+      const perPage = 1000;
+      const allUsers: any[] = [];
+      let page = 1;
+
+      while (true) {
+        const { data, error } = await adminClient.auth.admin.listUsers({ page, perPage });
+        if (error) throw error;
+
+        const users = data?.users ?? [];
+        allUsers.push(...users);
+
+        if (users.length < perPage) break;
+        page += 1;
+      }
+
+      return allUsers;
+    };
+
     if (action === "list") {
-      const { data: { users }, error } = await adminClient.auth.admin.listUsers();
-      if (error) throw error;
+      const users = await listAllUsers();
 
       const { data: roles } = await adminClient.from("user_roles").select("user_id, role");
       const roleMap: Record<string, string> = {};
