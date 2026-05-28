@@ -1,20 +1,49 @@
-# Afficher le dimanche dans la vue Planning semaine
+## Objectif
 
-## Problème
-Dans `/planning-equipe` (`src/pages/TeamWeekView.tsx`), le tableau est figé sur 6 jours (`DAY_KEYS = ["lundi", … "samedi"]`). Les magasins qui font travailler du personnel le dimanche n'ont aucun moyen de visualiser ces shifts dans cette vue, alors qu'ils sont bien stockés (`dimanche_start` / `dimanche_end` existent en base) et affichés correctement dans l'éditeur, l'Équipe du jour et la fiche employé.
+Dans **Magasins**, quand on clique sur **"Ajouter un responsable"** d'un magasin (ex. Fnac Charleroi), le dropdown ne doit lister que les utilisateurs (comptes `editor`/`admin`) dont l'email correspond à un **employé actif de ce magasin**. Plus aucun compte d'un autre magasin n'apparaît.
 
-## Comportement cible
-- Le dimanche reste masqué par défaut pour ne pas alourdir la grille des magasins fermés ce jour-là.
-- Une colonne **Dimanche** est ajoutée automatiquement à la grille de la semaine affichée dès qu'au moins un collaborateur a un horaire saisi (`dimanche_start` ou `dimanche_end` non vide, y compris statuts spéciaux `EXT` / `ROULEMENT` / `REPOS` ou un commentaire `day_comments` du jour) sur la semaine visible.
-- Aucune nouvelle option ni paramètre magasin : détection purement dérivée des données déjà chargées.
-- Les autres vues ne sont pas modifiées.
+## Modification
 
-## Changements
-**`src/pages/TeamWeekView.tsx`**
-- Remplacer la constante `DAY_KEYS` par `ALL_DAY_KEYS` (7 jours) et dériver dans le composant une variable `dayKeys` calculée via `useMemo` à partir des `schedules` et `dayComments` de la semaine : on inclut `dimanche` ssi au moins un `schedule[dimanche_start|end]` est renseigné ou un `day_comments.day_key === "dimanche"` existe.
-- Utiliser ce `dayKeys` partout où `DAY_KEYS` est utilisé (en-tête, `colSpan`, boucles de rendu, calculs de totaux).
-- Conserver les libellés via `t("day.long.dimanche")` (déjà traduit FR/NL).
+**`src/components/dashboard/StoreManager.tsx`** (seul fichier touché)
+
+1. Ajouter une query qui charge, par magasin, le set des emails d'employés actifs :
+   ```ts
+   const { data: employeeEmailsByStore } = useQuery({
+     queryKey: ["store-employee-emails"],
+     queryFn: async () => {
+       const { data } = await supabase
+         .from("employees")
+         .select("store_id, email")
+         .eq("is_active", true)
+         .not("email", "is", null);
+       const map: Record<string, Set<string>> = {};
+       (data ?? []).forEach((e) => {
+         if (!e.store_id || !e.email) return;
+         (map[e.store_id] ??= new Set()).add(e.email.toLowerCase());
+       });
+       return map;
+     },
+   });
+   ```
+
+2. Restreindre `getAvailableUsers(storeId)` : un utilisateur n'apparaît que si son email est présent dans `employeeEmailsByStore[storeId]`.
+   ```ts
+   const getAvailableUsers = (storeId: string) => {
+     const assigned = new Set((storeManagers[storeId] || []).map((m) => m.user_id));
+     const allowed = employeeEmailsByStore?.[storeId] ?? new Set<string>();
+     return (allUsers || []).filter(
+       (u) =>
+         (u.role === "editor" || u.role === "admin") &&
+         !assigned.has(u.id) &&
+         u.email && allowed.has(u.email.toLowerCase())
+     );
+   };
+   ```
+
+3. Si la liste est vide, ajouter un petit message sous le `Select` du formulaire d'ajout : *"Aucun employé de ce magasin n'a de compte. Utilisez « Créer un nouveau »."* (avec traduction FR/NL via `useI18n`).
 
 ## Hors scope
-- Pas de changement des autres vues, de la base, ni des paramètres magasin.
-- Pas d'option utilisateur pour forcer l'affichage : la règle est automatique.
+
+- Le bouton **"Créer un nouveau responsable"** reste inchangé (création directe possible).
+- Aucun changement back-end / RLS / edge function `manage-users`.
+- Magasin **Direction** : pas d'employés réels → liste vide, message affiché ; on continue via "Créer un nouveau".

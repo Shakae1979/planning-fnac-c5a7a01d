@@ -189,6 +189,27 @@ export function StoreManager() {
     },
   });
 
+  // Emails of active employees grouped by store — used to restrict the
+  // "Ajouter un responsable" dropdown to people who already belong to the store.
+  const { data: employeeEmailsByStore } = useQuery({
+    queryKey: ["store-employee-emails"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employees")
+        .select("store_id, email")
+        .eq("is_active", true)
+        .not("email", "is", null);
+      if (error) throw error;
+      const map: Record<string, Set<string>> = {};
+      (data ?? []).forEach((e: any) => {
+        if (!e.store_id || !e.email) return;
+        if (!map[e.store_id]) map[e.store_id] = new Set();
+        map[e.store_id].add(String(e.email).toLowerCase());
+      });
+      return map;
+    },
+  });
+
   const toggleABMutation = useMutation({
     mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
       const { error } = await supabase.from("stores").update({ has_ab_weeks: enabled } as any).eq("id", id);
@@ -204,8 +225,13 @@ export function StoreManager() {
   // Editors/admins available to assign (not already assigned to this store)
   const getAvailableUsers = (storeId: string) => {
     const assigned = new Set((storeManagers[storeId] || []).map((m) => m.user_id));
+    const allowedEmails = employeeEmailsByStore?.[storeId] ?? new Set<string>();
     return (allUsers || []).filter(
-      (u) => (u.role === "editor" || u.role === "admin") && !assigned.has(u.id)
+      (u) =>
+        (u.role === "editor" || u.role === "admin") &&
+        !assigned.has(u.id) &&
+        !!u.email &&
+        allowedEmails.has(u.email.toLowerCase())
     );
   };
 
@@ -385,9 +411,15 @@ export function StoreManager() {
                               <SelectValue placeholder={t("store.selectUser")} />
                             </SelectTrigger>
                             <SelectContent>
-                              {availableUsers.map((u) => (
-                                <SelectItem key={u.id} value={u.id}>{u.email} ({u.role})</SelectItem>
-                              ))}
+                              {availableUsers.length === 0 ? (
+                                <div className="px-2 py-1.5 text-[11px] text-muted-foreground italic">
+                                  {t("store.noEligibleUser" as any)}
+                                </div>
+                              ) : (
+                                availableUsers.map((u) => (
+                                  <SelectItem key={u.id} value={u.id}>{u.email} ({u.role})</SelectItem>
+                                ))
+                              )}
                             </SelectContent>
                           </Select>
                           <Button
@@ -402,6 +434,11 @@ export function StoreManager() {
                             <X className="h-3 w-3" />
                           </Button>
                         </div>
+                        {availableUsers.length === 0 && (
+                          <p className="text-[11px] text-muted-foreground">
+                            {t("store.noEligibleUserHint" as any)}
+                          </p>
+                        )}
                         <button
                           type="button"
                           className="text-[11px] text-accent hover:underline"

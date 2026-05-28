@@ -518,6 +518,8 @@ const translations = {
   "store.orCreateNew": { fr: "ou créer un nouveau compte", nl: "of een nieuw account aanmaken" },
   "store.assignExisting": { fr: "assigner un compte existant", nl: "bestaand account toewijzen" },
   "store.selectUser": { fr: "Sélectionner un utilisateur", nl: "Selecteer een gebruiker" },
+  "store.noEligibleUser": { fr: "Aucun employé éligible", nl: "Geen geschikte medewerker" },
+  "store.noEligibleUserHint": { fr: "Seuls les comptes liés à un employé actif de ce magasin peuvent être assignés. Utilisez « Créer un nouveau » sinon.", nl: "Alleen accounts gekoppeld aan een actieve medewerker van deze winkel kunnen worden toegewezen. Gebruik anders « Nieuwe aanmaken »." },
   "store.managerAssigned": { fr: "Responsable assigné !", nl: "Verantwoordelijke toegewezen!" },
   "store.managerRemoved": { fr: "Responsable retiré !", nl: "Verantwoordelijke verwijderd!" },
   "store.storeManager": { fr: "Store Manager", nl: "Store Manager" },
