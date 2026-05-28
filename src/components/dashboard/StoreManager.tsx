@@ -189,6 +189,27 @@ export function StoreManager() {
     },
   });
 
+  // Emails of active employees grouped by store — used to restrict the
+  // "Ajouter un responsable" dropdown to people who already belong to the store.
+  const { data: employeeEmailsByStore } = useQuery({
+    queryKey: ["store-employee-emails"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employees")
+        .select("store_id, email")
+        .eq("is_active", true)
+        .not("email", "is", null);
+      if (error) throw error;
+      const map: Record<string, Set<string>> = {};
+      (data ?? []).forEach((e: any) => {
+        if (!e.store_id || !e.email) return;
+        if (!map[e.store_id]) map[e.store_id] = new Set();
+        map[e.store_id].add(String(e.email).toLowerCase());
+      });
+      return map;
+    },
+  });
+
   const toggleABMutation = useMutation({
     mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
       const { error } = await supabase.from("stores").update({ has_ab_weeks: enabled } as any).eq("id", id);
@@ -204,8 +225,13 @@ export function StoreManager() {
   // Editors/admins available to assign (not already assigned to this store)
   const getAvailableUsers = (storeId: string) => {
     const assigned = new Set((storeManagers[storeId] || []).map((m) => m.user_id));
+    const allowedEmails = employeeEmailsByStore?.[storeId] ?? new Set<string>();
     return (allUsers || []).filter(
-      (u) => (u.role === "editor" || u.role === "admin") && !assigned.has(u.id)
+      (u) =>
+        (u.role === "editor" || u.role === "admin") &&
+        !assigned.has(u.id) &&
+        !!u.email &&
+        allowedEmails.has(u.email.toLowerCase())
     );
   };
 
