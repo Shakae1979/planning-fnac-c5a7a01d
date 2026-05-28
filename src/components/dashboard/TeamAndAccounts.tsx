@@ -340,7 +340,7 @@ export function TeamAndAccounts() {
                             {account.role === "admin" ? <Shield className="h-3 w-3" /> : account.role === "editor" ? <PenTool className="h-3 w-3" /> : <User className="h-3 w-3" />}
                             {account.role === "admin" ? t("access.admin" as any) : account.role === "editor" ? t("access.editor" as any) : t("access.user" as any)}
                           </Badge>
-                        ) : emp.email ? (
+                        ) : emp.email && !accountsLoading ? (
                           <Badge variant="secondary" className="text-[10px] py-0 text-muted-foreground">
                             {t("team.noAccount" as any)}
                           </Badge>
@@ -379,7 +379,7 @@ export function TeamAndAccounts() {
                           {t("team.deleteAccount" as any)}
                         </Button>
                       </>
-                    ) : emp.email ? (
+                    ) : emp.email && !accountsLoading ? (
                       <Button variant="outline" size="sm" className="text-xs gap-1"
                         onClick={() => { setCreatingForId(isCreating ? null : emp.id); setAccountPassword(""); setAccountRole("user"); }}>
                         <UserPlus className="h-3.5 w-3.5" />
