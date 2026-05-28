@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BulkEmployeeImport } from "./BulkEmployeeImport";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,7 +36,7 @@ interface AppUser {
 export function TeamAndAccounts() {
   const queryClient = useQueryClient();
   const { currentStore } = useStore();
-  const { role: myRole, user } = useAuth();
+  const { role: myRole, user, session, loading: authLoading } = useAuth();
 
   // Check if current user is store manager for current store
   const { data: isStoreManager } = useQuery({
@@ -84,25 +84,6 @@ export function TeamAndAccounts() {
 
   const employees = storeEmployees;
 
-  // Fetch user accounts
-  const [accounts, setAccounts] = useState<AppUser[]>([]);
-  const [accountsLoading, setAccountsLoading] = useState(true);
-
-  // Fetch store assignments to filter accounts by current store
-  const { data: storeAssignments } = useQuery({
-    queryKey: ["user-store-assignments", currentStore?.id],
-    queryFn: async () => {
-      if (!currentStore) return [];
-      const { data, error } = await supabase
-        .from("user_store_assignments")
-        .select("user_id")
-        .eq("store_id", currentStore.id);
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!currentStore,
-  });
-
   const callManageUsers = async (body: Record<string, unknown>) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error(t("team.notConnected" as any));
@@ -123,18 +104,44 @@ export function TeamAndAccounts() {
     return data;
   };
 
-  const fetchAccounts = async () => {
-    setAccountsLoading(true);
-    try {
+  // Fetch user accounts via React Query, gated on auth readiness so the
+  // request never fires before the session is restored (which would silently
+  // fail and make every employee look like "Pas de compte").
+  const {
+    data: accountsData,
+    isLoading: accountsQueryLoading,
+    refetch: refetchAccounts,
+  } = useQuery({
+    queryKey: ["team-accounts", user?.id],
+    enabled: !authLoading && !!user && !!session,
+    staleTime: 30_000,
+    retry: 2,
+    queryFn: async () => {
       const data = await callManageUsers({ action: "list" });
-      setAccounts(data);
-    } catch {
-      // silently fail
-    }
-    setAccountsLoading(false);
-  };
+      return (data || []) as AppUser[];
+    },
+  });
+  const accounts = accountsData ?? [];
+  const accountsLoading = authLoading || (!!user && accountsQueryLoading);
 
-  useEffect(() => { fetchAccounts(); }, []);
+  // Fetch store assignments to filter accounts by current store
+  const { data: storeAssignments } = useQuery({
+    queryKey: ["user-store-assignments", currentStore?.id],
+    queryFn: async () => {
+      if (!currentStore) return [];
+      const { data, error } = await supabase
+        .from("user_store_assignments")
+        .select("user_id")
+        .eq("store_id", currentStore.id);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!currentStore,
+  });
+
+  const fetchAccounts = () => {
+    refetchAccounts();
+  };
 
   // Match accounts to employees by email
   const getAccountForEmployee = (email: string | null) => {
@@ -332,7 +339,7 @@ export function TeamAndAccounts() {
                             {account.role === "admin" ? <Shield className="h-3 w-3" /> : account.role === "editor" ? <PenTool className="h-3 w-3" /> : <User className="h-3 w-3" />}
                             {account.role === "admin" ? t("access.admin" as any) : account.role === "editor" ? t("access.editor" as any) : t("access.user" as any)}
                           </Badge>
-                        ) : emp.email ? (
+                        ) : emp.email && !accountsLoading ? (
                           <Badge variant="secondary" className="text-[10px] py-0 text-muted-foreground">
                             {t("team.noAccount" as any)}
                           </Badge>
@@ -371,7 +378,7 @@ export function TeamAndAccounts() {
                           {t("team.deleteAccount" as any)}
                         </Button>
                       </>
-                    ) : emp.email ? (
+                    ) : emp.email && !accountsLoading ? (
                       <Button variant="outline" size="sm" className="text-xs gap-1"
                         onClick={() => { setCreatingForId(isCreating ? null : emp.id); setAccountPassword(""); setAccountRole("user"); }}>
                         <UserPlus className="h-3.5 w-3.5" />
