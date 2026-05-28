@@ -110,15 +110,22 @@ export function TeamAndAccounts() {
   const {
     data: accountsData,
     isLoading: accountsQueryLoading,
+    isError: accountsQueryError,
     refetch: refetchAccounts,
   } = useQuery({
-    queryKey: ["team-accounts", user?.id],
+    queryKey: ["team-accounts", user?.id, currentStore?.id],
     enabled: !authLoading && !!user && !!session,
     staleTime: 30_000,
     retry: 2,
     queryFn: async () => {
       const data = await callManageUsers({ action: "list" });
-      return (data || []) as AppUser[];
+      const allAccounts = (data || []) as (AppUser & { stores?: { store_id: string }[] })[];
+
+      if (!currentStore?.id) return allAccounts;
+
+      return allAccounts.filter((account) =>
+        (account.stores || []).some((store) => store.store_id === currentStore.id)
+      );
     },
   });
   const accounts = accountsData ?? [];
