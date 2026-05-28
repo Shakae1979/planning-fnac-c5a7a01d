@@ -361,6 +361,7 @@ const translations = {
   "team.deleteAccountConfirm": { fr: "Supprimer ce compte d'accès ?", nl: "Dit toegangsaccount verwijderen?" },
   "team.notConnected": { fr: "Non connecté", nl: "Niet verbonden" },
   "team.serverError": { fr: "Erreur serveur", nl: "Serverfout" },
+  "team.accountsUnavailable": { fr: "Le statut des comptes est momentanément indisponible, réessayez dans un instant.", nl: "De accountstatus is tijdelijk niet beschikbaar, probeer het zo opnieuw." },
   "team.nameRequired": { fr: "Le nom est requis", nl: "Naam is verplicht" },
   "team.passwordMinChars": { fr: "Le mot de passe doit faire au moins 6 caractères", nl: "Het wachtwoord moet minstens 6 tekens bevatten" },
   "team.errorCreating": { fr: "Erreur lors de la création", nl: "Fout bij het aanmaken" },
