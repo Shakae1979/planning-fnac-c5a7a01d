@@ -84,6 +84,26 @@ export function TeamAndAccounts() {
 
   const employees = storeEmployees;
 
+  const callManageUsers = async (body: Record<string, unknown>) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error(t("team.notConnected" as any));
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+          "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify(body),
+      }
+    );
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || t("team.serverError" as any));
+    return data;
+  };
+
   // Fetch user accounts via React Query, gated on auth readiness so the
   // request never fires before the session is restored (which would silently
   // fail and make every employee look like "Pas de compte").
@@ -119,26 +139,6 @@ export function TeamAndAccounts() {
     },
     enabled: !!currentStore,
   });
-
-  const callManageUsers = async (body: Record<string, unknown>) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error(t("team.notConnected" as any));
-    const response = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${session.access_token}`,
-          "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        },
-        body: JSON.stringify(body),
-      }
-    );
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || t("team.serverError" as any));
-    return data;
-  };
 
   const fetchAccounts = () => {
     refetchAccounts();
