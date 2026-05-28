@@ -110,7 +110,6 @@ export function TeamAndAccounts() {
   const {
     data: accountsData,
     isLoading: accountsQueryLoading,
-    isFetching: accountsFetching,
     refetch: refetchAccounts,
   } = useQuery({
     queryKey: ["team-accounts", user?.id],
