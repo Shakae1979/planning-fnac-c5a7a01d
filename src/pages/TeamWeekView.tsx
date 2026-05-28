@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Printer, Palmtree, AlertTriangle, Flag, MapPin } from "lucide-react";
 import { FnacHeader } from "@/components/FnacHeader";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { toast } from "sonner";
@@ -18,7 +18,8 @@ const CONGE_COLORS: Record<string, string> = {
   conge: "bg-lime-500", rtt: "bg-cyan-500", maladie: "bg-rose-600", formation: "bg-violet-500",
 };
 
-const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"] as const;
+const ALL_DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
+type DayKey = typeof ALL_DAY_KEYS[number];
 
 function getMonday(date: Date): Date {
   const d = new Date(date);
@@ -63,8 +64,6 @@ const TeamWeekView = () => {
   const roleLabels = (role: string) => t(`role.${role}.plural` as any) || t(`role.${role}` as any) || role;
   const congeLabels = (type: string) => t(`leave.${type}` as any) || type;
 
-  const DAYS = DAY_KEYS.map((key) => ({ key, label: t(`day.long.${key}` as any) }));
-
   const { currentStore } = useStore();
   const { employees } = useStoreEmployees(ROLE_ORDER);
   const { scheduleStart, scheduleEnd } = useStoreSettings();
@@ -99,6 +98,25 @@ const TeamWeekView = () => {
       return data;
     },
   });
+
+  // Auto-include dimanche column only when at least one schedule has Sunday hours
+  // or a Sunday day_comment exists for the week.
+  const showSunday = useMemo(() => {
+    const hasScheduleSun = (schedules || []).some((s: any) => {
+      const start = s?.dimanche_start;
+      const end = s?.dimanche_end;
+      return (typeof start === "string" && start.trim() !== "") ||
+             (typeof end === "string" && end.trim() !== "");
+    });
+    if (hasScheduleSun) return true;
+    const hasCommentSun = (dayComments || []).some((dc: any) =>
+      dc?.day_key === "dimanche" && (dc?.is_ferie || (dc?.comment && String(dc.comment).trim() !== ""))
+    );
+    return hasCommentSun;
+  }, [schedules, dayComments]);
+
+  const DAY_KEYS: readonly DayKey[] = showSunday ? ALL_DAY_KEYS : ALL_DAY_KEYS.slice(0, 6);
+  const DAYS = DAY_KEYS.map((key) => ({ key, label: t(`day.long.${key}` as any) }));
 
   const getConge = (empId: string, dayIndex: number): string | null => {
     if (!conges) return null;
