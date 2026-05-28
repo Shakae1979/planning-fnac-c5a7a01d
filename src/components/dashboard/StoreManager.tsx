@@ -411,9 +411,15 @@ export function StoreManager() {
                               <SelectValue placeholder={t("store.selectUser")} />
                             </SelectTrigger>
                             <SelectContent>
-                              {availableUsers.map((u) => (
-                                <SelectItem key={u.id} value={u.id}>{u.email} ({u.role})</SelectItem>
-                              ))}
+                              {availableUsers.length === 0 ? (
+                                <div className="px-2 py-1.5 text-[11px] text-muted-foreground italic">
+                                  {t("store.noEligibleUser" as any)}
+                                </div>
+                              ) : (
+                                availableUsers.map((u) => (
+                                  <SelectItem key={u.id} value={u.id}>{u.email} ({u.role})</SelectItem>
+                                ))
+                              )}
                             </SelectContent>
                           </Select>
                           <Button
@@ -428,6 +434,11 @@ export function StoreManager() {
                             <X className="h-3 w-3" />
                           </Button>
                         </div>
+                        {availableUsers.length === 0 && (
+                          <p className="text-[11px] text-muted-foreground">
+                            {t("store.noEligibleUserHint" as any)}
+                          </p>
+                        )}
                         <button
                           type="button"
                           className="text-[11px] text-accent hover:underline"
