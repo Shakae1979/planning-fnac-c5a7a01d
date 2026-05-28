@@ -110,15 +110,22 @@ export function TeamAndAccounts() {
   const {
     data: accountsData,
     isLoading: accountsQueryLoading,
+    isError: accountsQueryError,
     refetch: refetchAccounts,
   } = useQuery({
-    queryKey: ["team-accounts", user?.id],
+    queryKey: ["team-accounts", user?.id, currentStore?.id],
     enabled: !authLoading && !!user && !!session,
     staleTime: 30_000,
     retry: 2,
     queryFn: async () => {
       const data = await callManageUsers({ action: "list" });
-      return (data || []) as AppUser[];
+      const allAccounts = (data || []) as (AppUser & { stores?: { store_id: string }[] })[];
+
+      if (!currentStore?.id) return allAccounts;
+
+      return allAccounts.filter((account) =>
+        (account.stores || []).some((store) => store.store_id === currentStore.id)
+      );
     },
   });
   const accounts = accountsData ?? [];
@@ -319,6 +326,11 @@ export function TeamAndAccounts() {
         <h3 className="text-sm font-semibold text-muted-foreground mb-3">
           {t("team.activeEmployees" as any)} ({active.length})
         </h3>
+        {accountsQueryError && (
+          <p className="mb-3 text-xs text-muted-foreground">
+            {t("team.accountsUnavailable" as any)}
+          </p>
+        )}
         <div className="space-y-1">
           {active.map((emp) => {
             const account = getAccountForEmployee(emp.email);
@@ -339,7 +351,7 @@ export function TeamAndAccounts() {
                             {account.role === "admin" ? <Shield className="h-3 w-3" /> : account.role === "editor" ? <PenTool className="h-3 w-3" /> : <User className="h-3 w-3" />}
                             {account.role === "admin" ? t("access.admin" as any) : account.role === "editor" ? t("access.editor" as any) : t("access.user" as any)}
                           </Badge>
-                        ) : emp.email && !accountsLoading ? (
+                        ) : emp.email && !accountsLoading && !accountsQueryError ? (
                           <Badge variant="secondary" className="text-[10px] py-0 text-muted-foreground">
                             {t("team.noAccount" as any)}
                           </Badge>
@@ -378,7 +390,7 @@ export function TeamAndAccounts() {
                           {t("team.deleteAccount" as any)}
                         </Button>
                       </>
-                    ) : emp.email && !accountsLoading ? (
+                    ) : emp.email && !accountsLoading && !accountsQueryError ? (
                       <Button variant="outline" size="sm" className="text-xs gap-1"
                         onClick={() => { setCreatingForId(isCreating ? null : emp.id); setAccountPassword(""); setAccountRole("user"); }}>
                         <UserPlus className="h-3.5 w-3.5" />
