@@ -149,7 +149,7 @@ const TeamWeekView = () => {
         </div>
       </FnacHeader>
 
-      <div className="max-w-[1600px] mx-auto px-4 py-4">
+      <div className="w-full px-4 py-4">
         <div className="flex flex-wrap gap-3 mb-4 text-xs no-print">
           {ROLE_ORDER.map(role => (
             <span key={role} className="flex items-center gap-1.5">
