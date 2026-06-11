@@ -87,7 +87,14 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
   return (
     <div className="flex-1 min-w-0">
       <div className="text-sm font-bold text-center py-2 bg-muted/50 border-b">{monthName(month)}</div>
-      <table className="w-full text-[11px] border-collapse">
+      <table className="w-full text-[11px] border-collapse table-fixed">
+        <colgroup>
+          <col style={{ width: "70px" }} />
+          <col style={{ width: "30px" }} />
+          {activeRoles.map((r) => (
+            <col key={r.key} style={{ width: `calc((100% - 100px) / ${activeRoles.length})` }} />
+          ))}
+        </colgroup>
         <thead>
           <tr className="border-b bg-muted/30">
             <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[70px]">{t("conges.date")}</th>
