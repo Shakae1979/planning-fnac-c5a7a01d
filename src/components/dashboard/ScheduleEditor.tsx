@@ -4,13 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
-import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin } from "lucide-react";
+import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin, Sparkles } from "lucide-react";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
+import { SuggestionsDialog, type Suggestion, type SuggestionSource } from "./SuggestionsDialog";
 
 /** Convert "HHhMM" or "HH:MM" or "HHMM" to "HH:MM" for storage */
 function parseTimeBE(input: string): string {
