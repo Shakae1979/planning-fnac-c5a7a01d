@@ -242,6 +242,10 @@ export function ScheduleEditor() {
   const [copiedCell, setCopiedCell] = useState<{ empId: string; dayKey: string } | null>(null);
   const [activeInput, setActiveInput] = useState<{ key: string; raw: string } | null>(null);
 
+  const [suggestDialogOpen, setSuggestDialogOpen] = useState(false);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [suggestLoading, setSuggestLoading] = useState(false);
+
   const toggleTarget = (empId: string) => {
     setSelectedTargets((prev) => {
       const next = new Set(prev);
