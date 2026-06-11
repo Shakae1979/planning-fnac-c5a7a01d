@@ -1,10 +1,11 @@
-import { Users, CalendarDays, User, UserCog, LogOut, Palmtree, Store } from "lucide-react";
+import { Users, CalendarDays, User, UserCog, LogOut, Palmtree, Store, Sun, Moon } from "lucide-react";
 import { HelpFAQ } from "@/components/HelpFAQ";
 import { ReactNode, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
+import { useTheme } from "@/hooks/useTheme";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -21,6 +22,7 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
   const { role, signOut } = useAuth();
   const { stores, currentStore, setCurrentStore } = useStore();
   const { t } = useI18n();
+  const { theme, toggleTheme } = useTheme();
   const clickCountRef = useRef(0);
   const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showEaster, setShowEaster] = useState(false);
@@ -133,6 +135,18 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
         <div className="flex items-center gap-1 shrink-0">
           {children}
           <HelpFAQ />
+          <button
+            onClick={toggleTheme}
+            className="flex items-center justify-center h-8 w-8 rounded-md transition-colors hover:opacity-80"
+            style={{
+              background: "hsl(var(--sidebar-hover))",
+              color: "hsl(var(--sidebar-fg))",
+            }}
+            title={theme === "dark" ? t("nav.theme.light") : t("nav.theme.dark")}
+            aria-label={theme === "dark" ? t("nav.theme.light") : t("nav.theme.dark")}
+          >
+            {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+          </button>
           <LanguageSwitcher />
           <button
             onClick={signOut}

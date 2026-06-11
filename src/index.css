@@ -50,6 +50,47 @@
     --mono: 'Roboto Mono', monospace;
     --sans: 'Inter', system-ui, sans-serif;
   }
+
+  .dark {
+    --background: 0 0% 8%;
+    --foreground: 0 0% 92%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 92%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 92%;
+
+    --primary: 40 85% 50%;
+    --primary-foreground: 0 0% 10%;
+
+    --secondary: 0 0% 16%;
+    --secondary-foreground: 0 0% 92%;
+
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 40 85% 50%;
+    --accent-foreground: 0 0% 10%;
+
+    --success: 160 70% 45%;
+    --success-foreground: 0 0% 10%;
+
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 10%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
+    --ring: 40 85% 50%;
+
+    --sidebar-bg: 0 0% 6%;
+    --sidebar-fg: 0 0% 85%;
+    --sidebar-active: 40 85% 50%;
+    --sidebar-hover: 0 0% 14%;
+  }
 }
 
 @layer base {
