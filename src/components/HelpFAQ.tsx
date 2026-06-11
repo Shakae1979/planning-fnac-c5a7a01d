@@ -69,6 +69,54 @@ const FAQ_FR: FAQItem[] = [
     question: "Comment ajouter un raccourci sur mon téléphone ou ma tablette ?",
     answer: "Sur iPhone/iPad (Safari) : appuyez sur l'icône de partage (carré avec flèche) puis 'Sur l'écran d'accueil'. Sur Android (Chrome) : appuyez sur les 3 points en haut à droite puis 'Ajouter à l'écran d'accueil'. L'application s'ouvrira ensuite comme une app native depuis votre écran d'accueil.",
   },
+  {
+    question: "Comment fonctionnent les suggestions intelligentes d'horaires ?",
+    answer: "Sur la page 'Planning semaine', cliquez sur 'Suggérer'. L'application remplit uniquement les cases vides en consultant dans l'ordre : la semaine précédente, la semaine -2, la semaine type (A ou B selon la parité de la semaine ISO), puis la même semaine de l'année précédente (N-1). Un ⚠️ signale les horaires hors heures d'ouverture du magasin.",
+  },
+  {
+    question: "Comment copier les horaires N-1 d'un seul employé ?",
+    answer: "Dans le planning de la semaine, un bouton 'Copier N-1' est disponible à côté de chaque employé. Il importe uniquement les horaires de cet employé pour la même semaine ISO de l'année précédente, sans toucher au reste de l'équipe.",
+  },
+  {
+    question: "À quoi servent la semaine type et les semaines A/B ?",
+    answer: "Vous pouvez sauvegarder une semaine comme modèle de référence (semaine type). Pour gérer les rotations, deux modèles alternés A et B peuvent être enregistrés : l'application choisit automatiquement A ou B selon la parité de la semaine ISO en cours.",
+  },
+  {
+    question: "Comment afficher la semaine en vue Gantt ?",
+    answer: "Depuis 'Planning semaine', basculez vers la vue Gantt pour visualiser les horaires sous forme de barres horizontales par employé sur l'ensemble de la semaine. Pratique pour repérer rapidement les chevauchements et les trous de couverture.",
+  },
+  {
+    question: "Qu'est-ce que la vue Direction Fnac ?",
+    answer: "Direction Fnac est un magasin virtuel regroupant les managers, accessible aux personnes explicitement assignées. Les libellés de congés y sont raccourcis à 3 caractères et un mode déplacement (icône MapPin, sans heure de fin) permet d'indiquer rapidement les déplacements en magasin.",
+  },
+  {
+    question: "Les congés apparaissent-ils automatiquement dans le planning ?",
+    answer: "Oui. Dès qu'une absence est saisie dans l'onglet 'Congés', elle remplace automatiquement les heures de travail de cet employé pour les jours concernés dans le planning, sans double saisie.",
+  },
+  {
+    question: "Comment fonctionnent les alertes de couverture ?",
+    answer: "L'application surveille la présence entre 09h et 20h. Une alerte s'affiche dès qu'il y a moins d'un employé présent par catégorie (Technique, Éditorial, Stock, Caisse, etc.) sur un créneau, pour éviter les trous de couverture.",
+  },
+  {
+    question: "Où voir le compteur d'heures d'un employé ?",
+    answer: "Le compteur des heures réalisées vs les heures contractuelles s'affiche directement dans la barre latérale, à côté du nom de chaque employé, pour un suivi en un coup d'œil.",
+  },
+  {
+    question: "Comment fonctionne la navigation par semaines ISO ?",
+    answer: "Les semaines sont numérotées selon la norme ISO (S01 à S52 ou S53). Le passage d'année est géré automatiquement, y compris pour les années comportant 53 semaines, et la fonction N-1 retombe toujours sur la bonne semaine équivalente.",
+  },
+  {
+    question: "Comment partager la vue des congés sans donner d'accès ?",
+    answer: "Une vue publique en lecture seule est disponible à l'adresse /conges. Vous pouvez partager ce lien : le calendrier annuel des congés est consultable sans connexion ni compte.",
+  },
+  {
+    question: "Les jours fériés et vacances scolaires sont-ils signalés ?",
+    answer: "Oui. Dans la vue trimestrielle des congés, les jours fériés belges sont surlignés en vert et les vacances scolaires sont colorées selon la communauté (FR, NL ou commune aux deux).",
+  },
+  {
+    question: "Peut-on personnaliser les heures d'ouverture du magasin ?",
+    answer: "Oui. Depuis l'administration, chaque magasin peut configurer ses propres heures d'ouverture entre 06h et 22h. Ces réglages influencent la grille du jour et les alertes de suggestions hors horaires.",
+  },
 ];
 
 const FAQ_NL: FAQItem[] = [
@@ -131,6 +179,54 @@ const FAQ_NL: FAQItem[] = [
   {
     question: "Hoe voeg ik een snelkoppeling toe op mijn telefoon of tablet?",
     answer: "Op iPhone/iPad (Safari): tik op het deelicoon (vierkant met pijl) en kies 'Zet op beginscherm'. Op Android (Chrome): tik op de 3 puntjes rechtsboven en kies 'Toevoegen aan startscherm'. De app opent dan als een native app vanaf uw startscherm.",
+  },
+  {
+    question: "Hoe werken de slimme roostervoorstellen?",
+    answer: "Klik op 'Voorstellen' op de pagina 'Weekplanning'. De app vult enkel lege cellen in, in deze volgorde: vorige week, week -2, modelweek (A of B volgens de pariteit van de ISO-week), en dezelfde week vorig jaar (N-1). Een ⚠️ markeert uren buiten de openingstijden van de winkel.",
+  },
+  {
+    question: "Hoe kopieer ik de N-1 uren van één medewerker?",
+    answer: "In de weekplanning staat naast elke medewerker een knop 'N-1 kopiëren'. Die importeert enkel de uren van die medewerker voor dezelfde ISO-week van vorig jaar, zonder de rest van het team te wijzigen.",
+  },
+  {
+    question: "Waarvoor dienen de modelweek en de A/B-weken?",
+    answer: "U kunt een week opslaan als referentiemodel (modelweek). Voor afwisselende roosters kunt u twee modellen A en B bewaren: de app kiest automatisch A of B op basis van de pariteit van de huidige ISO-week.",
+  },
+  {
+    question: "Hoe toon ik de week in Gantt-weergave?",
+    answer: "Schakel vanuit 'Weekplanning' over naar de Gantt-weergave om de uren als horizontale balken per medewerker over de hele week te zien. Handig om overlappingen en gaten snel te herkennen.",
+  },
+  {
+    question: "Wat is de weergave Direction Fnac?",
+    answer: "Direction Fnac is een virtuele winkel voor managers, enkel toegankelijk voor uitdrukkelijk toegewezen personen. Verloflabels zijn er ingekort tot 3 tekens en een verplaatsingsmodus (MapPin-icoon, zonder einduur) laat toe winkelverplaatsingen snel aan te duiden.",
+  },
+  {
+    question: "Verschijnt verlof automatisch in het rooster?",
+    answer: "Ja. Zodra een afwezigheid in het tabblad 'Verlof' wordt ingevoerd, vervangt het automatisch de werkuren van die medewerker voor de betrokken dagen in de planning. Geen dubbele invoer nodig.",
+  },
+  {
+    question: "Hoe werken de dekkingswaarschuwingen?",
+    answer: "De app bewaakt de aanwezigheid tussen 09u en 20u. Een waarschuwing verschijnt zodra er minder dan één medewerker per categorie (Technique, Éditorial, Stock, Caisse, ...) aanwezig is op een tijdslot, om dekkingsgaten te vermijden.",
+  },
+  {
+    question: "Waar zie ik de urenteller van een medewerker?",
+    answer: "De teller van gepresteerde versus contracturen wordt rechtstreeks in de zijbalk weergegeven, naast de naam van elke medewerker, voor een opvolging in één oogopslag.",
+  },
+  {
+    question: "Hoe werkt de navigatie op ISO-weken?",
+    answer: "Weken worden genummerd volgens de ISO-norm (W01 tot W52 of W53). De jaarwissel wordt automatisch beheerd, ook voor jaren met 53 weken, en de N-1 functie valt altijd op de juiste overeenkomstige week.",
+  },
+  {
+    question: "Hoe deel ik het verlofoverzicht zonder toegang te geven?",
+    answer: "Een publieke alleen-lezen weergave is beschikbaar op /conges. U kunt deze link delen: de jaarlijkse verlofkalender is raadpleegbaar zonder login of account.",
+  },
+  {
+    question: "Worden feestdagen en schoolvakanties aangeduid?",
+    answer: "Ja. In de kwartaalweergave van het verlof worden Belgische feestdagen groen gemarkeerd en schoolvakanties gekleurd volgens de gemeenschap (FR, NL of gemeenschappelijk).",
+  },
+  {
+    question: "Kunnen de openingstijden van de winkel worden aangepast?",
+    answer: "Ja. Via het beheer kan elke winkel eigen openingstijden tussen 06u en 22u instellen. Deze instellingen bepalen het dagrooster en de waarschuwingen bij voorstellen buiten de openingstijden.",
   },
 ];
 

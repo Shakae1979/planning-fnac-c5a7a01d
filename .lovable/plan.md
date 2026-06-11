@@ -1,60 +1,35 @@
-# Anticipation pluriannuelle — alignement ISO pour la source "N-1"
-
-## Problème
-
-La source "N-1" des suggestions utilise actuellement `addWeeks(currentMonday, -52)`, ce qui crée un décalage d'une semaine dès qu'une année ISO compte 53 semaines (2026, 2032, 2037, 2043, 2048…). Symptôme : début 2027 → "N-1" pointe sur S2 de 2026 au lieu de S1.
-
 ## Objectif
 
-Faire pointer "N-1" sur la **même semaine ISO de l'année précédente**, quelle que soit l'année. Solution déterministe et durable, sans dépendance externe ajoutée.
+Compléter `src/components/HelpFAQ.tsx` avec des nouvelles entrées FAQ (FR + NL) couvrant toutes les fonctionnalités récentes, sans toucher aux entrées existantes.
+
+## Nouvelles entrées à ajouter (FR + traduction NL)
+
+1. **Suggestions intelligentes d'horaires** — bouton "Suggérer" dans le planning. Sources consultées dans l'ordre : semaine -1, semaine -2, semaine type (A/B selon parité ISO), même semaine N-1. Seules les cases vides sont remplies. ⚠️ signale les horaires hors heures d'ouverture.
+
+2. **Copier les horaires N-1 d'un employé** — bouton par employé dans le planning pour importer sa propre semaine équivalente de l'année précédente.
+
+3. **Semaine type & semaines A/B** — sauvegarder une semaine de référence comme template, et alterner deux modèles A/B selon la parité de la semaine ISO.
+
+4. **Vue Gantt semaine** — basculer en vue Gantt avec barres horizontales sur la semaine.
+
+5. **Vue Direction Fnac** — magasin virtuel regroupant les managers, avec labels de congés courts (3 caractères) et mode déplacement (MapPin sans heure de fin).
+
+6. **Synchronisation des congés** — les absences saisies dans l'onglet Congés remplacent automatiquement les heures dans le planning.
+
+7. **Alertes de couverture critique** — avertissement quand moins d'un employé par catégorie est présent entre 09h et 20h.
+
+8. **Compteur d'heures en sidebar** — suivi des heures réalisées vs contractuelles directement dans la barre latérale.
+
+9. **Navigation par semaines ISO** — numéros de semaine ISO (S01–S52/53) avec gestion correcte du passage d'année (N-1 prend en compte les années à 53 semaines).
+
+10. **Vue publique des congés** — lien `/conges` en lecture seule pour partager le calendrier annuel sans connexion.
+
+11. **Jours fériés belges & vacances scolaires** — surlignage automatique (vert pour fériés, couleurs FR/NL/Commun pour vacances scolaires) dans les vues trimestrielles.
+
+12. **Paramètres magasin configurables** — heures d'ouverture personnalisables (06h–22h) par magasin depuis l'administration.
 
 ## Détails techniques
 
-**Fichier touché : `src/lib/format.ts`**
-
-Ajout de 3 helpers exportés :
-
-```ts
-// ISO year (peut différer de l'année civile au 1er janv. ou 31 déc.)
-export function getISOYear(date: Date): number
-
-// Nombre de semaines ISO dans une année ISO (52 ou 53)
-export function isoWeeksInYear(isoYear: number): number
-
-// Lundi 00:00 (heure locale) de la semaine ISO donnée
-export function mondayOfISOWeek(isoYear: number, isoWeek: number): Date
-```
-
-Implémentation standard (algorithme ISO 8601), sans lib tierce.
-
-**Fichier touché : `src/components/dashboard/ScheduleEditor.tsx`**
-
-Remplacer :
-```ts
-const lastYear = formatWeekDate(addWeeks(currentMonday, -52));
-```
-
-Par :
-```ts
-const isoYear = getISOYear(currentMonday);
-const isoWeek = getWeekNumber(currentMonday);
-const targetYear = isoYear - 1;
-const targetWeek = Math.min(isoWeek, isoWeeksInYear(targetYear));
-const lastYear = formatWeekDate(mondayOfISOWeek(targetYear, targetWeek));
-```
-
-Le `Math.min` évite de demander une S53 inexistante quand l'année N-1 n'a que 52 semaines.
-
-## Vérifications faites mentalement
-
-- Semaine courante S1-2027 (lundi 04/01/2027) → cible S1-2026 (lundi 29/12/2025) ✓
-- Semaine courante S53-2026 (lundi 28/12/2026) → cible S52-2025 (lundi 22/12/2025), car 2025 n'a que 52 semaines ✓
-- Semaine courante S10-2026 → cible S10-2025 ✓
-- Semaine courante S1-2026 (lundi 29/12/2025) → cible S1-2025 (lundi 30/12/2024) ✓
-
-## Hors périmètre
-
-- Pas de modification du bouton "Copier sem. précédente" (basé sur -1 semaine, déjà correct quelle que soit l'année).
-- Pas de modification des templates A/B (logique parité, indépendante de l'année).
-- Pas de modification du calcul d'heures, congés, ou navigation.
-- Pas de migration DB.
+- Étendre `FAQ_FR` et `FAQ_NL` dans `src/components/HelpFAQ.tsx` (même ordre, mêmes index).
+- Aucune autre modification : pas de nouveaux composants, pas de changements i18n, pas de logique métier.
+- Conserver le ton concis et orienté utilisateur des entrées existantes.
