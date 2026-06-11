@@ -598,7 +598,7 @@ export function ScheduleEditor() {
         return;
       }
 
-      const dayFields = DAYS.flatMap((d) => [`${d.key}_start`, `${d.key}_end`]);
+      const dayFields = DAYS.flatMap((d) => [`${d.key}_start`, `${d.key}_end`, `${d.key}_break_start`, `${d.key}_break_end`]);
       const edits: Record<string, string> = {};
       dayFields.forEach((field) => {
         edits[field] = (prevSchedules as any)[field] ?? "";
