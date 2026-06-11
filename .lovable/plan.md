@@ -1,35 +1,37 @@
 ## Objectif
+Afficher le numéro de version de l'application dans le footer, au format **SemVer** (ex: `v1.2.3`).
 
-Adoucir le thème sombre actuellement trop noir en passant à une palette **gris ardoise (slate)** avec une légère touche bleutée, plus moderne et confortable visuellement.
+## Problème actuel
+- Le projet n'a **pas de footer global**.
+- Le `package.json` est à `0.0.0` sans versioning actif.
 
-## Changements (uniquement `src/index.css`, bloc `.dark`)
+## Plan technique
 
-Remplacer les valeurs HSL grises pures par des slate teintés bleu :
+### 1. Constante de version
+Créer `src/lib/version.ts` :
+```typescript
+export const APP_VERSION = "v1.0.0";
+```
 
-| Token | Avant (noir pur) | Après (slate) |
-|---|---|---|
-| `--background` | `0 0% 8%` | `222 25% 11%` (#0f172a) |
-| `--card` / `--popover` | `0 0% 12%` | `222 22% 15%` (#1e293b) |
-| `--secondary` / `--muted` / `--input` | `0 0% 16-22%` | `217 19% 22%` (#334155) |
-| `--border` | `0 0% 22%` | `217 18% 26%` |
-| `--muted-foreground` | `0 0% 65%` | `215 16% 70%` |
-| `--foreground` / `--card-foreground` / `--popover-foreground` / `--secondary-foreground` | `0 0% 92%` | `210 25% 94%` (légère teinte froide cohérente) |
-| `--sidebar-bg` | `0 0% 6%` | `222 28% 9%` (sidebar reste la plus foncée, contraste avec le contenu) |
-| `--sidebar-hover` | `0 0% 14%` | `217 20% 18%` |
-| `--sidebar-fg` | `0 0% 85%` | `215 16% 80%` |
+### 2. Synchroniser `package.json`
+Mettre à jour la clé `"version"` pour correspondre (`1.0.0`).
 
-Le jaune Fnac (`--primary`, `--accent`, `--ring`) et les status (success/warning/destructive) restent inchangés — ils ressortent très bien sur slate.
+### 3. Composant Footer
+Créer `src/components/layout/AppFooter.tsx` : petit bandeau fixé en bas, texte discret (text-xs, text-muted-foreground), affichant :
+> `Planning Fnac — v1.0.0`
 
-## Vérification
+### 4. Intégration
+- **Pages avec sidebar** (`Index.tsx`) : ajouter le footer dans le `<main>` en dessous du contenu.
+- **Pages pleine largeur** (`TeamDayView`, `TeamWeekView`, `EmployeeView`, `CongesView`, `MyAccount`) : ajouter le footer à la fin de leur `div` principale.
+- **Login** : peut être exclu ou inclure une variante minimaliste.
 
-- Basculer en thème sombre, parcourir : Dashboard, Planning semaine, Équipe du jour, Congés (vue mois + trimestre), Mon compte.
-- Vérifier que :
-  - Le fond principal est gris ardoise (pas noir).
-  - La sidebar reste légèrement plus foncée que le contenu (hiérarchie préservée).
-  - Le jaune Fnac reste lisible et n'a pas changé.
-  - Les KPI cards, tables, popovers, dialogs ont un contraste correct.
-- Repasser en clair : aucune régression (le bloc `:root` n'est pas touché).
+### 5. Design
+- Hauteur compacte (~32 px)
+- Bordure supérieure subtile (`border-t`)
+- Couleurs adaptées au thème ardoise actuel (`bg-card`, `text-muted-foreground`)
+- Ne pas empiéter sur les impressions (`no-print`)
 
-## Fichier modifié
-
-- `src/index.css` (bloc `.dark` uniquement)
+## Livrables
+- `src/lib/version.ts`
+- `src/components/layout/AppFooter.tsx`
+- Modifications dans `package.json` + pages concernées
