@@ -1172,6 +1172,12 @@ export function ScheduleEditor() {
           </table>
         </div>
       </div>
+      <SuggestionsDialog
+        open={suggestDialogOpen}
+        suggestions={suggestions}
+        onClose={() => setSuggestDialogOpen(false)}
+        onApply={applySuggestions}
+      />
     </div>
   );
 }
