@@ -19,6 +19,7 @@ import MyAccount from "./pages/MyAccount.tsx";
 import Login from "./pages/Login.tsx";
 import ChangePassword from "./pages/ChangePassword.tsx";
 import { Loader2 } from "lucide-react";
+import { AppFooter } from "@/components/layout/AppFooter";
 
 const queryClient = new QueryClient();
 
@@ -97,6 +98,7 @@ const App = () => (
             <AuthProvider>
               <StoreProvider>
                 <AppRoutes />
+                <AppFooter />
               </StoreProvider>
             </AuthProvider>
           </ThemeProvider>
