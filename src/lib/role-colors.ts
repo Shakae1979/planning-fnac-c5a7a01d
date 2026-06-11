@@ -48,8 +48,8 @@ export const ROLE_COLORS: Record<RoleKey, RoleColorVariants> = {
     borderL: "border-l-red-500",
     text: "text-red-800 dark:text-red-200",
     editorBg: "bg-red-100 dark:bg-red-950/40",
-    congesHeaderBg: "bg-red-100 dark:bg-red-900/30",
-    congesBorderL: "border-l-2 border-l-red-300 dark:border-l-red-700",
+    congesHeaderBg: "bg-red-100 dark:bg-red-900/50",
+    congesBorderL: "border-l-2 border-l-red-300 dark:border-l-red-500",
   },
   technique: {
     hue: "orange",
@@ -63,8 +63,8 @@ export const ROLE_COLORS: Record<RoleKey, RoleColorVariants> = {
     borderL: "border-l-orange-500",
     text: "text-orange-800 dark:text-orange-200",
     editorBg: "bg-orange-100 dark:bg-orange-950/40",
-    congesHeaderBg: "bg-orange-100 dark:bg-orange-900/30",
-    congesBorderL: "border-l-2 border-l-orange-300 dark:border-l-orange-700",
+    congesHeaderBg: "bg-orange-100 dark:bg-orange-900/50",
+    congesBorderL: "border-l-2 border-l-orange-300 dark:border-l-orange-500",
   },
   editorial: {
     hue: "yellow",
@@ -78,8 +78,8 @@ export const ROLE_COLORS: Record<RoleKey, RoleColorVariants> = {
     borderL: "border-l-yellow-500",
     text: "text-yellow-800 dark:text-yellow-200",
     editorBg: "bg-yellow-100 dark:bg-yellow-950/40",
-    congesHeaderBg: "bg-yellow-100 dark:bg-yellow-900/30",
-    congesBorderL: "border-l-2 border-l-yellow-300 dark:border-l-yellow-700",
+    congesHeaderBg: "bg-yellow-100 dark:bg-yellow-900/50",
+    congesBorderL: "border-l-2 border-l-yellow-300 dark:border-l-yellow-500",
   },
   stock: {
     hue: "blue",
@@ -93,8 +93,8 @@ export const ROLE_COLORS: Record<RoleKey, RoleColorVariants> = {
     borderL: "border-l-blue-500",
     text: "text-blue-800 dark:text-blue-200",
     editorBg: "bg-blue-100 dark:bg-blue-950/40",
-    congesHeaderBg: "bg-blue-100 dark:bg-blue-900/30",
-    congesBorderL: "border-l-2 border-l-blue-300 dark:border-l-blue-700",
+    congesHeaderBg: "bg-blue-100 dark:bg-blue-900/50",
+    congesBorderL: "border-l-2 border-l-blue-300 dark:border-l-blue-500",
   },
   caisse: {
     hue: "emerald",
@@ -108,8 +108,8 @@ export const ROLE_COLORS: Record<RoleKey, RoleColorVariants> = {
     borderL: "border-l-emerald-500",
     text: "text-emerald-800 dark:text-emerald-200",
     editorBg: "bg-emerald-100 dark:bg-emerald-950/40",
-    congesHeaderBg: "bg-emerald-100 dark:bg-emerald-900/30",
-    congesBorderL: "border-l-2 border-l-emerald-300 dark:border-l-emerald-700",
+    congesHeaderBg: "bg-emerald-100 dark:bg-emerald-900/50",
+    congesBorderL: "border-l-2 border-l-emerald-300 dark:border-l-emerald-500",
   },
   stagiaire: {
     hue: "pink",
@@ -123,8 +123,8 @@ export const ROLE_COLORS: Record<RoleKey, RoleColorVariants> = {
     borderL: "border-l-pink-500",
     text: "text-pink-800 dark:text-pink-200",
     editorBg: "bg-pink-100 dark:bg-pink-950/40",
-    congesHeaderBg: "bg-pink-100 dark:bg-pink-900/30",
-    congesBorderL: "border-l-2 border-l-pink-300 dark:border-l-pink-700",
+    congesHeaderBg: "bg-pink-100 dark:bg-pink-900/50",
+    congesBorderL: "border-l-2 border-l-pink-300 dark:border-l-pink-500",
   },
 };
 
