@@ -222,6 +222,18 @@ export function StoreManager() {
     onError: (err) => toast.error((err as Error).message),
   });
 
+  const toggleLunchBreakMutation = useMutation({
+    mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
+      const { error } = await supabase.from("stores").update({ has_lunch_break: enabled } as any).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["stores"] });
+      toast.success(t("store.updated"));
+    },
+    onError: (err) => toast.error((err as Error).message),
+  });
+
   // Editors/admins available to assign (not already assigned to this store)
   const getAvailableUsers = (storeId: string) => {
     const assigned = new Set((storeManagers[storeId] || []).map((m) => m.user_id));
@@ -350,6 +362,19 @@ export function StoreManager() {
                     <div>
                       <span className="text-xs font-medium text-foreground">{t("store.abWeeks" as any)}</span>
                       <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.abWeeksDesc" as any)}</span>
+                    </div>
+                  </div>
+
+                  {/* Lunch break toggle */}
+                  <div className="pl-11 flex items-center gap-2 py-1">
+                    <Switch
+                      checked={(store as any).has_lunch_break ?? false}
+                      onCheckedChange={(checked) => toggleLunchBreakMutation.mutate({ id: store.id, enabled: checked })}
+                      disabled={toggleLunchBreakMutation.isPending}
+                    />
+                    <div>
+                      <span className="text-xs font-medium text-foreground">{t("store.lunchBreak" as any)}</span>
+                      <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.lunchBreakDesc" as any)}</span>
                     </div>
                   </div>
 
