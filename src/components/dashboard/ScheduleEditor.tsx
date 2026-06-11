@@ -106,6 +106,7 @@ export function ScheduleEditor() {
   const { currentStore } = useStore();
   const { scheduleStart, scheduleEnd } = useStoreSettings();
   const isDirection = currentStore?.is_direction === true;
+  const hasLunchBreak = currentStore?.has_lunch_break === true && !isDirection;
 
   const TIME_SLOTS = useMemo(() => {
     const slots: string[] = [];
@@ -289,6 +290,10 @@ export function ScheduleEditor() {
         for (const day of DAYS) {
           targetEdits[`${day.key}_start`] = getValue(copiedEmployee, `${day.key}_start`);
           targetEdits[`${day.key}_end`] = getValue(copiedEmployee, `${day.key}_end`);
+          if (hasLunchBreak) {
+            targetEdits[`${day.key}_break_start`] = getValue(copiedEmployee, `${day.key}_break_start`);
+            targetEdits[`${day.key}_break_end`] = getValue(copiedEmployee, `${day.key}_break_end`);
+          }
         }
         newEdits[targetId] = { ...newEdits[targetId], ...targetEdits };
       });
@@ -300,11 +305,17 @@ export function ScheduleEditor() {
       employees.forEach((emp) => {
         const startVal = getValue(emp.id, `${copiedDay}_start`);
         const endVal = getValue(emp.id, `${copiedDay}_end`);
+        const bsVal = hasLunchBreak ? getValue(emp.id, `${copiedDay}_break_start`) : "";
+        const beVal = hasLunchBreak ? getValue(emp.id, `${copiedDay}_break_end`) : "";
         selectedDays.forEach((targetDay) => {
           if (targetDay === copiedDay) return;
           if (!newEdits[emp.id]) newEdits[emp.id] = {};
           newEdits[emp.id][`${targetDay}_start`] = startVal;
           newEdits[emp.id][`${targetDay}_end`] = endVal;
+          if (hasLunchBreak) {
+            newEdits[emp.id][`${targetDay}_break_start`] = bsVal;
+            newEdits[emp.id][`${targetDay}_break_end`] = beVal;
+          }
         });
       });
       setLocalEdits(newEdits);
@@ -342,12 +353,15 @@ export function ScheduleEditor() {
     if (!copiedCell) return;
     const startVal = getValue(copiedCell.empId, `${copiedCell.dayKey}_start`);
     const endVal = getValue(copiedCell.empId, `${copiedCell.dayKey}_end`);
+    const bsVal = hasLunchBreak ? getValue(copiedCell.empId, `${copiedCell.dayKey}_break_start`) : "";
+    const beVal = hasLunchBreak ? getValue(copiedCell.empId, `${copiedCell.dayKey}_break_end`) : "";
     setLocalEdits((prev) => ({
       ...prev,
       [targetEmpId]: {
         ...prev[targetEmpId],
         [`${targetDayKey}_start`]: startVal,
         [`${targetDayKey}_end`]: endVal,
+        ...(hasLunchBreak ? { [`${targetDayKey}_break_start`]: bsVal, [`${targetDayKey}_break_end`]: beVal } : {}),
       },
     }));
     const empName = employees?.find((e) => e.id === targetEmpId) ? getDisplayName(employees.find((e) => e.id === targetEmpId)!) : "";
@@ -423,7 +437,17 @@ export function ScheduleEditor() {
             if (!isNaN(sh) && !isNaN(eh)) {
               const dayMinutes = (eh * 60 + (em || 0)) - (sh * 60 + (sm || 0));
               totalMinutes += dayMinutes;
-              if (dayMinutes >= 360) breakMinutes += 60;
+              const bStart = fields[`${day.key}_break_start`] ?? (existing as any)?.[`${day.key}_break_start`] ?? "";
+              const bEnd = fields[`${day.key}_break_end`] ?? (existing as any)?.[`${day.key}_break_end`] ?? "";
+              if (bStart && bEnd) {
+                const [bsh, bsm] = bStart.split(":").map(Number);
+                const [beh, bem] = bEnd.split(":").map(Number);
+                if (!isNaN(bsh) && !isNaN(beh)) {
+                  breakMinutes += Math.max(0, (beh * 60 + (bem || 0)) - (bsh * 60 + (bsm || 0)));
+                }
+              } else if (dayMinutes >= 360) {
+                breakMinutes += 60;
+              }
             }
           }
         }
@@ -557,7 +581,7 @@ export function ScheduleEditor() {
       }
 
       const newEdits = { ...localEdits };
-      const dayFields = DAYS.flatMap((d) => [`${d.key}_start`, `${d.key}_end`]);
+      const dayFields = DAYS.flatMap((d) => [`${d.key}_start`, `${d.key}_end`, `${d.key}_break_start`, `${d.key}_break_end`]);
 
       prevSchedules.forEach((prev) => {
         const emp = employees.find((e) => e.id === prev.employee_id);
@@ -597,7 +621,7 @@ export function ScheduleEditor() {
         return;
       }
 
-      const dayFields = DAYS.flatMap((d) => [`${d.key}_start`, `${d.key}_end`]);
+      const dayFields = DAYS.flatMap((d) => [`${d.key}_start`, `${d.key}_end`, `${d.key}_break_start`, `${d.key}_break_end`]);
       const edits: Record<string, string> = {};
       dayFields.forEach((field) => {
         edits[field] = (prevSchedules as any)[field] ?? "";
@@ -992,7 +1016,17 @@ export function ScheduleEditor() {
                       if (!isNaN(sh) && !isNaN(eh)) {
                         const dayMinutes = (eh * 60 + (em || 0)) - (sh * 60 + (sm || 0));
                         totalMinutes += dayMinutes;
-                        if (dayMinutes >= 360) breakMinutes += 60;
+                        const bs = getValue(emp.id, `${day.key}_break_start`);
+                        const be = getValue(emp.id, `${day.key}_break_end`);
+                        if (bs && be) {
+                          const [bsh, bsm] = bs.split(":").map(Number);
+                          const [beh, bem] = be.split(":").map(Number);
+                          if (!isNaN(bsh) && !isNaN(beh)) {
+                            breakMinutes += Math.max(0, (beh * 60 + (bem || 0)) - (bsh * 60 + (bsm || 0)));
+                          }
+                        } else if (dayMinutes >= 360) {
+                          breakMinutes += 60;
+                        }
                       }
                     }
                   }
@@ -1149,6 +1183,28 @@ export function ScheduleEditor() {
                                 </button>
                               )}
                             </div>
+                            )}
+                            {hasLunchBreak && !isDirection && !isRoulement && (
+                              <div className="flex items-center gap-0.5 mt-0.5" title={t("schedule.break" as any)}>
+                                <input
+                                  type="text"
+                                  value={getTimeInputValue(emp.id, `${day.key}_break_start`)}
+                                  onFocus={() => setActiveInput({ key: `${emp.id}__${day.key}_break_start`, raw: getTimeInputValue(emp.id, `${day.key}_break_start`) })}
+                                  onChange={(e) => setActiveInput({ key: `${emp.id}__${day.key}_break_start`, raw: e.target.value })}
+                                  onBlur={() => handleTimeBlur(emp.id, `${day.key}_break_start`)}
+                                  placeholder={t("schedule.break" as any)}
+                                  className="flex-1 min-w-0 px-0 py-0 text-[10px] rounded border border-dashed bg-muted/30 focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center text-muted-foreground"
+                                />
+                                <input
+                                  type="text"
+                                  value={getTimeInputValue(emp.id, `${day.key}_break_end`)}
+                                  onFocus={() => setActiveInput({ key: `${emp.id}__${day.key}_break_end`, raw: getTimeInputValue(emp.id, `${day.key}_break_end`) })}
+                                  onChange={(e) => setActiveInput({ key: `${emp.id}__${day.key}_break_end`, raw: e.target.value })}
+                                  onBlur={() => handleTimeBlur(emp.id, `${day.key}_break_end`)}
+                                  placeholder={t("schedule.break" as any)}
+                                  className="flex-1 min-w-0 px-0 py-0 text-[10px] rounded border border-dashed bg-muted/30 focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center text-muted-foreground"
+                                />
+                              </div>
                             )}
                             {ferieDay && (
                               <div className="text-center mt-0.5">

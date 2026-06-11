@@ -7,6 +7,7 @@ interface Store {
   name: string;
   city: string;
   has_ab_weeks?: boolean;
+  has_lunch_break?: boolean;
   is_direction?: boolean;
 }
 
@@ -39,7 +40,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (role === "admin") {
         // Admin sees all stores
         const { data } = await supabase.from("stores").select("*").order("name");
-        const storeList = (data ?? []).map((s: any) => ({ id: s.id, name: s.name, city: s.city, has_ab_weeks: s.has_ab_weeks ?? false, is_direction: s.is_direction ?? false }));
+        const storeList = (data ?? []).map((s: any) => ({ id: s.id, name: s.name, city: s.city, has_ab_weeks: s.has_ab_weeks ?? false, has_lunch_break: s.has_lunch_break ?? false, is_direction: s.is_direction ?? false }));
         setStores(storeList);
         if (!currentStore && storeList.length > 0) {
           setCurrentStore(storeList[0]);
@@ -51,6 +52,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           id: s.store_id,
           name: s.store_name,
           city: s.store_city,
+          has_lunch_break: s.store_has_lunch_break ?? false,
           is_direction: s.store_is_direction ?? false,
         }));
         setStores(storeList);

@@ -48,7 +48,14 @@ export function computeNetHours(
     if (start && end && start !== "EXT" && start !== "ROULEMENT") {
       const dayGross = timeToHours(end) - timeToHours(start);
       gross += dayGross;
-      if (dayGross >= 6) breakMinutes += 60;
+      const bStart = sch[`${d}_break_start`];
+      const bEnd = sch[`${d}_break_end`];
+      if (bStart && bEnd) {
+        const pause = Math.max(0, timeToHours(bEnd) - timeToHours(bStart));
+        breakMinutes += pause * 60;
+      } else if (dayGross >= 6) {
+        breakMinutes += 60;
+      }
     }
   }
   const breaks = breakMinutes / 60;
