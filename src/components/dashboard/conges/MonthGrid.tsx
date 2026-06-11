@@ -6,14 +6,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { formatDateBE, getDisplayName } from "@/lib/format";
 import { useI18n, getHolidays2026, getDayNames } from "@/lib/i18n";
+import { ROLE_COLORS as CENTRAL_ROLE_COLORS } from "@/lib/role-colors";
 
-const ROLE_COLUMNS = [
-  { key: "responsable", headerBg: "bg-red-100 dark:bg-red-900/30", borderColor: "border-l-2 border-l-red-300 dark:border-l-red-700" },
-  { key: "technique", headerBg: "bg-orange-100 dark:bg-orange-900/30", borderColor: "border-l-2 border-l-orange-300 dark:border-l-orange-700" },
-  { key: "editorial", headerBg: "bg-yellow-100 dark:bg-yellow-900/30", borderColor: "border-l-2 border-l-yellow-300 dark:border-l-yellow-700" },
-  { key: "stock", headerBg: "bg-blue-100 dark:bg-blue-900/30", borderColor: "border-l-2 border-l-blue-300 dark:border-l-blue-700" },
-  { key: "caisse", headerBg: "bg-green-100 dark:bg-green-900/30", borderColor: "border-l-2 border-l-green-300 dark:border-l-green-700" },
-];
+const ROLE_COLUMNS: { key: string; headerBg: string; borderColor: string; text: string }[] = (
+  ["responsable", "technique", "editorial", "stock", "caisse"] as const
+).map((key) => ({
+  key,
+  headerBg: CENTRAL_ROLE_COLORS[key].congesHeaderBg,
+  borderColor: CENTRAL_ROLE_COLORS[key].congesBorderL,
+  text: CENTRAL_ROLE_COLORS[key].text,
+}));
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
@@ -174,7 +176,7 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
               <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[70px]">{t("conges.date")}</th>
               <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[30px]">{t("conges.dayLabel")}</th>
               {activeRoles.map(r => (
-                <th key={r.key} className={`px-1 py-1.5 text-center font-semibold text-muted-foreground ${r.headerBg} ${r.borderColor}`}>{roleLabels[r.key]}</th>
+              <th key={r.key} className={`px-1 py-1.5 text-center font-semibold ${r.text} ${r.headerBg} ${r.borderColor}`}>{roleLabels[r.key]}</th>
               ))}
             </tr>
           </thead>
@@ -195,16 +197,16 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
               const dateLabel = `${String(day).padStart(2, "0")}-${monthShort(month)}`;
 
               const schoolBg = schoolHol && !isWeekend
-                ? schoolHol.community === "both" ? "bg-amber-400/15"
-                : schoolHol.community === "fr" ? "bg-amber-300/10"
-                : "bg-sky-300/10"
+                ? schoolHol.community === "both" ? "bg-amber-400/15 dark:bg-amber-500/20"
+                : schoolHol.community === "fr" ? "bg-amber-400/15 dark:bg-amber-500/20"
+                : "bg-sky-400/15 dark:bg-sky-500/20"
                 : "";
 
               return (
                 <tr
                   key={i}
                   className={`border-b border-border/40 ${
-                    holiday ? "bg-emerald-500/15" : schoolBg || (isWeekend ? "bg-muted/40" : "")
+                    holiday ? "bg-emerald-500/15" : schoolBg || (isWeekend ? "bg-muted/40 dark:bg-muted/60" : "")
                   } ${isMonday ? "border-t-2 border-t-accent/40" : ""}`}
                 >
                   <td className="px-1 py-0.5 text-muted-foreground whitespace-nowrap">
@@ -217,7 +219,7 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
                     {DAY_NAMES[jsDay]}
                   </td>
                   {holiday ? (
-                    <td colSpan={activeRoles.length} className="px-2 py-0.5 text-center font-semibold text-emerald-700 dark:text-emerald-400 text-[10px]">
+                    <td colSpan={activeRoles.length} className="px-2 py-0.5 text-center font-semibold text-emerald-800 dark:text-emerald-300 text-[10px]">
                       {holiday}
                     </td>
                   ) : (
