@@ -1,35 +1,57 @@
+# Auto-complétion intelligente N-1
+
 ## Objectif
-Ajouter un bouton bascule thème clair / thème sombre dans le header Fnac.
 
-## Étapes
+Ajouter un bouton **"Suggérer"** dans l'éditeur de planning hebdo qui propose de pré-remplir uniquement les **cases vides** de la semaine courante en se basant sur l'historique, puis affiche un **aperçu** que l'admin valide (ou ajuste) avant d'écrire en base.
 
-1. **Définir les tokens du thème sombre dans `src/index.css`**
-   - Ajouter un bloc `.dark { ... }` avec les variables HSL inversées : `--background`, `--foreground`, `--card`, `--popover`, `--muted`, `--secondary`, `--border`, `--input`, `--card-foreground`, etc.
-   - Conserver le jaune Fnac `--primary` (40 85% 44%) inchangé pour préserver l'identité de marque.
-   - Le sidebar reste sombre (déjà foncé), inchangé.
+Non-destructif : aucune case déjà saisie n'est écrasée.
 
-2. **Créer un hook `src/hooks/useTheme.tsx`**
-   - Provider qui lit/écrit le thème dans `localStorage` (`planning-fnac-theme`).
-   - Applique/retire la classe `dark` sur `document.documentElement`.
-   - Défaut : `light` (préserve l'apparence actuelle).
-   - Expose `{ theme, setTheme, toggleTheme }`.
+## Comportement utilisateur
 
-3. **Envelopper l'app avec `ThemeProvider`** dans `src/App.tsx` (à l'intérieur de `I18nProvider`).
+1. Dans `ScheduleEditor`, à côté des boutons existants ("Copier semaine précédente", "Appliquer semaine type"), un nouveau bouton **`Suggérer`** (icône Sparkles, variant outline).
+2. Au clic, ouverture d'un **dialog d'aperçu** listant, par employé, les cellules qui seraient remplies :
+   - Colonnes : Employé · Jour · Source · Horaire suggéré
+   - Source possible : `Semaine -1`, `Semaine -2`, `Semaine type`, `N-1 (même semaine ISO, année -1)` — première source non vide trouvée dans cet ordre de priorité.
+   - Cases en conflit avec un congé existant → exclues automatiquement.
+3. En bas du dialog :
+   - Indicateur de **couverture** post-application par catégorie/jour 09-20h (badge vert OK / rouge sous-couverture restante).
+   - Cases à cocher par ligne (toutes cochées par défaut) pour exclure ponctuellement une suggestion.
+   - Boutons `Annuler` et `Appliquer les suggestions` (n'écrit pas en DB directement : injecte dans `localEdits`, l'admin garde la main pour ajuster puis "Enregistrer" comme aujourd'hui).
 
-4. **Ajouter le bouton dans `src/components/FnacHeader.tsx`**
-   - Placé juste avant `LanguageSwitcher`.
-   - Icône `Sun` (mode clair actif) / `Moon` (mode sombre actif) de `lucide-react`.
-   - Même style visuel que les autres boutons du header (h-8, fond `--sidebar-hover`).
-   - Tooltip + `aria-label` traduits via `useI18n` (clés `nav.theme.light` / `nav.theme.dark`).
+## Règles de remplissage
 
-5. **Ajouter les traductions** dans `src/lib/i18n.tsx` pour FR et NL (`Mode clair` / `Lichte modus`, `Mode sombre` / `Donkere modus`).
+- Ne remplit **que** les cases dont `start` ET `end` sont vides dans `localEdits` (et pas un statut spécial comme `Roulement`, `Extérieur`, `Heure de table`).
+- Si l'employé est en congé ce jour-là (table `conges`), la case est ignorée.
+- Si l'horaire source tombe hors plage magasin (`store_settings`), badge "hors plage" en warning mais proposé quand même.
+- Stagiaires inclus comme aujourd'hui (pas de filtrage spécifique).
 
 ## Détails techniques
-- Tailwind est déjà configuré en `darkMode: ["class"]` — aucune modif de config.
-- Toggle initialisé via script inline dans `index.html` n'est pas nécessaire (défaut clair = comportement actuel, pas de flash).
-- Les composants utilisent déjà les tokens sémantiques (`bg-background`, `text-foreground`, etc.), donc la majorité de l'UI s'adapte automatiquement.
+
+**Fichiers touchés :**
+
+- `src/components/dashboard/ScheduleEditor.tsx`
+  - Nouveau bouton `Suggérer` près de la barre d'actions ligne ~728.
+  - Nouvelle fonction `buildSuggestions()` :
+    - Charge en parallèle : `weekly_schedules` pour `weekStr-1`, `weekStr-2`, `TEMPLATE_WEEK` (et `TEMPLATE_WEEK_B` si A/B actif), et `weekStr` année -1 (même n° ISO).
+    - Charge les congés actifs sur la semaine courante.
+    - Pour chaque employé × chaque jour : si cellule vide dans `localEdits`, prend la 1ère source non vide selon la priorité ci-dessus.
+  - Nouveau state `suggestions: SuggestionRow[]` + `suggestDialogOpen: boolean`.
+
+- `src/components/dashboard/SuggestionsDialog.tsx` (**nouveau**)
+  - Dialog shadcn avec table des suggestions, checkbox par ligne, résumé couverture, boutons.
+  - Reçoit `suggestions`, `onApply(selected)`, `onClose`.
+
+- `src/lib/i18n.tsx`
+  - Clés FR/NL : `schedule.suggest`, `schedule.suggestTitle`, `schedule.suggestApply`, `schedule.suggestEmpty`, `schedule.source.prevWeek`, `schedule.source.prev2Weeks`, `schedule.source.template`, `schedule.source.lastYear`, `schedule.coverage.ok`, `schedule.coverage.under`.
+
+**Pas touché :**
+- Schéma DB inchangé (lecture seule sur `weekly_schedules` et `conges`).
+- Les fonctions existantes `copyPreviousWeekMutation` et `applyTemplateMutation` restent telles quelles.
+- Pas de modification du calcul d'heures nettes ni des règles de couverture (réutilisation de la logique existante via util partagé si déjà extrait, sinon helper local dans `SuggestionsDialog`).
 
 ## Hors périmètre
-- Pas de détection automatique `prefers-color-scheme` (sauf si demandé ensuite).
-- Pas de synchronisation cross-device via la base.
-- Pas de revue/ajustement page par page : on traite les régressions visuelles si tu en signales après coup.
+
+- Pas d'apprentissage statistique / IA (purement déterministe basé sur l'historique).
+- Pas d'auto-application sans confirmation.
+- Pas de suggestion pour les statuts spéciaux (Roulement, Extérieur, etc.).
+- Pas de vue Direction Fnac (uniquement éditeur magasin standard pour ce premier jet).
