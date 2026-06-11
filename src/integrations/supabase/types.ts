@@ -283,6 +283,7 @@ export type Database = {
           city: string
           created_at: string
           has_ab_weeks: boolean
+          has_lunch_break: boolean
           id: string
           is_direction: boolean
           name: string
@@ -291,6 +292,7 @@ export type Database = {
           city: string
           created_at?: string
           has_ab_weeks?: boolean
+          has_lunch_break?: boolean
           id?: string
           is_direction?: boolean
           name: string
@@ -299,6 +301,7 @@ export type Database = {
           city?: string
           created_at?: string
           has_ab_weeks?: boolean
+          has_lunch_break?: boolean
           id?: string
           is_direction?: boolean
           name?: string
@@ -361,72 +364,114 @@ export type Database = {
       weekly_schedules: {
         Row: {
           created_at: string
+          dimanche_break_end: string | null
+          dimanche_break_start: string | null
           dimanche_end: string | null
           dimanche_start: string | null
           employee_id: string
           hours_base: number | null
           hours_modified: number | null
           id: string
+          jeudi_break_end: string | null
+          jeudi_break_start: string | null
           jeudi_end: string | null
           jeudi_start: string | null
+          lundi_break_end: string | null
+          lundi_break_start: string | null
           lundi_end: string | null
           lundi_start: string | null
+          mardi_break_end: string | null
+          mardi_break_start: string | null
           mardi_end: string | null
           mardi_start: string | null
+          mercredi_break_end: string | null
+          mercredi_break_start: string | null
           mercredi_end: string | null
           mercredi_start: string | null
           notes: string | null
+          samedi_break_end: string | null
+          samedi_break_start: string | null
           samedi_end: string | null
           samedi_start: string | null
           updated_at: string
+          vendredi_break_end: string | null
+          vendredi_break_start: string | null
           vendredi_end: string | null
           vendredi_start: string | null
           week_start: string
         }
         Insert: {
           created_at?: string
+          dimanche_break_end?: string | null
+          dimanche_break_start?: string | null
           dimanche_end?: string | null
           dimanche_start?: string | null
           employee_id: string
           hours_base?: number | null
           hours_modified?: number | null
           id?: string
+          jeudi_break_end?: string | null
+          jeudi_break_start?: string | null
           jeudi_end?: string | null
           jeudi_start?: string | null
+          lundi_break_end?: string | null
+          lundi_break_start?: string | null
           lundi_end?: string | null
           lundi_start?: string | null
+          mardi_break_end?: string | null
+          mardi_break_start?: string | null
           mardi_end?: string | null
           mardi_start?: string | null
+          mercredi_break_end?: string | null
+          mercredi_break_start?: string | null
           mercredi_end?: string | null
           mercredi_start?: string | null
           notes?: string | null
+          samedi_break_end?: string | null
+          samedi_break_start?: string | null
           samedi_end?: string | null
           samedi_start?: string | null
           updated_at?: string
+          vendredi_break_end?: string | null
+          vendredi_break_start?: string | null
           vendredi_end?: string | null
           vendredi_start?: string | null
           week_start: string
         }
         Update: {
           created_at?: string
+          dimanche_break_end?: string | null
+          dimanche_break_start?: string | null
           dimanche_end?: string | null
           dimanche_start?: string | null
           employee_id?: string
           hours_base?: number | null
           hours_modified?: number | null
           id?: string
+          jeudi_break_end?: string | null
+          jeudi_break_start?: string | null
           jeudi_end?: string | null
           jeudi_start?: string | null
+          lundi_break_end?: string | null
+          lundi_break_start?: string | null
           lundi_end?: string | null
           lundi_start?: string | null
+          mardi_break_end?: string | null
+          mardi_break_start?: string | null
           mardi_end?: string | null
           mardi_start?: string | null
+          mercredi_break_end?: string | null
+          mercredi_break_start?: string | null
           mercredi_end?: string | null
           mercredi_start?: string | null
           notes?: string | null
+          samedi_break_end?: string | null
+          samedi_break_start?: string | null
           samedi_end?: string | null
           samedi_start?: string | null
           updated_at?: string
+          vendredi_break_end?: string | null
+          vendredi_break_start?: string | null
           vendredi_end?: string | null
           vendredi_start?: string | null
           week_start?: string
