@@ -250,6 +250,8 @@ const TeamWeekView = () => {
                             const congeType = getConge(emp.id, di);
                             const start = schedule ? (schedule as any)[`${day}_start`] : null;
                             const end = schedule ? (schedule as any)[`${day}_end`] : null;
+                            const breakStart = schedule ? (schedule as any)[`${day}_break_start`] : null;
+                            const breakEnd = schedule ? (schedule as any)[`${day}_break_end`] : null;
                             const isFerieFromComments = dayComments?.find(dc => dc.day_key === day)?.is_ferie ?? false;
                             const isLegacyFerie = start === "FERIE" || end === "FERIE";
                             const isFerie = isFerieFromComments || isLegacyFerie;
@@ -283,17 +285,30 @@ const TeamWeekView = () => {
                                       const clampEnd = Math.min(endMin, GRID_END);
                                       const leftPct = ((clampStart - GRID_START) / GRID_SPAN) * 100;
                                       const widthPct = ((clampEnd - clampStart) / GRID_SPAN) * 100;
+                                      const hasBreak = !!(breakStart && breakEnd);
+                                      const bStartMin = hasBreak ? Math.max(timeToMinutes(breakStart), clampStart) : 0;
+                                      const bEndMin = hasBreak ? Math.min(timeToMinutes(breakEnd), clampEnd) : 0;
+                                      const showBreak = hasBreak && bEndMin > bStartMin;
+                                      const breakLeftPct = showBreak ? ((bStartMin - GRID_START) / GRID_SPAN) * 100 : 0;
+                                      const breakWidthPct = showBreak ? ((bEndMin - bStartMin) / GRID_SPAN) * 100 : 0;
                                       return (
                                         <>
                                           <div
                                             className={`absolute h-5 rounded ${colors.bar} flex items-center justify-center text-[9px] font-semibold text-white shadow-sm`}
                                             style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
-                                            title={`${formatTimeBE(start)} — ${formatTimeBE(end)}`}
+                                            title={`${formatTimeBE(start)} — ${formatTimeBE(end)}${showBreak ? `\nPause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}` : ""}`}
                                           >
                                             {widthPct > 12 && (
                                               <span>{isFerie ? `🏴 ` : ""}{formatTimeBE(start)}–{formatTimeBE(end)}</span>
                                             )}
                                           </div>
+                                          {showBreak && (
+                                            <div
+                                              className="absolute h-5 rounded bg-white/70 dark:bg-white/40 border border-white/80 pointer-events-none"
+                                              style={{ left: `${breakLeftPct}%`, width: `${breakWidthPct}%`, backgroundImage: "repeating-linear-gradient(45deg, transparent 0 3px, rgba(0,0,0,0.15) 3px 6px)" }}
+                                              title={`Pause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}`}
+                                            />
+                                          )}
                                           {isFerie && (
                                             <div className="absolute top-0 right-0.5">
                                               <Flag className="h-2.5 w-2.5 text-gray-900 dark:text-gray-100" />

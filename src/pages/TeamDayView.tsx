@@ -7,11 +7,11 @@ import { FnacHeader } from "@/components/FnacHeader";
 import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName } from "@/lib/format";
+import { computeNetHours } from "@/lib/hours";
 import { useStore } from "@/hooks/useStore";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { useI18n } from "@/lib/i18n";
 
-const BREAK_HOURS = 1;
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 
@@ -109,6 +109,8 @@ const TeamDayView = () => {
       const schedule = schedules?.find((s) => s.employee_id === emp.id);
       const start = schedule ? (schedule as any)[`${dayKey}_start`] : null;
       const end = schedule ? (schedule as any)[`${dayKey}_end`] : null;
+      const breakStart = schedule ? (schedule as any)[`${dayKey}_break_start`] : null;
+      const breakEnd = schedule ? (schedule as any)[`${dayKey}_break_end`] : null;
       const isFerie = start === "FERIE" || end === "FERIE"; // legacy data
       const isExt = start === "EXT" || end === "EXT";
       const isRoulement = start === "ROULEMENT" || end === "ROULEMENT";
@@ -119,10 +121,15 @@ const TeamDayView = () => {
       const notes = schedule?.notes || null;
       let netHours = 0;
       if (hasShift) {
-        const gross = timeToHours(end) - timeToHours(start);
-        netHours = gross >= 6 ? gross - BREAK_HOURS : gross;
+        const dayScheduleObj = {
+          [`${dayKey}_start`]: start,
+          [`${dayKey}_end`]: end,
+          [`${dayKey}_break_start`]: breakStart,
+          [`${dayKey}_break_end`]: breakEnd,
+        };
+        netHours = computeNetHours(dayScheduleObj).net;
       }
-      return { ...emp, start, end, hasShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes };
+      return { ...emp, start, end, breakStart, breakEnd, hasShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes };
     })
     .sort((a, b) => {
       const orderA = ROLE_ORDER.indexOf(a.role);
@@ -239,6 +246,11 @@ const TeamDayView = () => {
                             {formatTimeBE(emp.start)}–{formatTimeBE(emp.end)} <span className="ml-1">{emp.netHours.toFixed(1)}h</span>
                           </span>
                         </div>
+                        {emp.breakStart && emp.breakEnd && (
+                          <div className="ml-2 mt-0.5 text-[10px] text-muted-foreground italic">
+                            {t("schedule.break")} {formatTimeBE(emp.breakStart)}–{formatTimeBE(emp.breakEnd)}
+                          </div>
+                        )}
                         {emp.notes && (
                           <div className="ml-2 mt-0.5 mb-1 px-2 py-1 rounded bg-amber-100/80 dark:bg-amber-900/30 border-l-2 border-amber-500 text-[11px] text-amber-800 dark:text-amber-200">
                             📝 {emp.notes}

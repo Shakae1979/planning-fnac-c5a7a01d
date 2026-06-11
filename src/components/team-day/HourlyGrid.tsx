@@ -42,6 +42,7 @@ const ROLE_BORDER_L: Record<string, string> = Object.fromEntries(
 
 interface Employee {
   id: string; name: string; role: string; start: string | null; end: string | null; hasShift: boolean; conge: any;
+  breakStart?: string | null; breakEnd?: string | null;
 }
 
 function timeToHours(t: string | null): number {
@@ -106,11 +107,27 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
         supabase.from("schedule_role_overrides").select("employee_id, slot_key, role").eq("date", date),
         supabase.from("employee_day_flags").select("employee_id, socloz, sav, comment").eq("date", date),
       ]);
-      if (overridesRes.data && overridesRes.data.length > 0) {
-        const loaded: Overrides = {};
+      const loaded: Overrides = {};
+      if (overridesRes.data) {
         for (const row of overridesRes.data) loaded[`${row.employee_id}-${row.slot_key}`] = row.role;
-        setOverrides(loaded);
-      } else setOverrides({});
+      }
+      // Pre-mark slots covered by employee's lunch break as "heure_de_table"
+      // (only when no manual override already exists for that slot).
+      for (const emp of active) {
+        const bs = emp.breakStart;
+        const be = emp.breakEnd;
+        if (!bs || !be) continue;
+        const bsH = timeToHours(bs);
+        const beH = timeToHours(be);
+        for (const slot of HALF_HOURS) {
+          const slotTime = slot.hour + slot.minute / 60;
+          if (slotTime >= bsH && slotTime < beH) {
+            const key = `${emp.id}-${slot.hour}-${slot.minute}`;
+            if (!(key in loaded)) loaded[key] = "heure_de_table";
+          }
+        }
+      }
+      setOverrides(loaded);
       if (flagsRes.data && flagsRes.data.length > 0) {
         const comments: Record<string, string> = {};
         for (const row of flagsRes.data) { if ((row as any).comment) comments[row.employee_id] = (row as any).comment; }
@@ -119,7 +136,7 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
       setDirty(false);
     };
     load();
-  }, [date]);
+  }, [date, employees]);
 
   const dirtyRef = useRef(dirty);
   dirtyRef.current = dirty;

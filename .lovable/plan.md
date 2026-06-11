@@ -1,69 +1,54 @@
 ## Objectif
 
-Permettre, comme pour les semaines A/B, d'activer **par magasin** la saisie d'une **heure de table** (pause déjeuner) dans l'éditeur de planning hebdomadaire. Quand une pause est saisie, elle **remplace** la déduction automatique d'1h (règle « shift ≥ 6h »).
+L'heure de table est aujourd'hui saisie dans l'éditeur hebdo (et déduite correctement des heures nettes), mais elle **n'est pas visible** sur :
+- la **vue Semaine (Gantt)** : la pause n'apparaît pas dans la barre
+- la **vue Jour (Équipe du jour + grille horaire)** : la pause n'est pas marquée et le calcul net utilise encore la règle auto
 
-## 1. Activation par magasin
+On la rend visible et cohérente partout, pour les magasins ayant `has_lunch_break = true`.
 
-- Ajouter une option `has_lunch_break` sur la table `stores` (booléen, défaut `false`).
-- L'exposer dans **Administration → Magasins** (StoreManager) à côté de la case « Semaines A/B », libellé : « Encodage de l'heure de table ».
-- Charger la valeur dans `useStore` (comme `has_ab_weeks`).
+## 1. Vue Jour — `src/pages/TeamDayView.tsx`
 
-## 2. Stockage des pauses
+- Récupérer `breakStart` / `breakEnd` du jour depuis `weekly_schedules` (mêmes champs `<jour>_break_start/end`).
+- Remplacer le calcul net manuel (lignes 121-124) par `computeNetHours(schedule)` pour appliquer la même règle que partout (pause saisie = remplace la déduction auto).
+- Étendre l'objet retourné avec `breakStart`, `breakEnd`.
+- Sous le shift de chaque employé (carte + ligne `formatTimeBE(start)–formatTimeBE(end)`), afficher une seconde ligne discrète : `Pause 12h00–13h00` si pause saisie.
 
-Ajouter, par jour, deux colonnes texte à `weekly_schedules` (même format `HH:MM` que start/end) :
+## 2. Grille horaire — `src/components/team-day/HourlyGrid.tsx`
 
-```
-lundi_break_start, lundi_break_end,
-mardi_break_start, mardi_break_end,
-... (7 jours)
-```
+- Étendre l'interface `Employee` avec `breakStart?: string | null`, `breakEnd?: string | null`.
+- Au chargement (effect existant qui charge `schedule_role_overrides`), **pré-remplir** les overrides des demi-créneaux compris dans `[breakStart, breakEnd[` avec le rôle `heure_de_table`, **uniquement si** aucun override n'est déjà enregistré pour ce slot (les ajustements manuels restent prioritaires).
+- Les overrides restent modifiables comme aujourd'hui (un clic peut changer le rôle d'un slot pré-marqué).
+- À la sauvegarde : pas de changement, la logique actuelle écrit les overrides finaux.
 
-Nullable. Format identique aux autres champs horaires. Pas de migration de données existantes.
+## 3. Vue Semaine Gantt — `src/pages/TeamWeekView.tsx`
 
-## 3. Saisie dans l'éditeur (ScheduleEditor)
+- Lire `<day>_break_start` / `<day>_break_end` à côté de `start` / `end` (vers ligne 251).
+- Dans la barre du shift (entre `clampStart` / `clampEnd`), rendre un **sous-segment de pause** :
+  - position : pause clampée à la barre, calcul `left/width` en %
+  - style : bande rayée gris clair semi-transparente (cohérent avec « H. table » de la grille), ou simple bande blanche/translucide
+- Étendre le `title` (tooltip) avec `\nPause 12h00–13h00` si présente.
+- Si la pause sort de la plage `[scheduleStart, scheduleEnd]`, on la clampe (jamais d'overflow).
 
-- Si `currentStore.has_lunch_break = true`, afficher sous chaque cellule jour deux mini-champs « pause » (début → fin), même parsing intelligent que les champs existants.
-- Si `false`, ne rien afficher (UI identique à aujourd'hui pour les autres magasins).
-- Mêmes règles pour la **Semaine type** (et Semaine B si A/B également activé).
-- La copie N-1 / application de template propage aussi ces champs.
+## 4. Impression
 
-## 4. Calcul des heures nettes
-
-Modifier `computeNetHours` dans `src/lib/hours.ts` :
-
-```text
-Pour chaque jour avec start/end valides :
-  gross = end - start
-  si break_start ET break_end fournis :
-     pause = break_end - break_start  (replace la règle auto)
-  sinon :
-     pause = 1h si gross >= 6h, sinon 0
-  net_jour = gross - pause
-```
-
-Statuts `EXT` / `ROULEMENT` inchangés (0h, pas de pause).
-
-## 5. Affichage
-
-- **Vue jour (HourlyGrid)** : si une pause est saisie dans l'horaire de l'employé, marquer automatiquement les demi-créneaux correspondants en « H. table » (au chargement, comme un override par défaut, mais modifiable). Aucun changement pour les magasins sans l'option.
-- **Vue semaine Gantt** : afficher un trait/segment plus clair sur le créneau de pause si présent.
-- **Impression** : la pause apparaît sous le shift au format `12h00–13h00`.
-
-## 6. i18n
-
-Ajouter clés FR/NL :
-- `store.hasLunchBreak` : « Encodage de l'heure de table » / « Invoer van de etenstijd »
-- `schedule.breakStart` / `schedule.breakEnd`
+- Vue jour : la ligne `Pause 12h00–13h00` apparaît naturellement à l'impression (pas de `no-print`).
+- Vue semaine : le sous-segment de pause garde le même rendu en impression (couleur compatible).
 
 ## Hors scope
 
-- Pas de pause multiple par jour (une seule plage).
-- Pas de pause sur les statuts spéciaux (EXT, ROULEMENT, congés).
-- La marque manuelle « H. table » dans la grille du jour reste disponible pour ajustements ponctuels.
+- Pas de modification du calcul `computeNetHours` (déjà correct).
+- Pas de pause multiple par jour.
+- Pas de changement sur les magasins sans `has_lunch_break` (UI inchangée).
+- Pas de changement sur les statuts spéciaux (EXT, ROULEMENT, congés, repos).
 
 ## Détails techniques
 
-- Migration : `ALTER TABLE stores ADD COLUMN has_lunch_break boolean NOT NULL DEFAULT false;` + 14 colonnes texte sur `weekly_schedules`.
-- Mettre à jour `useStore` (mapping `has_lunch_break`) et l'interface `Store`.
-- `computeNetHours` reçoit déjà l'objet `schedule` complet → lecture directe des nouveaux champs, signature inchangée.
-- Mémoire à mettre à jour après implémentation : `mem://features/planning/calcul-heures-nettes` (nouvelle règle de pause explicite) et nouveau memo `mem://features/planning/heure-de-table-par-magasin`.
+- `TeamDayView` : déjà importe `BREAK_HOURS` et `timeToHours` ; remplacer par import de `computeNetHours` depuis `@/lib/hours` et construire un objet `schedule`-like avec les 4 champs du jour (`${day}_start/end/break_start/break_end`) pour réutiliser la même formule.
+- `HourlyGrid` : helper local `slotInBreak(hour, minute, bs, be)` → renvoie `true` si `hour + minute/60 ∈ [bs, be)`. Appliqué uniquement quand `bs && be` et pas d'override existant sur la clé `${empId}-${hour}-${minute}`.
+- `TeamWeekView` : calcul du sous-segment :
+  ```text
+  bStart = max(timeToMinutes(breakStart), clampStart)
+  bEnd   = min(timeToMinutes(breakEnd),   clampEnd)
+  if bEnd > bStart: render <div absolute> avec left/width relatifs à la barre
+  ```
+- Aucune migration SQL, aucun nouveau champ DB. Pas de changement i18n nécessaire (clé `schedule.break` existe déjà). Si besoin d'un libellé "Pause" dans la vue jour, on réutilise `t("schedule.break")`.
