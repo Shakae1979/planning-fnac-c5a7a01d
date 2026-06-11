@@ -53,7 +53,7 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
 
   return (
     <header className="border-b" style={{ background: "hsl(var(--sidebar-bg))" }}>
-      <div className="max-w-[1600px] mx-auto px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2 flex-wrap">
+      <div className="w-full px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 flex-wrap">
           <button onClick={() => { handleLogoClick(); navigate((role === "admin" || role === "editor") ? "/" : "/equipe-du-jour"); }} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity relative shrink-0">
             <img src="/favicon.png" alt="Planning Fnac" className="h-6 w-6" />
