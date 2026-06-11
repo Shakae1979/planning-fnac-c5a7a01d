@@ -19,15 +19,15 @@ import { PrintLegend } from "./conges/PrintLegend";
 
 export const CONGE_TYPES_KEYS = ["conge", "rtt", "maladie", "formation", "autre", "divers", "parental", "medical", "fincarriere"] as const;
 export const CONGE_TYPE_COLORS: Record<string, string> = {
-  conge: "bg-blue-500",
-  rtt: "bg-emerald-500",
-  maladie: "bg-red-600",
-  formation: "bg-violet-500",
-  autre: "bg-slate-500",
-  divers: "bg-amber-500",
-  parental: "bg-fuchsia-500",
-  medical: "bg-yellow-500",
-  fincarriere: "bg-teal-500",
+  conge: "bg-blue-500 dark:bg-blue-600",
+  rtt: "bg-emerald-500 dark:bg-emerald-600",
+  maladie: "bg-red-600 dark:bg-red-700",
+  formation: "bg-violet-500 dark:bg-violet-600",
+  autre: "bg-slate-500 dark:bg-slate-600",
+  divers: "bg-amber-500 dark:bg-amber-600",
+  parental: "bg-fuchsia-500 dark:bg-fuchsia-600",
+  medical: "bg-yellow-500 dark:bg-yellow-600",
+  fincarriere: "bg-teal-500 dark:bg-teal-600",
 };
 
 // Keep backward compat export
