@@ -106,6 +106,7 @@ export function ScheduleEditor() {
   const { currentStore } = useStore();
   const { scheduleStart, scheduleEnd } = useStoreSettings();
   const isDirection = currentStore?.is_direction === true;
+  const hasLunchBreak = currentStore?.has_lunch_break === true && !isDirection;
 
   const TIME_SLOTS = useMemo(() => {
     const slots: string[] = [];
@@ -557,7 +558,7 @@ export function ScheduleEditor() {
       }
 
       const newEdits = { ...localEdits };
-      const dayFields = DAYS.flatMap((d) => [`${d.key}_start`, `${d.key}_end`]);
+      const dayFields = DAYS.flatMap((d) => [`${d.key}_start`, `${d.key}_end`, `${d.key}_break_start`, `${d.key}_break_end`]);
 
       prevSchedules.forEach((prev) => {
         const emp = employees.find((e) => e.id === prev.employee_id);
