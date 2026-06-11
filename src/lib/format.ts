@@ -51,6 +51,20 @@ export function getWeekNumber(date: Date): number {
   return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
 
+/** Get ISO week-year (may differ from civil year near Jan 1 / Dec 31) */
+export function getISOYear(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  return d.getUTCFullYear();
+}
+
+/** Number of ISO weeks in a given ISO week-year (52 or 53) */
+export function isoWeeksInYear(isoYear: number): number {
+  // Dec 28 is always in the last ISO week of its ISO year
+  return getWeekNumber(new Date(isoYear, 11, 28));
+}
+
 /** Get the Monday (local) of a given ISO week + year */
 export function getMondayFromISOWeek(week: number, year: number): Date {
   // ISO: week 1 contains Jan 4
