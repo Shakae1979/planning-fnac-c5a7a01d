@@ -290,6 +290,10 @@ export function ScheduleEditor() {
         for (const day of DAYS) {
           targetEdits[`${day.key}_start`] = getValue(copiedEmployee, `${day.key}_start`);
           targetEdits[`${day.key}_end`] = getValue(copiedEmployee, `${day.key}_end`);
+          if (hasLunchBreak) {
+            targetEdits[`${day.key}_break_start`] = getValue(copiedEmployee, `${day.key}_break_start`);
+            targetEdits[`${day.key}_break_end`] = getValue(copiedEmployee, `${day.key}_break_end`);
+          }
         }
         newEdits[targetId] = { ...newEdits[targetId], ...targetEdits };
       });
@@ -301,11 +305,17 @@ export function ScheduleEditor() {
       employees.forEach((emp) => {
         const startVal = getValue(emp.id, `${copiedDay}_start`);
         const endVal = getValue(emp.id, `${copiedDay}_end`);
+        const bsVal = hasLunchBreak ? getValue(emp.id, `${copiedDay}_break_start`) : "";
+        const beVal = hasLunchBreak ? getValue(emp.id, `${copiedDay}_break_end`) : "";
         selectedDays.forEach((targetDay) => {
           if (targetDay === copiedDay) return;
           if (!newEdits[emp.id]) newEdits[emp.id] = {};
           newEdits[emp.id][`${targetDay}_start`] = startVal;
           newEdits[emp.id][`${targetDay}_end`] = endVal;
+          if (hasLunchBreak) {
+            newEdits[emp.id][`${targetDay}_break_start`] = bsVal;
+            newEdits[emp.id][`${targetDay}_break_end`] = beVal;
+          }
         });
       });
       setLocalEdits(newEdits);
@@ -343,12 +353,15 @@ export function ScheduleEditor() {
     if (!copiedCell) return;
     const startVal = getValue(copiedCell.empId, `${copiedCell.dayKey}_start`);
     const endVal = getValue(copiedCell.empId, `${copiedCell.dayKey}_end`);
+    const bsVal = hasLunchBreak ? getValue(copiedCell.empId, `${copiedCell.dayKey}_break_start`) : "";
+    const beVal = hasLunchBreak ? getValue(copiedCell.empId, `${copiedCell.dayKey}_break_end`) : "";
     setLocalEdits((prev) => ({
       ...prev,
       [targetEmpId]: {
         ...prev[targetEmpId],
         [`${targetDayKey}_start`]: startVal,
         [`${targetDayKey}_end`]: endVal,
+        ...(hasLunchBreak ? { [`${targetDayKey}_break_start`]: bsVal, [`${targetDayKey}_break_end`]: beVal } : {}),
       },
     }));
     const empName = employees?.find((e) => e.id === targetEmpId) ? getDisplayName(employees.find((e) => e.id === targetEmpId)!) : "";
@@ -424,7 +437,17 @@ export function ScheduleEditor() {
             if (!isNaN(sh) && !isNaN(eh)) {
               const dayMinutes = (eh * 60 + (em || 0)) - (sh * 60 + (sm || 0));
               totalMinutes += dayMinutes;
-              if (dayMinutes >= 360) breakMinutes += 60;
+              const bStart = fields[`${day.key}_break_start`] ?? (existing as any)?.[`${day.key}_break_start`] ?? "";
+              const bEnd = fields[`${day.key}_break_end`] ?? (existing as any)?.[`${day.key}_break_end`] ?? "";
+              if (bStart && bEnd) {
+                const [bsh, bsm] = bStart.split(":").map(Number);
+                const [beh, bem] = bEnd.split(":").map(Number);
+                if (!isNaN(bsh) && !isNaN(beh)) {
+                  breakMinutes += Math.max(0, (beh * 60 + (bem || 0)) - (bsh * 60 + (bsm || 0)));
+                }
+              } else if (dayMinutes >= 360) {
+                breakMinutes += 60;
+              }
             }
           }
         }
