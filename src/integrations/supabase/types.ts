@@ -496,6 +496,7 @@ export type Database = {
         Args: never
         Returns: {
           store_city: string
+          store_has_lunch_break: boolean
           store_id: string
           store_is_direction: boolean
           store_name: string
