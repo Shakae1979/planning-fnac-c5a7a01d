@@ -1184,6 +1184,28 @@ export function ScheduleEditor() {
                               )}
                             </div>
                             )}
+                            {hasLunchBreak && !isDirection && !isRoulement && (
+                              <div className="flex items-center gap-0.5 mt-0.5" title={t("schedule.break" as any)}>
+                                <input
+                                  type="text"
+                                  value={getTimeInputValue(emp.id, `${day.key}_break_start`)}
+                                  onFocus={() => setActiveInput({ key: `${emp.id}__${day.key}_break_start`, raw: getTimeInputValue(emp.id, `${day.key}_break_start`) })}
+                                  onChange={(e) => setActiveInput({ key: `${emp.id}__${day.key}_break_start`, raw: e.target.value })}
+                                  onBlur={() => handleTimeBlur(emp.id, `${day.key}_break_start`)}
+                                  placeholder={t("schedule.break" as any)}
+                                  className="flex-1 min-w-0 px-0 py-0 text-[10px] rounded border border-dashed bg-muted/30 focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center text-muted-foreground"
+                                />
+                                <input
+                                  type="text"
+                                  value={getTimeInputValue(emp.id, `${day.key}_break_end`)}
+                                  onFocus={() => setActiveInput({ key: `${emp.id}__${day.key}_break_end`, raw: getTimeInputValue(emp.id, `${day.key}_break_end`) })}
+                                  onChange={(e) => setActiveInput({ key: `${emp.id}__${day.key}_break_end`, raw: e.target.value })}
+                                  onBlur={() => handleTimeBlur(emp.id, `${day.key}_break_end`)}
+                                  placeholder={t("schedule.break" as any)}
+                                  className="flex-1 min-w-0 px-0 py-0 text-[10px] rounded border border-dashed bg-muted/30 focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center text-muted-foreground"
+                                />
+                              </div>
+                            )}
                             {ferieDay && (
                               <div className="text-center mt-0.5">
                                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0 rounded bg-foreground text-[8px] font-bold text-background uppercase">
