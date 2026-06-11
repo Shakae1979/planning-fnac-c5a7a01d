@@ -1016,7 +1016,17 @@ export function ScheduleEditor() {
                       if (!isNaN(sh) && !isNaN(eh)) {
                         const dayMinutes = (eh * 60 + (em || 0)) - (sh * 60 + (sm || 0));
                         totalMinutes += dayMinutes;
-                        if (dayMinutes >= 360) breakMinutes += 60;
+                        const bs = getValue(emp.id, `${day.key}_break_start`);
+                        const be = getValue(emp.id, `${day.key}_break_end`);
+                        if (bs && be) {
+                          const [bsh, bsm] = bs.split(":").map(Number);
+                          const [beh, bem] = be.split(":").map(Number);
+                          if (!isNaN(bsh) && !isNaN(beh)) {
+                            breakMinutes += Math.max(0, (beh * 60 + (bem || 0)) - (bsh * 60 + (bsm || 0)));
+                          }
+                        } else if (dayMinutes >= 360) {
+                          breakMinutes += 60;
+                        }
                       }
                     }
                   }
