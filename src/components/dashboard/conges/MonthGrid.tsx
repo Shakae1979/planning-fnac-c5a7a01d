@@ -161,7 +161,14 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
       )}
 
       <div className="overflow-x-auto">
-        <table className="w-full text-[11px] border-collapse">
+        <table className="w-full text-[11px] border-collapse table-fixed">
+          <colgroup>
+            <col style={{ width: "70px" }} />
+            <col style={{ width: "30px" }} />
+            {activeRoles.map((r) => (
+              <col key={r.key} style={{ width: `calc((100% - 100px) / ${activeRoles.length})` }} />
+            ))}
+          </colgroup>
           <thead>
             <tr className="border-b bg-muted/30">
               <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[70px]">{t("conges.date")}</th>
