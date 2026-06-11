@@ -8,12 +8,13 @@ import { formatDateBE, getDisplayName } from "@/lib/format";
 import { useI18n, getHolidays2026, getDayNames } from "@/lib/i18n";
 import { ROLE_COLORS as CENTRAL_ROLE_COLORS } from "@/lib/role-colors";
 
-const ROLE_COLUMNS: { key: string; headerBg: string; borderColor: string }[] = (
+const ROLE_COLUMNS: { key: string; headerBg: string; borderColor: string; text: string }[] = (
   ["responsable", "technique", "editorial", "stock", "caisse"] as const
 ).map((key) => ({
   key,
   headerBg: CENTRAL_ROLE_COLORS[key].congesHeaderBg,
   borderColor: CENTRAL_ROLE_COLORS[key].congesBorderL,
+  text: CENTRAL_ROLE_COLORS[key].text,
 }));
 
 function getDaysInMonth(year: number, month: number) {
@@ -100,7 +101,7 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
             <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[70px]">{t("conges.date")}</th>
             <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[30px]">{t("conges.dayLabel")}</th>
             {activeRoles.map(r => (
-              <th key={r.key} className={`px-1 py-1.5 text-center font-semibold text-muted-foreground ${r.headerBg} ${r.borderColor}`}>{roleLabels[r.key]}</th>
+              <th key={r.key} className={`px-1 py-1.5 text-center font-semibold ${r.text} ${r.headerBg} ${r.borderColor}`}>{roleLabels[r.key]}</th>
             ))}
           </tr>
         </thead>
@@ -121,13 +122,13 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
             const dateLabel = `${String(day).padStart(2, "0")}-${monthShort(month)}`;
 
             const schoolBg = schoolHol && !isWeekend
-              ? schoolHol.community === "both" ? "bg-amber-400/15"
-              : schoolHol.community === "fr" ? "bg-amber-300/10"
-              : "bg-sky-300/10"
+              ? schoolHol.community === "both" ? "bg-amber-400/15 dark:bg-amber-500/20"
+              : schoolHol.community === "fr" ? "bg-amber-400/15 dark:bg-amber-500/20"
+              : "bg-sky-400/15 dark:bg-sky-500/20"
               : "";
 
             return (
-              <tr key={i} className={`border-b border-border/40 ${holiday ? "bg-emerald-500/15" : schoolBg || (isWeekend ? "bg-muted/40" : "")} ${isMonday ? "border-t-2 border-t-accent/40" : ""}`}>
+              <tr key={i} className={`border-b border-border/40 ${holiday ? "bg-emerald-500/15" : schoolBg || (isWeekend ? "bg-muted/40 dark:bg-muted/60" : "")} ${isMonday ? "border-t-2 border-t-accent/40" : ""}`}>
                 <td className="px-1 py-0.5 text-muted-foreground whitespace-nowrap">
                   <div className="flex items-center gap-1">
                     <span>{dateLabel}</span>
@@ -136,7 +137,7 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
                 </td>
                 <td className={`px-1 py-0.5 font-medium ${isWeekend ? "text-muted-foreground/50" : ""}`}>{DAY_NAMES[jsDay]}</td>
                 {holiday ? (
-                  <td colSpan={activeRoles.length} className="px-2 py-0.5 text-center font-semibold text-emerald-700 dark:text-emerald-400 text-[10px]">{holiday}</td>
+                  <td colSpan={activeRoles.length} className="px-2 py-0.5 text-center font-semibold text-emerald-800 dark:text-emerald-300 text-[10px]">{holiday}</td>
                 ) : (
                   activeRoles.map(role => {
                     const leaves = getLeavesForRoleOnDate(role.key, dateStr);
