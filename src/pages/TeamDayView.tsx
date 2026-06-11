@@ -246,6 +246,11 @@ const TeamDayView = () => {
                             {formatTimeBE(emp.start)}–{formatTimeBE(emp.end)} <span className="ml-1">{emp.netHours.toFixed(1)}h</span>
                           </span>
                         </div>
+                        {emp.breakStart && emp.breakEnd && (
+                          <div className="ml-2 mt-0.5 text-[10px] text-muted-foreground italic">
+                            {t("schedule.break")} {formatTimeBE(emp.breakStart)}–{formatTimeBE(emp.breakEnd)}
+                          </div>
+                        )}
                         {emp.notes && (
                           <div className="ml-2 mt-0.5 mb-1 px-2 py-1 rounded bg-amber-100/80 dark:bg-amber-900/30 border-l-2 border-amber-500 text-[11px] text-amber-800 dark:text-amber-200">
                             📝 {emp.notes}
