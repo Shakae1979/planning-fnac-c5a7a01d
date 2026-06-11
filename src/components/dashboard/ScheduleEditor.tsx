@@ -615,6 +615,107 @@ export function ScheduleEditor() {
     }
   };
 
+  const buildSuggestions = async () => {
+    if (!employees) return;
+    setSuggestLoading(true);
+    try {
+      const prev1 = formatWeekDate(addWeeks(currentMonday, -1));
+      const prev2 = formatWeekDate(addWeeks(currentMonday, -2));
+      const lastYear = formatWeekDate(addWeeks(currentMonday, -52));
+      const tplWeek = hasABWeeks
+        ? (getWeekNumber(currentMonday) % 2 === 0 ? TEMPLATE_WEEK_B : TEMPLATE_WEEK)
+        : TEMPLATE_WEEK;
+
+      const [r1, r2, rY, rT] = await Promise.all([
+        supabase.from("weekly_schedules").select("*").eq("week_start", prev1),
+        supabase.from("weekly_schedules").select("*").eq("week_start", prev2),
+        supabase.from("weekly_schedules").select("*").eq("week_start", lastYear),
+        supabase.from("weekly_schedules").select("*").eq("week_start", tplWeek),
+      ]);
+
+      const sourcesOrdered: { rows: any[]; source: SuggestionSource }[] = [
+        { rows: r1.data ?? [], source: "prevWeek" },
+        { rows: r2.data ?? [], source: "prev2Weeks" },
+        { rows: rT.data ?? [], source: "template" },
+        { rows: rY.data ?? [], source: "lastYear" },
+      ];
+
+      if (sourcesOrdered.every((s) => s.rows.length === 0)) {
+        toast.warning(t("schedule.suggestNoData" as any));
+        setSuggestLoading(false);
+        return;
+      }
+
+      const result: Suggestion[] = [];
+      const storeStartMin = scheduleStart * 60;
+      const storeEndMin = scheduleEnd * 60;
+
+      for (const emp of employees) {
+        for (let dayIdx = 0; dayIdx < DAYS.length; dayIdx++) {
+          const day = DAYS[dayIdx];
+          const startField = `${day.key}_start`;
+          const endField = `${day.key}_end`;
+          const currentStart = getValue(emp.id, startField);
+          const currentEnd = getValue(emp.id, endField);
+          // Only fill truly empty cells; skip if anything (incl. special keyword) is set
+          if (currentStart || currentEnd) continue;
+          // Skip if on leave that day
+          if (isOnLeave(emp.id, dayIdx)) continue;
+
+          for (const src of sourcesOrdered) {
+            const row = src.rows.find((r) => r.employee_id === emp.id);
+            if (!row) continue;
+            const s = (row as any)[startField] ?? "";
+            const e = (row as any)[endField] ?? "";
+            if (!s || !e) continue;
+            // Skip special keywords — out of scope
+            if (SPECIAL_KEYWORDS.includes(String(s).toLowerCase())) continue;
+            const [sh, sm] = String(s).split(":").map(Number);
+            const [eh, em] = String(e).split(":").map(Number);
+            if (isNaN(sh) || isNaN(eh)) continue;
+            const startMin = sh * 60 + (sm || 0);
+            const endMin = eh * 60 + (em || 0);
+            const outOfRange = startMin < storeStartMin || endMin > storeEndMin;
+            result.push({
+              employeeId: emp.id,
+              employeeName: getDisplayName(emp),
+              dayKey: day.key,
+              dayLabel: day.label,
+              start: s,
+              end: e,
+              source: src.source,
+              outOfRange,
+            });
+            break;
+          }
+        }
+      }
+
+      setSuggestions(result);
+      setSuggestDialogOpen(true);
+    } catch (err) {
+      toast.error("Error: " + (err as Error).message);
+    } finally {
+      setSuggestLoading(false);
+    }
+  };
+
+  const applySuggestions = (selected: Suggestion[]) => {
+    setLocalEdits((prev) => {
+      const next = { ...prev };
+      for (const s of selected) {
+        next[s.employeeId] = {
+          ...next[s.employeeId],
+          [`${s.dayKey}_start`]: s.start,
+          [`${s.dayKey}_end`]: s.end,
+        };
+      }
+      return next;
+    });
+    setSuggestDialogOpen(false);
+    toast.success(t("schedule.suggestApplied" as any));
+  };
+
   const saveAsTemplateMutation = useMutation({
     mutationFn: async (templateWeek?: string) => {
       const tplWeek = templateWeek || TEMPLATE_WEEK;
