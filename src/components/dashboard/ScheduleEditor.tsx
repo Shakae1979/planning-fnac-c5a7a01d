@@ -9,7 +9,7 @@ import { WeekNavigator } from "@/components/WeekNavigator";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
+import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName, getISOYear, isoWeeksInYear, getMondayFromISOWeek } from "@/lib/format";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { SuggestionsDialog, type Suggestion, type SuggestionSource } from "./SuggestionsDialog";
 
@@ -621,7 +621,11 @@ export function ScheduleEditor() {
     try {
       const prev1 = formatWeekDate(addWeeks(currentMonday, -1));
       const prev2 = formatWeekDate(addWeeks(currentMonday, -2));
-      const lastYear = formatWeekDate(addWeeks(currentMonday, -52));
+      const isoYear = getISOYear(currentMonday);
+      const isoWeek = getWeekNumber(currentMonday);
+      const targetYear = isoYear - 1;
+      const targetWeek = Math.min(isoWeek, isoWeeksInYear(targetYear));
+      const lastYear = formatWeekDate(getMondayFromISOWeek(targetWeek, targetYear));
       const tplWeek = hasABWeeks
         ? (getWeekNumber(currentMonday) % 2 === 0 ? TEMPLATE_WEEK_B : TEMPLATE_WEEK)
         : TEMPLATE_WEEK;

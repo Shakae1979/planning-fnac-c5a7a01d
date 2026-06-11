@@ -1,57 +1,60 @@
-# Auto-complétion intelligente N-1
+# Anticipation pluriannuelle — alignement ISO pour la source "N-1"
+
+## Problème
+
+La source "N-1" des suggestions utilise actuellement `addWeeks(currentMonday, -52)`, ce qui crée un décalage d'une semaine dès qu'une année ISO compte 53 semaines (2026, 2032, 2037, 2043, 2048…). Symptôme : début 2027 → "N-1" pointe sur S2 de 2026 au lieu de S1.
 
 ## Objectif
 
-Ajouter un bouton **"Suggérer"** dans l'éditeur de planning hebdo qui propose de pré-remplir uniquement les **cases vides** de la semaine courante en se basant sur l'historique, puis affiche un **aperçu** que l'admin valide (ou ajuste) avant d'écrire en base.
-
-Non-destructif : aucune case déjà saisie n'est écrasée.
-
-## Comportement utilisateur
-
-1. Dans `ScheduleEditor`, à côté des boutons existants ("Copier semaine précédente", "Appliquer semaine type"), un nouveau bouton **`Suggérer`** (icône Sparkles, variant outline).
-2. Au clic, ouverture d'un **dialog d'aperçu** listant, par employé, les cellules qui seraient remplies :
-   - Colonnes : Employé · Jour · Source · Horaire suggéré
-   - Source possible : `Semaine -1`, `Semaine -2`, `Semaine type`, `N-1 (même semaine ISO, année -1)` — première source non vide trouvée dans cet ordre de priorité.
-   - Cases en conflit avec un congé existant → exclues automatiquement.
-3. En bas du dialog :
-   - Indicateur de **couverture** post-application par catégorie/jour 09-20h (badge vert OK / rouge sous-couverture restante).
-   - Cases à cocher par ligne (toutes cochées par défaut) pour exclure ponctuellement une suggestion.
-   - Boutons `Annuler` et `Appliquer les suggestions` (n'écrit pas en DB directement : injecte dans `localEdits`, l'admin garde la main pour ajuster puis "Enregistrer" comme aujourd'hui).
-
-## Règles de remplissage
-
-- Ne remplit **que** les cases dont `start` ET `end` sont vides dans `localEdits` (et pas un statut spécial comme `Roulement`, `Extérieur`, `Heure de table`).
-- Si l'employé est en congé ce jour-là (table `conges`), la case est ignorée.
-- Si l'horaire source tombe hors plage magasin (`store_settings`), badge "hors plage" en warning mais proposé quand même.
-- Stagiaires inclus comme aujourd'hui (pas de filtrage spécifique).
+Faire pointer "N-1" sur la **même semaine ISO de l'année précédente**, quelle que soit l'année. Solution déterministe et durable, sans dépendance externe ajoutée.
 
 ## Détails techniques
 
-**Fichiers touchés :**
+**Fichier touché : `src/lib/format.ts`**
 
-- `src/components/dashboard/ScheduleEditor.tsx`
-  - Nouveau bouton `Suggérer` près de la barre d'actions ligne ~728.
-  - Nouvelle fonction `buildSuggestions()` :
-    - Charge en parallèle : `weekly_schedules` pour `weekStr-1`, `weekStr-2`, `TEMPLATE_WEEK` (et `TEMPLATE_WEEK_B` si A/B actif), et `weekStr` année -1 (même n° ISO).
-    - Charge les congés actifs sur la semaine courante.
-    - Pour chaque employé × chaque jour : si cellule vide dans `localEdits`, prend la 1ère source non vide selon la priorité ci-dessus.
-  - Nouveau state `suggestions: SuggestionRow[]` + `suggestDialogOpen: boolean`.
+Ajout de 3 helpers exportés :
 
-- `src/components/dashboard/SuggestionsDialog.tsx` (**nouveau**)
-  - Dialog shadcn avec table des suggestions, checkbox par ligne, résumé couverture, boutons.
-  - Reçoit `suggestions`, `onApply(selected)`, `onClose`.
+```ts
+// ISO year (peut différer de l'année civile au 1er janv. ou 31 déc.)
+export function getISOYear(date: Date): number
 
-- `src/lib/i18n.tsx`
-  - Clés FR/NL : `schedule.suggest`, `schedule.suggestTitle`, `schedule.suggestApply`, `schedule.suggestEmpty`, `schedule.source.prevWeek`, `schedule.source.prev2Weeks`, `schedule.source.template`, `schedule.source.lastYear`, `schedule.coverage.ok`, `schedule.coverage.under`.
+// Nombre de semaines ISO dans une année ISO (52 ou 53)
+export function isoWeeksInYear(isoYear: number): number
 
-**Pas touché :**
-- Schéma DB inchangé (lecture seule sur `weekly_schedules` et `conges`).
-- Les fonctions existantes `copyPreviousWeekMutation` et `applyTemplateMutation` restent telles quelles.
-- Pas de modification du calcul d'heures nettes ni des règles de couverture (réutilisation de la logique existante via util partagé si déjà extrait, sinon helper local dans `SuggestionsDialog`).
+// Lundi 00:00 (heure locale) de la semaine ISO donnée
+export function mondayOfISOWeek(isoYear: number, isoWeek: number): Date
+```
+
+Implémentation standard (algorithme ISO 8601), sans lib tierce.
+
+**Fichier touché : `src/components/dashboard/ScheduleEditor.tsx`**
+
+Remplacer :
+```ts
+const lastYear = formatWeekDate(addWeeks(currentMonday, -52));
+```
+
+Par :
+```ts
+const isoYear = getISOYear(currentMonday);
+const isoWeek = getWeekNumber(currentMonday);
+const targetYear = isoYear - 1;
+const targetWeek = Math.min(isoWeek, isoWeeksInYear(targetYear));
+const lastYear = formatWeekDate(mondayOfISOWeek(targetYear, targetWeek));
+```
+
+Le `Math.min` évite de demander une S53 inexistante quand l'année N-1 n'a que 52 semaines.
+
+## Vérifications faites mentalement
+
+- Semaine courante S1-2027 (lundi 04/01/2027) → cible S1-2026 (lundi 29/12/2025) ✓
+- Semaine courante S53-2026 (lundi 28/12/2026) → cible S52-2025 (lundi 22/12/2025), car 2025 n'a que 52 semaines ✓
+- Semaine courante S10-2026 → cible S10-2025 ✓
+- Semaine courante S1-2026 (lundi 29/12/2025) → cible S1-2025 (lundi 30/12/2024) ✓
 
 ## Hors périmètre
 
-- Pas d'apprentissage statistique / IA (purement déterministe basé sur l'historique).
-- Pas d'auto-application sans confirmation.
-- Pas de suggestion pour les statuts spéciaux (Roulement, Extérieur, etc.).
-- Pas de vue Direction Fnac (uniquement éditeur magasin standard pour ce premier jet).
+- Pas de modification du bouton "Copier sem. précédente" (basé sur -1 semaine, déjà correct quelle que soit l'année).
+- Pas de modification des templates A/B (logique parité, indépendante de l'année).
+- Pas de modification du calcul d'heures, congés, ou navigation.
+- Pas de migration DB.
