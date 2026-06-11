@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { StoreProvider } from "@/hooks/useStore";
 import { I18nProvider } from "@/lib/i18n";
+import { ThemeProvider } from "@/hooks/useTheme";
 import Index from "./pages/Index.tsx";
 import EmployeeView from "./pages/EmployeeView.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -92,11 +93,13 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <I18nProvider>
-          <AuthProvider>
-            <StoreProvider>
-              <AppRoutes />
-            </StoreProvider>
-          </AuthProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <StoreProvider>
+                <AppRoutes />
+              </StoreProvider>
+            </AuthProvider>
+          </ThemeProvider>
         </I18nProvider>
       </BrowserRouter>
     </TooltipProvider>

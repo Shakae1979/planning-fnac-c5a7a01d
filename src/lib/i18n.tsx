@@ -63,6 +63,8 @@ const translations = {
   "nav.expand": { fr: "Agrandir", nl: "Uitklappen" },
   "nav.planning": { fr: "Planning", nl: "Planning" },
   "nav.myAccount": { fr: "Mon compte", nl: "Mijn account" },
+  "nav.theme.light": { fr: "Mode clair", nl: "Lichte modus" },
+  "nav.theme.dark": { fr: "Mode sombre", nl: "Donkere modus" },
 
   // ========== Account ==========
   "account.title": { fr: "Mon compte", nl: "Mijn account" },
