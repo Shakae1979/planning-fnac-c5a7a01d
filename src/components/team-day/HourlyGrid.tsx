@@ -100,6 +100,11 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
     }
   });
 
+  const employeesKey = useMemo(
+    () => employees.filter((e) => e.hasShift && !e.conge).map((e) => e.id).sort().join(","),
+    [employees]
+  );
+
   useEffect(() => {
     if (!date) return;
     const load = async () => {
@@ -120,7 +125,7 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
       setDirty(false);
     };
     load();
-  }, [date, employees]);
+  }, [date, employeesKey]);
 
   // Derived lunch slot keys — visual overlay only, never written to DB.
   const lunchSlots = useMemo(() => {
