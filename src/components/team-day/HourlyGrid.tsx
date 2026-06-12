@@ -111,22 +111,6 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
       if (overridesRes.data) {
         for (const row of overridesRes.data) loaded[`${row.employee_id}-${row.slot_key}`] = row.role;
       }
-      // Pre-mark slots covered by employee's lunch break as "heure_de_table"
-      // (only when no manual override already exists for that slot).
-      for (const emp of active) {
-        const bs = emp.breakStart;
-        const be = emp.breakEnd;
-        if (!bs || !be) continue;
-        const bsH = timeToHours(bs);
-        const beH = timeToHours(be);
-        for (const slot of HALF_HOURS) {
-          const slotTime = slot.hour + slot.minute / 60;
-          if (slotTime >= bsH && slotTime < beH) {
-            const key = `${emp.id}-${slot.hour}-${slot.minute}`;
-            if (!(key in loaded)) loaded[key] = "heure_de_table";
-          }
-        }
-      }
       setOverrides(loaded);
       if (flagsRes.data && flagsRes.data.length > 0) {
         const comments: Record<string, string> = {};
@@ -137,6 +121,25 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
     };
     load();
   }, [date, employees]);
+
+  // Derived lunch slot keys — visual overlay only, never written to DB.
+  const lunchSlots = useMemo(() => {
+    const set = new Set<string>();
+    for (const emp of active) {
+      const bs = emp.breakStart;
+      const be = emp.breakEnd;
+      if (!bs || !be) continue;
+      const bsH = timeToHours(bs);
+      const beH = timeToHours(be);
+      for (const slot of HALF_HOURS) {
+        const slotTime = slot.hour + slot.minute / 60;
+        if (slotTime >= bsH && slotTime < beH) {
+          set.add(`${emp.id}-${slot.hour}-${slot.minute}`);
+        }
+      }
+    }
+    return set;
+  }, [active, HALF_HOURS]);
 
   const dirtyRef = useRef(dirty);
   dirtyRef.current = dirty;
@@ -266,7 +269,8 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
                     const slotTime = slot.hour + slot.minute / 60;
                     const isWorking = empStart <= slotTime && empEnd > slotTime;
                     const overrideKey = `${emp.id}-${slot.hour}-${slot.minute}`;
-                    const cellRole = overrides[overrideKey] || emp.role;
+                    const cellRole = overrides[overrideKey]
+                      || (lunchSlots.has(overrideKey) ? "heure_de_table" : emp.role);
                     const colorClass = ROLE_BG[cellRole] || "bg-accent/20";
                     const isSelected = selected.has(overrideKey);
                     return (
