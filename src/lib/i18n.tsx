@@ -315,7 +315,7 @@ const translations = {
   "recap.plannedHours": { fr: "Heures planifiées", nl: "Geplande uren" },
   "recap.unplanned": { fr: "Non planifiés", nl: "Niet gepland" },
   "recap.coverage": { fr: "Couverture planning — Nombre de vendeurs par créneau", nl: "Uurrooster — Aantal verkopers per tijdslot" },
-  "recap.categoryCoverage": { fr: "Couverture par catégorie — Présence par jour", nl: "Dekking per categorie — Aanwezigheid per dag" },
+  "recap.categoryCoverage": { fr: "Couverture par catégorie — Présence par jour", nl: "Dekking per afdeling — Aanwezigheid per jour" },
   "recap.perSeller": { fr: "Récapitulatif par vendeur", nl: "Overzicht per verkoper" },
   "recap.category": { fr: "Catégorie", nl: "Categorie" },
   "recap.contract": { fr: "Contrat", nl: "Contract" },
