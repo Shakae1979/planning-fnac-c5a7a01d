@@ -267,7 +267,7 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
                     <Input
                       value={empComments[emp.id] || ""}
                       onChange={(e) => { setEmpComments((p) => ({ ...p, [emp.id]: e.target.value })); setDirty(true); }}
-                      placeholder="Note..."
+                      placeholder={t("hourlyGrid.note")}
                       className={`h-5 text-[9px] mt-0.5 px-1 py-0 border-muted bg-transparent ${!(empComments[emp.id]?.trim()) ? "print:hidden" : ""}`}
                     />
                   </td>
