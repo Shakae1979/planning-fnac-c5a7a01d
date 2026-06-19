@@ -46,9 +46,11 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const links = linkDefs.map(l => ({ ...l, label: t(l.labelKey as any) }));
   const filteredLinks = role === "admin"
     ? links.filter(l => l.id !== "settings")
-    : (role === "editor" || role === "manager")
+    : role === "manager"
       ? links.filter(l => l.id !== "stores")
-      : [];
+      : role === "editor"
+        ? links.filter(l => l.id !== "stores" && l.id !== "settings")
+        : [];
   return (
     <TooltipProvider delayDuration={0}>
       <aside

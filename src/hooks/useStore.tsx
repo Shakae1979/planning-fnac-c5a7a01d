@@ -56,6 +56,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           has_ab_weeks: s.store_has_ab_weeks ?? false,
           is_direction: s.store_is_direction ?? false,
         }));
+        // Managers also get access to the Direction Fnac virtual store automatically
+        if (role === "manager" && !storeList.some((s) => s.is_direction)) {
+          const { data: dirData } = await supabase
+            .from("stores")
+            .select("id, name, city, has_ab_weeks, has_lunch_break, is_direction")
+            .eq("is_direction", true)
+            .maybeSingle();
+          if (dirData) {
+            storeList.push({
+              id: dirData.id,
+              name: dirData.name,
+              city: dirData.city,
+              has_ab_weeks: dirData.has_ab_weeks ?? false,
+              has_lunch_break: dirData.has_lunch_break ?? false,
+              is_direction: dirData.is_direction ?? false,
+            });
+          }
+        }
         setStores(storeList);
         if (!currentStore && storeList.length > 0) {
           setCurrentStore(storeList[0]);
