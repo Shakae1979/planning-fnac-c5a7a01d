@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, CheckCircle2, CalendarOff, Gauge, Users2, GripVertical } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CalendarOff, Gauge, Users2, GripVertical, Scale } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { formatDateBE, formatLocalDate, getDisplayName } from "@/lib/format";
@@ -20,15 +20,18 @@ const CRITICAL_ROLES = ["responsable", "caisse"] as const;
 const ALERT_HOURS = Array.from({ length: 12 }, (_, i) => i + 9); // 9-20h
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
 
-type CardId = "alerts" | "leaves" | "occupancy" | "byDept";
-const DEFAULT_ORDER: CardId[] = ["alerts", "leaves", "occupancy", "byDept"];
+type CardId = "alerts" | "leaves" | "occupancy" | "etp" | "byDept";
+const DEFAULT_ORDER: CardId[] = ["alerts", "leaves", "occupancy", "etp", "byDept"];
 const STORAGE_KEY = "overview-insights-order-v1";
 const CARD_SPAN: Record<CardId, string> = {
   alerts: "lg:col-span-1",
   leaves: "lg:col-span-1",
   occupancy: "lg:col-span-1",
+  etp: "lg:col-span-1",
   byDept: "lg:col-span-1",
 };
+
+const FTE_BASE = 36;
 
 function addDays(d: Date, n: number) {
   const x = new Date(d);
