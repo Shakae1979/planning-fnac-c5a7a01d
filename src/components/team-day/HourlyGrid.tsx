@@ -65,7 +65,7 @@ function RolePicker({ anchorRect, onSelect, onClose, roleLabels, multi }: {
 
   return (
     <div ref={ref} className="fixed z-50 bg-card border rounded-lg shadow-lg p-1.5 min-w-[120px]" style={{ top: anchorRect.top, left: anchorRect.left }}>
-      {multi && <div className="px-2 py-1 text-[10px] font-semibold text-primary border-b mb-1">Appliquer à la sélection</div>}
+      {multi && roleLabels.__applySelection && <div className="px-2 py-1 text-[10px] font-semibold text-primary border-b mb-1">{roleLabels.__applySelection}</div>}
       {ROLES.map((r) => (
         <button key={r.key} className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-muted/80 transition-colors" onClick={() => onSelect(r.key)}>
           <span className={`w-3 h-3 rounded-full ${r.dot}`} />
@@ -94,11 +94,12 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
   const roleLabels: Record<string, string> = {};
   ROLES.forEach((r) => {
     if (r.key === "heure_de_table") {
-      roleLabels[r.key] = "H. table";
+      roleLabels[r.key] = t("hourlyGrid.lunchShort");
     } else {
       roleLabels[r.key] = t(`role.${r.key}.short` as any) || r.key;
     }
   });
+  roleLabels.__applySelection = t("hourlyGrid.applySelection");
 
   const employeesKey = useMemo(
     () => employees.filter((e) => e.hasShift && !e.conge).map((e) => e.id).sort().join(","),
@@ -229,7 +230,7 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
           </div>
           {selected.size > 0 && (
             <Button size="sm" className="no-print h-7 text-xs gap-1.5" onClick={handleApplyClick}>
-              Appliquer ({selected.size})
+              {t("hourlyGrid.apply")} ({selected.size})
             </Button>
           )}
           <Button variant="outline" size="sm" className="no-print h-7 px-2 sm:px-3 text-xs gap-1.5" onClick={() => window.print()} title={t("action.print")} aria-label={t("action.print")}>
@@ -266,7 +267,7 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
                     <Input
                       value={empComments[emp.id] || ""}
                       onChange={(e) => { setEmpComments((p) => ({ ...p, [emp.id]: e.target.value })); setDirty(true); }}
-                      placeholder="Note..."
+                      placeholder={t("hourlyGrid.note")}
                       className={`h-5 text-[9px] mt-0.5 px-1 py-0 border-muted bg-transparent ${!(empComments[emp.id]?.trim()) ? "print:hidden" : ""}`}
                     />
                   </td>

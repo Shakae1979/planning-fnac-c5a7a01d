@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Plus, Trash2, UserPlus, Users, Shield, User } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface AppUser {
   id: string;
@@ -16,6 +17,7 @@ interface AppUser {
 }
 
 export function UserManager() {
+  const { t } = useI18n();
   const [users, setUsers] = useState<AppUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -27,7 +29,7 @@ export function UserManager() {
 
   const callManageUsers = async (body: Record<string, unknown>) => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error("Non connecté");
+    if (!session) throw new Error(t("users.notConnected"));
     
     const response = await fetch(
       `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`,
@@ -43,7 +45,7 @@ export function UserManager() {
     );
     
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Erreur serveur");
+    if (!response.ok) throw new Error(data.error || t("users.serverError"));
     return data;
   };
 
@@ -53,7 +55,7 @@ export function UserManager() {
       const data = await callManageUsers({ action: "list" });
       setUsers(data);
     } catch (e: any) {
-      toast.error("Erreur lors du chargement des utilisateurs");
+      toast.error(t("users.errorList"));
     }
     setLoading(false);
   };
@@ -66,27 +68,27 @@ export function UserManager() {
     setCreating(true);
     try {
       await callManageUsers({ action: "create", email, password, role });
-      toast.success("Utilisateur créé avec succès");
+      toast.success(t("users.created"));
       setEmail("");
       setPassword("");
       setRole("user");
       setShowForm(false);
       fetchUsers();
     } catch (e: any) {
-      toast.error(e.message || "Erreur lors de la création");
+      toast.error(e.message || t("users.errorCreate"));
     }
     setCreating(false);
   };
 
   const handleDelete = async (userId: string) => {
-    if (!confirm("Supprimer cet utilisateur ?")) return;
+    if (!confirm(t("users.deleteConfirm"))) return;
     setDeletingId(userId);
     try {
       await callManageUsers({ action: "delete", user_id: userId });
-      toast.success("Utilisateur supprimé");
+      toast.success(t("users.deleted"));
       fetchUsers();
     } catch (e: any) {
-      toast.error(e.message || "Erreur lors de la suppression");
+      toast.error(e.message || t("users.errorDelete"));
     }
     setDeletingId(null);
   };
@@ -97,63 +99,63 @@ export function UserManager() {
         <div>
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Gestion des comptes
+            {t("users.title")}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Créer et gérer les accès au planning
+            {t("users.subtitle")}
           </p>
         </div>
         <Button onClick={() => setShowForm(!showForm)} size="sm">
           <UserPlus className="h-4 w-4" />
-          Nouveau compte
+          {t("users.newAccount")}
         </Button>
       </div>
 
       {showForm && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold">Créer un compte</CardTitle>
+            <CardTitle className="text-sm font-semibold">{t("users.createAccount")}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-3">
               <div className="space-y-1.5 flex-1 min-w-[200px]">
-                <Label htmlFor="new-email" className="text-xs">Email</Label>
+                <Label htmlFor="new-email" className="text-xs">{t("login.email")}</Label>
                 <Input
                   id="new-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nom@fnac.com"
+                  placeholder={t("users.emailPh")}
                   required
                 />
               </div>
               <div className="space-y-1.5 flex-1 min-w-[200px]">
-                <Label htmlFor="new-password" className="text-xs">Mot de passe</Label>
+                <Label htmlFor="new-password" className="text-xs">{t("login.password")}</Label>
                 <Input
                   id="new-password"
                   type="text"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Mot de passe"
+                  placeholder={t("users.passwordPh")}
                   required
                   minLength={6}
                 />
               </div>
               <div className="space-y-1.5 w-[150px]">
-                <Label className="text-xs">Rôle</Label>
+                <Label className="text-xs">{t("team.accountRole")}</Label>
                 <Select value={role} onValueChange={setRole}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="user">Utilisateur</SelectItem>
+                    <SelectItem value="admin">{t("access.admin")}</SelectItem>
+                    <SelectItem value="user">{t("access.user")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <Button type="submit" disabled={creating} size="sm">
                 {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-                Créer
+                {t("users.create")}
               </Button>
             </form>
           </CardContent>
@@ -188,7 +190,7 @@ export function UserManager() {
                     <div>
                       <p className="text-sm font-medium text-foreground">{u.email}</p>
                       <p className="text-xs text-muted-foreground">
-                        {u.role === "admin" ? "Administrateur" : "Utilisateur"} · Créé le{" "}
+                        {u.role === "admin" ? t("users.administrator") : t("users.user")} · {t("users.createdOnDate")}{" "}
                         {new Date(u.created_at).toLocaleDateString("fr-BE")}
                       </p>
                     </div>
@@ -210,7 +212,7 @@ export function UserManager() {
               ))}
               {users.length === 0 && (
                 <p className="text-sm text-muted-foreground py-4 text-center">
-                  Aucun utilisateur trouvé
+                  {t("users.noUsers")}
                 </p>
               )}
             </div>

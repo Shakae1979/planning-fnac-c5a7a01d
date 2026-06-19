@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Upload, Download, FileSpreadsheet, CheckCircle2, XCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
+import { useI18n } from "@/lib/i18n";
 
 const VALID_CATEGORIES = ["responsable", "technique", "éditorial", "caisse", "stock"];
 const VALID_CATEGORIES_DISPLAY = ["Responsable", "Technique", "Éditorial", "Caisse", "Stock"];
@@ -33,6 +34,7 @@ interface ImportResult {
 }
 
 export function BulkEmployeeImport() {
+  const { t } = useI18n();
   const { stores } = useStore();
   const [rows, setRows] = useState<ImportRow[]>([]);
   const [importing, setImporting] = useState(false);
@@ -86,10 +88,10 @@ export function BulkEmployeeImport() {
         );
 
         const errors: string[] = [];
-        if (!nom) errors.push("Nom manquant");
-        if (!email || !email.includes("@")) errors.push("Email invalide");
-        if (isNaN(heures) || heures <= 0) errors.push("Heures invalides");
-        if (!VALID_CATEGORIES.includes(categorie)) errors.push(`Catégorie invalide "${categorie}" (attendu: ${VALID_CATEGORIES_DISPLAY.join(", ")})`);
+        if (!nom) errors.push(t("bulk.errMissingName"));
+        if (!email || !email.includes("@")) errors.push(t("bulk.errInvalidEmail"));
+        if (isNaN(heures) || heures <= 0) errors.push(t("bulk.errInvalidHours"));
+        if (!VALID_CATEGORIES.includes(categorie)) errors.push(`${t("bulk.errInvalidCategory")} "${categorie}" (${t("bulk.expected")}: ${VALID_CATEGORIES_DISPLAY.join(", ")})`);
 
         return {
           nom, prenom, email, heures_contrat: heures, categorie, magasin,
@@ -132,9 +134,9 @@ export function BulkEmployeeImport() {
       });
       if (error) throw error;
       setResult(data as ImportResult);
-      toast.success(`Import terminé : ${(data as ImportResult).imported} employé(s) importé(s)`);
+      toast.success(`${t("bulk.importDone")} : ${(data as ImportResult).imported} ${t("bulk.employees")} ${t("bulk.imported")}`);
     } catch (err: any) {
-      toast.error("Erreur lors de l'import : " + (err.message || "Erreur inconnue"));
+      toast.error(t("bulk.importError") + " : " + (err.message || t("bulk.unknownError")));
     } finally {
       setImporting(false);
     }
@@ -148,18 +150,18 @@ export function BulkEmployeeImport() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileSpreadsheet className="h-5 w-5" />
-          Import en masse des employés
+          {t("bulk.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-3 flex-wrap">
           <Button variant="outline" size="sm" onClick={downloadTemplate}>
             <Download className="h-4 w-4 mr-1" />
-            Télécharger le modèle Excel
+            {t("bulk.downloadTemplate")}
           </Button>
           <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
             <Upload className="h-4 w-4 mr-1" />
-            Charger un fichier (.xlsx / .csv)
+            {t("bulk.uploadFile")}
           </Button>
           <input
             ref={fileRef}
@@ -173,10 +175,10 @@ export function BulkEmployeeImport() {
         {rows.length > 0 && !result && (
           <>
             <div className="flex items-center gap-2 text-sm">
-              <Badge variant="secondary">{rows.length} ligne(s)</Badge>
-              <Badge className="bg-emerald-100 text-emerald-800">{validCount} valide(s)</Badge>
+              <Badge variant="secondary">{rows.length} {t("bulk.lines")}</Badge>
+              <Badge className="bg-emerald-100 text-emerald-800">{validCount} {t("bulk.valid")}</Badge>
               {invalidCount > 0 && (
-                <Badge variant="destructive">{invalidCount} invalide(s)</Badge>
+                <Badge variant="destructive">{invalidCount} {t("bulk.invalid")}</Badge>
               )}
             </div>
 
@@ -185,13 +187,13 @@ export function BulkEmployeeImport() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-8">#</TableHead>
-                    <TableHead>Nom</TableHead>
-                    <TableHead>Prénom</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Heures</TableHead>
-                    <TableHead>Catégorie</TableHead>
-                    <TableHead>Magasin</TableHead>
-                    <TableHead className="w-10">État</TableHead>
+                    <TableHead>{t("bulk.colNom")}</TableHead>
+                    <TableHead>{t("bulk.colPrenom")}</TableHead>
+                    <TableHead>{t("bulk.colEmail")}</TableHead>
+                    <TableHead>{t("bulk.colHeures")}</TableHead>
+                    <TableHead>{t("bulk.colCat")}</TableHead>
+                    <TableHead>{t("bulk.colMagasin")}</TableHead>
+                    <TableHead className="w-10">{t("bulk.colState")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -209,7 +211,7 @@ export function BulkEmployeeImport() {
                         ) : (
                           <Select onValueChange={(v) => updateStoreForRow(i, v)}>
                             <SelectTrigger className="h-7 text-xs w-[140px]">
-                              <SelectValue placeholder={r.magasin || "Choisir..."} />
+                              <SelectValue placeholder={r.magasin || t("bulk.choose")} />
                             </SelectTrigger>
                             <SelectContent>
                               {regularStores.map((s) => (
@@ -235,9 +237,9 @@ export function BulkEmployeeImport() {
             <div className="flex items-center gap-3">
               <Button onClick={doImport} disabled={importing || validCount === 0}>
                 {importing ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Upload className="h-4 w-4 mr-1" />}
-                Confirmer l'import ({validCount} employé(s))
+                {t("bulk.confirmImport")} ({validCount} {t("bulk.employees")})
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => setRows([])}>Annuler</Button>
+              <Button variant="ghost" size="sm" onClick={() => setRows([])}>{t("action.cancel")}</Button>
             </div>
           </>
         )}
@@ -246,16 +248,16 @@ export function BulkEmployeeImport() {
           <div className="space-y-3">
             <div className="flex items-center gap-3 flex-wrap">
               <Badge className="bg-emerald-100 text-emerald-800 gap-1">
-                <CheckCircle2 className="h-3 w-3" /> {result.imported} importé(s)
+                <CheckCircle2 className="h-3 w-3" /> {result.imported} {t("bulk.imported")}
               </Badge>
               {result.duplicates > 0 && (
                 <Badge className="bg-amber-100 text-amber-800 gap-1">
-                  <AlertTriangle className="h-3 w-3" /> {result.duplicates} doublon(s)
+                  <AlertTriangle className="h-3 w-3" /> {result.duplicates} {t("bulk.duplicates")}
                 </Badge>
               )}
               {result.errors > 0 && (
                 <Badge variant="destructive" className="gap-1">
-                  <XCircle className="h-3 w-3" /> {result.errors} erreur(s)
+                  <XCircle className="h-3 w-3" /> {result.errors} {t("bulk.errors")}
                 </Badge>
               )}
             </div>
@@ -270,7 +272,7 @@ export function BulkEmployeeImport() {
               </div>
             )}
             <Button variant="outline" size="sm" onClick={() => { setResult(null); setRows([]); }}>
-              Nouvel import
+              {t("bulk.newImport")}
             </Button>
           </div>
         )}
