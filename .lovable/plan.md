@@ -1,67 +1,75 @@
-## Objectif
-Permettre à chaque **Éditeur** de gérer son propre magasin : activer/désactiver les **semaines A/B**, l'**heure de table**, et modifier les **heures d'ouverture**.
+# Nouveau rôle « Responsable » (entre Éditeur et Admin)
 
-Actuellement ces réglages ne sont accessibles qu'aux admins via l'onglet "Magasins" (caché aux éditeurs). Les politiques RLS bloquent les UPDATE pour les non-admins.
+## Conseil dénomination FR / NL
 
-## Plan
+Trois pistes cohérentes avec le ton actuel de l'app (Planning Fnac, bilingue) :
 
-### 1. Migration RLS (table `stores` + `store_settings`)
-Ajouter deux policies UPDATE permettant aux éditeurs de modifier **uniquement les magasins auxquels ils sont assignés** (via `user_store_assignments`) :
+| Option | FR | NL | Commentaire |
+|---|---|---|---|
+| **A (recommandée)** | Responsable | Manager | "Manager" est totalement naturel en NL belge et déjà utilisé en magasin Fnac. Court, clair, distinct de "Éditeur/Bewerker". |
+| B | Responsable | Verantwoordelijke | Plus formel, mais long et lourd visuellement dans les badges/sélecteurs. |
+| C | Manager | Manager | Identique FR/NL, ultra court — mais on perd la nuance "Responsable de magasin" en FR. |
 
-```sql
--- stores
-CREATE POLICY "Editors can update assigned stores"
-ON public.stores FOR UPDATE TO authenticated
-USING (
-  has_role(auth.uid(), 'editor') AND
-  EXISTS (SELECT 1 FROM public.user_store_assignments
-          WHERE user_id = auth.uid() AND store_id = stores.id)
-)
-WITH CHECK (
-  has_role(auth.uid(), 'editor') AND
-  EXISTS (SELECT 1 FROM public.user_store_assignments
-          WHERE user_id = auth.uid() AND store_id = stores.id)
-);
+→ Je pars sur **A : Responsable / Manager** sauf indication contraire.
 
--- store_settings : même logique, plus policy INSERT (upsert)
-CREATE POLICY "Editors can manage own store settings"
-ON public.store_settings FOR ALL TO authenticated
-USING (
-  has_role(auth.uid(), 'editor') AND
-  EXISTS (SELECT 1 FROM public.user_store_assignments
-          WHERE user_id = auth.uid() AND store_id = store_settings.store_id)
-)
-WITH CHECK (
-  has_role(auth.uid(), 'editor') AND
-  EXISTS (SELECT 1 FROM public.user_store_assignments
-          WHERE user_id = auth.uid() AND store_id = store_settings.store_id)
-);
+Remarque : ne pas confondre avec la catégorie d'employé `responsable` (hiérarchie métier). Ici on parle d'un **rôle applicatif** (droits dans l'app). Pour éviter toute ambiguïté côté code, l'enum sera nommé `manager` (anglais, comme `admin`/`editor`/`user`), et seul l'affichage UI dira "Responsable" en FR / "Manager" en NL.
+
+## Hiérarchie cible
+
+```text
+admin       → tout, tous magasins, gestion globale (magasins, comptes admin…)
+manager     → ses magasins assignés : éditeur + paramètres magasin + gestion comptes du magasin
+editor      → ses magasins assignés : planning, congés, équipe
+user        → lecture seule
 ```
 
-L'UI ne propose que les 3 réglages voulus ; les autres colonnes (`name`, `city`, `is_direction`) restent en lecture seule pour les éditeurs côté interface.
+Le `manager` **hérite** de tous les droits `editor`, plus :
+- accès complet aux **Paramètres magasin** (heures d'ouverture, A/B, heure de table, et tout réglage futur ajouté là — ex. email de contact demandé pour l'éditeur)
+- gestion des **comptes utilisateurs de ses magasins** (créer / modifier rôle editor|user|manager / supprimer — comme le fait aujourd'hui un "store manager" via le flag `is_manager`)
+- ne peut **pas** créer d'admin, ni gérer les magasins eux-mêmes (création/suppression/renommage), ni voir les comptes d'autres magasins.
 
-### 2. Nouvelle entrée sidebar « Paramètres magasin » (éditeurs)
-- Ajouter dans `Sidebar.tsx` un lien `settings` (icône `Settings`) visible pour **admin ET editor**.
-- Pour l'admin, c'est redondant avec l'onglet "Magasins" — on n'affiche le lien `settings` que pour `editor` (l'admin garde la pleine gestion via "Magasins").
+## Lien avec le flag `is_manager` existant
 
-### 3. Nouvelle vue `StoreSelfSettings.tsx`
-Composant scoping sur `currentStore` (via `useStore()`) avec 3 blocs :
-- **Heures d'ouverture** : réutilise `InlineStoreSettings` (déjà câblé sur `store_settings`).
-- **Semaines A/B** : `Switch` lié à `stores.has_ab_weeks` (mutation `update stores`).
-- **Heure de table** : `Switch` lié à `stores.has_lunch_break`.
+Aujourd'hui il y a déjà un mécanisme "store manager" porté par `user_store_assignments.is_manager` (utilisé dans `manage-users` edge function pour déléguer la gestion de comptes). Deux options :
 
-Réutilise les mutations/clés de query existantes pour invalider `["stores"]` et `["store-settings", storeId]`. Affiche le nom du magasin courant en en-tête.
+- **Option 1 (recommandée)** : conserver `is_manager` tel quel et **ajouter** le rôle global `manager`. Un `manager` est automatiquement traité comme `is_manager` sur tous ses magasins assignés. Avantage : pas de migration de données, rétrocompatible.
+- Option 2 : remplacer `is_manager` par le rôle. Plus propre mais casse l'existant et oblige à migrer les flags actuels.
 
-### 4. Routing dans `Index.tsx`
-Ajouter `settings` au type `View` et router vers `<StoreSelfSettings />`.
+→ Je pars sur l'**Option 1**.
 
-### 5. i18n
-Ajouter clés `nav.settings`, `settings.title`, `settings.scopeNote` (FR + NL).
+## Plan de mise en œuvre
 
-### 6. Version
-Bump `src/lib/version.ts` → v4.58.
+### 1. Migration base de données
+- `ALTER TYPE public.app_role ADD VALUE 'manager';` (après `editor`, avant `user`).
+- Mettre à jour `has_role` : pas de changement nécessaire (fonctionne par valeur exacte).
+- **RLS** : étendre toutes les policies actuellement réservées à `admin` ou `editor` pour inclure `manager` là où c'est pertinent :
+  - `stores` UPDATE → autoriser `manager` sur ses magasins assignés (même condition que la policy éditeur du plan v4.58).
+  - `store_settings` ALL → idem.
+  - `employees`, `weekly_schedules`, `conges`, `day_comments`, `employee_day_flags`, `schedule_role_overrides` → ajouter `manager` partout où `editor` est autorisé.
+
+### 2. Edge function `manage-users`
+- Traiter `callerRole === 'manager'` comme un super-`is_manager` : autorisé à créer/modifier/supprimer comptes `editor`/`user`/`manager` (pas `admin`) **dans ses magasins assignés**.
+- Refuser `set_manager` pour `manager` (réservé admin — cohérent avec la logique actuelle).
+- Autoriser `bulk_import` pour `manager` uniquement sur ses magasins (ou rester admin-only — à confirmer ; par défaut je laisse admin-only).
+
+### 3. Front-end
+- **`useAuth`** : type `AppRole` ajoute `"manager"`.
+- **`Sidebar.tsx`** : afficher "Paramètres magasin" (`settings`) pour `admin | editor | manager`. Afficher "Comptes utilisateurs" pour `admin | manager` (aujourd'hui visible aux éditeurs *manager de magasin* via flag — on ajoute le rôle).
+- **Garde-fous** d'accès dans les vues sensibles (`StoreManager`, création admin…) : exclure `manager`.
+- **`UserManager`** : le manager voit uniquement les comptes des magasins qu'il gère ; le sélecteur de rôle propose `manager | editor | user` (pas `admin`).
+- **`StoreSelfSettings`** : accessible aux `manager` aussi (déjà OK une fois la RLS étendue).
+
+### 4. i18n
+- `roles.manager` = FR "Responsable" / NL "Manager".
+- Mettre à jour tous les écrans qui affichent le rôle (UserManager, badges, filtres).
+
+### 5. Version
+- `src/lib/version.ts` → bump (v4.68).
 
 ## Hors scope
-- Pas de changement sur la table `employees` ni `weekly_schedules`.
-- L'éditeur ne peut toujours pas renommer/supprimer un magasin ni gérer les managers — réservé aux admins.
-- Pas de changement pour le rôle "user" (lecture seule).
+- Pas de refonte du flag `is_manager` (conservé).
+- Pas de nouveau réglage "email de contact magasin" dans ce plan — à traiter dans une demande dédiée (tu l'as évoqué : on l'ajoutera ensuite, et il sera automatiquement éditable par `manager` grâce aux nouvelles RLS).
+- Pas de changement pour le rôle `user`.
+
+## Question ouverte
+Confirmes-tu **Responsable / Manager** comme libellés FR/NL ? Si tu préfères "Verantwoordelijke" en NL, je l'applique sans rien changer d'autre au plan.
