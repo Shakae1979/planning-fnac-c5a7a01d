@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
       .from("user_roles")
       .select("role")
       .eq("user_id", callerId)
-      .in("role", ["admin", "editor"])
+      .in("role", ["admin", "manager", "editor"])
       .maybeSingle();
 
     if (!roleData) {
@@ -62,6 +62,15 @@ Deno.serve(async (req) => {
       .eq("user_id", callerId)
       .eq("is_manager", true);
     const callerManagedStoreIds = new Set((callerManagerStores || []).map((s: any) => s.store_id));
+
+    // Managers (role) are implicitly store managers for ALL their assigned stores
+    if (callerRole === "manager") {
+      const { data: managerAssignments } = await adminClient
+        .from("user_store_assignments")
+        .select("store_id")
+        .eq("user_id", callerId);
+      (managerAssignments || []).forEach((a: any) => callerManagedStoreIds.add(a.store_id));
+    }
     const isStoreManager = callerManagedStoreIds.size > 0;
 
     const { action, ...payload } = await req.json();
