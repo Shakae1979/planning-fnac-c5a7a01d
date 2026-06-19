@@ -68,6 +68,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
 
   const ACCESS_ROLES = [
     { value: "admin", label: t("access.admin"), icon: Shield, desc: t("access.admin.desc") },
+    { value: "manager", label: t("access.manager"), icon: PenTool, desc: t("access.manager.desc") },
     { value: "editor", label: t("access.editor"), icon: PenTool, desc: t("access.editor.desc") },
     { value: "user", label: t("access.user"), icon: User, desc: t("access.user.desc") },
   ] as const;
