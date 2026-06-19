@@ -12,6 +12,8 @@ const translations = {
   "nav.team": { fr: "Équipe & Comptes", nl: "Team & Accounts" },
   "nav.stores": { fr: "Magasins", nl: "Winkels" },
   "nav.hours": { fr: "Compteur d'heures", nl: "Urenteller" },
+  "nav.settings": { fr: "Paramètres magasin", nl: "Winkelinstellingen" },
+  "settings.scopeNote": { fr: "Réglages de votre magasin", nl: "Instellingen van uw winkel" },
 
   // ========== Hours counter ==========
   "hours.title": { fr: "Compteur d'heures", nl: "Urenteller" },
