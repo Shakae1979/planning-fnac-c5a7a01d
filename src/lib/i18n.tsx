@@ -559,6 +559,90 @@ const translations = {
   "schedule.week": { fr: "Sem.", nl: "Week" },
   "schedule.prevWeekCopiedFor": { fr: "Semaine précédente copiée pour", nl: "Vorige week gekopieerd voor" },
   "schedule.pastedOnEmployees": { fr: "Planning collé sur", nl: "Roosters geplakt op" },
+
+  // ========== Change password page ==========
+  "cp.title": { fr: "Changement de mot de passe", nl: "Wachtwoord wijzigen" },
+  "cp.welcome": { fr: "Bienvenue ! Pour des raisons de sécurité, veuillez choisir un nouveau mot de passe avant de continuer.", nl: "Welkom! Kies om veiligheidsredenen een nieuw wachtwoord voordat u verdergaat." },
+  "cp.newPassword": { fr: "Nouveau mot de passe", nl: "Nieuw wachtwoord" },
+  "cp.confirmPassword": { fr: "Confirmer le mot de passe", nl: "Wachtwoord bevestigen" },
+  "cp.placeholder": { fr: "Minimum 8 caractères", nl: "Minstens 8 tekens" },
+  "cp.placeholderConfirm": { fr: "Confirmez votre mot de passe", nl: "Bevestig uw wachtwoord" },
+  "cp.tooShort": { fr: "Le mot de passe doit contenir au moins 8 caractères", nl: "Het wachtwoord moet minstens 8 tekens bevatten" },
+  "cp.mismatch": { fr: "Les mots de passe ne correspondent pas", nl: "Wachtwoorden komen niet overeen" },
+  "cp.success": { fr: "Mot de passe mis à jour avec succès !", nl: "Wachtwoord succesvol bijgewerkt!" },
+  "cp.error": { fr: "Erreur lors du changement de mot de passe", nl: "Fout bij het wijzigen van het wachtwoord" },
+
+  // ========== Not Found ==========
+  "notfound.text": { fr: "Oups ! Page introuvable", nl: "Oeps! Pagina niet gevonden" },
+  "notfound.home": { fr: "Retour à l'accueil", nl: "Terug naar de startpagina" },
+
+  // ========== Employee manager extras ==========
+  "team.firstNamePh": { fr: "Prénom", nl: "Voornaam" },
+  "team.emailPh": { fr: "email@exemple.com", nl: "email@voorbeeld.com" },
+  "team.deletePerson": { fr: "Supprimer", nl: "Verwijderen" },
+  "team.deletePersonDesc": { fr: "Cette action est irréversible. Toutes les données liées à ce collaborateur (plannings, congés) seront également supprimées.", nl: "Deze actie is onomkeerbaar. Alle gegevens van deze medewerker (planningen, verlof) worden eveneens verwijderd." },
+  "team.deletedPermanent": { fr: "Collaborateur supprimé définitivement !", nl: "Medewerker definitief verwijderd!" },
+
+  // ========== User manager extras ==========
+  "users.emailPh": { fr: "nom@fnac.com", nl: "naam@fnac.com" },
+  "users.passwordPh": { fr: "Mot de passe", nl: "Wachtwoord" },
+  "users.deleteConfirm": { fr: "Supprimer cet utilisateur ?", nl: "Deze gebruiker verwijderen?" },
+  "users.errorList": { fr: "Erreur lors du chargement des utilisateurs", nl: "Fout bij het laden van de gebruikers" },
+  "users.errorCreate": { fr: "Erreur lors de la création", nl: "Fout bij het aanmaken" },
+  "users.errorDelete": { fr: "Erreur lors de la suppression", nl: "Fout bij het verwijderen" },
+  "users.created": { fr: "Utilisateur créé avec succès", nl: "Gebruiker succesvol aangemaakt" },
+  "users.deleted": { fr: "Utilisateur supprimé", nl: "Gebruiker verwijderd" },
+  "users.serverError": { fr: "Erreur serveur", nl: "Serverfout" },
+  "users.notConnected": { fr: "Non connecté", nl: "Niet aangemeld" },
+  "users.createdOnDate": { fr: "Créé le", nl: "Aangemaakt op" },
+
+  // ========== Store settings panel ==========
+  "settings.storeTitle": { fr: "Paramètres du magasin", nl: "Winkelinstellingen" },
+  "settings.timeRangeTitle": { fr: "Horaires d'affichage du planning", nl: "Weergaveuren van de planning" },
+  "settings.timeRangeDesc": { fr: "Définissez la plage horaire affichée dans les vues planning pour", nl: "Stel het tijdsbereik in dat in de planningweergaven wordt getoond voor" },
+  "settings.start": { fr: "Début", nl: "Begin" },
+  "settings.end": { fr: "Fin", nl: "Einde" },
+  "settings.saved": { fr: "Paramètres sauvegardés", nl: "Instellingen opgeslagen" },
+  "settings.errorOrder": { fr: "L'heure de début doit être avant l'heure de fin", nl: "De begintijd moet voor de eindtijd liggen" },
+  "settings.errorSaving": { fr: "Erreur lors de la sauvegarde", nl: "Fout bij het opslaan" },
+  "settings.planningHours": { fr: "Horaires planning", nl: "Planningsuren" },
+  "settings.hoursSaved": { fr: "Horaires sauvegardés", nl: "Uren opgeslagen" },
+
+  // ========== Hourly grid extras ==========
+  "hourlyGrid.applySelection": { fr: "Appliquer à la sélection", nl: "Toepassen op selectie" },
+  "hourlyGrid.lunchShort": { fr: "H. table", nl: "Pauze" },
+  "hourlyGrid.note": { fr: "Note...", nl: "Notitie..." },
+  "hourlyGrid.apply": { fr: "Appliquer", nl: "Toepassen" },
+
+  // ========== Bulk import ==========
+  "bulk.title": { fr: "Import en masse des employés", nl: "Bulkimport van medewerkers" },
+  "bulk.downloadTemplate": { fr: "Télécharger le modèle Excel", nl: "Excel-sjabloon downloaden" },
+  "bulk.uploadFile": { fr: "Charger un fichier (.xlsx / .csv)", nl: "Bestand uploaden (.xlsx / .csv)" },
+  "bulk.lines": { fr: "ligne(s)", nl: "regel(s)" },
+  "bulk.valid": { fr: "valide(s)", nl: "geldig" },
+  "bulk.invalid": { fr: "invalide(s)", nl: "ongeldig" },
+  "bulk.confirmImport": { fr: "Confirmer l'import", nl: "Import bevestigen" },
+  "bulk.employees": { fr: "employé(s)", nl: "medewerker(s)" },
+  "bulk.newImport": { fr: "Nouvel import", nl: "Nieuwe import" },
+  "bulk.imported": { fr: "importé(s)", nl: "geïmporteerd" },
+  "bulk.duplicates": { fr: "doublon(s)", nl: "duplicaat(en)" },
+  "bulk.errors": { fr: "erreur(s)", nl: "fout(en)" },
+  "bulk.colNom": { fr: "Nom", nl: "Naam" },
+  "bulk.colPrenom": { fr: "Prénom", nl: "Voornaam" },
+  "bulk.colEmail": { fr: "Email", nl: "E-mail" },
+  "bulk.colHeures": { fr: "Heures", nl: "Uren" },
+  "bulk.colCat": { fr: "Catégorie", nl: "Categorie" },
+  "bulk.colMagasin": { fr: "Magasin", nl: "Winkel" },
+  "bulk.colState": { fr: "État", nl: "Status" },
+  "bulk.choose": { fr: "Choisir...", nl: "Kies..." },
+  "bulk.errMissingName": { fr: "Nom manquant", nl: "Naam ontbreekt" },
+  "bulk.errInvalidEmail": { fr: "Email invalide", nl: "Ongeldig e-mailadres" },
+  "bulk.errInvalidHours": { fr: "Heures invalides", nl: "Ongeldig urenaantal" },
+  "bulk.errInvalidCategory": { fr: "Catégorie invalide", nl: "Ongeldige categorie" },
+  "bulk.expected": { fr: "attendu", nl: "verwacht" },
+  "bulk.importError": { fr: "Erreur lors de l'import", nl: "Fout bij het importeren" },
+  "bulk.unknownError": { fr: "Erreur inconnue", nl: "Onbekende fout" },
+  "bulk.importDone": { fr: "Import terminé", nl: "Import voltooid" },
 } as const;
 
 type TranslationKey = keyof typeof translations;
