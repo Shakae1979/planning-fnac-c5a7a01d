@@ -645,7 +645,10 @@ const translations = {
   "bulk.importError": { fr: "Erreur lors de l'import", nl: "Fout bij het importeren" },
   "bulk.unknownError": { fr: "Erreur inconnue", nl: "Onbekende fout" },
   "bulk.importDone": { fr: "Import terminé", nl: "Import voltooid" },
+  "teamDay.uncoveredAlt": { fr: "Non couverts", nl: "Niet gedekt" },
 } as const;
+
+
 
 type TranslationKey = keyof typeof translations;
 

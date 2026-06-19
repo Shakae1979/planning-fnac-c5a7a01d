@@ -269,8 +269,10 @@ const TeamDayView = () => {
               <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-2">
                 <div className="flex items-center gap-1.5 text-xs font-medium text-destructive mb-1">
                   <AlertTriangle className="h-3.5 w-3.5" />
-                  {t("teamDay.uncovered")} ({requiredSlot ? `${requiredSlot.start}h–${requiredSlot.end}h` : ""})
+                  {t("teamDay.uncoveredAlt")}&nbsp;
+
                 </div>
+
                 <div className="space-y-0.5">
                   {coverageAlerts.map(({ role, uncoveredHours }) => {
                     const ranges: string[] = [];
