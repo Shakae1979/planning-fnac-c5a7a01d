@@ -395,6 +395,8 @@ const translations = {
   "access.admin.desc": { fr: "Accès total, tous les magasins", nl: "Volledige toegang, alle winkels" },
   "access.editor": { fr: "Éditeur", nl: "Editor" },
   "access.editor.desc": { fr: "Gestion de son magasin uniquement", nl: "Alleen eigen winkelbeheer" },
+  "access.manager": { fr: "Responsable", nl: "Manager" },
+  "access.manager.desc": { fr: "Éditeur + gestion des comptes et paramètres de son magasin", nl: "Editor + beheer accounts en winkelinstellingen" },
   "access.user": { fr: "Utilisateur", nl: "Gebruiker" },
   "access.user.desc": { fr: "Lecture seule", nl: "Alleen lezen" },
 

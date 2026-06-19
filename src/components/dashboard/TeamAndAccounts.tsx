@@ -54,7 +54,7 @@ export function TeamAndAccounts() {
     },
   });
 
-  const canCreateEditors = myRole === "admin" || isStoreManager === true;
+  const canCreateEditors = myRole === "admin" || myRole === "manager" || isStoreManager === true;
   const { t } = useI18n();
   const [newName, setNewName] = useState("");
   const [newLastName, setNewLastName] = useState("");
@@ -348,8 +348,8 @@ export function TeamAndAccounts() {
                         <button className="text-sm font-medium hover:underline cursor-pointer text-left" onClick={() => setEditingEmployee(emp)}>{getDisplayName(emp)}</button>
                         {account ? (
                           <Badge variant="outline" className="text-[10px] gap-1 py-0">
-                            {account.role === "admin" ? <Shield className="h-3 w-3" /> : account.role === "editor" ? <PenTool className="h-3 w-3" /> : <User className="h-3 w-3" />}
-                            {account.role === "admin" ? t("access.admin" as any) : account.role === "editor" ? t("access.editor" as any) : t("access.user" as any)}
+                            {account.role === "admin" ? <Shield className="h-3 w-3" /> : (account.role === "editor" || account.role === "manager") ? <PenTool className="h-3 w-3" /> : <User className="h-3 w-3" />}
+                            {account.role === "admin" ? t("access.admin" as any) : account.role === "manager" ? t("access.manager" as any) : account.role === "editor" ? t("access.editor" as any) : t("access.user" as any)}
                           </Badge>
                         ) : emp.email && !accountsLoading && !accountsQueryError ? (
                           <Badge variant="secondary" className="text-[10px] py-0 text-muted-foreground">
@@ -440,6 +440,7 @@ export function TeamAndAccounts() {
                         <SelectTrigger className="h-8 text-sm mt-1"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {myRole === "admin" && <SelectItem value="admin">{t("access.admin" as any)}</SelectItem>}
+                          {(myRole === "admin" || myRole === "manager") && <SelectItem value="manager">{t("access.manager" as any)}</SelectItem>}
                           {canCreateEditors && <SelectItem value="editor">{t("access.editor" as any)}</SelectItem>}
                           <SelectItem value="user">{t("access.user" as any)}</SelectItem>
                         </SelectContent>
