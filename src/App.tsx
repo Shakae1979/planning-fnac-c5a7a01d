@@ -55,7 +55,7 @@ function ProtectedRoute({ children, adminOnly = false }: { children: React.React
     return <Navigate to="/changer-mot-de-passe" replace />;
   }
 
-  if (adminOnly && role !== "admin" && role !== "editor") return <Navigate to="/equipe-du-jour" replace />;
+  if (adminOnly && role !== "admin" && role !== "editor" && role !== "manager") return <Navigate to="/equipe-du-jour" replace />;
 
   return <>{children}</>;
 }
