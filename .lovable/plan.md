@@ -1,38 +1,67 @@
 ## Objectif
-Compléter la traduction NL en remplaçant les chaînes FR codées en dur par des appels `useI18n()` / `t(...)`.
+Permettre à chaque **Éditeur** de gérer son propre magasin : activer/désactiver les **semaines A/B**, l'**heure de table**, et modifier les **heures d'ouverture**.
 
-## Périmètre détecté
-Fichiers contenant du texte FR visible non traduit :
+Actuellement ces réglages ne sont accessibles qu'aux admins via l'onglet "Magasins" (caché aux éditeurs). Les politiques RLS bloquent les UPDATE pour les non-admins.
 
-**Pages**
-- `src/pages/ChangePassword.tsx` — titre, labels, messages d'erreur, placeholders
-- `src/pages/NotFound.tsx` — « Oops! Page not found »
+## Plan
 
-**Dashboard / admin**
-- `src/components/dashboard/EmployeeManager.tsx` — « Ajouter un collaborateur », labels Nom/Email/Heures contrat/Département, « Annuler » des AlertDialog
-- `src/components/dashboard/UserManager.tsx` — « Créer un compte », Email/Mot de passe/Rôle, « Utilisateur »
-- `src/components/dashboard/BulkEmployeeImport.tsx` — en-têtes du tableau (Nom/Prénom/Email/Heures/Catégorie/Magasin/État), bouton « Annuler », messages d'erreur, libellés CSV
-- `src/components/dashboard/StoreSettingsPanel.tsx` — titre, sous-titre, labels Début/Fin, toasts
-- `src/components/dashboard/InlineStoreSettings.tsx` — « Horaires planning », Début/Fin
-- `src/components/dashboard/ShareLinks.tsx` — vérification visuelle des labels
+### 1. Migration RLS (table `stores` + `store_settings`)
+Ajouter deux policies UPDATE permettant aux éditeurs de modifier **uniquement les magasins auxquels ils sont assignés** (via `user_store_assignments`) :
 
-**Planning / grille**
-- `src/components/team-day/HourlyGrid.tsx` — « Appliquer à la sélection », libellé « H. table »
+```sql
+-- stores
+CREATE POLICY "Editors can update assigned stores"
+ON public.stores FOR UPDATE TO authenticated
+USING (
+  has_role(auth.uid(), 'editor') AND
+  EXISTS (SELECT 1 FROM public.user_store_assignments
+          WHERE user_id = auth.uid() AND store_id = stores.id)
+)
+WITH CHECK (
+  has_role(auth.uid(), 'editor') AND
+  EXISTS (SELECT 1 FROM public.user_store_assignments
+          WHERE user_id = auth.uid() AND store_id = stores.id)
+);
 
-**Toasts (≈20 occurrences)** et **placeholders (≈14 occurrences)** dans plusieurs composants — passage en revue rapide pour ajout des clés manquantes.
+-- store_settings : même logique, plus policy INSERT (upsert)
+CREATE POLICY "Editors can manage own store settings"
+ON public.store_settings FOR ALL TO authenticated
+USING (
+  has_role(auth.uid(), 'editor') AND
+  EXISTS (SELECT 1 FROM public.user_store_assignments
+          WHERE user_id = auth.uid() AND store_id = store_settings.store_id)
+)
+WITH CHECK (
+  has_role(auth.uid(), 'editor') AND
+  EXISTS (SELECT 1 FROM public.user_store_assignments
+          WHERE user_id = auth.uid() AND store_id = store_settings.store_id)
+);
+```
 
-## Approche
-1. Ajouter les clés FR/NL manquantes dans `src/lib/i18n.tsx` (préfixes existants : `common.*`, `team.*`, `admin.*`, `auth.*`, `settings.*`, etc.).
-2. Remplacer dans chaque fichier les chaînes FR codées en dur par `t("...")` ou `lang === "nl" ? ... : ...` pour les cas simples.
-3. Garder le FR identique ; ajouter uniquement la version NL et l'indirection `t()`.
-4. Bump `src/lib/version.ts` → v4.57.
+L'UI ne propose que les 3 réglages voulus ; les autres colonnes (`name`, `city`, `is_direction`) restent en lecture seule pour les éditeurs côté interface.
+
+### 2. Nouvelle entrée sidebar « Paramètres magasin » (éditeurs)
+- Ajouter dans `Sidebar.tsx` un lien `settings` (icône `Settings`) visible pour **admin ET editor**.
+- Pour l'admin, c'est redondant avec l'onglet "Magasins" — on n'affiche le lien `settings` que pour `editor` (l'admin garde la pleine gestion via "Magasins").
+
+### 3. Nouvelle vue `StoreSelfSettings.tsx`
+Composant scoping sur `currentStore` (via `useStore()`) avec 3 blocs :
+- **Heures d'ouverture** : réutilise `InlineStoreSettings` (déjà câblé sur `store_settings`).
+- **Semaines A/B** : `Switch` lié à `stores.has_ab_weeks` (mutation `update stores`).
+- **Heure de table** : `Switch` lié à `stores.has_lunch_break`.
+
+Réutilise les mutations/clés de query existantes pour invalider `["stores"]` et `["store-settings", storeId]`. Affiche le nom du magasin courant en en-tête.
+
+### 4. Routing dans `Index.tsx`
+Ajouter `settings` au type `View` et router vers `<StoreSelfSettings />`.
+
+### 5. i18n
+Ajouter clés `nav.settings`, `settings.title`, `settings.scopeNote` (FR + NL).
+
+### 6. Version
+Bump `src/lib/version.ts` → v4.58.
 
 ## Hors scope
-- `HelpFAQ.tsx` est déjà bilingue (objets `FAQ_FR` / `FAQ_NL`) — pas de modification.
-- Aucune logique métier, aucun changement DB, aucun changement de design.
-- Les libellés CSV d'import (`Nom`, `Prénom`, …) restent en FR côté parsing pour compatibilité fichiers existants ; seul l'affichage UI est traduit.
-
-## Détails techniques
-- Convention existante : `useI18n()` retourne `{ t, lang, monthName, dayName }`. Les clés sont des chemins pointés (`team.add`, `auth.password`, …).
-- Pour les toasts, utiliser `t()` directement dans l'appel `toast.success(t("..."))`.
-- Pour les `AlertDialogCancel`, utiliser `t("common.cancel")` (clé déjà existante à vérifier, sinon l'ajouter).
+- Pas de changement sur la table `employees` ni `weekly_schedules`.
+- L'éditeur ne peut toujours pas renommer/supprimer un magasin ni gérer les managers — réservé aux admins.
+- Pas de changement pour le rôle "user" (lecture seule).
