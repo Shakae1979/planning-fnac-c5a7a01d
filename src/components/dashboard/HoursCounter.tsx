@@ -254,7 +254,7 @@ export function HoursCounter() {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <WeekNavigator offset={weekOffset} onChange={setWeekOffset} />
         <div className="text-xs text-muted-foreground">
-          <span className="font-semibold capitalize">{monthLabel}</span> · {monthMondays.length} {monthMondays.length > 1 ? "semaines" : "semaine"}
+          <span className="font-semibold capitalize">{monthLabel}</span> · {monthMondays.length} {t(monthMondays.length > 1 ? "misc.weeks" : "misc.week").toLowerCase()}
         </div>
       </div>
 
