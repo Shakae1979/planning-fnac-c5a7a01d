@@ -65,7 +65,7 @@ function RolePicker({ anchorRect, onSelect, onClose, roleLabels, multi }: {
 
   return (
     <div ref={ref} className="fixed z-50 bg-card border rounded-lg shadow-lg p-1.5 min-w-[120px]" style={{ top: anchorRect.top, left: anchorRect.left }}>
-      {multi && <div className="px-2 py-1 text-[10px] font-semibold text-primary border-b mb-1">Appliquer à la sélection</div>}
+      {multi && roleLabels.__applySelection && <div className="px-2 py-1 text-[10px] font-semibold text-primary border-b mb-1">{roleLabels.__applySelection}</div>}
       {ROLES.map((r) => (
         <button key={r.key} className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-muted/80 transition-colors" onClick={() => onSelect(r.key)}>
           <span className={`w-3 h-3 rounded-full ${r.dot}`} />
