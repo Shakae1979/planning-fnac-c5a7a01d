@@ -4,7 +4,6 @@ import { useI18n } from "@/lib/i18n";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Clock } from "lucide-react";
-import { useI18n } from "@/lib/i18n";
 
 const HOUR_OPTIONS = Array.from({ length: 17 }, (_, i) => i + 6); // 6 to 22
 
