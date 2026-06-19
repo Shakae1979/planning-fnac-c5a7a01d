@@ -229,7 +229,7 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
           </div>
           {selected.size > 0 && (
             <Button size="sm" className="no-print h-7 text-xs gap-1.5" onClick={handleApplyClick}>
-              Appliquer ({selected.size})
+              {t("hourlyGrid.apply")} ({selected.size})
             </Button>
           )}
           <Button variant="outline" size="sm" className="no-print h-7 px-2 sm:px-3 text-xs gap-1.5" onClick={() => window.print()} title={t("action.print")} aria-label={t("action.print")}>
