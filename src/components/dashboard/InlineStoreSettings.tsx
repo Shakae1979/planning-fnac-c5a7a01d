@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Clock } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 const HOUR_OPTIONS = Array.from({ length: 17 }, (_, i) => i + 6); // 6 to 22
 
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function InlineStoreSettings({ storeId, storeName }: Props) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
 
   const { data: settings } = useQuery({
@@ -48,14 +50,14 @@ export function InlineStoreSettings({ storeId, storeName }: Props) {
       schedule_end_hour: field === "schedule_end_hour" ? value : scheduleEnd,
     };
     if (newValues.schedule_start_hour >= newValues.schedule_end_hour) {
-      toast.error("L'heure de début doit être avant l'heure de fin");
+      toast.error(t("settings.errorOrder"));
       return;
     }
     try {
       await saveMutation.mutateAsync(newValues);
-      toast.success("Horaires sauvegardés");
+      toast.success(t("settings.hoursSaved"));
     } catch {
-      toast.error("Erreur lors de la sauvegarde");
+      toast.error(t("settings.errorSaving"));
     }
   };
 
@@ -63,11 +65,11 @@ export function InlineStoreSettings({ storeId, storeName }: Props) {
     <div className="mt-3 pt-3 border-t border-border/50">
       <div className="flex items-center gap-1.5 mb-2">
         <Clock className="h-3 w-3 text-muted-foreground" />
-        <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Horaires planning</span>
+        <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{t("settings.planningHours")}</span>
       </div>
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5">
-          <span className="text-[11px] text-muted-foreground">Début</span>
+          <span className="text-[11px] text-muted-foreground">{t("settings.start")}</span>
           <Select value={String(scheduleStart)} onValueChange={(v) => handleChange("schedule_start_hour", Number(v))}>
             <SelectTrigger className="h-7 w-[80px] text-xs">
               <SelectValue />
@@ -81,7 +83,7 @@ export function InlineStoreSettings({ storeId, storeName }: Props) {
         </div>
         <span className="text-muted-foreground text-xs">→</span>
         <div className="flex items-center gap-1.5">
-          <span className="text-[11px] text-muted-foreground">Fin</span>
+          <span className="text-[11px] text-muted-foreground">{t("settings.end")}</span>
           <Select value={String(scheduleEnd)} onValueChange={(v) => handleChange("schedule_end_hour", Number(v))}>
             <SelectTrigger className="h-7 w-[80px] text-xs">
               <SelectValue />
