@@ -94,11 +94,12 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
   const roleLabels: Record<string, string> = {};
   ROLES.forEach((r) => {
     if (r.key === "heure_de_table") {
-      roleLabels[r.key] = "H. table";
+      roleLabels[r.key] = t("hourlyGrid.lunchShort");
     } else {
       roleLabels[r.key] = t(`role.${r.key}.short` as any) || r.key;
     }
   });
+  roleLabels.__applySelection = t("hourlyGrid.applySelection");
 
   const employeesKey = useMemo(
     () => employees.filter((e) => e.hasShift && !e.conge).map((e) => e.id).sort().join(","),
