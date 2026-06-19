@@ -312,6 +312,42 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
         </>
       );
     }
+    if (id === "etp") {
+      const etpContract = totalContract / FTE_BASE;
+      const etpPlanned = totalPlanned / FTE_BASE;
+      const etpDiff = etpPlanned - etpContract;
+      const diffColor =
+        etpDiff < -0.3 ? "text-destructive" : etpDiff > 0.3 ? "text-warning" : "text-emerald-600";
+      return (
+        <>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 flex-1">
+              <Scale className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-semibold">{t("insights.etp")}</span>
+              <span className="text-[10px] text-muted-foreground">({t("insights.etpBase")})</span>
+            </div>
+            <DragHandle />
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-center">
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                {t("insights.etpContract")}
+              </div>
+              <div className="text-2xl font-bold font-mono-data">{etpContract.toFixed(1)}</div>
+            </div>
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                {t("insights.etpPlanned")}
+              </div>
+              <div className="text-2xl font-bold font-mono-data">{etpPlanned.toFixed(1)}</div>
+            </div>
+          </div>
+          <div className={`text-center text-xs font-semibold font-mono-data mt-1 ${diffColor}`}>
+            Δ {etpDiff >= 0 ? "+" : ""}{etpDiff.toFixed(1)} ETP
+          </div>
+        </>
+      );
+    }
     // byDept
     return (
       <>
