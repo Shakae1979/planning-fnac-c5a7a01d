@@ -53,6 +53,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           name: s.store_name,
           city: s.store_city,
           has_lunch_break: s.store_has_lunch_break ?? false,
+          has_ab_weeks: s.store_has_ab_weeks ?? false,
           is_direction: s.store_is_direction ?? false,
         }));
         setStores(storeList);
