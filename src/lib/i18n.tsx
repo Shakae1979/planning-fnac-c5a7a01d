@@ -505,7 +505,7 @@ const translations = {
   "misc.from": { fr: "Du", nl: "Van" },
   "misc.to": { fr: "au", nl: "tot" },
   "misc.active": { fr: "Actif", nl: "Actief" },
-  "misc.week": { fr: "Semaine", nl: "week" },
+  "misc.week": { fr: "semaine", nl: "week" },
   "misc.rest": { fr: "Repos", nl: "Rust" },
   "misc.nobody": { fr: "Personne", nl: "Niemand" },
   "misc.collaborator": { fr: "collaborateur", nl: "medewerker" },
