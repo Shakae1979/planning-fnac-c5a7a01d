@@ -11,17 +11,17 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ROLE_COLORS as CENTRAL_ROLE_COLORS } from "@/lib/role-colors";
+import { useI18n } from "@/lib/i18n";
 
-const ROLES = [
-  { value: "responsable", label: "Responsable", color: CENTRAL_ROLE_COLORS.responsable.bgChip },
-  { value: "technique", label: "Technique", color: CENTRAL_ROLE_COLORS.technique.bgChip },
-  { value: "editorial", label: "Éditorial", color: CENTRAL_ROLE_COLORS.editorial.bgChip },
-  { value: "stock", label: "Stock", color: CENTRAL_ROLE_COLORS.stock.bgChip },
-  { value: "caisse", label: "Caisse", color: CENTRAL_ROLE_COLORS.caisse.bgChip },
-  { value: "stagiaire", label: "Stagiaire", color: CENTRAL_ROLE_COLORS.stagiaire.bgChip },
-] as const;
+const ROLE_KEYS_LIST = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
 
 export function EmployeeManager() {
+  const { t } = useI18n();
+  const ROLES = ROLE_KEYS_LIST.map((value) => ({
+    value,
+    label: t(`role.${value}` as any),
+    color: CENTRAL_ROLE_COLORS[value].bgChip,
+  }));
   const queryClient = useQueryClient();
   const [newName, setNewName] = useState("");
   const [newHours, setNewHours] = useState("36");
@@ -43,8 +43,8 @@ export function EmployeeManager() {
   const addMutation = useMutation({
     mutationFn: async () => {
       const trimmed = newName.trim();
-      if (!trimmed) throw new Error("Le nom est requis");
-      if (trimmed.length > 100) throw new Error("Nom trop long");
+      if (!trimmed) throw new Error(t("misc.nameRequired"));
+      if (trimmed.length > 100) throw new Error(t("misc.nameRequired"));
       const { error } = await supabase.from("employees").insert({
         name: trimmed,
         contract_hours: Number(newHours) || 36,
@@ -60,7 +60,7 @@ export function EmployeeManager() {
       setNewRole("technique");
       setNewEmail("");
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      toast.success("Collaborateur ajouté !");
+      toast.success(t("team.employeeAdded"));
     },
     onError: (err) => toast.error((err as Error).message),
   });
@@ -72,7 +72,7 @@ export function EmployeeManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      toast.success("Mis à jour !");
+      toast.success(t("team.employeeUpdated"));
     },
   });
 
@@ -83,7 +83,7 @@ export function EmployeeManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      toast.success("Département mis à jour !");
+      toast.success(t("team.departmentUpdated"));
     },
     onError: (err) => toast.error((err as Error).message),
   });
@@ -95,7 +95,7 @@ export function EmployeeManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      toast.success("Email mis à jour !");
+      toast.success(t("team.emailUpdated"));
     },
     onError: (err) => toast.error((err as Error).message),
   });
@@ -107,7 +107,7 @@ export function EmployeeManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      toast.success("Collaborateur supprimé définitivement !");
+      toast.success(t("team.deletedPermanent"));
     },
     onError: (err) => toast.error((err as Error).message),
   });
@@ -125,31 +125,31 @@ export function EmployeeManager() {
     <div className="space-y-6">
       {/* Add employee */}
       <div className="kpi-card">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-3">Ajouter un collaborateur</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-3">{t("team.addEmployee")}</h3>
         <div className="flex items-end gap-3">
           <div className="flex-1">
-            <label className="text-xs text-muted-foreground">Nom</label>
+            <label className="text-xs text-muted-foreground">{t("team.lastName")}</label>
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="Prénom"
+              placeholder={t("team.firstNamePh")}
               maxLength={100}
               className="w-full mt-1 px-3 py-2 text-sm rounded-md border bg-background focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
           <div className="w-48">
-            <label className="text-xs text-muted-foreground">Email</label>
+            <label className="text-xs text-muted-foreground">{t("team.email")}</label>
             <input
               type="email"
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
-              placeholder="email@exemple.com"
+              placeholder={t("team.emailPh")}
               className="w-full mt-1 px-3 py-2 text-sm rounded-md border bg-background focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
           <div className="w-32">
-            <label className="text-xs text-muted-foreground">Heures contrat</label>
+            <label className="text-xs text-muted-foreground">{t("team.contractHours")}</label>
             <input
               type="number"
               value={newHours}
@@ -158,7 +158,7 @@ export function EmployeeManager() {
             />
           </div>
           <div className="w-40">
-            <label className="text-xs text-muted-foreground">Département</label>
+            <label className="text-xs text-muted-foreground">{t("team.department")}</label>
             <select
               value={newRole}
               onChange={(e) => setNewRole(e.target.value)}
@@ -170,7 +170,7 @@ export function EmployeeManager() {
             </select>
           </div>
           <Button size="sm" onClick={() => addMutation.mutate()} disabled={addMutation.isPending}>
-            <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter
+            <Plus className="h-3.5 w-3.5 mr-1" /> {t("action.add")}
           </Button>
         </div>
       </div>
@@ -178,7 +178,7 @@ export function EmployeeManager() {
       {/* Active employees */}
       <div className="kpi-card">
         <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-          Collaborateurs actifs ({active.length})
+          {t("team.activeEmployees")} ({active.length})
         </h3>
         <div className="space-y-1">
           {active.map((emp) => (
@@ -206,7 +206,7 @@ export function EmployeeManager() {
                     <input
                       type="email"
                       defaultValue={(emp as any).email || ""}
-                      placeholder="email@exemple.com"
+                      placeholder={t("team.emailPh")}
                       className="text-[11px] bg-transparent border-none outline-none text-muted-foreground w-48 focus:text-foreground"
                       onBlur={(e) => {
                         const val = e.target.value.trim();
@@ -225,7 +225,7 @@ export function EmployeeManager() {
                   className="text-muted-foreground hover:text-destructive"
                   onClick={() => toggleMutation.mutate({ id: emp.id, active: false })}
                 >
-                  <Trash2 className="h-3.5 w-3.5 mr-1" /> Désactiver
+                  <Trash2 className="h-3.5 w-3.5 mr-1" /> {t("action.deactivate")}
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -235,18 +235,18 @@ export function EmployeeManager() {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Supprimer {getDisplayName(emp)} ?</AlertDialogTitle>
+                      <AlertDialogTitle>{t("team.deletePerson")} {getDisplayName(emp)} ?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Cette action est irréversible. Toutes les données liées à ce collaborateur (plannings, congés) seront également supprimées.
+                        {t("team.deletePersonDesc")}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                      <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
                       <AlertDialogAction
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         onClick={() => deleteMutation.mutate(emp.id)}
                       >
-                        Supprimer définitivement
+                        {t("action.deletePermanent")}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -260,7 +260,7 @@ export function EmployeeManager() {
       {inactive.length > 0 && (
         <div className="kpi-card">
           <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-            Inactifs ({inactive.length})
+            {t("team.inactive")} ({inactive.length})
           </h3>
           <div className="space-y-1">
             {inactive.map((emp) => (
@@ -268,7 +268,7 @@ export function EmployeeManager() {
                 <span className="text-sm">{getDisplayName(emp)}</span>
                 <div className="flex items-center gap-1">
                   <Button variant="outline" size="sm" onClick={() => toggleMutation.mutate({ id: emp.id, active: true })}>
-                    Réactiver
+                    {t("action.reactivate")}
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
@@ -278,18 +278,18 @@ export function EmployeeManager() {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Supprimer {getDisplayName(emp)} ?</AlertDialogTitle>
+                        <AlertDialogTitle>{t("team.deletePerson")} {getDisplayName(emp)} ?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Cette action est irréversible. Toutes les données liées seront supprimées.
+                          {t("team.deleteConfirm")}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
                         <AlertDialogAction
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           onClick={() => deleteMutation.mutate(emp.id)}
                         >
-                          Supprimer définitivement
+                          {t("action.deletePermanent")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
