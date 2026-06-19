@@ -7,8 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Lock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/lib/i18n";
 
 export default function ChangePassword() {
+  const { t } = useI18n();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,10 +34,10 @@ export default function ChangePassword() {
         .update({ must_change_password: false } as any)
         .eq("email", user.email || "");
 
-      toast.success("Mot de passe mis à jour avec succès !");
+      toast.success(t("cp.success"));
       navigate("/equipe-du-jour", { replace: true });
     } catch (err: any) {
-      toast.error(err.message || "Erreur lors du changement de mot de passe");
+      toast.error(err.message || t("cp.error"));
     } finally {
       setLoading(false);
     }
@@ -48,41 +50,41 @@ export default function ChangePassword() {
           <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
             <Lock className="h-6 w-6 text-primary" />
           </div>
-          <CardTitle>Changement de Mot de Passe</CardTitle>
+          <CardTitle>{t("cp.title")}</CardTitle>
           <CardDescription>
-            Bienvenue ! Pour des raisons de sécurité, veuillez choisir un nouveau mot de passe avant de continuer.
+            {t("cp.welcome")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Nouveau mot de passe</label>
+              <label className="text-sm font-medium">{t("cp.newPassword")}</label>
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimum 8 caractères"
+                placeholder={t("cp.placeholder")}
                 minLength={8}
               />
               {password.length > 0 && password.length < 8 && (
-                <p className="text-xs text-destructive mt-1">Le mot de passe doit contenir au moins 8 caractères</p>
+                <p className="text-xs text-destructive mt-1">{t("cp.tooShort")}</p>
               )}
             </div>
             <div>
-              <label className="text-sm font-medium">Confirmer le mot de passe</label>
+              <label className="text-sm font-medium">{t("cp.confirmPassword")}</label>
               <Input
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                placeholder="Confirmez votre mot de passe"
+                placeholder={t("cp.placeholderConfirm")}
               />
               {confirm.length > 0 && password !== confirm && (
-                <p className="text-xs text-destructive mt-1">Les mots de passe ne correspondent pas</p>
+                <p className="text-xs text-destructive mt-1">{t("cp.mismatch")}</p>
               )}
             </div>
             <Button type="submit" className="w-full" disabled={!valid || loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
-              Valider
+              {t("action.validate")}
             </Button>
           </form>
         </CardContent>
