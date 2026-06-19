@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, CheckCircle2, CalendarOff, Gauge, Users2, GripVertical } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CalendarOff, Gauge, Users2, GripVertical, Scale } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { formatDateBE, formatLocalDate, getDisplayName } from "@/lib/format";
@@ -20,15 +20,18 @@ const CRITICAL_ROLES = ["responsable", "caisse"] as const;
 const ALERT_HOURS = Array.from({ length: 12 }, (_, i) => i + 9); // 9-20h
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
 
-type CardId = "alerts" | "leaves" | "occupancy" | "byDept";
-const DEFAULT_ORDER: CardId[] = ["alerts", "leaves", "occupancy", "byDept"];
+type CardId = "alerts" | "leaves" | "occupancy" | "etp" | "byDept";
+const DEFAULT_ORDER: CardId[] = ["alerts", "leaves", "occupancy", "etp", "byDept"];
 const STORAGE_KEY = "overview-insights-order-v1";
 const CARD_SPAN: Record<CardId, string> = {
   alerts: "lg:col-span-1",
   leaves: "lg:col-span-1",
   occupancy: "lg:col-span-1",
+  etp: "lg:col-span-1",
   byDept: "lg:col-span-1",
 };
+
+const FTE_BASE = 36;
 
 function addDays(d: Date, n: number) {
   const x = new Date(d);
@@ -306,6 +309,42 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
               })}
             </ul>
           )}
+        </>
+      );
+    }
+    if (id === "etp") {
+      const etpContract = totalContract / FTE_BASE;
+      const etpPlanned = totalPlanned / FTE_BASE;
+      const etpDiff = etpPlanned - etpContract;
+      const diffColor =
+        etpDiff < -0.3 ? "text-destructive" : etpDiff > 0.3 ? "text-warning" : "text-emerald-600";
+      return (
+        <>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 flex-1">
+              <Scale className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-semibold">{t("insights.etp")}</span>
+              <span className="text-[10px] text-muted-foreground">({t("insights.etpBase")})</span>
+            </div>
+            <DragHandle />
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-center">
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                {t("insights.etpContract")}
+              </div>
+              <div className="text-2xl font-bold font-mono-data">{etpContract.toFixed(1)}</div>
+            </div>
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                {t("insights.etpPlanned")}
+              </div>
+              <div className="text-2xl font-bold font-mono-data">{etpPlanned.toFixed(1)}</div>
+            </div>
+          </div>
+          <div className={`text-center text-xs font-semibold font-mono-data mt-1 ${diffColor}`}>
+            Δ {etpDiff >= 0 ? "+" : ""}{etpDiff.toFixed(1)} ETP
+          </div>
         </>
       );
     }
