@@ -1,51 +1,38 @@
-## Compteur ETP — Vue d'ensemble
+## Objectif
+Compléter la traduction NL en remplaçant les chaînes FR codées en dur par des appels `useI18n()` / `t(...)`.
 
-Ajouter une nouvelle carte KPI "ETP" dans `OverviewInsights` qui affiche côte à côte l'ETP contractuel et l'ETP planifié sur la semaine affichée, avec base **1 ETP = 36h/semaine**.
+## Périmètre détecté
+Fichiers contenant du texte FR visible non traduit :
 
-### Calculs
+**Pages**
+- `src/pages/ChangePassword.tsx` — titre, labels, messages d'erreur, placeholders
+- `src/pages/NotFound.tsx` — « Oops! Page not found »
 
-- `totalContract` = somme `contract_hours` des employés du magasin (déjà calculé dans le composant).
-- `totalPlanned` = somme `hours_modified ?? hours_base` des `weekly_schedules` de la semaine (déjà calculé).
-- `FTE_BASE = 36`
-- `etpContract = totalContract / 36`
-- `etpPlanned = totalPlanned / 36`
-- `etpDiff = etpPlanned − etpContract`
+**Dashboard / admin**
+- `src/components/dashboard/EmployeeManager.tsx` — « Ajouter un collaborateur », labels Nom/Email/Heures contrat/Département, « Annuler » des AlertDialog
+- `src/components/dashboard/UserManager.tsx` — « Créer un compte », Email/Mot de passe/Rôle, « Utilisateur »
+- `src/components/dashboard/BulkEmployeeImport.tsx` — en-têtes du tableau (Nom/Prénom/Email/Heures/Catégorie/Magasin/État), bouton « Annuler », messages d'erreur, libellés CSV
+- `src/components/dashboard/StoreSettingsPanel.tsx` — titre, sous-titre, labels Début/Fin, toasts
+- `src/components/dashboard/InlineStoreSettings.tsx` — « Horaires planning », Début/Fin
+- `src/components/dashboard/ShareLinks.tsx` — vérification visuelle des labels
 
-### UI
+**Planning / grille**
+- `src/components/team-day/HourlyGrid.tsx` — « Appliquer à la sélection », libellé « H. table »
 
-Nouvelle carte `etp` ajoutée dans `DEFAULT_ORDER` et `CARD_SPAN` (lg:col-span-1), insérée juste après `occupancy` :
+**Toasts (≈20 occurrences)** et **placeholders (≈14 occurrences)** dans plusieurs composants — passage en revue rapide pour ajout des clés manquantes.
 
-```text
-┌─────────────────────────────┐
-│ ⚖  ETP (base 36h)       ⋮⋮ │
-│                              │
-│  Contractuel    Planifié    │
-│    12.4           11.8      │
-│              Δ -0.6 ETP     │
-└─────────────────────────────┘
-```
+## Approche
+1. Ajouter les clés FR/NL manquantes dans `src/lib/i18n.tsx` (préfixes existants : `common.*`, `team.*`, `admin.*`, `auth.*`, `settings.*`, etc.).
+2. Remplacer dans chaque fichier les chaînes FR codées en dur par `t("...")` ou `lang === "nl" ? ... : ...` pour les cas simples.
+3. Garder le FR identique ; ajouter uniquement la version NL et l'indirection `t()`.
+4. Bump `src/lib/version.ts` → v4.57.
 
-- Icône : `Scale` (lucide-react).
-- Chiffres en `font-mono-data`, 1 décimale (`toFixed(1)`).
-- Couleur du delta : reprend la logique de l'occupancy (`< -0.3` destructive, `> +0.3` warning, sinon emerald).
-- Carte draggable comme les 4 existantes, persistée dans le même `localStorage` (`overview-insights-order-v1`) avec migration : si la carte `etp` n'est pas dans l'ordre stocké, elle est ajoutée à la fin (la logique `missing` existante gère déjà ça).
+## Hors scope
+- `HelpFAQ.tsx` est déjà bilingue (objets `FAQ_FR` / `FAQ_NL`) — pas de modification.
+- Aucune logique métier, aucun changement DB, aucun changement de design.
+- Les libellés CSV d'import (`Nom`, `Prénom`, …) restent en FR côté parsing pour compatibilité fichiers existants ; seul l'affichage UI est traduit.
 
-### i18n
-
-Nouvelles clés dans `src/lib/i18n.tsx` :
-- `insights.etp` : "ETP" / "VTE"
-- `insights.etpBase` : "base 36h" / "basis 36u"
-- `insights.etpContract` : "Contractuel" / "Contractueel"
-- `insights.etpPlanned` : "Planifié" / "Gepland"
-
-### Fichiers modifiés
-
-- `src/components/dashboard/overview/OverviewInsights.tsx` — nouvelle carte `etp`, constante `FTE_BASE = 36`, calculs ETP, rendu dans `renderCard`.
-- `src/lib/i18n.tsx` — 4 clés FR/NL.
-- `src/lib/version.ts` — bump à `v4.56`.
-
-### Hors scope
-
-- Pas de changement DB ni de paramètre configurable par magasin (base 36h codée en dur, modifiable plus tard via store_settings si demandé).
-- Pas de modification du Compteur d'heures ni de la page Direction Fnac.
-- Pas de calcul ETP mensuel/annuel (uniquement la semaine affichée, comme le reste d'OverviewInsights).
+## Détails techniques
+- Convention existante : `useI18n()` retourne `{ t, lang, monthName, dayName }`. Les clés sont des chemins pointés (`team.add`, `auth.password`, …).
+- Pour les toasts, utiliser `t()` directement dans l'appel `toast.success(t("..."))`.
+- Pour les `AlertDialogCancel`, utiliser `t("common.cancel")` (clé déjà existante à vérifier, sinon l'ajouter).
