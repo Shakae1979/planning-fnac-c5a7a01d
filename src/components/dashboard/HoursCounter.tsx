@@ -106,15 +106,16 @@ export function HoursCounter() {
 
     return employees.map((emp) => {
       const contract = Number(emp.contract_hours) || 0;
-      const wSchedule = schedulesByKey.get(`${emp.id}|${weekStr}`) || {};
-      const w = computeNetHours(wSchedule);
+      const wSchedule = schedulesByKey.get(`${emp.id}|${weekStr}`);
+      const weekWorked = wSchedule
+        ? Number(wSchedule.hours_modified ?? wSchedule.hours_base ?? 0)
+        : 0;
 
       let monthWorked = 0;
       for (const m of monthMondays) {
         const ms = formatLocalDate(m);
-        const sch = schedulesByKey.get(`${emp.id}|${ms}`) || {};
-        const r = computeNetHours(sch);
-        monthWorked += r.worked;
+        const sch = schedulesByKey.get(`${emp.id}|${ms}`);
+        if (sch) monthWorked += Number(sch.hours_modified ?? sch.hours_base ?? 0);
       }
 
       const monthContract = contract * monthMondays.length;
@@ -123,7 +124,7 @@ export function HoursCounter() {
         name: getDisplayName(emp),
         role: emp.role,
         contract,
-        weekWorked: w.worked,
+        weekWorked,
         monthWorked,
         monthContract,
       };
