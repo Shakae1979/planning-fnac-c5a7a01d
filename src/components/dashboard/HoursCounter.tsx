@@ -364,7 +364,7 @@ export function HoursCounter() {
                       {r.name}
                     </button>
                   </td>
-                  <td className="px-3 py-1.5 text-xs text-muted-foreground capitalize">{r.role}</td>
+                  <td className="px-3 py-1.5 text-xs text-muted-foreground">{t(`role.${r.role}` as any) || r.role}</td>
                   <td className="px-3 py-1.5 text-right font-mono">{r.contract.toFixed(1)}h</td>
                   <td className="px-3 py-1.5 text-right font-mono border-l">{r.weekWorked.toFixed(1)}h</td>
                   <td className={`px-3 py-1.5 text-right font-mono font-semibold ${gapClass(weekGap)}`}>{weekGap >= 0 ? "+" : ""}{weekGap.toFixed(1)}h</td>
