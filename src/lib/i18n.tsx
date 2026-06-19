@@ -419,7 +419,7 @@ const translations = {
   "teamDay.title": { fr: "Planning équipe du jour", nl: "Teamplanning van de dag" },
   "teamDay.subtitle": { fr: "Qui travaille aujourd'hui ?", nl: "Wie werkt er vandaag?" },
   "teamDay.present": { fr: "Présents", nl: "Aanwezig" },
-  "teamDay.onLeave": { fr: "En congé", nl: "Met verlof" },
+  "teamDay.onLeave": { fr: "En congé", nl: "Verlof" },
   "teamDay.rest": { fr: "Repos", nl: "Vrije Dag" },
   "teamDay.holidayRest": { fr: "Férié / Repos", nl: "Feestdag / Rust" },
   "teamDay.today": { fr: "Aujourd'hui", nl: "Vandaag" },
