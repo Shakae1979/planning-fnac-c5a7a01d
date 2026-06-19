@@ -259,6 +259,10 @@ const translations = {
   "insights.noLeaves": { fr: "Aucune absence prévue.", nl: "Geen geplande afwezigheid." },
   "insights.byDepartment": { fr: "Par département (planifiés / total)", nl: "Per afdeling (gepland / totaal)" },
   "insights.dragToReorder": { fr: "Glisser pour réorganiser", nl: "Sleep om te herschikken" },
+  "insights.etp": { fr: "ETP", nl: "VTE" },
+  "insights.etpBase": { fr: "base 36h", nl: "basis 36u" },
+  "insights.etpContract": { fr: "Contractuel", nl: "Contractueel" },
+  "insights.etpPlanned": { fr: "Planifié", nl: "Gepland" },
 
   // ========== Schedule editor ==========
   "schedule.weekOf": { fr: "Semaine du", nl: "Week van" },
