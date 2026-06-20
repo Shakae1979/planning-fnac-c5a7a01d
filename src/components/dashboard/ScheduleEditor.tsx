@@ -201,10 +201,67 @@ export function ScheduleEditor() {
         const orderA = ra === -1 ? ROLE_ORDER.length : ra;
         const orderB = rb === -1 ? ROLE_ORDER.length : rb;
         if (orderA !== orderB) return orderA - orderB;
+        const soA = (a as any).sort_order ?? 0;
+        const soB = (b as any).sort_order ?? 0;
+        if (soA !== soB) return soA - soB;
         return a.name.localeCompare(b.name, "fr");
       });
     },
   });
+
+  const reorderMutation = useMutation({
+    mutationFn: async (updates: { id: string; sort_order: number }[]) => {
+      await Promise.all(
+        updates.map((u) =>
+          supabase.from("employees").update({ sort_order: u.sort_order } as any).eq("id", u.id)
+        )
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees", currentStore?.id] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      toast.success(t("schedule.orderSaved" as any));
+    },
+    onError: () => toast.error(t("schedule.orderError" as any)),
+  });
+
+  const dndSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !employees) return;
+    const activeEmp = employees.find((e) => e.id === active.id);
+    const overEmp = employees.find((e) => e.id === over.id);
+    if (!activeEmp || !overEmp || activeEmp.role !== overEmp.role) return;
+    const groupIds = employees.filter((e) => e.role === activeEmp.role).map((e) => e.id);
+    const oldIndex = groupIds.indexOf(active.id as string);
+    const newIndex = groupIds.indexOf(over.id as string);
+    if (oldIndex === -1 || newIndex === -1) return;
+    const newGroup = arrayMove(groupIds, oldIndex, newIndex);
+    const updates = newGroup.map((id, idx) => ({ id, sort_order: idx }));
+    // Optimistic cache update
+    queryClient.setQueryData(["employees", currentStore?.id], (old: any) => {
+      if (!Array.isArray(old)) return old;
+      const map = new Map(updates.map((u) => [u.id, u.sort_order]));
+      const next = old.map((e: any) => (map.has(e.id) ? { ...e, sort_order: map.get(e.id) } : e));
+      return next.sort((a: any, b: any) => {
+        const ra = ROLE_ORDER.indexOf(a.role);
+        const rb = ROLE_ORDER.indexOf(b.role);
+        const orderA = ra === -1 ? ROLE_ORDER.length : ra;
+        const orderB = rb === -1 ? ROLE_ORDER.length : rb;
+        if (orderA !== orderB) return orderA - orderB;
+        const soA = a.sort_order ?? 0;
+        const soB = b.sort_order ?? 0;
+        if (soA !== soB) return soA - soB;
+        return a.name.localeCompare(b.name, "fr");
+      });
+    });
+    reorderMutation.mutate(updates);
+  };
 
   const employees = isDirection ? directionEmployees : regularEmployees;
 
