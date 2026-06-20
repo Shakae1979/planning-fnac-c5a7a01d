@@ -171,6 +171,7 @@ export type Database = {
           email: string | null
           id: string
           is_active: boolean
+          is_cadre: boolean
           last_name: string | null
           must_change_password: boolean
           name: string
@@ -184,6 +185,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_active?: boolean
+          is_cadre?: boolean
           last_name?: string | null
           must_change_password?: boolean
           name: string
@@ -197,6 +199,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_active?: boolean
+          is_cadre?: boolean
           last_name?: string | null
           must_change_password?: boolean
           name?: string

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { Save, Shield, PenTool, User, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
@@ -23,6 +24,7 @@ interface Employee {
   role: string;
   contract_hours: number;
   is_active: boolean;
+  is_cadre?: boolean;
 }
 
 interface AppAccount {
@@ -47,6 +49,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("technique");
   const [hours, setHours] = useState("36");
+  const [isCadre, setIsCadre] = useState(false);
   const [accessRole, setAccessRole] = useState("user");
   const [savingAccessRole, setSavingAccessRole] = useState(false);
 
@@ -57,6 +60,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
       setEmail(employee.email || "");
       setRole(employee.role);
       setHours(String(employee.contract_hours));
+      setIsCadre(Boolean((employee as any).is_cadre));
     }
   }, [employee]);
 
@@ -87,6 +91,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
           email: email.trim() || null,
           role,
           contract_hours: Number(hours) || 36,
+          is_cadre: isCadre,
         })
         .eq("id", employee.id);
       if (error) throw error;
@@ -159,6 +164,18 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
           <div className="space-y-2">
             <Label htmlFor="emp-hours">{t("team.contractHours")}</Label>
             <Input id="emp-hours" type="number" value={hours} onChange={(e) => setHours(e.target.value)} min={0} max={48} className="font-mono-data" />
+          </div>
+
+          <div className="flex items-start justify-between gap-3 rounded-lg border border-border p-3">
+            <div className="flex-1 min-w-0">
+              <Label htmlFor="emp-cadre" className="text-sm font-medium cursor-pointer">
+                {t("employee.isCadre.label" as any)}
+              </Label>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                {t("employee.isCadre.help" as any)}
+              </p>
+            </div>
+            <Switch id="emp-cadre" checked={isCadre} onCheckedChange={setIsCadre} />
           </div>
 
           <Button className="w-full" onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>

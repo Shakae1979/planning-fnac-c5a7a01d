@@ -1180,6 +1180,11 @@ export function ScheduleEditor() {
                           <div className="flex-1 min-w-0">
                             <div className="font-medium flex items-center gap-1">
                               {getDisplayName(emp)}
+                              {(emp as any).is_cadre && (
+                                <span className="text-[9px] px-1 py-0 rounded border border-border text-muted-foreground font-normal">
+                                  {t("employee.cadreBadge" as any)}
+                                </span>
+                              )}
                               {!isCopyMode && (
                                 <button
                                   onClick={() => copyPreviousWeekForEmployee(emp.id)}

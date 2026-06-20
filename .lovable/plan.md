@@ -1,63 +1,84 @@
 ## Objectif
 
-Mettre en place un **CHANGELOG.md** à la racine du projet pour tracer chaque version de Planning Fnac, et l'alimenter rétroactivement avec les versions connues + à chaque future modification.
+Permettre aux **cadres** (responsables sans horaire précis qui dépassent souvent 36 h/sem) d'être **plafonnés à leurs heures de contrat** dans le calcul ETP, tout en conservant l'**affichage des heures réellement prestées** partout ailleurs.
 
-## Format adopté
+## Comportement
 
-Inspiré de [Keep a Changelog](https://keepachangelog.com), simplifié :
+- **Fiche employé** (`EmployeeSheet`) : nouvelle case à cocher **« Cadre (plafonner pour le calcul ETP) »**.
+- **Calcul ETP** (`OverviewInsights`, carte ETP) :
+  - Pour chaque employé `is_cadre = true` : `plannedForEtp = min(plannedRéel, contract_hours)`.
+  - Pour les autres : `plannedForEtp = plannedRéel` (inchangé).
+  - `etpPlanned = Σ plannedForEtp / 36`.
+- **Affichage carte ETP** : ajouter une petite mention sous le chiffre planifié → `"dont X cadre(s) plafonné(s)"` quand au moins un cadre est plafonné, pour expliquer la différence éventuelle avec les heures totales du dashboard.
+- **Partout ailleurs** (ScheduleEditor, TeamDayView, dashboard « Heures planifiées », exports, impression) : **aucun changement** — les heures réelles prestées restent affichées telles quelles.
+- **Visuel fiche employé** : petit badge `Cadre` à côté du nom dans le `ScheduleEditor` et dans le tableau employés (`TeamAndAccounts`), pour identifier en un coup d'œil.
 
-- Versions listées de la plus récente à la plus ancienne
-- Date au format belge `DD/MM/YYYY`
-- Une seule section par version : liste à puces des **fonctionnalités majeures** uniquement (pas de fixes mineurs ni détails DB)
-- Langue : **français uniquement**
+## Détails techniques
 
-Exemple :
+### 1. Base de données
 
-```markdown
-# Changelog — Planning Fnac
+Migration ajoutant un flag booléen sur `employees` :
 
-Toutes les évolutions notables de l'application.
-
-## v4.70 — 20/06/2026
-- Réorganisation des employés par glisser-déposer dans le planning hebdomadaire (ordre conservé par catégorie de rôle, partagé pour tout le magasin).
-
-## v4.69 — 19/06/2026
-- Nouveau rôle « Manager » : accès aux paramètres du magasin et au planning Direction Fnac (entre Éditeur et Admin).
-
-## v4.68 — …
-- …
+```sql
+ALTER TABLE public.employees
+  ADD COLUMN is_cadre boolean NOT NULL DEFAULT false;
 ```
 
-## Reconstruction de l'historique
+Pas de nouvelle policy — les UPDATE existantes couvrent la colonne. Pas de backfill (toutes les valeurs à `false`, l'utilisateur coche les cadres concernés).
 
-Reconstituer les ~10 dernières versions à partir de la mémoire projet (`mem://index.md` liste déjà les grandes features) et du dossier `supabase/migrations` (dates des changements DB importants). Les versions antérieures qu'on ne peut pas dater précisément seront regroupées sous une entrée `## Versions antérieures` listant les jalons sans date.
+### 2. UI fiche employé
 
-Versions identifiables à partir du contexte actuel :
-- **v4.70** (20/06/2026) — Drag & drop ordre employés
-- **v4.69** (19/06/2026) — Rôle Manager + paramètres magasin retirés à Éditeur
-- **v4.68** (19/06/2026) — Refonte gestion des rôles (politique d'accès Direction Fnac)
+Dans `EmployeeSheet.tsx`, sous le champ `contract_hours`, ajouter un `<Switch>` ou `<Checkbox>` avec label i18n :
+- FR : « Cadre — plafonner les heures planifiées aux heures de contrat dans le calcul ETP »
+- NL : « Kaderlid — geplande uren begrenzen tot contracturen voor FTE-berekening »
 
-Versions plus anciennes : entrée groupée listant les jalons mémorisés (heure de table par magasin, copier horaires N-1, semaines A/B, vue Gantt, jours fériés belges, vacances scolaires, etc.) sans numéro précis.
+### 3. Calcul ETP
 
-## Processus pour les futures versions
+Dans `OverviewInsights.tsx`, modifier la dérivation `totalPlanned` **uniquement pour la carte ETP** (ne pas toucher au `totalPlanned` global utilisé par la carte « Occupation ») :
 
-Règle ajoutée à `mem://index.md` (section Core) :
+```ts
+const totalPlannedForEtp = employees.reduce((sum, e) => {
+  const planned = plannedByEmp.get(e.id) ?? 0;
+  return sum + (e.is_cadre ? Math.min(planned, Number(e.contract_hours || 0)) : planned);
+}, 0);
+const cappedCount = employees.filter(e => e.is_cadre && (plannedByEmp.get(e.id) ?? 0) > Number(e.contract_hours || 0)).length;
+```
 
-> **À chaque bump de `src/lib/version.ts`, ajouter une entrée en haut de `CHANGELOG.md` avec la date du jour (DD/MM/YYYY) et un résumé FR des fonctionnalités livrées.**
+Puis `etpPlanned = totalPlannedForEtp / FTE_BASE` et ajout d'un sous-titre `"dont N cadre(s) plafonné(s)"` quand `cappedCount > 0`.
 
-Cette règle complète celle existante sur le bump de version. L'agent l'appliquera systématiquement.
+La carte « Occupation » et le dashboard `Heures planifiées` continuent d'utiliser les heures réelles.
 
-## Fichiers touchés
+### 4. Badges visuels
+
+Petit badge `Cadre` (variant `outline`, classe `text-xs`) à côté du nom :
+- `ScheduleEditor` (colonne employé)
+- `TeamAndAccounts` (ligne employé)
+
+### 5. Fichiers touchés
 
 ```text
-CHANGELOG.md            # nouveau fichier à la racine
-mem://index.md          # ajout de la règle "mettre à jour CHANGELOG à chaque bump"
-mem://features/versions # mise à jour de la mémoire existante avec le nouveau processus
+supabase/migrations/<new>.sql                         # ALTER TABLE employees ADD is_cadre
+src/integrations/supabase/types.ts                    # régénéré
+src/components/dashboard/EmployeeSheet.tsx            # toggle is_cadre + i18n
+src/components/dashboard/overview/OverviewInsights.tsx # calcul ETP plafonné + sous-titre
+src/components/dashboard/ScheduleEditor.tsx           # badge Cadre
+src/components/dashboard/TeamAndAccounts.tsx          # badge Cadre
+src/hooks/useStoreEmployees.tsx                       # exposer is_cadre dans le select
+src/lib/i18n.tsx                                       # nouvelles clés FR/NL
+src/lib/version.ts                                     # bump v4.71
+CHANGELOG.md                                           # entrée v4.71 — 20/06/2026
 ```
+
+### 6. i18n (FR / NL)
+
+- `employee.isCadre.label`
+- `employee.isCadre.help`
+- `employee.cadreBadge`
+- `insights.etpCappedNote`
 
 ## Hors scope
 
-- Pas d'affichage du changelog dans l'interface utilisateur (peut s'ajouter plus tard si besoin).
-- Pas de versioning sémantique strict (major.minor.patch) — on garde le format `vX.YY` actuel.
-- Pas de traduction NL.
-- Pas de génération automatique depuis git — l'agent maintient le fichier manuellement à chaque changement.
+- Pas de plafonnement automatique par rôle (le flag est manuel et indépendant du rôle « Responsables »).
+- Pas de modification du calcul d'occupation ni des heures affichées dans le planning/exports.
+- Pas d'historique des changements du flag.
+- Pas de plafond personnalisé par employé (toujours `contract_hours`).

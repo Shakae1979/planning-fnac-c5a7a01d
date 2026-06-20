@@ -346,6 +346,11 @@ export function TeamAndAccounts() {
                     <div>
                       <div className="flex items-center gap-2">
                         <button className="text-sm font-medium hover:underline cursor-pointer text-left" onClick={() => setEditingEmployee(emp)}>{getDisplayName(emp)}</button>
+                        {(emp as any).is_cadre && (
+                          <Badge variant="outline" className="text-[10px] py-0">
+                            {t("employee.cadreBadge" as any)}
+                          </Badge>
+                        )}
                         {account ? (
                           <Badge variant="outline" className="text-[10px] gap-1 py-0">
                             {account.role === "admin" ? <Shield className="h-3 w-3" /> : (account.role === "editor" || account.role === "manager") ? <PenTool className="h-3 w-3" /> : <User className="h-3 w-3" />}

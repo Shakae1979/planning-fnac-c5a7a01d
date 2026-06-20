@@ -1,0 +1,1 @@
+ALTER TABLE public.employees ADD COLUMN IF NOT EXISTS is_cadre boolean NOT NULL DEFAULT false;

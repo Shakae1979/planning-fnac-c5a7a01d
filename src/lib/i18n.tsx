@@ -265,6 +265,10 @@ const translations = {
   "insights.etpBase": { fr: "base 36h", nl: "basis 36u" },
   "insights.etpContract": { fr: "Contractuel", nl: "Contractueel" },
   "insights.etpPlanned": { fr: "Planifié", nl: "Gepland" },
+  "insights.etpCappedNote": { fr: "dont {n} cadre(s) plafonné(s) au contrat", nl: "waarvan {n} kaderlid(en) begrensd tot contract" },
+  "employee.isCadre.label": { fr: "Cadre", nl: "Kaderlid" },
+  "employee.isCadre.help": { fr: "Plafonne les heures planifiées aux heures de contrat dans le calcul ETP (l'affichage des heures réelles reste inchangé).", nl: "Begrenst de geplande uren tot de contracturen voor de FTE-berekening (de werkelijke uren blijven zichtbaar)." },
+  "employee.cadreBadge": { fr: "Cadre", nl: "Kaderlid" },
 
   // ========== Schedule editor ==========
   "schedule.weekOf": { fr: "Semaine du", nl: "Week van" },

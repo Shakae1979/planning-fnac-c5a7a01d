@@ -3,6 +3,11 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.71 — 20/06/2026
+- Nouveau drapeau **« Cadre »** sur la fiche employé : plafonne les heures planifiées aux heures de contrat **uniquement** dans le calcul ETP.
+- Les heures réelles prestées restent affichées telles quelles partout (planning, dashboard, exports).
+- Badge `Cadre` visible dans le planning et la liste équipe ; carte ETP indique combien de cadres ont été plafonnés.
+
 ## v4.70 — 20/06/2026
 - Réorganisation des employés par **glisser-déposer** dans le planning hebdomadaire (poignée à gauche de chaque ligne).
 - Ordre conservé à l'intérieur de chaque catégorie de rôle (Responsables, Technique, Éditorial, Stock, Caisse, Stagiaires) et partagé pour tout le magasin.
