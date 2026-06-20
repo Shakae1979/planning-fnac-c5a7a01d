@@ -1094,6 +1094,8 @@ export function ScheduleEditor() {
                 <th></th>
               </tr>
             </thead>
+            <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={employees?.map((e) => e.id) ?? []} strategy={verticalListSortingStrategy}>
             <tbody>
               {isLoading ? (
                 <tr>
@@ -1108,14 +1110,7 @@ export function ScheduleEditor() {
                   </td>
                 </tr>
               ) : (
-                (
-                <DndSortableBody
-                  ids={employees!.map((e) => e.id)}
-                  sensors={dndSensors}
-                  onDragEnd={handleDragEnd}
-                  disabled={isDirection}
-                >
-                {employees?.map((emp, idx) => {
+                employees?.map((emp, idx) => {
                   let totalMinutes = 0;
                   let breakMinutes = 0;
                   for (const day of DAYS) {
@@ -1154,9 +1149,28 @@ export function ScheduleEditor() {
                   const isFirstOfRole = idx > 0 && employees![idx - 1].role !== emp.role;
 
                   return (
-                    <tr key={emp.id} className={`border-b border-border/50 border-l-4 ${deptColor.border} ${isFirstOfRole ? "border-t-4 border-t-foreground/25" : ""} ${isUnderstaffed ? "bg-destructive/10" : isSource ? "bg-primary/10" : deptColor.bg}`}>
+                    <SortableTr
+                      key={emp.id}
+                      id={emp.id}
+                      disabled={isDirection}
+                      className={`border-b border-border/50 border-l-4 ${deptColor.border} ${isFirstOfRole ? "border-t-4 border-t-foreground/25" : ""} ${isUnderstaffed ? "bg-destructive/10" : isSource ? "bg-primary/10" : deptColor.bg}`}
+                    >
+                    {({ attributes, listeners, isDragging }) => (
+                    <>
                       <td className={`py-0.5 pr-1 sticky left-0 z-10 ${isUnderstaffed ? "bg-destructive/10" : isSource ? "bg-primary/10" : deptColor.bg}`}>
                         <div className="flex items-center gap-2">
+                          {!isDirection && (
+                            <button
+                              type="button"
+                              {...attributes}
+                              {...listeners}
+                              className="p-0.5 -ml-1 rounded text-muted-foreground/50 hover:text-foreground hover:bg-muted cursor-grab active:cursor-grabbing touch-none no-print"
+                              title={t("schedule.dragHint" as any)}
+                              aria-label={t("schedule.dragHint" as any)}
+                            >
+                              <GripVertical className="h-3.5 w-3.5" />
+                            </button>
+                          )}
                           {copiedEmployee !== null && !isSource && (
                             <Checkbox
                               checked={selectedTargets.has(emp.id)}
@@ -1335,11 +1349,15 @@ export function ScheduleEditor() {
                           </div>
                         )}
                       </td>
-                    </tr>
+                    </>
+                    )}
+                    </SortableTr>
                   );
                 })
               )}
             </tbody>
+            </SortableContext>
+            </DndContext>
           </table>
         </div>
       </div>
