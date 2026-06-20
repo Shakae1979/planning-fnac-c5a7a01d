@@ -357,7 +357,7 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
             </div>
           </div>
           <div className={`text-center text-xs font-semibold font-mono-data mt-1 ${diffColor}`}>
-            Δ {etpDiff >= 0 ? "+" : ""}{etpDiff.toFixed(1)} ETP
+            Δ {etpDiff >= 0 ? "+" : ""}{etpDiff.toFixed(1)}&nbsp;FTE
           </div>
           {cappedCount > 0 && (
             <div className="text-center text-[10px] text-muted-foreground mt-0.5">
