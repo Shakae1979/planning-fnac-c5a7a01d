@@ -1108,7 +1108,14 @@ export function ScheduleEditor() {
                   </td>
                 </tr>
               ) : (
-                employees?.map((emp, idx) => {
+                (
+                <DndSortableBody
+                  ids={employees!.map((e) => e.id)}
+                  sensors={dndSensors}
+                  onDragEnd={handleDragEnd}
+                  disabled={isDirection}
+                >
+                {employees?.map((emp, idx) => {
                   let totalMinutes = 0;
                   let breakMinutes = 0;
                   for (const day of DAYS) {
