@@ -338,7 +338,7 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
             <div className="flex items-center gap-2 flex-1">
               <Scale className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-semibold">{t("insights.etp")}</span>
-              <span className="text-[10px] text-muted-foreground">({t("insights.etpBase")})</span>
+              <span className="text-[10px] text-muted-foreground"></span>
             </div>
             <DragHandle />
           </div>
