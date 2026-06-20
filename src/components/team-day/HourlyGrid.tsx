@@ -32,6 +32,8 @@ const ROLES: { key: string; color: string; dot: string }[] = [
     dot: CENTRAL_ROLE_COLORS[key].dot,
   })),
   { key: "heure_de_table", color: "bg-transparent", dot: "bg-gray-300 border border-gray-400" },
+  { key: "tresorerie", color: "bg-violet-500/80", dot: "bg-violet-500" },
+  { key: "picking", color: "bg-cyan-500/80", dot: "bg-cyan-500" },
 ];
 
 const ROLE_BG: Record<string, string> = Object.fromEntries(ROLES.map((r) => [r.key, r.color]));
@@ -95,6 +97,10 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
   ROLES.forEach((r) => {
     if (r.key === "heure_de_table") {
       roleLabels[r.key] = t("hourlyGrid.lunchShort");
+    } else if (r.key === "tresorerie") {
+      roleLabels[r.key] = t("hourlyGrid.tresorerie");
+    } else if (r.key === "picking") {
+      roleLabels[r.key] = t("hourlyGrid.picking");
     } else {
       roleLabels[r.key] = t(`role.${r.key}.short` as any) || r.key;
     }
