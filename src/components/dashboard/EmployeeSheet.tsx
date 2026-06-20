@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Save, Shield, PenTool, User, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
+import { useAuth } from "@/hooks/useAuth";
 
 const ROLE_KEYS = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
 
@@ -44,6 +45,8 @@ interface EmployeeSheetProps {
 export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateAccountRole }: EmployeeSheetProps) {
   const queryClient = useQueryClient();
   const { t } = useI18n();
+  const { role: appRole } = useAuth();
+  const canEditCadre = appRole === "admin" || appRole === "manager";
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -91,7 +94,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
           email: email.trim() || null,
           role,
           contract_hours: Number(hours) || 36,
-          is_cadre: isCadre,
+          ...(canEditCadre ? { is_cadre: isCadre } : {}),
         })
         .eq("id", employee.id);
       if (error) throw error;
@@ -166,6 +169,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
             <Input id="emp-hours" type="number" value={hours} onChange={(e) => setHours(e.target.value)} min={0} max={48} className="font-mono-data" />
           </div>
 
+          {canEditCadre && (
           <div className="flex items-start justify-between gap-3 rounded-lg border border-border p-3">
             <div className="flex-1 min-w-0">
               <Label htmlFor="emp-cadre" className="text-sm font-medium cursor-pointer">
@@ -177,6 +181,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
             </div>
             <Switch id="emp-cadre" checked={isCadre} onCheckedChange={setIsCadre} />
           </div>
+          )}
 
           <Button className="w-full" onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>
             <Save className="h-4 w-4 mr-2" />
