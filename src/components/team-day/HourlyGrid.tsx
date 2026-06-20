@@ -32,7 +32,7 @@ const ROLES: { key: string; color: string; dot: string }[] = [
     dot: CENTRAL_ROLE_COLORS[key].dot,
   })),
   { key: "heure_de_table", color: "bg-transparent", dot: "bg-gray-300 border border-gray-400" },
-  { key: "tresorerie", color: "bg-violet-500/80", dot: "bg-violet-500" },
+  { key: "tresorerie", color: "bg-fuchsia-500", dot: "bg-fuchsia-500" },
   { key: "picking", color: "bg-cyan-500/80", dot: "bg-cyan-500" },
 ];
 
