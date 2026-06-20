@@ -175,6 +175,7 @@ export type Database = {
           must_change_password: boolean
           name: string
           role: string
+          sort_order: number
           store_id: string | null
         }
         Insert: {
@@ -187,6 +188,7 @@ export type Database = {
           must_change_password?: boolean
           name: string
           role?: string
+          sort_order?: number
           store_id?: string | null
         }
         Update: {
@@ -199,6 +201,7 @@ export type Database = {
           must_change_password?: boolean
           name?: string
           role?: string
+          sort_order?: number
           store_id?: string | null
         }
         Relationships: [
