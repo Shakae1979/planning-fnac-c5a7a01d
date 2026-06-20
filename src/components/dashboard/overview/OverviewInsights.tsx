@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { formatDateBE, formatLocalDate, getDisplayName } from "@/lib/format";
 
-type Employee = { id: string; name: string; last_name?: string | null; role: string; contract_hours: number };
+type Employee = { id: string; name: string; last_name?: string | null; role: string; contract_hours: number; is_cadre?: boolean };
 type Schedule = Record<string, any> & { employee_id: string };
 
 type Props = {
@@ -316,8 +316,19 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
       );
     }
     if (id === "etp") {
+      // Cap planned hours at contract_hours for "cadre" employees (no precise schedule)
+      let cappedCount = 0;
+      const totalPlannedForEtp = employees.reduce((sum, e) => {
+        const planned = plannedByEmp.get(e.id) ?? 0;
+        if (e.is_cadre) {
+          const cap = Number(e.contract_hours || 0);
+          if (planned > cap) cappedCount++;
+          return sum + Math.min(planned, cap);
+        }
+        return sum + planned;
+      }, 0);
       const etpContract = totalContract / FTE_BASE;
-      const etpPlanned = totalPlanned / FTE_BASE;
+      const etpPlanned = totalPlannedForEtp / FTE_BASE;
       const etpDiff = etpPlanned - etpContract;
       const diffColor =
         etpDiff < -0.3 ? "text-destructive" : etpDiff > 0.3 ? "text-warning" : "text-emerald-600";
@@ -348,6 +359,11 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
           <div className={`text-center text-xs font-semibold font-mono-data mt-1 ${diffColor}`}>
             Δ {etpDiff >= 0 ? "+" : ""}{etpDiff.toFixed(1)} ETP
           </div>
+          {cappedCount > 0 && (
+            <div className="text-center text-[10px] text-muted-foreground mt-0.5">
+              {(t("insights.etpCappedNote" as any) || "").replace("{n}", String(cappedCount))}
+            </div>
+          )}
         </>
       );
     }
