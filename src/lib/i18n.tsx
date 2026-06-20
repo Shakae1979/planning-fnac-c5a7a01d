@@ -622,6 +622,8 @@ const translations = {
   // ========== Hourly grid extras ==========
   "hourlyGrid.applySelection": { fr: "Appliquer à la sélection", nl: "Toepassen op selectie" },
   "hourlyGrid.lunchShort": { fr: "H. table", nl: "Pauze" },
+  "hourlyGrid.tresorerie": { fr: "Trésor.", nl: "Kas" },
+  "hourlyGrid.picking": { fr: "Picking", nl: "Picking" },
   "hourlyGrid.note": { fr: "Note...", nl: "Notitie..." },
   "hourlyGrid.apply": { fr: "Appliquer", nl: "Toepassen" },
 
