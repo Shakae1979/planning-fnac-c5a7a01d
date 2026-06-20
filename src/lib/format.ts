@@ -105,3 +105,21 @@ export function formatLocalDate(date: Date): string {
 export function getDisplayName(emp: { name: string; last_name?: string | null }): string {
   return [emp.name, emp.last_name].filter(Boolean).join(" ");
 }
+
+/** Sort employees by role order, then custom sort_order, then name. */
+export function sortByRoleOrder<T extends { role: string; name: string; sort_order?: number | null }>(
+  list: T[],
+  roleOrder: string[]
+): T[] {
+  return [...list].sort((a, b) => {
+    const ra = roleOrder.indexOf(a.role);
+    const rb = roleOrder.indexOf(b.role);
+    const orderA = ra === -1 ? roleOrder.length : ra;
+    const orderB = rb === -1 ? roleOrder.length : rb;
+    if (orderA !== orderB) return orderA - orderB;
+    const soA = a.sort_order ?? 0;
+    const soB = b.sort_order ?? 0;
+    if (soA !== soB) return soA - soB;
+    return a.name.localeCompare(b.name, "fr");
+  });
+}

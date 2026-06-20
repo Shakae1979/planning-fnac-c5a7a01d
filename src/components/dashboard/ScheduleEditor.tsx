@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
-import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin, Sparkles } from "lucide-react";
+import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin, Sparkles, GripVertical } from "lucide-react";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +12,53 @@ import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName, getISOYear, isoWeeksInYear, getMondayFromISOWeek } from "@/lib/format";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { SuggestionsDialog, type Suggestion, type SuggestionSource } from "./SuggestionsDialog";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+function SortableTr({
+  id,
+  disabled,
+  className,
+  children,
+}: {
+  id: string;
+  disabled?: boolean;
+  className?: string;
+  children: (handle: {
+    attributes: ReturnType<typeof useSortable>["attributes"];
+    listeners: ReturnType<typeof useSortable>["listeners"];
+    isDragging: boolean;
+  }) => React.ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    position: "relative",
+    zIndex: isDragging ? 10 : undefined,
+  };
+  return (
+    <tr ref={setNodeRef} style={style} className={className}>
+      {children({ attributes, listeners, isDragging })}
+    </tr>
+  );
+}
 
 /** Convert "HHhMM" or "HH:MM" or "HHMM" to "HH:MM" for storage */
 function parseTimeBE(input: string): string {
@@ -154,10 +201,67 @@ export function ScheduleEditor() {
         const orderA = ra === -1 ? ROLE_ORDER.length : ra;
         const orderB = rb === -1 ? ROLE_ORDER.length : rb;
         if (orderA !== orderB) return orderA - orderB;
+        const soA = (a as any).sort_order ?? 0;
+        const soB = (b as any).sort_order ?? 0;
+        if (soA !== soB) return soA - soB;
         return a.name.localeCompare(b.name, "fr");
       });
     },
   });
+
+  const reorderMutation = useMutation({
+    mutationFn: async (updates: { id: string; sort_order: number }[]) => {
+      await Promise.all(
+        updates.map((u) =>
+          supabase.from("employees").update({ sort_order: u.sort_order } as any).eq("id", u.id)
+        )
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees", currentStore?.id] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      toast.success(t("schedule.orderSaved" as any));
+    },
+    onError: () => toast.error(t("schedule.orderError" as any)),
+  });
+
+  const dndSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !employees) return;
+    const activeEmp = employees.find((e) => e.id === active.id);
+    const overEmp = employees.find((e) => e.id === over.id);
+    if (!activeEmp || !overEmp || activeEmp.role !== overEmp.role) return;
+    const groupIds = employees.filter((e) => e.role === activeEmp.role).map((e) => e.id);
+    const oldIndex = groupIds.indexOf(active.id as string);
+    const newIndex = groupIds.indexOf(over.id as string);
+    if (oldIndex === -1 || newIndex === -1) return;
+    const newGroup = arrayMove(groupIds, oldIndex, newIndex);
+    const updates = newGroup.map((id, idx) => ({ id, sort_order: idx }));
+    // Optimistic cache update
+    queryClient.setQueryData(["employees", currentStore?.id], (old: any) => {
+      if (!Array.isArray(old)) return old;
+      const map = new Map(updates.map((u) => [u.id, u.sort_order]));
+      const next = old.map((e: any) => (map.has(e.id) ? { ...e, sort_order: map.get(e.id) } : e));
+      return next.sort((a: any, b: any) => {
+        const ra = ROLE_ORDER.indexOf(a.role);
+        const rb = ROLE_ORDER.indexOf(b.role);
+        const orderA = ra === -1 ? ROLE_ORDER.length : ra;
+        const orderB = rb === -1 ? ROLE_ORDER.length : rb;
+        if (orderA !== orderB) return orderA - orderB;
+        const soA = a.sort_order ?? 0;
+        const soB = b.sort_order ?? 0;
+        if (soA !== soB) return soA - soB;
+        return a.name.localeCompare(b.name, "fr");
+      });
+    });
+    reorderMutation.mutate(updates);
+  };
 
   const employees = isDirection ? directionEmployees : regularEmployees;
 
@@ -990,6 +1094,8 @@ export function ScheduleEditor() {
                 <th></th>
               </tr>
             </thead>
+            <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={employees?.map((e) => e.id) ?? []} strategy={verticalListSortingStrategy}>
             <tbody>
               {isLoading ? (
                 <tr>
@@ -1043,9 +1149,28 @@ export function ScheduleEditor() {
                   const isFirstOfRole = idx > 0 && employees![idx - 1].role !== emp.role;
 
                   return (
-                    <tr key={emp.id} className={`border-b border-border/50 border-l-4 ${deptColor.border} ${isFirstOfRole ? "border-t-4 border-t-foreground/25" : ""} ${isUnderstaffed ? "bg-destructive/10" : isSource ? "bg-primary/10" : deptColor.bg}`}>
+                    <SortableTr
+                      key={emp.id}
+                      id={emp.id}
+                      disabled={isDirection}
+                      className={`border-b border-border/50 border-l-4 ${deptColor.border} ${isFirstOfRole ? "border-t-4 border-t-foreground/25" : ""} ${isUnderstaffed ? "bg-destructive/10" : isSource ? "bg-primary/10" : deptColor.bg}`}
+                    >
+                    {({ attributes, listeners, isDragging }) => (
+                    <>
                       <td className={`py-0.5 pr-1 sticky left-0 z-10 ${isUnderstaffed ? "bg-destructive/10" : isSource ? "bg-primary/10" : deptColor.bg}`}>
                         <div className="flex items-center gap-2">
+                          {!isDirection && (
+                            <button
+                              type="button"
+                              {...attributes}
+                              {...listeners}
+                              className="p-0.5 -ml-1 rounded text-muted-foreground/50 hover:text-foreground hover:bg-muted cursor-grab active:cursor-grabbing touch-none no-print"
+                              title={t("schedule.dragHint" as any)}
+                              aria-label={t("schedule.dragHint" as any)}
+                            >
+                              <GripVertical className="h-3.5 w-3.5" />
+                            </button>
+                          )}
                           {copiedEmployee !== null && !isSource && (
                             <Checkbox
                               checked={selectedTargets.has(emp.id)}
@@ -1224,11 +1349,15 @@ export function ScheduleEditor() {
                           </div>
                         )}
                       </td>
-                    </tr>
+                    </>
+                    )}
+                    </SortableTr>
                   );
                 })
               )}
             </tbody>
+            </SortableContext>
+            </DndContext>
           </table>
         </div>
       </div>

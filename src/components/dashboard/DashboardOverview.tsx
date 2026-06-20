@@ -147,6 +147,9 @@ export function DashboardOverview() {
     const orderA = ra === -1 ? ROLE_ORDER.length : ra;
     const orderB = rb === -1 ? ROLE_ORDER.length : rb;
     if (orderA !== orderB) return orderA - orderB;
+    const soA = (a as any).sort_order ?? 0;
+    const soB = (b as any).sort_order ?? 0;
+    if (soA !== soB) return soA - soB;
     return a.name.localeCompare(b.name, "fr");
   });
 

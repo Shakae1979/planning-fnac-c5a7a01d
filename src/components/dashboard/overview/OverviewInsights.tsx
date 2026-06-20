@@ -102,6 +102,9 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
       const oa = ra === -1 ? 999 : ra;
       const ob = rb === -1 ? 999 : rb;
       if (oa !== ob) return oa - ob;
+      const soA = (a as any).sort_order ?? 0;
+      const soB = (b as any).sort_order ?? 0;
+      if (soA !== soB) return soA - soB;
       return getDisplayName(a as any).localeCompare(getDisplayName(b as any), "fr");
     });
 

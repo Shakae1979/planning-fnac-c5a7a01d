@@ -98,6 +98,9 @@ export function useStoreEmployees(sortByRole?: string[]) {
         const ra = sortByRole.indexOf(a.role);
         const rb = sortByRole.indexOf(b.role);
         if (ra !== rb) return (ra === -1 ? 99 : ra) - (rb === -1 ? 99 : rb);
+        const soA = (a as any).sort_order ?? 0;
+        const soB = (b as any).sort_order ?? 0;
+        if (soA !== soB) return soA - soB;
         return a.name.localeCompare(b.name, "fr");
       });
     }
