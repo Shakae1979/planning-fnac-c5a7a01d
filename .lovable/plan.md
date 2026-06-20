@@ -1,86 +1,63 @@
 ## Objectif
 
-Permettre de **réorganiser l'ordre des vendeurs par glisser-déposer** dans l'éditeur de planning hebdomadaire (`ScheduleEditor`). L'ordre est **partagé pour tout le magasin**, **conservé à l'intérieur de chaque catégorie de rôle** (Responsables, Technique, Éditorial, Stock, Caisse, Stagiaires), et **activé partout** sans toggle.
+Mettre en place un **CHANGELOG.md** à la racine du projet pour tracer chaque version de Planning Fnac, et l'alimenter rétroactivement avec les versions connues + à chaque future modification.
 
-## Comportement
+## Format adopté
 
-- Une petite poignée (icône `GripVertical`) apparaît à gauche du nom de chaque employé dans la grille hebdomadaire de création de planning.
-- L'utilisateur glisse une ligne vers le haut/bas. Le déplacement est **limité au groupe de rôle courant** (impossible de faire passer un Caisse au-dessus d'un Responsable).
-- Au drop, l'ordre est sauvegardé immédiatement en base. Toast `Ordre mis à jour` / `Erreur de sauvegarde`.
-- L'ordre personnalisé est **utilisé partout où la liste d'employés est triée par rôle** (semaine, jour, grille horaire, congés) pour rester cohérent visuellement, mais le drag & drop n'est exposé que dans `ScheduleEditor`.
-- Si plusieurs utilisateurs éditent en même temps, le dernier qui drop gagne (simple, comme le reste de l'app).
+Inspiré de [Keep a Changelog](https://keepachangelog.com), simplifié :
 
-## Détails techniques
+- Versions listées de la plus récente à la plus ancienne
+- Date au format belge `DD/MM/YYYY`
+- Une seule section par version : liste à puces des **fonctionnalités majeures** uniquement (pas de fixes mineurs ni détails DB)
+- Langue : **français uniquement**
 
-### 1. Base de données
+Exemple :
 
-Migration ajoutant une colonne `sort_order` sur `employees` :
+```markdown
+# Changelog — Planning Fnac
 
-```sql
-ALTER TABLE public.employees
-  ADD COLUMN sort_order integer NOT NULL DEFAULT 0;
+Toutes les évolutions notables de l'application.
 
-CREATE INDEX employees_store_sort_idx
-  ON public.employees (store_id, role, sort_order);
+## v4.70 — 20/06/2026
+- Réorganisation des employés par glisser-déposer dans le planning hebdomadaire (ordre conservé par catégorie de rôle, partagé pour tout le magasin).
+
+## v4.69 — 19/06/2026
+- Nouveau rôle « Manager » : accès aux paramètres du magasin et au planning Direction Fnac (entre Éditeur et Admin).
+
+## v4.68 — …
+- …
 ```
 
-Initialisation : `sort_order` reste à 0 pour tous (le tri secondaire `name` prend le relais). Aucun backfill nécessaire — le drag réécrit les valeurs au fur et à mesure.
+## Reconstruction de l'historique
 
-Pas de nouvelle policy : les policies UPDATE existantes sur `employees` couvrent déjà la colonne.
+Reconstituer les ~10 dernières versions à partir de la mémoire projet (`mem://index.md` liste déjà les grandes features) et du dossier `supabase/migrations` (dates des changements DB importants). Les versions antérieures qu'on ne peut pas dater précisément seront regroupées sous une entrée `## Versions antérieures` listant les jalons sans date.
 
-### 2. Tri global
+Versions identifiables à partir du contexte actuel :
+- **v4.70** (20/06/2026) — Drag & drop ordre employés
+- **v4.69** (19/06/2026) — Rôle Manager + paramètres magasin retirés à Éditeur
+- **v4.68** (19/06/2026) — Refonte gestion des rôles (politique d'accès Direction Fnac)
 
-Dans **toutes** les sources qui trient par rôle (`ScheduleEditor`, `useStoreEmployees`, `TeamDayView`, `HourlyGrid` via la prop `sortByRole`, vues congés), remplacer la comparaison secondaire :
+Versions plus anciennes : entrée groupée listant les jalons mémorisés (heure de table par magasin, copier horaires N-1, semaines A/B, vue Gantt, jours fériés belges, vacances scolaires, etc.) sans numéro précis.
 
-```ts
-// avant
-if (orderA !== orderB) return orderA - orderB;
-return a.name.localeCompare(b.name, "fr");
+## Processus pour les futures versions
 
-// après
-if (orderA !== orderB) return orderA - orderB;
-if ((a.sort_order ?? 0) !== (b.sort_order ?? 0)) return (a.sort_order ?? 0) - (b.sort_order ?? 0);
-return a.name.localeCompare(b.name, "fr");
-```
+Règle ajoutée à `mem://index.md` (section Core) :
 
-Centraliser dans un helper `sortEmployees(list, roleOrder)` dans `src/lib/format.ts` pour éviter la divergence.
+> **À chaque bump de `src/lib/version.ts`, ajouter une entrée en haut de `CHANGELOG.md` avec la date du jour (DD/MM/YYYY) et un résumé FR des fonctionnalités livrées.**
 
-### 3. Drag & drop dans `ScheduleEditor`
+Cette règle complète celle existante sur le bump de version. L'agent l'appliquera systématiquement.
 
-- Dépendance : utiliser **`@dnd-kit/core` + `@dnd-kit/sortable`** (léger, accessible, déjà courant dans cet écosystème).
-- Envelopper le `<tbody>` des employés avec `DndContext` + `SortableContext` (stratégie `verticalListSortingStrategy`).
-- Chaque `<tr>` employé devient un composant `SortableEmployeeRow` qui expose un handle `<GripVertical>` via `useSortable`.
-- Sur `onDragEnd` :
-  - Refuser si le rôle de l'item glissé ≠ rôle de la cible (silent no-op, l'animation revient).
-  - Recalculer les `sort_order` du groupe de rôle : `0, 1, 2, …` pour la nouvelle séquence.
-  - Mise à jour optimiste du cache React Query (`["employees", storeId]`) puis `supabase.from("employees").upsert(rows, { onConflict: "id" })` avec `{ id, sort_order }`.
-  - Invalider les autres caches qui listent les employés (`["direction-employees"]`, `["store-employees", …]`).
-- Vue **Direction Fnac** : drag désactivé (les "employés" y sont des managers virtuels) — pas de handle affiché si `isDirection`.
-
-### 4. Fichiers touchés
+## Fichiers touchés
 
 ```text
-supabase/migrations/<new>.sql        # ajout colonne sort_order + index
-src/lib/format.ts                    # helper sortEmployees() partagé
-src/components/dashboard/ScheduleEditor.tsx  # DndContext, SortableRow, handle, mutation
-src/hooks/useStoreEmployees.tsx      # utiliser sortEmployees
-src/components/team-day/HourlyGrid.tsx       # tri via sort_order (déjà passé via prop)
-src/pages/TeamDayView.tsx + TeamWeekView.tsx # passer sort_order au tri
-src/integrations/supabase/types.ts   # régénéré automatiquement après migration
-src/lib/version.ts                   # bump v4.70
+CHANGELOG.md            # nouveau fichier à la racine
+mem://index.md          # ajout de la règle "mettre à jour CHANGELOG à chaque bump"
+mem://features/versions # mise à jour de la mémoire existante avec le nouveau processus
 ```
-
-### 5. i18n
-
-Ajouter dans `useI18n` :
-- `schedule.dragHint` : FR "Glisser pour réorganiser" / NL "Sleep om te herordenen"
-- `schedule.orderSaved` : FR "Ordre mis à jour" / NL "Volgorde bijgewerkt"
-- `schedule.orderError` : FR "Erreur lors du changement d'ordre" / NL "Fout bij wijzigen volgorde"
 
 ## Hors scope
 
-- Pas de drag entre catégories de rôle (changer le rôle d'un employé reste dans `EmployeeSheet`).
-- Pas de drag dans les vues congés ou la grille horaire (lecture seule de l'ordre).
-- Pas d'historique / undo : un mauvais drop se corrige par un nouveau drop.
-- Pas de toggle par magasin — activé pour tous.
-- Pas de réordonnancement par utilisateur (ordre global magasin seulement).
+- Pas d'affichage du changelog dans l'interface utilisateur (peut s'ajouter plus tard si besoin).
+- Pas de versioning sémantique strict (major.minor.patch) — on garde le format `vX.YY` actuel.
+- Pas de traduction NL.
+- Pas de génération automatique depuis git — l'agent maintient le fichier manuellement à chaque changement.
