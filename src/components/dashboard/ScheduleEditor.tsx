@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
-import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin, Sparkles } from "lucide-react";
+import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin, Sparkles, GripVertical } from "lucide-react";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +12,53 @@ import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName, getISOYear, isoWeeksInYear, getMondayFromISOWeek } from "@/lib/format";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { SuggestionsDialog, type Suggestion, type SuggestionSource } from "./SuggestionsDialog";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+function SortableTr({
+  id,
+  disabled,
+  className,
+  children,
+}: {
+  id: string;
+  disabled?: boolean;
+  className?: string;
+  children: (handle: {
+    attributes: ReturnType<typeof useSortable>["attributes"];
+    listeners: ReturnType<typeof useSortable>["listeners"];
+    isDragging: boolean;
+  }) => React.ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    position: "relative",
+    zIndex: isDragging ? 10 : undefined,
+  };
+  return (
+    <tr ref={setNodeRef} style={style} className={className}>
+      {children({ attributes, listeners, isDragging })}
+    </tr>
+  );
+}
 
 /** Convert "HHhMM" or "HH:MM" or "HHMM" to "HH:MM" for storage */
 function parseTimeBE(input: string): string {
