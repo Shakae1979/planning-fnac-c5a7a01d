@@ -135,6 +135,9 @@ const TeamDayView = () => {
       const orderA = ROLE_ORDER.indexOf(a.role);
       const orderB = ROLE_ORDER.indexOf(b.role);
       if (orderA !== orderB) return orderA - orderB;
+      const soA = (a as any).sort_order ?? 0;
+      const soB = (b as any).sort_order ?? 0;
+      if (soA !== soB) return soA - soB;
       return a.name.localeCompare(b.name, "fr");
     });
 
