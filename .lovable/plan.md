@@ -1,75 +1,86 @@
-# Nouveau rôle « Responsable » (entre Éditeur et Admin)
+## Objectif
 
-## Conseil dénomination FR / NL
+Permettre de **réorganiser l'ordre des vendeurs par glisser-déposer** dans l'éditeur de planning hebdomadaire (`ScheduleEditor`). L'ordre est **partagé pour tout le magasin**, **conservé à l'intérieur de chaque catégorie de rôle** (Responsables, Technique, Éditorial, Stock, Caisse, Stagiaires), et **activé partout** sans toggle.
 
-Trois pistes cohérentes avec le ton actuel de l'app (Planning Fnac, bilingue) :
+## Comportement
 
-| Option | FR | NL | Commentaire |
-|---|---|---|---|
-| **A (recommandée)** | Responsable | Manager | "Manager" est totalement naturel en NL belge et déjà utilisé en magasin Fnac. Court, clair, distinct de "Éditeur/Bewerker". |
-| B | Responsable | Verantwoordelijke | Plus formel, mais long et lourd visuellement dans les badges/sélecteurs. |
-| C | Manager | Manager | Identique FR/NL, ultra court — mais on perd la nuance "Responsable de magasin" en FR. |
+- Une petite poignée (icône `GripVertical`) apparaît à gauche du nom de chaque employé dans la grille hebdomadaire de création de planning.
+- L'utilisateur glisse une ligne vers le haut/bas. Le déplacement est **limité au groupe de rôle courant** (impossible de faire passer un Caisse au-dessus d'un Responsable).
+- Au drop, l'ordre est sauvegardé immédiatement en base. Toast `Ordre mis à jour` / `Erreur de sauvegarde`.
+- L'ordre personnalisé est **utilisé partout où la liste d'employés est triée par rôle** (semaine, jour, grille horaire, congés) pour rester cohérent visuellement, mais le drag & drop n'est exposé que dans `ScheduleEditor`.
+- Si plusieurs utilisateurs éditent en même temps, le dernier qui drop gagne (simple, comme le reste de l'app).
 
-→ Je pars sur **A : Responsable / Manager** sauf indication contraire.
+## Détails techniques
 
-Remarque : ne pas confondre avec la catégorie d'employé `responsable` (hiérarchie métier). Ici on parle d'un **rôle applicatif** (droits dans l'app). Pour éviter toute ambiguïté côté code, l'enum sera nommé `manager` (anglais, comme `admin`/`editor`/`user`), et seul l'affichage UI dira "Responsable" en FR / "Manager" en NL.
+### 1. Base de données
 
-## Hiérarchie cible
+Migration ajoutant une colonne `sort_order` sur `employees` :
 
-```text
-admin       → tout, tous magasins, gestion globale (magasins, comptes admin…)
-manager     → ses magasins assignés : éditeur + paramètres magasin + gestion comptes du magasin
-editor      → ses magasins assignés : planning, congés, équipe
-user        → lecture seule
+```sql
+ALTER TABLE public.employees
+  ADD COLUMN sort_order integer NOT NULL DEFAULT 0;
+
+CREATE INDEX employees_store_sort_idx
+  ON public.employees (store_id, role, sort_order);
 ```
 
-Le `manager` **hérite** de tous les droits `editor`, plus :
-- accès complet aux **Paramètres magasin** (heures d'ouverture, A/B, heure de table, et tout réglage futur ajouté là — ex. email de contact demandé pour l'éditeur)
-- gestion des **comptes utilisateurs de ses magasins** (créer / modifier rôle editor|user|manager / supprimer — comme le fait aujourd'hui un "store manager" via le flag `is_manager`)
-- ne peut **pas** créer d'admin, ni gérer les magasins eux-mêmes (création/suppression/renommage), ni voir les comptes d'autres magasins.
+Initialisation : `sort_order` reste à 0 pour tous (le tri secondaire `name` prend le relais). Aucun backfill nécessaire — le drag réécrit les valeurs au fur et à mesure.
 
-## Lien avec le flag `is_manager` existant
+Pas de nouvelle policy : les policies UPDATE existantes sur `employees` couvrent déjà la colonne.
 
-Aujourd'hui il y a déjà un mécanisme "store manager" porté par `user_store_assignments.is_manager` (utilisé dans `manage-users` edge function pour déléguer la gestion de comptes). Deux options :
+### 2. Tri global
 
-- **Option 1 (recommandée)** : conserver `is_manager` tel quel et **ajouter** le rôle global `manager`. Un `manager` est automatiquement traité comme `is_manager` sur tous ses magasins assignés. Avantage : pas de migration de données, rétrocompatible.
-- Option 2 : remplacer `is_manager` par le rôle. Plus propre mais casse l'existant et oblige à migrer les flags actuels.
+Dans **toutes** les sources qui trient par rôle (`ScheduleEditor`, `useStoreEmployees`, `TeamDayView`, `HourlyGrid` via la prop `sortByRole`, vues congés), remplacer la comparaison secondaire :
 
-→ Je pars sur l'**Option 1**.
+```ts
+// avant
+if (orderA !== orderB) return orderA - orderB;
+return a.name.localeCompare(b.name, "fr");
 
-## Plan de mise en œuvre
+// après
+if (orderA !== orderB) return orderA - orderB;
+if ((a.sort_order ?? 0) !== (b.sort_order ?? 0)) return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+return a.name.localeCompare(b.name, "fr");
+```
 
-### 1. Migration base de données
-- `ALTER TYPE public.app_role ADD VALUE 'manager';` (après `editor`, avant `user`).
-- Mettre à jour `has_role` : pas de changement nécessaire (fonctionne par valeur exacte).
-- **RLS** : étendre toutes les policies actuellement réservées à `admin` ou `editor` pour inclure `manager` là où c'est pertinent :
-  - `stores` UPDATE → autoriser `manager` sur ses magasins assignés (même condition que la policy éditeur du plan v4.58).
-  - `store_settings` ALL → idem.
-  - `employees`, `weekly_schedules`, `conges`, `day_comments`, `employee_day_flags`, `schedule_role_overrides` → ajouter `manager` partout où `editor` est autorisé.
+Centraliser dans un helper `sortEmployees(list, roleOrder)` dans `src/lib/format.ts` pour éviter la divergence.
 
-### 2. Edge function `manage-users`
-- Traiter `callerRole === 'manager'` comme un super-`is_manager` : autorisé à créer/modifier/supprimer comptes `editor`/`user`/`manager` (pas `admin`) **dans ses magasins assignés**.
-- Refuser `set_manager` pour `manager` (réservé admin — cohérent avec la logique actuelle).
-- Autoriser `bulk_import` pour `manager` uniquement sur ses magasins (ou rester admin-only — à confirmer ; par défaut je laisse admin-only).
+### 3. Drag & drop dans `ScheduleEditor`
 
-### 3. Front-end
-- **`useAuth`** : type `AppRole` ajoute `"manager"`.
-- **`Sidebar.tsx`** : afficher "Paramètres magasin" (`settings`) pour `admin | editor | manager`. Afficher "Comptes utilisateurs" pour `admin | manager` (aujourd'hui visible aux éditeurs *manager de magasin* via flag — on ajoute le rôle).
-- **Garde-fous** d'accès dans les vues sensibles (`StoreManager`, création admin…) : exclure `manager`.
-- **`UserManager`** : le manager voit uniquement les comptes des magasins qu'il gère ; le sélecteur de rôle propose `manager | editor | user` (pas `admin`).
-- **`StoreSelfSettings`** : accessible aux `manager` aussi (déjà OK une fois la RLS étendue).
+- Dépendance : utiliser **`@dnd-kit/core` + `@dnd-kit/sortable`** (léger, accessible, déjà courant dans cet écosystème).
+- Envelopper le `<tbody>` des employés avec `DndContext` + `SortableContext` (stratégie `verticalListSortingStrategy`).
+- Chaque `<tr>` employé devient un composant `SortableEmployeeRow` qui expose un handle `<GripVertical>` via `useSortable`.
+- Sur `onDragEnd` :
+  - Refuser si le rôle de l'item glissé ≠ rôle de la cible (silent no-op, l'animation revient).
+  - Recalculer les `sort_order` du groupe de rôle : `0, 1, 2, …` pour la nouvelle séquence.
+  - Mise à jour optimiste du cache React Query (`["employees", storeId]`) puis `supabase.from("employees").upsert(rows, { onConflict: "id" })` avec `{ id, sort_order }`.
+  - Invalider les autres caches qui listent les employés (`["direction-employees"]`, `["store-employees", …]`).
+- Vue **Direction Fnac** : drag désactivé (les "employés" y sont des managers virtuels) — pas de handle affiché si `isDirection`.
 
-### 4. i18n
-- `roles.manager` = FR "Responsable" / NL "Manager".
-- Mettre à jour tous les écrans qui affichent le rôle (UserManager, badges, filtres).
+### 4. Fichiers touchés
 
-### 5. Version
-- `src/lib/version.ts` → bump (v4.68).
+```text
+supabase/migrations/<new>.sql        # ajout colonne sort_order + index
+src/lib/format.ts                    # helper sortEmployees() partagé
+src/components/dashboard/ScheduleEditor.tsx  # DndContext, SortableRow, handle, mutation
+src/hooks/useStoreEmployees.tsx      # utiliser sortEmployees
+src/components/team-day/HourlyGrid.tsx       # tri via sort_order (déjà passé via prop)
+src/pages/TeamDayView.tsx + TeamWeekView.tsx # passer sort_order au tri
+src/integrations/supabase/types.ts   # régénéré automatiquement après migration
+src/lib/version.ts                   # bump v4.70
+```
+
+### 5. i18n
+
+Ajouter dans `useI18n` :
+- `schedule.dragHint` : FR "Glisser pour réorganiser" / NL "Sleep om te herordenen"
+- `schedule.orderSaved` : FR "Ordre mis à jour" / NL "Volgorde bijgewerkt"
+- `schedule.orderError` : FR "Erreur lors du changement d'ordre" / NL "Fout bij wijzigen volgorde"
 
 ## Hors scope
-- Pas de refonte du flag `is_manager` (conservé).
-- Pas de nouveau réglage "email de contact magasin" dans ce plan — à traiter dans une demande dédiée (tu l'as évoqué : on l'ajoutera ensuite, et il sera automatiquement éditable par `manager` grâce aux nouvelles RLS).
-- Pas de changement pour le rôle `user`.
 
-## Question ouverte
-Confirmes-tu **Responsable / Manager** comme libellés FR/NL ? Si tu préfères "Verantwoordelijke" en NL, je l'applique sans rien changer d'autre au plan.
+- Pas de drag entre catégories de rôle (changer le rôle d'un employé reste dans `EmployeeSheet`).
+- Pas de drag dans les vues congés ou la grille horaire (lecture seule de l'ordre).
+- Pas d'historique / undo : un mauvais drop se corrige par un nouveau drop.
+- Pas de toggle par magasin — activé pour tous.
+- Pas de réordonnancement par utilisateur (ordre global magasin seulement).
