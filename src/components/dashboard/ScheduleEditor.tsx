@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
-import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin, Sparkles, GripVertical } from "lucide-react";
+import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin, Sparkles, GripVertical, Coffee } from "lucide-react";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -346,6 +346,7 @@ export function ScheduleEditor() {
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set());
   const [copiedCell, setCopiedCell] = useState<{ empId: string; dayKey: string } | null>(null);
   const [activeInput, setActiveInput] = useState<{ key: string; raw: string } | null>(null);
+  const [editingBreak, setEditingBreak] = useState<Set<string>>(new Set());
 
   const [suggestDialogOpen, setSuggestDialogOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -1315,26 +1316,85 @@ export function ScheduleEditor() {
                             </div>
                             )}
                             {hasLunchBreak && !isDirection && !isRoulement && (
-                              <div className="flex items-center gap-0.5 mt-0.5" title={t("schedule.break" as any)}>
-                                <input
-                                  type="text"
-                                  value={getTimeInputValue(emp.id, `${day.key}_break_start`)}
-                                  onFocus={() => setActiveInput({ key: `${emp.id}__${day.key}_break_start`, raw: getTimeInputValue(emp.id, `${day.key}_break_start`) })}
-                                  onChange={(e) => setActiveInput({ key: `${emp.id}__${day.key}_break_start`, raw: e.target.value })}
-                                  onBlur={() => handleTimeBlur(emp.id, `${day.key}_break_start`)}
-                                  placeholder={t("schedule.break" as any)}
-                                  className="flex-1 min-w-0 px-0 py-0 text-[10px] rounded border border-dashed bg-muted/30 focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center text-muted-foreground"
-                                />
-                                <input
-                                  type="text"
-                                  value={getTimeInputValue(emp.id, `${day.key}_break_end`)}
-                                  onFocus={() => setActiveInput({ key: `${emp.id}__${day.key}_break_end`, raw: getTimeInputValue(emp.id, `${day.key}_break_end`) })}
-                                  onChange={(e) => setActiveInput({ key: `${emp.id}__${day.key}_break_end`, raw: e.target.value })}
-                                  onBlur={() => handleTimeBlur(emp.id, `${day.key}_break_end`)}
-                                  placeholder={t("schedule.break" as any)}
-                                  className="flex-1 min-w-0 px-0 py-0 text-[10px] rounded border border-dashed bg-muted/30 focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center text-muted-foreground"
-                                />
-                              </div>
+                            hasValue && (() => {
+                              const cellKey = `${emp.id}__${day.key}`;
+                              const bs = getValue(emp.id, `${day.key}_break_start`);
+                              const be = getValue(emp.id, `${day.key}_break_end`);
+                              const isBreakActive =
+                                activeInput?.key === `${cellKey}_break_start` ||
+                                activeInput?.key === `${cellKey}_break_end` ||
+                                editingBreak.has(cellKey);
+                              const hasBreak = !!(bs || be);
+                              const openEdit = () => {
+                                setEditingBreak((prev) => {
+                                  const next = new Set(prev);
+                                  next.add(cellKey);
+                                  return next;
+                                });
+                              };
+                              const closeEdit = () => {
+                                setEditingBreak((prev) => {
+                                  if (!prev.has(cellKey)) return prev;
+                                  const next = new Set(prev);
+                                  next.delete(cellKey);
+                                  return next;
+                                });
+                              };
+                              if (!isBreakActive && !hasBreak) {
+                                return (
+                                  <div className="flex justify-center mt-0.5">
+                                    <button
+                                      type="button"
+                                      onClick={openEdit}
+                                      className="p-0.5 rounded text-muted-foreground/40 hover:text-foreground hover:bg-muted transition-colors"
+                                      title={t("schedule.break" as any)}
+                                      aria-label={t("schedule.break" as any)}
+                                    >
+                                      <Coffee className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                );
+                              }
+                              if (!isBreakActive && hasBreak) {
+                                return (
+                                  <button
+                                    type="button"
+                                    onClick={openEdit}
+                                    className="w-full flex items-center justify-center gap-0.5 mt-0.5 px-0.5 py-0 text-[9px] italic text-muted-foreground/80 hover:text-foreground hover:bg-muted/40 rounded transition-colors font-mono-data"
+                                    title={t("schedule.break" as any)}
+                                  >
+                                    <Coffee className="h-2 w-2 shrink-0" />
+                                    <span className="truncate">
+                                      {formatTimeBE(bs) || "—"}–{formatTimeBE(be) || "—"}
+                                    </span>
+                                  </button>
+                                );
+                              }
+                              return (
+                                <div className="flex items-center gap-0.5 mt-0.5" title={t("schedule.break" as any)}>
+                                  <Coffee className="h-2 w-2 shrink-0 text-muted-foreground/60" />
+                                  <input
+                                    type="text"
+                                    value={getTimeInputValue(emp.id, `${day.key}_break_start`)}
+                                    onFocus={() => setActiveInput({ key: `${cellKey}_break_start`, raw: getTimeInputValue(emp.id, `${day.key}_break_start`) })}
+                                    onChange={(e) => setActiveInput({ key: `${cellKey}_break_start`, raw: e.target.value })}
+                                    onBlur={() => { handleTimeBlur(emp.id, `${day.key}_break_start`); closeEdit(); }}
+                                    placeholder="—"
+                                    autoFocus={editingBreak.has(cellKey) && !bs}
+                                    className="flex-1 min-w-0 px-0 py-0 text-[9px] italic rounded border border-dashed border-muted-foreground/20 bg-transparent focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center text-muted-foreground/80"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={getTimeInputValue(emp.id, `${day.key}_break_end`)}
+                                    onFocus={() => setActiveInput({ key: `${cellKey}_break_end`, raw: getTimeInputValue(emp.id, `${day.key}_break_end`) })}
+                                    onChange={(e) => setActiveInput({ key: `${cellKey}_break_end`, raw: e.target.value })}
+                                    onBlur={() => { handleTimeBlur(emp.id, `${day.key}_break_end`); closeEdit(); }}
+                                    placeholder="—"
+                                    className="flex-1 min-w-0 px-0 py-0 text-[9px] italic rounded border border-dashed border-muted-foreground/20 bg-transparent focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center text-muted-foreground/80"
+                                  />
+                                </div>
+                              );
+                            })()
                             )}
                             {ferieDay && (
                               <div className="text-center mt-0.5">
