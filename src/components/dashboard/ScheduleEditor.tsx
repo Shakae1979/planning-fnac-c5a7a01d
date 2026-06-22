@@ -346,6 +346,7 @@ export function ScheduleEditor() {
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set());
   const [copiedCell, setCopiedCell] = useState<{ empId: string; dayKey: string } | null>(null);
   const [activeInput, setActiveInput] = useState<{ key: string; raw: string } | null>(null);
+  const [editingBreak, setEditingBreak] = useState<Set<string>>(new Set());
 
   const [suggestDialogOpen, setSuggestDialogOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
