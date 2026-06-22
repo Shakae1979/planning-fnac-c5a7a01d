@@ -152,6 +152,23 @@ export function WeekNavigator({
   return (
     <TooltipProvider delayDuration={300}>
       <div className={cn("flex items-center gap-1.5 no-print", className)}>
+        {!isToday && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToday}
+                className="h-8 px-2 gap-1 border-foreground/20 text-foreground hover:bg-foreground/10 text-xs"
+              >
+                <Home className="h-3 w-3" />
+                <span className="hidden md:inline">{t("nav.today")}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t("nav.today")} (T)</TooltipContent>
+          </Tooltip>
+        )}
+
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -243,23 +260,6 @@ export function WeekNavigator({
           </TooltipTrigger>
           <TooltipContent>→ / Shift+→ {mode === "week" ? "(+4 sem.)" : "(+7 j.)"}</TooltipContent>
         </Tooltip>
-
-        {!isToday && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToday}
-                className="h-8 px-2 gap-1 border-foreground/20 text-foreground hover:bg-foreground/10 text-xs"
-              >
-                <Home className="h-3 w-3" />
-                <span className="hidden md:inline">{t("nav.today")}</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{t("nav.today")} (T)</TooltipContent>
-          </Tooltip>
-        )}
       </div>
     </TooltipProvider>
   );
