@@ -1,34 +1,19 @@
-## Objectif
-Créer un fichier `CHARTE_GRAPHIQUE.md` à la racine du projet (`/dev-server/`) qui documente exhaustivement la charte graphique de Planning Fnac (Belgique).
+## Problème
 
-## Contenu du fichier
-Le fichier comprendra les sections suivantes :
+Sur **/equipe-semaine** (vue Gantt), quand un jour est marqué férié via le drapeau (`day_comments.is_ferie = true`), la barre d'horaire de chaque employé reste affichée — seul un petit drapeau et le fond gris apparaissent. L'utilisateur attend que le férié **prenne le pas visuellement** et remplace la barre d'horaire par le bandeau "Férié".
 
-1. **Identité** — Application interne, ton professionnel, bilingue FR/NL, formats belges (DD/MM/YYYY, HHhMM, semaines ISO commençant lundi).
+## Correctif
 
-2. **Palette primaire** — Jaune Fnac `#E1A400` (HSL 40° 85% 44%), charbon `#1A1A1A`, texte sidebar `#CCCCCC`.
+Dans `src/pages/TeamWeekView.tsx`, dans la cellule jour (autour de la ligne 272), changer l'ordre des branches du rendu :
 
-3. **Surfaces** — Light mode : fond `#F7F7F7`, surface `#FFFFFF`, texte `#212121`. Dark mode : fond `#151B2B`, surface `#1E2333`, texte `#E2E8F0`.
+Ordre actuel : `congé → horaire (hasShift) → férié → roulement → location`
+Nouvel ordre : `congé → férié → horaire (hasShift) → roulement → location`
 
-4. **Typographie** — Inter (400–800) pour le texte, Roboto Mono pour les chiffres tabulaires (horaires, dates, ETP).
+Concrètement, quand `isFerie` est vrai (depuis `day_comments.is_ferie` OU legacy `FERIE`), on affiche le bandeau "Férié" plein largeur à la place de la barre d'horaire, même si `start/end` sont saisis. Les heures restent **conservées en base** (rien n'est supprimé), elles redeviennent visibles si on retire le drapeau férié.
 
-5. **Départements (6 rôles)** avec couleurs associées :
-   - Responsable : rouge `#EF4444`
-   - Technique : orange `#F97316`
-   - Éditorial : jaune `#EAB308`
-   - Stock : bleu `#3B82F6`
-   - Caisse : émeraude `#10B981`
-   - Stagiaire : rose `#EC4899`
+Aucun changement de logique métier : pas de modification de `computeNetHours`, ni des données, ni de l'éditeur, ni de la vue jour. Uniquement le rendu de la cellule du Gantt semaine.
 
-6. **États sémantiques** — Succès `#10B981`, Avertissement `#F59E0B`, Erreur `#EF4444`, Info scolaire FR `#FBBF24` / NL `#7DD3FC`.
+## Bump version
 
-7. **Tokens CSS** — Variables utilisées dans le projet : `--primary: 40 85% 44%`, `--background: 0 0% 97%`, `--sidebar-bg: 0 0% 10%`, `--radius: 0.5rem`.
-
-8. **Composants** — Boutons (radius `0.5rem`, fond jaune), inputs (focus ring jaune), badges pills, tableaux, cartes KPI.
-
-9. **Vues spécifiques** — Gantt (barres par rôle, sans colonne totale), congés (grille trimestrielle verticale, stagiaires exclus), mode Direction Fnac (vue agrégée multi-magasin, badges 3 caractères).
-
-10. **Contraintes de design** — Pas de dégradés violets, pas de serif, pas de hardcoded colors, design plat utilitaire, dark mode via variables CSS.
-
-## Livrable
-Un seul fichier : `CHARTE_GRAPHIQUE.md` à la racine du projet.
+- `src/lib/version.ts` : v4.51 → v4.52
+- `CHANGELOG.md` : nouvelle entrée en haut, date 23/06/2026, mention "Vue semaine : le marquage férié masque désormais la barre d'horaire et affiche le bandeau Férié à la place (heures conservées en base)."
