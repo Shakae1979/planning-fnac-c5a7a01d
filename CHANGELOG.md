@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.72 — 23/06/2026
+- **Vue semaine** : le marquage **férié** masque désormais la barre d'horaire et affiche le bandeau « Férié » plein largeur à la place.
+- Les heures saisies restent **conservées en base** et réapparaissent automatiquement si le drapeau férié est retiré.
+
 ## v4.71 — 20/06/2026
 - Nouveau drapeau **« Cadre »** sur la fiche employé : plafonne les heures planifiées aux heures de contrat **uniquement** dans le calcul ETP.
 - Les heures réelles prestées restent affichées telles quelles partout (planning, dashboard, exports).
