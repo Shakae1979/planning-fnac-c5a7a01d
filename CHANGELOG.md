@@ -3,6 +3,11 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.73 — 26/06/2026
+- Nouveau flux **« Mot de passe oublié »** depuis l'écran de connexion : envoi d'un email de réinitialisation.
+- Nouvelle page publique `/reset-password` pour choisir un nouveau mot de passe (min. 8 caractères).
+- Le lien « Contacter l'administrateur » est remplacé par ce flux self-service.
+
 ## v4.72 — 23/06/2026
 - **Vue semaine** : le marquage **férié** masque désormais la barre d'horaire et affiche le bandeau « Férié » plein largeur à la place.
 - Les heures saisies restent **conservées en base** et réapparaissent automatiquement si le drapeau férié est retiré.
