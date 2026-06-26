@@ -5,11 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 export default function Login() {
   const { signIn } = useAuth();
@@ -18,9 +15,6 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [forgotOpen, setForgotOpen] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState("");
-  const [forgotLoading, setForgotLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,18 +25,20 @@ export default function Login() {
     setLoading(false);
   };
 
-  const handleForgot = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setForgotLoading(true);
-    const PROD_URL = "https://planning.befnac.be";
-    const isProd = window.location.hostname === "planning.befnac.be";
-    const redirectTo = `${isProd ? window.location.origin : PROD_URL}/reset-password`;
-    await supabase.auth.resetPasswordForEmail(forgotEmail, { redirectTo });
-    setForgotLoading(false);
-    setForgotOpen(false);
-    setForgotEmail("");
-    toast.success(t("login.forgotSent"));
-  };
+  const forgotMailto = (() => {
+    const subject = "Demande de réinitialisation de mot de passe / Wachtwoord reset aanvraag";
+    const body = [
+      "Bonjour Karim,",
+      "",
+      "Je souhaite réinitialiser mon mot de passe Planning Fnac.",
+      "- Nom / Naam : ",
+      "- Email du compte / E-mailadres : ",
+      "- Magasin / Winkel : ",
+      "",
+      "Merci / Bedankt.",
+    ].join("\n");
+    return `mailto:karim.haoud@be.fnac.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  })();
 
   return (
     <div
@@ -93,45 +89,16 @@ export default function Login() {
             </Button>
           </form>
           <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setForgotOpen(true)}
+            <a
+              href={forgotMailto}
               className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
             >
               <KeyRound className="h-3.5 w-3.5" />
               {t("login.forgot")}
-            </button>
+            </a>
           </div>
         </CardContent>
       </Card>
-      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("login.forgotTitle")}</DialogTitle>
-            <DialogDescription>{t("login.forgotDesc")}</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleForgot} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="forgot-email">{t("login.email")}</Label>
-              <Input
-                id="forgot-email"
-                type="email"
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
-                placeholder="email@be.fnac.com"
-                required
-                autoFocus
-              />
-            </div>
-            <DialogFooter>
-              <Button type="submit" disabled={forgotLoading} className="w-full">
-                {forgotLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
-                {t("login.forgotSend")}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
