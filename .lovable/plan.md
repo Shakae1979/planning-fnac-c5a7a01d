@@ -1,19 +1,42 @@
-## Problème
+# Mot de passe oublié — vrai flux par email
 
-Sur **/equipe-semaine** (vue Gantt), quand un jour est marqué férié via le drapeau (`day_comments.is_ferie = true`), la barre d'horaire de chaque employé reste affichée — seul un petit drapeau et le fond gris apparaissent. L'utilisateur attend que le férié **prenne le pas visuellement** et remplace la barre d'horaire par le bandeau "Férié".
+## Objectif
+Remplacer sur la page `/login` le lien actuel "Contacter l'administrateur" par "Mot de passe oublié ?" qui déclenche un vrai envoi d'email de réinitialisation Supabase, avec une page dédiée `/reset-password` pour saisir le nouveau mot de passe.
 
-## Correctif
+Cela lève la contrainte mémorisée "no password reset" — je mettrai à jour la mémoire projet en conséquence.
 
-Dans `src/pages/TeamWeekView.tsx`, dans la cellule jour (autour de la ligne 272), changer l'ordre des branches du rendu :
+## Étapes
 
-Ordre actuel : `congé → horaire (hasShift) → férié → roulement → location`
-Nouvel ordre : `congé → férié → horaire (hasShift) → roulement → location`
+1. **Page Login (`src/pages/Login.tsx` ou équivalent)**
+   - Remplacer le lien `mailto:` admin par un bouton "Mot de passe oublié ?" (FR) / "Wachtwoord vergeten?" (NL).
+   - Au clic : ouvrir une petite modale demandant l'email, puis appeler  
+     `supabase.auth.resetPasswordForEmail(email, { redirectTo: ${window.location.origin}/reset-password })`.
+   - Toast de confirmation : "Si un compte existe, un email a été envoyé."
 
-Concrètement, quand `isFerie` est vrai (depuis `day_comments.is_ferie` OU legacy `FERIE`), on affiche le bandeau "Férié" plein largeur à la place de la barre d'horaire, même si `start/end` sont saisis. Les heures restent **conservées en base** (rien n'est supprimé), elles redeviennent visibles si on retire le drapeau férié.
+2. **Nouvelle page publique `/reset-password`**
+   - Route ajoutée dans `src/App.tsx` (hors `ProtectedRoute`).
+   - Détecte le token `type=recovery` dans l'URL hash (Supabase pose automatiquement la session de récupération).
+   - Formulaire : nouveau mot de passe + confirmation, validation min 8 caractères.
+   - Appel : `supabase.auth.updateUser({ password })`.
+   - Succès → toast + redirection vers `/login`.
 
-Aucun changement de logique métier : pas de modification de `computeNetHours`, ni des données, ni de l'éditeur, ni de la vue jour. Uniquement le rendu de la cellule du Gantt semaine.
+3. **Traductions** (`src/lib/i18n.tsx`)
+   - Nouvelles clés FR/NL : `auth.forgotPassword`, `auth.forgotPasswordTitle`, `auth.resetEmailSent`, `auth.newPassword`, `auth.confirmPassword`, `auth.resetSuccess`, `auth.passwordTooShort`, `auth.passwordsDontMatch`.
 
-## Bump version
+4. **Email de récupération**
+   - Le template Supabase par défaut fonctionne immédiatement.
+   - Optionnel (pas inclus par défaut) : scaffolder les templates auth Lovable pour brander l'email Fnac. À demander seulement si tu veux le style Fnac dans l'email.
 
-- `src/lib/version.ts` : v4.51 → v4.52
-- `CHANGELOG.md` : nouvelle entrée en haut, date 23/06/2026, mention "Vue semaine : le marquage férié masque désormais la barre d'horaire et affiche le bandeau Férié à la place (heures conservées en base)."
+5. **Mémoire & versioning**
+   - Supprimer la contrainte "no password reset" de `mem://index.md` et créer `mem://features/auth/mot-de-passe-oublie.md` documentant le flux.
+   - Bump version à `v4.73` dans `src/lib/version.ts`.
+   - Entrée en haut de `CHANGELOG.md` : `## v4.73 — JJ/MM/2026` avec "Ajout du flux Mot de passe oublié".
+
+## Détails techniques
+- `/reset-password` doit être déclarée **avant** toute redirection auth (sinon l'utilisateur non connecté est renvoyé vers `/login` et perd le token).
+- Le hash `#access_token=...&type=recovery` est consommé automatiquement par le client Supabase au montage ; on attend simplement que `onAuthStateChange` émette `PASSWORD_RECOVERY` avant d'afficher le formulaire.
+- Aucune migration DB requise.
+
+## Hors scope
+- Branding de l'email (template Lovable) — à faire dans un second temps si souhaité.
+- Verrouillage anti-bruteforce (rate-limiting déjà géré côté Supabase).
