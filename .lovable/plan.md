@@ -1,30 +1,21 @@
-# Fix: lien de réinitialisation renvoie vers Lovable
+## Plan
 
-## Cause
-`resetPasswordForEmail` utilise `${window.location.origin}` comme `redirectTo`. Quand la demande est faite depuis l'aperçu Lovable (`*.lovableproject.com`), le lien email pointe vers Lovable au lieu de `planning.befnac.be`.
+1. **Corriger l’accès à la page de réinitialisation**
+   - S’assurer que la route `/reset-password` existe bien dans l’application publiée.
+   - Publier la version qui contient cette page, car le screenshot montre encore une ancienne version en ligne.
 
-De plus, après clic sur le lien email, Supabase redirige vers son **Site URL** par défaut s'il n'est pas explicitement défini, ce qui peut aussi renvoyer ailleurs.
+2. **Configurer le bon domaine de retour**
+   - Vérifier que les liens de réinitialisation renvoient vers `https://planning.befnac.be/reset-password`.
+   - Ajouter/valider ce domaine dans la configuration d’authentification Lovable Cloud pour éviter les redirections vers Lovable ou une page introuvable.
 
-## Correctif
+3. **Permettre une vraie réinitialisation**
+   - Quand l’utilisateur clique sur le lien reçu par email, afficher le formulaire “Nouveau mot de passe”.
+   - Après validation, enregistrer le nouveau mot de passe et rediriger vers la connexion avec un message de confirmation.
 
-1. **`src/pages/Login.tsx`** — Forcer la redirection vers le domaine de production :
-   ```ts
-   const PROD_URL = "https://planning.befnac.be";
-   const redirectTo = window.location.hostname === "planning.befnac.be"
-     ? `${window.location.origin}/reset-password`
-     : `${PROD_URL}/reset-password`;
-   await supabase.auth.resetPasswordForEmail(forgotEmail, { redirectTo });
-   ```
-   Ainsi, même si un admin demande un reset depuis l'aperçu Lovable, l'email pointera vers `planning.befnac.be/reset-password`.
+4. **Ne pas bloquer l’utilisateur si le lien est invalide**
+   - Les liens expirés ne peuvent pas être rendus permanents pour des raisons de sécurité.
+   - Par contre, au lieu d’une 404, afficher une page claire avec un bouton pour demander immédiatement un nouveau lien de réinitialisation.
 
-2. **Configurer Supabase Auth** (via `configure_auth` / tool) — m'assurer que :
-   - **Site URL** = `https://planning.befnac.be`
-   - **Additional Redirect URLs** inclut `https://planning.befnac.be/reset-password`
-   
-   (À faire côté config Cloud ; je vérifierai et ajusterai.)
-
-3. **Bump version** → `v4.74` + entrée CHANGELOG : « Correctif lien email de réinitialisation pointant vers le domaine de production ».
-
-## Hors scope
-- Pas de changement de design ni de logique métier.
-- Pas de branding email (template Lovable) — séparé.
+5. **Maintenance version**
+   - Bumper la version suivante.
+   - Ajouter l’entrée correspondante dans le changelog.
