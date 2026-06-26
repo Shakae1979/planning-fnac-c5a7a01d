@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.74 — 26/06/2026
+- Correctif : le lien de l'email **« Mot de passe oublié »** pointe désormais toujours vers `https://planning.befnac.be/reset-password`, même si la demande est effectuée depuis l'aperçu Lovable.
+
 ## v4.73 — 26/06/2026
 - Nouveau flux **« Mot de passe oublié »** depuis l'écran de connexion : envoi d'un email de réinitialisation.
 - Nouvelle page publique `/reset-password` pour choisir un nouveau mot de passe (min. 8 caractères).

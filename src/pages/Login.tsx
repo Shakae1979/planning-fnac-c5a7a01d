@@ -34,9 +34,10 @@ export default function Login() {
   const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault();
     setForgotLoading(true);
-    await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+    const PROD_URL = "https://planning.befnac.be";
+    const isProd = window.location.hostname === "planning.befnac.be";
+    const redirectTo = `${isProd ? window.location.origin : PROD_URL}/reset-password`;
+    await supabase.auth.resetPasswordForEmail(forgotEmail, { redirectTo });
     setForgotLoading(false);
     setForgotOpen(false);
     setForgotEmail("");
