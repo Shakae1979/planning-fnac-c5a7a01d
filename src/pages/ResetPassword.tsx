@@ -1,46 +1,94 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, KeyRound } from "lucide-react";
+import { Loader2, KeyRound, Mail } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
+
+const getResetRedirectUrl = () => {
+  const PROD_URL = "https://planning.befnac.be";
+  const isProd = window.location.hostname === "planning.befnac.be";
+  return `${isProd ? window.location.origin : PROD_URL}/reset-password`;
+};
+
+const readAuthUrlParams = () => {
+  const searchParams = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+
+  return {
+    code: searchParams.get("code"),
+    error: searchParams.get("error") || hashParams.get("error"),
+    errorCode: searchParams.get("error_code") || hashParams.get("error_code"),
+    errorDescription: searchParams.get("error_description") || hashParams.get("error_description"),
+  };
+};
 
 export default function ResetPassword() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
-  const [invalid, setInvalid] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [needsNewLink, setNeedsNewLink] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const authUrlParams = useMemo(readAuthUrlParams, []);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") setReady(true);
-    });
-    // Also check existing session (token may already be consumed)
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setReady(true);
-    });
-    const timer = setTimeout(() => {
-      if (!ready) {
-        supabase.auth.getSession().then(({ data }) => {
-          if (!data.session) setInvalid(true);
-        });
-      }
-    }, 1500);
-    return () => {
-      sub.subscription.unsubscribe();
-      clearTimeout(timer);
+    let mounted = true;
+
+    const markReady = () => {
+      if (!mounted) return;
+      setReady(true);
+      setNeedsNewLink(false);
+      setChecking(false);
+      window.history.replaceState({}, document.title, "/reset-password");
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    const markNeedsNewLink = () => {
+      if (!mounted) return;
+      setReady(false);
+      setNeedsNewLink(true);
+      setChecking(false);
+    };
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || session?.user) markReady();
+    });
+
+    const initialiseRecovery = async () => {
+      if (authUrlParams.error || authUrlParams.errorCode || authUrlParams.errorDescription) {
+        markNeedsNewLink();
+        return;
+      }
+
+      if (authUrlParams.code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(authUrlParams.code);
+        if (error) markNeedsNewLink();
+        else markReady();
+        return;
+      }
+
+      const { data } = await supabase.auth.getSession();
+      if (data.session) markReady();
+      else markNeedsNewLink();
+    };
+
+    initialiseRecovery();
+
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
+  }, [authUrlParams.code, authUrlParams.error, authUrlParams.errorCode, authUrlParams.errorDescription]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +113,20 @@ export default function ResetPassword() {
     navigate("/login", { replace: true });
   };
 
+  const handleResend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setResendLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: getResetRedirectUrl() });
+    setResendLoading(false);
+    if (error) {
+      setError(t("reset.resendError"));
+      return;
+    }
+    toast.success(t("reset.resendSuccess"));
+    navigate("/login", { replace: true });
+  };
+
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 relative"
@@ -84,17 +146,34 @@ export default function ResetPassword() {
           <CardTitle className="text-lg font-semibold text-foreground">{t("reset.title")}</CardTitle>
         </CardHeader>
         <CardContent>
-          {invalid && !ready ? (
-            <div className="space-y-4">
-              <p className="text-sm text-destructive font-medium text-center">{t("reset.invalidLink")}</p>
-              <Button className="w-full" onClick={() => navigate("/login")}>
-                {t("login.submit")}
-              </Button>
-            </div>
-          ) : !ready ? (
+          {checking ? (
             <div className="flex justify-center py-6">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
+          ) : needsNewLink && !ready ? (
+            <form onSubmit={handleResend} className="space-y-4">
+              <p className="text-sm text-muted-foreground text-center">{t("reset.invalidLink")}</p>
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">{t("login.email")}</Label>
+                <Input
+                  id="reset-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="email@be.fnac.com"
+                  required
+                  autoFocus
+                />
+              </div>
+              {error && <p className="text-sm text-destructive font-medium">{error}</p>}
+              <Button type="submit" className="w-full" disabled={resendLoading}>
+                {resendLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                {t("reset.resend")}
+              </Button>
+              <Button type="button" variant="ghost" className="w-full" onClick={() => navigate("/login")}>
+                {t("reset.backLogin")}
+              </Button>
+            </form>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
