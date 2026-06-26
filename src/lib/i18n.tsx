@@ -242,7 +242,11 @@ const translations = {
   "reset.tooShort": { fr: "Le mot de passe doit contenir au moins 8 caractères", nl: "Wachtwoord moet minstens 8 tekens bevatten" },
   "reset.mismatch": { fr: "Les mots de passe ne correspondent pas", nl: "Wachtwoorden komen niet overeen" },
   "reset.success": { fr: "Mot de passe mis à jour, vous pouvez vous reconnecter.", nl: "Wachtwoord bijgewerkt, u kunt opnieuw inloggen." },
-  "reset.invalidLink": { fr: "Lien invalide ou expiré. Demandez un nouveau lien.", nl: "Ongeldige of verlopen link. Vraag een nieuwe link aan." },
+  "reset.invalidLink": { fr: "Pour réinitialiser votre mot de passe, saisissez votre email et recevez un nouveau lien sécurisé.", nl: "Voer uw e-mailadres in om uw wachtwoord opnieuw in te stellen en een nieuwe beveiligde link te ontvangen." },
+  "reset.resend": { fr: "Recevoir un nouveau lien", nl: "Nieuwe link ontvangen" },
+  "reset.resendSuccess": { fr: "Si un compte existe, un nouveau lien a été envoyé.", nl: "Als er een account bestaat, is er een nieuwe link verzonden." },
+  "reset.resendError": { fr: "Impossible d'envoyer le lien pour le moment.", nl: "Kan de link momenteel niet verzenden." },
+  "reset.backLogin": { fr: "Retour à la connexion", nl: "Terug naar aanmelden" },
 
   // ========== Dashboard overview ==========
   "overview.activeEmployees": { fr: "Collaborateurs actifs", nl: "Actieve medewerkers" },
