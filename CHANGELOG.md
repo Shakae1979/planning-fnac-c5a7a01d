@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.76 — 26/06/2026
+- **Mot de passe oublié** : suppression du flux de réinitialisation automatique. Le lien ouvre désormais un email pré-rempli vers l'administrateur (`karim.haoud@be.fnac.com`) qui réinitialise manuellement.
+- Page `/reset-password` retirée.
+
 ## v4.75 — 26/06/2026
 - Correctif : la page `/reset-password` ouvre réellement le formulaire de nouveau mot de passe quand le lien est valide.
 - Si le lien de réinitialisation n'est pas utilisable, l'utilisateur peut redemander immédiatement un nouveau lien sécurisé depuis la même page, sans rester bloqué sur une 404.
