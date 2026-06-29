@@ -340,7 +340,7 @@ const TeamWeekView = () => {
                                   </div>
                                 ) : isLocation ? (
                                   <div className="absolute inset-0 flex items-center px-0.5">
-                                    <div className="h-5 rounded bg-indigo-500 opacity-80 flex items-center justify-center text-[9px] font-semibold text-white w-full gap-0.5">
+                                    <div className={`h-5 rounded opacity-80 flex items-center justify-center text-[9px] font-semibold text-white w-full gap-0.5 ${start === "WV" ? "bg-gray-400" : "bg-indigo-500"}`}>
                                       <MapPin className="h-3 w-3" />
                                       {start}
                                     </div>
