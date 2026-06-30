@@ -1,22 +1,26 @@
 ## Objectif
-Les vendeurs (rôle `user`) accèdent à la vue Équipe du jour et peuvent visuellement éditer les commentaires/cases dans la grille horaire, même si la RLS bloque la sauvegarde. On passe l'interface en **lecture seule** pour ce rôle.
+Rendre la première ligne d'en-tête des tableaux de congés fixe lors du défilement vertical, pour garder visibles les colonnes (dates, rôles ou employés) en permanence.
 
-## Changements
+## Fichiers concernés
+- `src/components/dashboard/conges/MonthGrid.tsx` — vue mensuelle standard
+- `src/components/dashboard/conges/QuarterView.tsx` — vue trimestrielle (3 colonnes mensuelles)
+- `src/components/dashboard/conges/DirectionMonthGrid.tsx` — vue mensuelle Direction Fnac
 
-### `src/components/team-day/HourlyGrid.tsx`
-- Lire `role` depuis `useAuth()`. Définir `canEdit = role === "admin" || role === "editor" || role === "manager"`.
-- Si `!canEdit` :
-  - Masquer les boutons « Imprimer » mis à part (garder Imprimer) + cacher bouton « Appliquer » + désactiver la sélection multi (`handleCellClick` no-op, pas de `cursor-pointer`, pas de `hover:opacity-80`).
-  - Remplacer l'`<Input>` de commentaire par un simple `<span>` lecture seule (affiché uniquement s'il y a du texte), pour ne plus laisser croire qu'on peut écrire.
-  - Ne pas exposer `save` (canSave toujours `false`).
+## Implémentation
+1. **MonthGrid.tsx**
+   - Ajouter `sticky top-0 z-10` sur la balise `<thead>` (ou `<tr>`).
+   - Conserver le fond `bg-muted/30` pour éviter la transparence par-dessus le contenu.
+   - Vérifier que le conteneur parent `overflow-x-auto` autorise bien le sticky (remplacer éventuellement par `overflow-auto` si nécessaire).
 
-### `src/pages/TeamDayView.tsx`
-- Vérifier qu'aucun bouton « Enregistrer » global lié à HourlyGrid n'est rendu pour les vendeurs (déjà conditionné via `onStateChange` → si `canSave` reste false, rien ne s'affiche).
+2. **QuarterView.tsx**
+   - Même traitement sur le `<thead>` / `<tr>` de chaque `VerticalMonthColumn`.
+   - Comme le conteneur global est `overflow-x-auto`, s'assurer que le sticky vertical fonctionne malgré le scroll horizontal.
 
-### Versioning
-- Bump `src/lib/version.ts` → `v4.81`.
-- Ajouter entrée en haut de `CHANGELOG.md` : « v4.81 — Vue Équipe du jour en lecture seule pour les vendeurs (commentaires et grille horaire non éditables). »
+3. **DirectionMonthGrid.tsx**
+   - Ajouter `sticky top-0 z-20` sur la ligne `<tr>` du `<thead>`.
+   - Préserver les fonds conditionnels (fériés, weekends, vacances scolaires) existants sur chaque `<th>`.
 
-## Hors-scope
-- Pas de changement RLS (déjà sécurisé côté DB).
-- Vues `EmployeeView` / `EmployeeMobileView` déjà en lecture seule, aucun changement.
+## Tests attendus
+- Scroller vers le bas dans chaque vue : la ligne d'en-tête reste visible.
+- Pas de régression sur le scroll horizontal ou les z-index des cellules sticky latérales (Direction).
+- Apparence inchangée au-delà du comportement sticky.
