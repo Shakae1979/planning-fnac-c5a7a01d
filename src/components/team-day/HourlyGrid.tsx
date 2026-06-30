@@ -223,10 +223,10 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
 
   return (
     <div className="mb-6">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("hourlyGrid.title")}</h2>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center flex-wrap gap-2 sm:gap-3">
+          <div className="flex items-center flex-wrap gap-1.5 sm:gap-2">
             {ROLES.map((r) => (
               <span key={r.key} className="flex items-center gap-1 text-[10px] text-muted-foreground">
                 <span className={`w-2.5 h-2.5 rounded-full ${r.dot}`} />
@@ -248,10 +248,10 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
         <table className="w-full text-xs border-collapse">
           <thead>
             <tr className="bg-muted/50">
-              <th className="sticky left-0 bg-muted/50 px-2 py-1.5 text-left font-medium min-w-[100px] border-r">{t("hourlyGrid.employee")}</th>
+              <th className="sticky left-0 bg-muted/50 px-2 py-1.5 text-left font-medium min-w-[88px] sm:min-w-[100px] border-r">{t("hourlyGrid.employee")}</th>
               {HALF_HOURS.map((slot, i) => (
-                <th key={i} className={`px-0 py-2 text-center font-medium min-w-[28px] ${slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"} last:border-r-0`}>
-                  <span className="text-[9px]">{slot.minute === 0 ? slot.label : `${slot.hour}h30`}</span>
+                <th key={i} className={`px-0 py-2 text-center font-medium min-w-[24px] sm:min-w-[28px] ${slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"} last:border-r-0`}>
+                  <span className="text-[8px] sm:text-[9px]">{slot.minute === 0 ? slot.label : `${slot.hour}h30`}</span>
                 </th>
               ))}
             </tr>
@@ -267,7 +267,7 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
                 <tr key={emp.id} className={isFirstOfRole && idx > 0 ? "border-t-4 border-t-foreground/25" : "border-t"}>
                   <td className={`sticky left-0 bg-card px-2 py-1 border-r border-l-4 ${borderL}`}>
                     <div className="flex items-center gap-1.5">
-                      <span className="font-medium truncate max-w-[90px]">{getDisplayName(emp)}</span>
+                      <span className="font-medium truncate max-w-[72px] sm:max-w-[90px]">{getDisplayName(emp)}</span>
                       <span className="text-[9px] text-muted-foreground">{roleLabels[emp.role] || emp.role}</span>
                     </div>
                     <Input
@@ -289,7 +289,7 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
                       <td key={i} className={`px-0 py-1 text-center ${slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"} last:border-r-0 ${isWorking ? `${colorClass} cursor-pointer hover:opacity-80 transition-opacity` : ""} ${isSelected ? "ring-2 ring-inset ring-primary" : ""}`}
                         onClick={isWorking ? (e) => handleCellClick(emp.id, slot.hour, e, slot.minute) : undefined}
                       >
-                        {isWorking ? <div className={`w-full h-6 rounded-sm ${isSelected ? "bg-primary/20" : ""}`} /> : null}
+                        {isWorking ? <div className={`w-full h-5 sm:h-6 rounded-sm ${isSelected ? "bg-primary/20" : ""}`} /> : null}
                       </td>
                     );
                   })}
