@@ -190,23 +190,23 @@ const TeamDayView = () => {
         </Button>
       </FnacHeader>
 
-      <div className="max-w-6xl mx-auto px-3 sm:px-6 py-3 sm:py-4">
-        <div className="flex items-center justify-center flex-wrap gap-2 mb-4 sm:mb-6">
+      <div className="max-w-6xl mx-auto px-3 max-sm:landscape:px-2 sm:px-6 py-3 max-sm:landscape:py-2 sm:py-4">
+        <div className="flex items-center justify-center flex-wrap gap-2 mb-4 max-sm:landscape:mb-2 sm:mb-6">
           <WeekNavigator mode="day" offset={dayOffset} onChange={setDayOffset} />
           <div className="text-xs text-muted-foreground">{dayLabel}{isToday && <span className="ml-2 text-accent font-medium">· {t("teamDay.today")}</span>}</div>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-3 print-summary-cards">
-          <div className="rounded-lg border bg-accent/5 border-accent/20 p-2 sm:p-3 text-center">
-            <div className="text-xl sm:text-2xl font-bold text-accent">{working.length}</div>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-3 max-sm:landscape:mb-2 print-summary-cards">
+          <div className="rounded-lg border bg-accent/5 border-accent/20 p-2 max-sm:landscape:py-1 sm:p-3 text-center">
+            <div className="text-xl max-sm:landscape:text-base sm:text-2xl font-bold text-accent leading-tight">{working.length}</div>
             <div className="text-xs text-muted-foreground">{t("teamDay.present")}</div>
           </div>
-          <div className="rounded-lg border bg-primary/5 border-primary/20 p-2 sm:p-3 text-center">
-            <div className="text-xl sm:text-2xl font-bold text-primary">{onLeave.length}</div>
+          <div className="rounded-lg border bg-primary/5 border-primary/20 p-2 max-sm:landscape:py-1 sm:p-3 text-center">
+            <div className="text-xl max-sm:landscape:text-base sm:text-2xl font-bold text-primary leading-tight">{onLeave.length}</div>
             <div className="text-xs text-muted-foreground">{t("teamDay.onLeave")}</div>
           </div>
-          <div className="rounded-lg border bg-muted/50 p-2 sm:p-3 text-center">
-            <div className="text-xl sm:text-2xl font-bold text-muted-foreground">{off.length + ferie.length + roulement.length}</div>
+          <div className="rounded-lg border bg-muted/50 p-2 max-sm:landscape:py-1 sm:p-3 text-center">
+            <div className="text-xl max-sm:landscape:text-base sm:text-2xl font-bold text-muted-foreground leading-tight">{off.length + ferie.length + roulement.length}</div>
             <div className="text-xs text-muted-foreground">{ferie.length > 0 ? t("teamDay.holidayRest") : t("teamDay.rest")}</div>
           </div>
         </div>
@@ -230,7 +230,7 @@ const TeamDayView = () => {
 
         <HourlyGrid ref={gridRef} employees={teamDay || []} date={dateStr} onStateChange={handleGridStateChange} />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 max-sm:landscape:grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4">
           <div className="space-y-3">
             {ROLE_ORDER.map((role) => {
               const group = workingByRole[role];

@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.79 — 30/06/2026
+- **Mode paysage mobile** : la vue *Équipe du jour* s'adapte automatiquement quand le téléphone est tourné (deux colonnes réactivées, cartes et header compactés, grille horaire plus large).
+
 ## v4.78 — 30/06/2026
 - **Optimisation mobile** de la vue *Équipe du jour* : mise en page colonne unique, cartes résumé compactées, grille horaire plus dense et lisible sur petit écran.
 
