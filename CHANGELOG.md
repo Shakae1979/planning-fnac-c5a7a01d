@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.80 — 30/06/2026
+- **Suggestion paysage** : bandeau discret fermable sur mobile portrait, invitant à tourner le téléphone sur *Congés* et *Équipe du jour*.
+
 ## v4.79 — 30/06/2026
 - **Mode paysage mobile** : la vue *Équipe du jour* s'adapte automatiquement quand le téléphone est tourné (deux colonnes réactivées, cartes et header compactés, grille horaire plus large).
 

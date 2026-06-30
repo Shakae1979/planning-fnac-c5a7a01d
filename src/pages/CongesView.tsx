@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Printer, Info } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { FnacHeader } from "@/components/FnacHeader";
+import { RotateHint } from "@/components/RotateHint";
 import { CONGE_TYPES_KEYS, CONGE_TYPE_COLORS } from "@/components/dashboard/CongesCalendar";
 import { QuarterView } from "@/components/dashboard/conges/QuarterView";
 import { MonthGrid } from "@/components/dashboard/conges/MonthGrid";
@@ -53,6 +54,7 @@ export default function CongesView() {
   return (
     <div className="min-h-screen bg-background">
       <FnacHeader title={t("nav.conges")} subtitle="Consultation" />
+      <RotateHint />
       <div className="w-full px-4 py-6 space-y-4">
         <PrintLegend />
         <div className="flex items-center justify-between flex-wrap gap-2">
