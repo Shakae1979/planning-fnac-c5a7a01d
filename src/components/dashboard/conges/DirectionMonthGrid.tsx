@@ -104,7 +104,7 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
 
   // Horizontal layout: employees as rows, days as columns
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-auto max-h-[calc(100vh-220px)]">
       <table className="w-full text-xs border-collapse table-fixed">
         <thead>
           <tr className="border-b">

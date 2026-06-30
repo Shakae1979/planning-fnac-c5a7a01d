@@ -254,7 +254,7 @@ export function QuarterView({ year, months, employees, conges, deleteMutation, o
         </div>
       )}
 
-      <div className="overflow-x-auto">
+      <div className="overflow-auto max-h-[calc(100vh-220px)]">
         <div className="flex gap-0 divide-x divide-border min-w-[900px]">
           {months.map(m => (
             <VerticalMonthColumn key={m} year={year} month={m} employees={employees} conges={conges}

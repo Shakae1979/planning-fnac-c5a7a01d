@@ -162,7 +162,7 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
         </div>
       )}
 
-      <div className="overflow-x-auto">
+      <div className="overflow-auto max-h-[calc(100vh-220px)]">
         <table className="w-full text-[11px] border-collapse table-fixed">
           <colgroup>
             <col style={{ width: "70px" }} />

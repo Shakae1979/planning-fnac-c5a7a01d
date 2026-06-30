@@ -16,7 +16,7 @@ export function DirectionQuarterView({ year, months, employees, conges, managerS
 
   return (
     <div className="kpi-card overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-auto max-h-[calc(100vh-220px)]">
         <div className="flex gap-0 divide-x divide-border min-w-[900px]">
           {months.map((m) => (
             <div key={m} className="flex-1 min-w-0">
