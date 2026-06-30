@@ -1,26 +1,32 @@
-# Optimisation mobile — Équipe du jour
+# Optimisation auto paysage — Équipe du jour (mobile)
 
-Sur mobile (≤640px), trois zones posent problème : la grille horaire (trop dense en scroll horizontal), la double colonne "Travaillent / Absences-Alertes" (collée, illisible) et les paddings du conteneur.
+Détecter l'orientation paysage sur mobile et adapter automatiquement la vue pour profiter de la largeur disponible. Aucune bannière, aucune rotation forcée.
 
-## Changements
+## Détection
 
-### 1. `src/pages/TeamDayView.tsx`
-- Conteneur : `px-6 py-4` → `px-3 sm:px-6 py-3 sm:py-4` pour gagner de la largeur utile.
-- Cartes résumé (Présents/Congés/Repos) : réduire la taille texte sur mobile (`text-xl sm:text-2xl`, padding `p-2 sm:p-3`).
-- Bloc principal en deux colonnes : passer `grid grid-cols-2 gap-4` → `grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4`. Sur mobile : Travaillent au-dessus, Alertes/Congés/Roulement/Déplacements/Repos en dessous.
-- Navigateur de jour : `gap-3 mb-6` → `gap-2 mb-4 sm:mb-6 flex-wrap`.
+Ajouter un petit hook `useOrientation()` dans `src/hooks/` qui retourne `"landscape" | "portrait"` via `window.matchMedia("(orientation: landscape)")` + écouteur. Combiné avec `useIsMobile()` existant pour cibler uniquement mobile paysage (largeur ≤ 900px, orientation paysage).
 
-### 2. `src/components/team-day/HourlyGrid.tsx`
-La grille reste en scroll horizontal (indispensable avec 28+ créneaux 30 min), mais on la rend plus lisible sur mobile :
-- En-tête de section (titre + légende + bouton "Appliquer" + Imprimer) : passer en `flex-col sm:flex-row` pour éviter le débordement. Légende des rôles : `flex-wrap` + `gap-1.5` pour qu'elle se replie proprement.
-- Cellules : min-width `28px → 24px` sur mobile (`min-w-[24px] sm:min-w-[28px]`), labels d'heure `text-[9px]` → `text-[8px] sm:text-[9px]`. Hauteur barre `h-6 → h-5 sm:h-6`.
-- Colonne employé sticky : `min-w-[100px]` → `min-w-[88px] sm:min-w-[100px]`, troncature nom `max-w-[90px]` → `max-w-[72px] sm:max-w-[90px]`.
-- Ajouter un indicateur visuel de scroll : ombre légère sur le bord droit de la colonne sticky (déjà présente via border-r, suffisant).
+## Changements UI conditionnels (mobile + landscape)
 
-### 3. `CHANGELOG.md` + `src/lib/version.ts`
-- Bump `v4.77` → `v4.78`.
-- Entrée changelog : "Optimisation mobile de la vue Équipe du jour (mise en page colonne unique, grille horaire compactée)".
+### `src/pages/TeamDayView.tsx`
+- Conteneur : `max-w-6xl` reste, mais padding réduit `px-2` en paysage mobile.
+- **Cartes résumé** (Présents/Congés/Repos) : passer de pleine ligne à une rangée compacte sur la gauche, libérant de la place pour la grille. Concrètement : conserver `grid-cols-3` mais hauteur réduite (`py-1.5`, `text-lg` au lieu de `text-xl`).
+- **Bloc deux colonnes** (Travaillent / Alertes) : repasser en `grid-cols-2` même sur mobile dès qu'on est en paysage (override le `grid-cols-1` mobile du plan précédent).
+- **Header de page** : compacter (`py-2` sur mobile paysage) pour éviter que le header mange la hauteur utile.
+
+### `src/components/team-day/HourlyGrid.tsx`
+- En paysage mobile : largeur cellule remontée à `min-w-[26px]`, hauteur barre `h-5`, mais l'écran étant plus large beaucoup plus de créneaux visibles sans scroll.
+- Légende des rôles : reste en `flex-wrap` (déjà fait).
+- Colonne employé sticky : `min-w-[80px]` en landscape (vs 88 portrait) pour libérer la grille.
+
+### `src/components/FnacHeader.tsx`
+Si compact possible : réduire padding vertical en mobile paysage (`py-2` au lieu de `py-3/4`). À vérifier au moment de l'édition.
+
+## Versioning
+- Bump `v4.78` → `v4.79`.
+- Changelog : "Optimisation automatique en mode paysage sur mobile pour la vue Équipe du jour".
 
 ## Hors scope
-- Pas de refonte de la grille horaire (pas de bascule en vue verticale ou liste).
-- Pas de changement de logique métier ni de couleurs/charte.
+- Pas de bannière "tournez votre téléphone".
+- Pas de rotation CSS forcée.
+- Pas de changement sur les autres pages (Planning, Congés, etc.) — uniquement Équipe du jour pour ce ticket.

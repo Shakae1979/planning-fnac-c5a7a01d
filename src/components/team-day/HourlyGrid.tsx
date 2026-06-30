@@ -248,9 +248,9 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
         <table className="w-full text-xs border-collapse">
           <thead>
             <tr className="bg-muted/50">
-              <th className="sticky left-0 bg-muted/50 px-2 py-1.5 text-left font-medium min-w-[88px] sm:min-w-[100px] border-r">{t("hourlyGrid.employee")}</th>
+              <th className="sticky left-0 bg-muted/50 px-2 py-1.5 text-left font-medium min-w-[88px] max-sm:landscape:min-w-[80px] sm:min-w-[100px] border-r">{t("hourlyGrid.employee")}</th>
               {HALF_HOURS.map((slot, i) => (
-                <th key={i} className={`px-0 py-2 text-center font-medium min-w-[24px] sm:min-w-[28px] ${slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"} last:border-r-0`}>
+                <th key={i} className={`px-0 py-2 text-center font-medium min-w-[24px] max-sm:landscape:min-w-[26px] sm:min-w-[28px] ${slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"} last:border-r-0`}>
                   <span className="text-[8px] sm:text-[9px]">{slot.minute === 0 ? slot.label : `${slot.hour}h30`}</span>
                 </th>
               ))}
