@@ -4,6 +4,7 @@ import { AlertTriangle, Flag, MapPin, MessageSquare, Palmtree, Printer, Save, Us
 import { WeekNavigator } from "@/components/WeekNavigator";
 import HourlyGrid, { type HourlyGridHandle } from "@/components/team-day/HourlyGrid";
 import { FnacHeader } from "@/components/FnacHeader";
+import { RotateHint } from "@/components/RotateHint";
 import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName } from "@/lib/format";
@@ -189,6 +190,7 @@ const TeamDayView = () => {
           <span className="hidden sm:inline">{t("action.print")}</span>
         </Button>
       </FnacHeader>
+      <RotateHint />
 
       <div className="max-w-6xl mx-auto px-3 max-sm:landscape:px-2 sm:px-6 py-3 max-sm:landscape:py-2 sm:py-4">
         <div className="flex items-center justify-center flex-wrap gap-2 mb-4 max-sm:landscape:mb-2 sm:mb-6">

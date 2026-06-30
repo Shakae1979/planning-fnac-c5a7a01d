@@ -54,6 +54,7 @@ export default function CongesView() {
   return (
     <div className="min-h-screen bg-background">
       <FnacHeader title={t("nav.conges")} subtitle="Consultation" />
+      <RotateHint />
       <div className="w-full px-4 py-6 space-y-4">
         <PrintLegend />
         <div className="flex items-center justify-between flex-wrap gap-2">
