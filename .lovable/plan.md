@@ -1,26 +1,24 @@
-## Objectif
-Rendre la première ligne d'en-tête des tableaux de congés fixe lors du défilement vertical, pour garder visibles les colonnes (dates, rôles ou employés) en permanence.
+## Problème
+Sur `/conges`, l'en-tête (Datum/Dag/Kader/TP/…) n'est pas réellement figé lors du défilement. La cause : le wrapper du tableau utilise `overflow-x-auto`, ce qui crée un conteneur de défilement. `sticky top-0` se "colle" alors à ce conteneur (qui n'a pas de scroll vertical) au lieu de la fenêtre, donc l'en-tête défile avec la page.
 
-## Fichiers concernés
-- `src/components/dashboard/conges/MonthGrid.tsx` — vue mensuelle standard
-- `src/components/dashboard/conges/QuarterView.tsx` — vue trimestrielle (3 colonnes mensuelles)
-- `src/components/dashboard/conges/DirectionMonthGrid.tsx` — vue mensuelle Direction Fnac
+## Correctif
+Transformer le wrapper en zone de défilement verticale interne avec hauteur maximale, ainsi `sticky top-0` fonctionne réellement.
 
-## Implémentation
-1. **MonthGrid.tsx**
-   - Ajouter `sticky top-0 z-10` sur la balise `<thead>` (ou `<tr>`).
-   - Conserver le fond `bg-muted/30` pour éviter la transparence par-dessus le contenu.
-   - Vérifier que le conteneur parent `overflow-x-auto` autorise bien le sticky (remplacer éventuellement par `overflow-auto` si nécessaire).
+### Fichiers à modifier
+1. **`src/components/dashboard/conges/MonthGrid.tsx`**
+   - Remplacer `<div className="overflow-x-auto">` par `<div className="overflow-auto max-h-[calc(100vh-220px)]">`.
 
-2. **QuarterView.tsx**
-   - Même traitement sur le `<thead>` / `<tr>` de chaque `VerticalMonthColumn`.
-   - Comme le conteneur global est `overflow-x-auto`, s'assurer que le sticky vertical fonctionne malgré le scroll horizontal.
+2. **`src/components/dashboard/conges/QuarterView.tsx`**
+   - Même changement sur le wrapper du tableau (3 mois).
 
-3. **DirectionMonthGrid.tsx**
-   - Ajouter `sticky top-0 z-20` sur la ligne `<tr>` du `<thead>`.
-   - Préserver les fonds conditionnels (fériés, weekends, vacances scolaires) existants sur chaque `<th>`.
+3. **`src/components/dashboard/conges/DirectionMonthGrid.tsx`**
+   - Idem + s'assurer que la cellule corner (sticky top+left) reste `z-30` pour passer au-dessus des autres th sticky.
 
-## Tests attendus
-- Scroller vers le bas dans chaque vue : la ligne d'en-tête reste visible.
-- Pas de régression sur le scroll horizontal ou les z-index des cellules sticky latérales (Direction).
-- Apparence inchangée au-delà du comportement sticky.
+4. **`src/components/dashboard/conges/DirectionQuarterView.tsx`**
+   - Idem.
+
+### Versioning
+- Bump `src/lib/version.ts` → `v4.83`.
+- Ajouter une ligne dans `CHANGELOG.md` : "v4.83 — Correction : en-tête des vues Congés réellement figé pendant le défilement."
+
+Aucune logique métier modifiée, uniquement le conteneur de défilement et le CSS sticky.
