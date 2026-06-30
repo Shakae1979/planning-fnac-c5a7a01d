@@ -97,11 +97,11 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
           ))}
         </colgroup>
         <thead>
-          <tr className="border-b bg-muted/30">
-            <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[70px]">{t("conges.date")}</th>
-            <th className="px-1 py-1 text-left font-medium text-muted-foreground w-[30px]">{t("conges.dayLabel")}</th>
+          <tr className="border-b">
+            <th className="sticky top-0 z-20 bg-card px-1 py-1 text-left font-medium text-muted-foreground w-[70px]">{t("conges.date")}</th>
+            <th className="sticky top-0 z-20 bg-card px-1 py-1 text-left font-medium text-muted-foreground w-[30px]">{t("conges.dayLabel")}</th>
             {activeRoles.map(r => (
-              <th key={r.key} className={`px-1 py-1.5 text-center font-semibold ${r.text} ${r.headerBg} ${r.borderColor}`}>{roleLabels[r.key]}</th>
+              <th key={r.key} className={`sticky top-0 z-20 px-1 py-1.5 text-center font-semibold ${r.text} ${r.headerBg} ${r.borderColor}`}>{roleLabels[r.key]}</th>
             ))}
           </tr>
         </thead>
