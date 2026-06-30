@@ -107,27 +107,27 @@ export function DirectionMonthGrid({ year, month, employees, conges, managerStor
     <div className="overflow-x-auto">
       <table className="w-full text-xs border-collapse table-fixed">
         <thead>
-          <tr className="border-b bg-muted/30">
-            <th className="sticky left-0 bg-muted/30 px-2 py-1.5 text-left font-medium text-muted-foreground w-[120px] min-w-[120px] border-r z-10">
+          <tr className="border-b">
+            <th className="sticky left-0 top-0 z-20 bg-card px-2 py-1.5 text-left font-medium text-muted-foreground w-[120px] min-w-[120px] border-r">
             </th>
             {days.map((d) => {
               const schoolBg =
                 d.schoolHol && !d.isWeekend
                   ? d.schoolHol.community === "both"
-                    ? "bg-amber-400/15"
+                    ? "bg-amber-100 dark:bg-amber-900"
                     : d.schoolHol.community === "fr"
-                    ? "bg-amber-300/10"
-                    : "bg-sky-300/10"
+                    ? "bg-amber-100 dark:bg-amber-900"
+                    : "bg-sky-100 dark:bg-sky-900"
                   : "";
               return (
                 <th
                   key={d.day}
-                  className={`px-0 py-1.5 text-center font-medium border-r last:border-r-0 ${
+                  className={`sticky top-0 z-20 px-0 py-1.5 text-center font-medium border-r last:border-r-0 ${
                     d.holiday
-                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                      ? "bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-400"
                       : d.isWeekend
-                      ? "bg-muted/40 text-muted-foreground/50"
-                      : schoolBg
+                      ? "bg-muted text-muted-foreground/50"
+                      : schoolBg || "bg-card"
                   } ${d.isMonday ? "border-l-2 border-l-accent/40" : ""}`}
                   title={d.holiday || `${String(d.day).padStart(2, "0")} ${monthShort(month)}`}
                 >
