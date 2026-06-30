@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.83 — 30/06/2026
+- **Correction en-tête figé Congés** : le wrapper devient le conteneur de défilement vertical, permettant à `sticky top-0` de fonctionner réellement sur toutes les vues (mois, trimestre, Direction).
+
 ## v4.82 — 30/06/2026
 - **En-tête figé dans les congés** : la première ligne (dates et rôles) reste visible lors du défilement dans les vues mensuelle, trimestrielle et Direction Fnac.
 
