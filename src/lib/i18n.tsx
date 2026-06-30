@@ -208,6 +208,8 @@ const translations = {
   "action.copy": { fr: "Copier", nl: "Kopiëren" },
   "action.paste": { fr: "Coller", nl: "Plakken" },
   "action.choose": { fr: "Choisir…", nl: "Kiezen…" },
+  "rotate.hint": { fr: "Tournez votre téléphone pour une meilleure vue", nl: "Draai je telefoon voor een betere weergave" },
+  "rotate.dismiss": { fr: "Fermer", nl: "Sluiten" },
   "action.change": { fr: "Changer", nl: "Wijzigen" },
   "action.close": { fr: "Fermer", nl: "Sluiten" },
   "action.deactivate": { fr: "Désactiver", nl: "Deactiveren" },

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Printer, Info } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { FnacHeader } from "@/components/FnacHeader";
+import { RotateHint } from "@/components/RotateHint";
 import { CONGE_TYPES_KEYS, CONGE_TYPE_COLORS } from "@/components/dashboard/CongesCalendar";
 import { QuarterView } from "@/components/dashboard/conges/QuarterView";
 import { MonthGrid } from "@/components/dashboard/conges/MonthGrid";
