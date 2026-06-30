@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.82 — 30/06/2026
+- **En-tête figé dans les congés** : la première ligne (dates et rôles) reste visible lors du défilement dans les vues mensuelle, trimestrielle et Direction Fnac.
+
 ## v4.81 — 30/06/2026
 - **Lecture seule pour les vendeurs** : dans *Équipe du jour*, les vendeurs ne peuvent plus interagir avec la grille horaire ni éditer les commentaires (affichage en consultation uniquement).
 
