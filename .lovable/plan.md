@@ -1,28 +1,22 @@
-# Bannière "Tourner en paysage" (mobile portrait)
+## Objectif
+Les vendeurs (rôle `user`) accèdent à la vue Équipe du jour et peuvent visuellement éditer les commentaires/cases dans la grille horaire, même si la RLS bloque la sauvegarde. On passe l'interface en **lecture seule** pour ce rôle.
 
-Afficher une petite bannière discrète, fermable, suggérant de tourner le téléphone pour une meilleure vue. Visible uniquement sur mobile en portrait, sur les vues *Congés* et *Équipe du jour*.
+## Changements
 
-## Implémentation
+### `src/components/team-day/HourlyGrid.tsx`
+- Lire `role` depuis `useAuth()`. Définir `canEdit = role === "admin" || role === "editor" || role === "manager"`.
+- Si `!canEdit` :
+  - Masquer les boutons « Imprimer » mis à part (garder Imprimer) + cacher bouton « Appliquer » + désactiver la sélection multi (`handleCellClick` no-op, pas de `cursor-pointer`, pas de `hover:opacity-80`).
+  - Remplacer l'`<Input>` de commentaire par un simple `<span>` lecture seule (affiché uniquement s'il y a du texte), pour ne plus laisser croire qu'on peut écrire.
+  - Ne pas exposer `save` (canSave toujours `false`).
 
-### Nouveau composant `src/components/RotateHint.tsx`
-- Bandeau fin (`py-1.5`, fond `bg-accent/10`, texte `text-xs`) avec icône `Smartphone` ou `RotateCw` de lucide.
-- Texte bilingue via `useI18n` : FR "Tournez votre téléphone pour une meilleure vue" / NL "Draai je telefoon voor een betere weergave".
-- Bouton de fermeture (X) qui masque le bandeau pour la session courante (state local, pas localStorage → réapparait à chaque visite, conforme à "discrète").
-- Visible uniquement en `max-sm:portrait` (Tailwind variants). Caché en paysage et sur tablette/desktop via `hidden max-sm:portrait:flex`.
-
-### Intégration
-- `src/pages/CongesView.tsx` : insérer `<RotateHint />` juste après le header.
-- `src/pages/TeamDayView.tsx` : insérer `<RotateHint />` juste après `<FnacHeader>`.
-
-### i18n
-Ajouter deux clés dans `src/lib/i18n.tsx` :
-- `rotate.hint` → "Tournez votre téléphone pour une meilleure vue" / "Draai je telefoon voor een betere weergave"
-- `rotate.dismiss` → aria-label "Fermer" / "Sluiten"
+### `src/pages/TeamDayView.tsx`
+- Vérifier qu'aucun bouton « Enregistrer » global lié à HourlyGrid n'est rendu pour les vendeurs (déjà conditionné via `onStateChange` → si `canSave` reste false, rien ne s'affiche).
 
 ### Versioning
-- Bump `v4.79` → `v4.80`.
-- Changelog : "Suggestion 'tourner en paysage' sur mobile pour Congés et Équipe du jour".
+- Bump `src/lib/version.ts` → `v4.81`.
+- Ajouter entrée en haut de `CHANGELOG.md` : « v4.81 — Vue Équipe du jour en lecture seule pour les vendeurs (commentaires et grille horaire non éditables). »
 
-## Hors scope
-- Pas de mémorisation permanente (localStorage).
-- Pas d'ajout sur Planning semaine / Mon planning.
+## Hors-scope
+- Pas de changement RLS (déjà sécurisé côté DB).
+- Vues `EmployeeView` / `EmployeeMobileView` déjà en lecture seule, aucun changement.
