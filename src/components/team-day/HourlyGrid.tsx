@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { ROLE_KEYS, ROLE_COLORS as CENTRAL_ROLE_COLORS } from "@/lib/role-colors";
+import { useAuth } from "@/hooks/useAuth";
 
 export interface HourlyGridHandle {
   save: () => Promise<void>;
@@ -81,6 +82,8 @@ function RolePicker({ anchorRect, onSelect, onClose, roleLabels, multi }: {
 const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: string; onStateChange?: (s: { canSave: boolean; saving: boolean }) => void }>(function HourlyGridImpl({ employees, date, onStateChange }, ref) {
   const { t } = useI18n();
   const { scheduleStart, scheduleEnd } = useStoreSettings();
+  const { role } = useAuth();
+  const canEdit = role === "admin" || role === "editor" || role === "manager";
   const HALF_HOURS = useMemo(() => buildHalfHours(scheduleStart, scheduleEnd), [scheduleStart, scheduleEnd]);
   const active = employees.filter((e) => e.hasShift && !e.conge);
   const [overrides, setOverrides] = useState<Overrides>({});
@@ -158,14 +161,15 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
   const handleSaveRef = useRef<() => Promise<void>>(async () => {});
   useImperativeHandle(ref, () => ({
     save: () => handleSaveRef.current(),
-    canSave: dirty && !saving,
+    canSave: canEdit && dirty && !saving,
     saving,
-  }), [dirty, saving]);
-  useEffect(() => { onStateChange?.({ canSave: dirty && !saving, saving }); }, [dirty, saving, onStateChange]);
+  }), [dirty, saving, canEdit]);
+  useEffect(() => { onStateChange?.({ canSave: canEdit && dirty && !saving, saving }); }, [dirty, saving, onStateChange, canEdit]);
 
   if (active.length === 0) return null;
 
   const handleCellClick = (empId: string, hour: number, e: React.MouseEvent, minute: number = 0) => {
+    if (!canEdit) return;
     const key = `${empId}-${hour}-${minute}`;
     setSelected((prev) => {
       const next = new Set(prev);
@@ -187,7 +191,7 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
   };
 
   const handleApplyClick = (e: React.MouseEvent) => {
-    if (selected.size === 0) return;
+    if (!canEdit || selected.size === 0) return;
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     setMultiPicker({ rect: { top: rect.bottom + 2, left: rect.left } });
   };
@@ -234,7 +238,7 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
               </span>
             ))}
           </div>
-          {selected.size > 0 && (
+          {canEdit && selected.size > 0 && (
             <Button size="sm" className="no-print h-7 text-xs gap-1.5" onClick={handleApplyClick}>
               {t("hourlyGrid.apply")} ({selected.size})
             </Button>
@@ -270,12 +274,18 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
                       <span className="font-medium truncate max-w-[72px] sm:max-w-[90px]">{getDisplayName(emp)}</span>
                       <span className="text-[9px] text-muted-foreground">{roleLabels[emp.role] || emp.role}</span>
                     </div>
-                    <Input
-                      value={empComments[emp.id] || ""}
-                      onChange={(e) => { setEmpComments((p) => ({ ...p, [emp.id]: e.target.value })); setDirty(true); }}
-                      placeholder={t("hourlyGrid.note")}
-                      className={`h-5 text-[9px] mt-0.5 px-1 py-0 border-muted bg-transparent ${!(empComments[emp.id]?.trim()) ? "print:hidden" : ""}`}
-                    />
+                    {canEdit ? (
+                      <Input
+                        value={empComments[emp.id] || ""}
+                        onChange={(e) => { setEmpComments((p) => ({ ...p, [emp.id]: e.target.value })); setDirty(true); }}
+                        placeholder={t("hourlyGrid.note")}
+                        className={`h-5 text-[9px] mt-0.5 px-1 py-0 border-muted bg-transparent ${!(empComments[emp.id]?.trim()) ? "print:hidden" : ""}`}
+                      />
+                    ) : (
+                      empComments[emp.id]?.trim() ? (
+                        <div className="text-[9px] mt-0.5 px-1 text-muted-foreground italic truncate">{empComments[emp.id]}</div>
+                      ) : null
+                    )}
                   </td>
                   {HALF_HOURS.map((slot, i) => {
                     const slotTime = slot.hour + slot.minute / 60;
@@ -286,8 +296,8 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
                     const colorClass = ROLE_BG[cellRole] || "bg-accent/20";
                     const isSelected = selected.has(overrideKey);
                     return (
-                      <td key={i} className={`px-0 py-1 text-center ${slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"} last:border-r-0 ${isWorking ? `${colorClass} cursor-pointer hover:opacity-80 transition-opacity` : ""} ${isSelected ? "ring-2 ring-inset ring-primary" : ""}`}
-                        onClick={isWorking ? (e) => handleCellClick(emp.id, slot.hour, e, slot.minute) : undefined}
+                      <td key={i} className={`px-0 py-1 text-center ${slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"} last:border-r-0 ${isWorking ? `${colorClass} ${canEdit ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}` : ""} ${isSelected ? "ring-2 ring-inset ring-primary" : ""}`}
+                        onClick={isWorking && canEdit ? (e) => handleCellClick(emp.id, slot.hour, e, slot.minute) : undefined}
                       >
                         {isWorking ? <div className={`w-full h-5 sm:h-6 rounded-sm ${isSelected ? "bg-primary/20" : ""}`} /> : null}
                       </td>
