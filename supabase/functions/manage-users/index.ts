@@ -406,7 +406,7 @@ Deno.serve(async (req) => {
             name: prenom || nom,
             last_name: nom,
             email,
-            contract_hours: heures_contrat || 36,
+            contract_hours: (typeof heures_contrat === "number" && heures_contrat >= 0) ? heures_contrat : 36,
             role: catLower,
             store_id: magasin_id || null,
             must_change_password: true,

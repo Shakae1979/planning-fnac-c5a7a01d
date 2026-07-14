@@ -93,7 +93,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
           last_name: trimmedLast || null,
           email: email.trim() || null,
           role,
-          contract_hours: Number(hours) || 36,
+          contract_hours: (() => { const p = Number(hours); return Number.isFinite(p) && p >= 0 ? p : 36; })(),
           ...(canEditCadre ? { is_cadre: isCadre } : {}),
         })
         .eq("id", employee.id);
