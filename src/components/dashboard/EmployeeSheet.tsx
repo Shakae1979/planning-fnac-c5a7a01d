@@ -86,6 +86,9 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
       const trimmedFirst = name.trim();
       const trimmedLast = lastName.trim();
       if (!trimmedFirst && !trimmedLast) throw new Error(t("misc.nameRequired"));
+      const parsedHours = Number(hours);
+      const nextContractHours = Number.isFinite(parsedHours) && parsedHours >= 0 ? parsedHours : 36;
+      console.log("[EmployeeSheet] saving", { rawHours: hours, parsedHours, nextContractHours, employeeId: employee.id });
       const { error } = await supabase
         .from("employees")
         .update({
@@ -93,11 +96,13 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
           last_name: trimmedLast || null,
           email: email.trim() || null,
           role,
-          contract_hours: (() => { const p = Number(hours); return Number.isFinite(p) && p >= 0 ? p : 36; })(),
+          contract_hours: nextContractHours,
           ...(canEditCadre ? { is_cadre: isCadre } : {}),
         })
         .eq("id", employee.id);
       if (error) throw error;
+      const { data: verify } = await supabase.from("employees").select("contract_hours").eq("id", employee.id).maybeSingle();
+      console.log("[EmployeeSheet] verified DB value=", verify?.contract_hours);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
