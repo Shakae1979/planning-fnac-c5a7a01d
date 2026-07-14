@@ -1,30 +1,31 @@
-## Problème
+## Diagnostic
 
-Certains contrats doivent être à 0h/semaine, mais l'expression `Number(hours) || 36` remplace toute valeur 0 par 36 (car `0` est falsy en JS). Impossible donc de sauvegarder un contrat à 0h.
+Le code de `EmployeeSheet.tsx` (l.96) est bien corrigé : `Number("0")` → `0`, isFinite → `true`, `>= 0` → renvoie `0`. La DB n'a aucune contrainte `CHECK`. La RLS employees autorise l'update. Le fix devrait donc fonctionner.
 
-## Correctifs
+Deux causes probables restantes :
 
-1. **`src/components/dashboard/EmployeeSheet.tsx`** (l.96) — remplacer `Number(hours) || 36` par une lecture qui accepte 0 :
+1. **Le navigateur affiche encore l'ancienne version bundle** (le rechargement HMR de Vite peut avoir raté le remplacement de la mutation).
+2. **Une autre écriture invisible** vient réécrire la valeur juste après (par ex. un side-effect que je n'ai pas repéré).
+
+## Étapes
+
+1. **Ajouter un log de trace** dans `src/components/dashboard/EmployeeSheet.tsx` juste avant `.update(...)` :
    ```ts
-   const parsed = Number(hours);
-   contract_hours: Number.isFinite(parsed) && parsed >= 0 ? parsed : 36,
+   console.log("[EmployeeSheet] saving contract_hours=", hours, "→", parsed);
    ```
+   Puis relire la valeur DB juste après pour confirmer.
 
-2. **`src/components/dashboard/EmployeeManager.tsx`** (l.50) — même correction pour la création d'employé.
+2. **Demander à l'utilisateur un rechargement dur** (Ctrl+Shift+R) puis retenter la sauvegarde à 0h.
 
-3. **`src/components/dashboard/TeamAndAccounts.tsx`** (l.169) — même correction.
+3. **Vérifier la DB directement** via `supabase--read_query` sur `SELECT id, name, contract_hours FROM employees WHERE ...` juste après l'essai de l'utilisateur, pour savoir si :
+   - la valeur est bien écrite en 0 côté DB → problème d'affichage/état local,
+   - ou reste à 36 → il y a bien un chemin d'écriture non identifié.
 
-4. **`supabase/functions/manage-users/index.ts`** (l.409) — même correction côté import :
-   ```ts
-   contract_hours: (typeof heures_contrat === "number" && heures_contrat >= 0) ? heures_contrat : 36,
-   ```
+4. Une fois la cause confirmée, appliquer le correctif ciblé (retirer un side-effect, ou nettoyer le state d'affichage). Retirer le `console.log`.
 
-5. **`src/lib/version.ts`** — bump `v4.83` → `v4.84`.
-
-6. **`CHANGELOG.md`** — nouvelle entrée v4.84 (FR, date du jour) : « Autorise les contrats à 0h/semaine (correction du fallback qui forçait 36h). »
+5. Bump version `v4.84` → `v4.85` + entrée `CHANGELOG.md`.
 
 ## Hors périmètre
 
-- Aucun changement de schéma DB (la colonne accepte déjà 0, DEFAULT reste 36).
-- Aucune logique de calcul d'heures/ETP modifiée : les employés à 0h apparaîtront simplement avec un contrat à 0 dans les affichages existants.
-- L'input UI (`min={0}`) autorise déjà la saisie de 0.
+- Aucun changement de schéma DB.
+- Aucun changement de logique de calcul d'heures.
