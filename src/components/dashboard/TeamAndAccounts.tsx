@@ -166,7 +166,7 @@ export function TeamAndAccounts() {
       const { error } = await supabase.from("employees").insert({
         name: trimmedFirst || trimmedLast,
         last_name: trimmedLast || null,
-        contract_hours: Number(newHours) || 36,
+        contract_hours: (() => { const p = Number(newHours); return Number.isFinite(p) && p >= 0 ? p : 36; })(),
         role: newRole,
         email: newEmail.trim() || null,
         store_id: currentStore?.id || null,

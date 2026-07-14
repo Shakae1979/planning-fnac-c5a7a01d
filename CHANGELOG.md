@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.84 — 14/07/2026
+- **Contrats à 0h autorisés** : correction du fallback qui remplaçait 0h par 36h à la sauvegarde (création, édition, import).
+
 ## v4.83 — 30/06/2026
 - **Correction en-tête figé Congés** : le wrapper devient le conteneur de défilement vertical, permettant à `sticky top-0` de fonctionner réellement sur toutes les vues (mois, trimestre, Direction).
 

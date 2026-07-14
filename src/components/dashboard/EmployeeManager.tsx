@@ -47,7 +47,7 @@ export function EmployeeManager() {
       if (trimmed.length > 100) throw new Error(t("misc.nameRequired"));
       const { error } = await supabase.from("employees").insert({
         name: trimmed,
-        contract_hours: Number(newHours) || 36,
+        contract_hours: (() => { const p = Number(newHours); return Number.isFinite(p) && p >= 0 ? p : 36; })(),
         role: newRole,
         email: newEmail.trim() || null,
         store_id: currentStore?.id || null,

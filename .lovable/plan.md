@@ -1,24 +1,30 @@
 ## Problème
-Sur `/conges`, l'en-tête (Datum/Dag/Kader/TP/…) n'est pas réellement figé lors du défilement. La cause : le wrapper du tableau utilise `overflow-x-auto`, ce qui crée un conteneur de défilement. `sticky top-0` se "colle" alors à ce conteneur (qui n'a pas de scroll vertical) au lieu de la fenêtre, donc l'en-tête défile avec la page.
 
-## Correctif
-Transformer le wrapper en zone de défilement verticale interne avec hauteur maximale, ainsi `sticky top-0` fonctionne réellement.
+Certains contrats doivent être à 0h/semaine, mais l'expression `Number(hours) || 36` remplace toute valeur 0 par 36 (car `0` est falsy en JS). Impossible donc de sauvegarder un contrat à 0h.
 
-### Fichiers à modifier
-1. **`src/components/dashboard/conges/MonthGrid.tsx`**
-   - Remplacer `<div className="overflow-x-auto">` par `<div className="overflow-auto max-h-[calc(100vh-220px)]">`.
+## Correctifs
 
-2. **`src/components/dashboard/conges/QuarterView.tsx`**
-   - Même changement sur le wrapper du tableau (3 mois).
+1. **`src/components/dashboard/EmployeeSheet.tsx`** (l.96) — remplacer `Number(hours) || 36` par une lecture qui accepte 0 :
+   ```ts
+   const parsed = Number(hours);
+   contract_hours: Number.isFinite(parsed) && parsed >= 0 ? parsed : 36,
+   ```
 
-3. **`src/components/dashboard/conges/DirectionMonthGrid.tsx`**
-   - Idem + s'assurer que la cellule corner (sticky top+left) reste `z-30` pour passer au-dessus des autres th sticky.
+2. **`src/components/dashboard/EmployeeManager.tsx`** (l.50) — même correction pour la création d'employé.
 
-4. **`src/components/dashboard/conges/DirectionQuarterView.tsx`**
-   - Idem.
+3. **`src/components/dashboard/TeamAndAccounts.tsx`** (l.169) — même correction.
 
-### Versioning
-- Bump `src/lib/version.ts` → `v4.83`.
-- Ajouter une ligne dans `CHANGELOG.md` : "v4.83 — Correction : en-tête des vues Congés réellement figé pendant le défilement."
+4. **`supabase/functions/manage-users/index.ts`** (l.409) — même correction côté import :
+   ```ts
+   contract_hours: (typeof heures_contrat === "number" && heures_contrat >= 0) ? heures_contrat : 36,
+   ```
 
-Aucune logique métier modifiée, uniquement le conteneur de défilement et le CSS sticky.
+5. **`src/lib/version.ts`** — bump `v4.83` → `v4.84`.
+
+6. **`CHANGELOG.md`** — nouvelle entrée v4.84 (FR, date du jour) : « Autorise les contrats à 0h/semaine (correction du fallback qui forçait 36h). »
+
+## Hors périmètre
+
+- Aucun changement de schéma DB (la colonne accepte déjà 0, DEFAULT reste 36).
+- Aucune logique de calcul d'heures/ETP modifiée : les employés à 0h apparaîtront simplement avec un contrat à 0 dans les affichages existants.
+- L'input UI (`min={0}`) autorise déjà la saisie de 0.
