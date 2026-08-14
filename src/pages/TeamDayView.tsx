@@ -11,6 +11,7 @@ import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName } from "@/l
 import { computeNetHours } from "@/lib/hours";
 import { useStore } from "@/hooks/useStore";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useI18n } from "@/lib/i18n";
 
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
@@ -20,6 +21,18 @@ function timeToHours(t: string | null): number {
   if (!t) return 0;
   const [h, m] = t.split(":").map(Number);
   return h + (m || 0) / 60;
+}
+
+function timeToMinutes(t: string | null): number {
+  if (!t) return 0;
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + (m || 0);
+}
+
+function minutesToTime(min: number): string {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
 function getMonday(date: Date): Date {
