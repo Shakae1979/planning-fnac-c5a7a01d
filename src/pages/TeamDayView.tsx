@@ -166,15 +166,19 @@ const TeamDayView = () => {
     workingByRole[emp.role].push(emp);
   }
 
-  const requiredSlot = REQUIRED_SLOTS[dayKey];
+  const daySetting = dayHours?.[dayKey as keyof typeof dayHours];
+  const requiredSlot =
+    daySetting && !daySetting.closed
+      ? { start: timeToMinutes(daySetting.start), end: timeToMinutes(daySetting.end) }
+      : null;
   const coverageAlerts: { role: string; uncoveredHours: number[] }[] = [];
-  if (requiredSlot && working.length > 0) {
+  if (requiredSlot && requiredSlot.end > requiredSlot.start && working.length > 0) {
     for (const role of ROLE_ORDER) {
       const group = workingByRole[role] || [];
       const uncovered: number[] = [];
-      for (let h = requiredSlot.start; h < requiredSlot.end; h++) {
-        const covered = group.some((emp) => timeToHours(emp.start) <= h && timeToHours(emp.end) > h);
-        if (!covered) uncovered.push(h);
+      for (let m = requiredSlot.start; m < requiredSlot.end; m += 30) {
+        const covered = group.some((emp) => timeToMinutes(emp.start) <= m && timeToMinutes(emp.end) > m);
+        if (!covered) uncovered.push(m);
       }
       if (uncovered.length > 0) coverageAlerts.push({ role, uncoveredHours: uncovered });
     }
