@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.86 — 14/08/2026
+- **Magasin par défaut à la connexion** : l'application ouvre sur le dernier magasin sélectionné, sinon sur le magasin de rattachement du collaborateur (« Direction Fnac » n'est plus choisi par défaut).
+
 ## v4.85 — 14/07/2026
 - **Intégrations agents (MCP)** : l'application expose un serveur MCP sécurisé par OAuth (connexion avec son compte Planning Fnac) avec 6 outils : `whoami`, `list_stores`, `list_employees`, `get_week_schedule`, `list_leaves`, `create_leave`. Nouvelle page de consentement `/.lovable/oauth/consent`.
 
