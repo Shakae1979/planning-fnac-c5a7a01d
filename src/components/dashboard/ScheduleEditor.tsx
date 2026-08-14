@@ -778,12 +778,13 @@ export function ScheduleEditor() {
       }
 
       const result: Suggestion[] = [];
-      const storeStartMin = scheduleStart * 60;
-      const storeEndMin = scheduleEnd * 60;
 
       for (const emp of employees) {
         for (let dayIdx = 0; dayIdx < DAYS.length; dayIdx++) {
           const day = DAYS[dayIdx];
+          const dayRange = getDayRange(day.key as any);
+          const storeStartMin = dayRange.startMin;
+          const storeEndMin = dayRange.endMin;
           const startField = `${day.key}_start`;
           const endField = `${day.key}_end`;
           const currentStart = getValue(emp.id, startField);
@@ -806,7 +807,7 @@ export function ScheduleEditor() {
             if (isNaN(sh) || isNaN(eh)) continue;
             const startMin = sh * 60 + (sm || 0);
             const endMin = eh * 60 + (em || 0);
-            const outOfRange = startMin < storeStartMin || endMin > storeEndMin;
+            const outOfRange = dayRange.closed || startMin < storeStartMin || endMin > storeEndMin;
             result.push({
               employeeId: emp.id,
               employeeName: getDisplayName(emp),
