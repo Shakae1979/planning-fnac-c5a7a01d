@@ -121,6 +121,8 @@ const TeamDayView = () => {
       const isRepos = start === "REPOS";
       const isLocation = !!(start && (!end || end.trim() === "") && !isFerie && !isExt && !isRoulement && !isRepos && !/^\d{1,2}:\d{2}$/.test(start));
       const hasShift = !!(start && end && !isFerie && !isExt && !isRoulement && !isLocation);
+      // Had planned hours before the holiday flag neutralised them
+      const hadPlannedShift = !!(start && end && start !== "FERIE" && end !== "FERIE" && !isExt && !isRoulement);
       const conge = conges?.find((c) => c.employee_id === emp.id);
       const notes = schedule?.notes || null;
       let netHours = 0;
@@ -133,7 +135,7 @@ const TeamDayView = () => {
         };
         netHours = computeNetHours(dayScheduleObj).net;
       }
-      return { ...emp, start, end, breakStart, breakEnd, hasShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes };
+      return { ...emp, start, end, breakStart, breakEnd, hasShift, hadPlannedShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes };
     })
     .sort((a, b) => {
       const orderA = ROLE_ORDER.indexOf(a.role);
