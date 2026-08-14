@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.93 — 14/08/2026
+
+- **Entête figée** : la ligne des jours reste visible en haut lors du défilement, dans l'encodage du planning et dans Planning semaine.
+
 ## v4.92 — 14/08/2026
 
 - **Jour férié dans l'encodage du planning** : les champs d'horaires (et l'heure de table) sont masqués et remplacés par un bloc « FÉRIÉ ». Les heures encodées restent enregistrées et continuent de compter dans le total hebdomadaire.
