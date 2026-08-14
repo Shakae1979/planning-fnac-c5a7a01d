@@ -1,19 +1,21 @@
-# Administration → Magasins : cartes repliables
+# Jour férié : appliquer la même règle dans « Équipe du jour »
 
-## Objectif
-La liste des magasins affiche tout en même temps (réglages A/B, heure de table, responsables, horaires d'ouverture par jour), ce qui rend la page très longue pour l'admin. Chaque magasin devient une carte repliable, fermée par défaut.
+## Constat
+Le drapeau « férié » est bien enregistré (table des commentaires de journée, champ férié, par magasin et par semaine) et le Planning semaine l'utilise pour masquer les horaires et afficher la mention Férié. Dans Équipe du jour, ce même drapeau n'est lu que pour afficher un petit bandeau gris discret : les compteurs, les listes par département et la grille horaire continuent d'afficher les horaires comme un jour normal.
 
-## Ce qui change
-- Chaque magasin s'affiche par défaut en une seule ligne compacte : icône, nom, ville, nombre de collaborateurs, plus quelques badges de synthèse (semaines A/B activées, heure de table activée, nombre de responsables).
-- Un clic sur la ligne (ou sur le chevron à droite) déplie la carte et révèle le contenu actuel : bascules A/B et heure de table, liste et ajout de responsables, horaires d'ouverture par jour.
-- Les boutons Modifier et Supprimer restent visibles sur la ligne repliée et n'ouvrent pas la carte par erreur.
-- Boutons « Tout replier » / « Tout déplier » en haut de la liste.
-- L'édition du nom/ville et la recherche existante continuent de fonctionner comme aujourd'hui ; passer un magasin en mode édition n'oblige pas à le déplier.
-- Les libellés sont ajoutés en FR et NL.
+## Ce qui change dans Équipe du jour
+- Bandeau férié bien visible en haut (même style que le Planning semaine : fond sombre, drapeau, libellé « Férié »), avec le commentaire du jour s'il existe.
+- Les horaires n'apparaissent plus : les collaborateurs qui avaient un horaire ce jour-là basculent dans une liste « Férié » au lieu de « Présents », comme dans la vue semaine.
+- Les compteurs du haut passent à 0 présent / 0 heure planifiée, et le total « repos » inclut les collaborateurs concernés.
+- Plus d'alertes « Non couverts » un jour férié.
+- Les congés restent affichés (un congé posé sur un férié reste visible dans sa liste).
+- La grille horaire de la journée est grisée avec la mention Férié et ne pré-remplit aucun créneau ; elle reste consultable mais n'affiche plus les plages de travail.
 
 ## Détails techniques
-- `src/components/dashboard/StoreManager.tsx` : état local `openIds: Set<string>` (vide au départ), en-tête de carte cliquable avec `aria-expanded`, chevron `ChevronDown`/`ChevronRight`, et rendu conditionnel du bloc détaillé (bascules, responsables, `InlineStoreSettings`).
-- `stopPropagation` sur les actions Modifier/Supprimer pour éviter le toggle.
-- `InlineStoreSettings` n'est monté que lorsque la carte est ouverte, ce qui allège aussi les requêtes de réglages.
-- Nouvelles clés i18n dans `src/lib/i18n.tsx` : « Tout replier », « Tout déplier ».
-- Bump `src/lib/version.ts` en v4.91 + entrée en haut de `CHANGELOG.md`.
+- `src/pages/TeamDayView.tsx` : `isDayFerie` (déjà calculé) neutralise `hasShift` lors de la construction de `teamDay`, alimente une liste `ferieDay`, court-circuite le calcul de couverture et les heures nettes, et remplace le bandeau muted actuel par le style férié de `TeamWeekView`.
+- `src/components/team-day/HourlyGrid.tsx` : nouvelle prop `isFerie` passée depuis `TeamDayView` ; quand elle est vraie, la grille n'injecte pas les plages issues des plannings (ni les heures de table), applique un fond grisé et affiche un libellé Férié.
+- Réutilisation des clés i18n existantes (`schedule.holiday`, `teamWeek.ferie`, `teamDay.holidayBanner`) ; ajout d'une clé seulement si nécessaire.
+- Bump `src/lib/version.ts` en v4.91 et entrée en haut de `CHANGELOG.md`.
+
+## Question ouverte traitée par défaut
+La grille horaire reste éditable en cas d'exception (ouverture spéciale un férié) mais démarre vide ; dis-le si tu préfères qu'elle soit totalement verrouillée.
