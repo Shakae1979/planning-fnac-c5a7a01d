@@ -149,7 +149,7 @@ const TeamDayView = () => {
 
   const working = teamDay?.filter((e) => e.hasShift && !e.conge) || [];
   const onLeave = teamDay?.filter((e) => e.conge) || [];
-  const ferie = teamDay?.filter((e) => e.isFerie && !e.conge) || []; // legacy
+  const ferie = teamDay?.filter((e) => e.isFerie && !e.conge && (isDayFerie ? e.hadPlannedShift : true)) || [];
   const ext = teamDay?.filter((e) => e.isExt && !e.conge) || [];
   const roulement = teamDay?.filter((e) => e.isRoulement && !e.conge) || [];
   const locationEmps = teamDay?.filter((e) => e.isLocation && !e.conge) || [];
