@@ -298,8 +298,8 @@ const TeamDayView = () => {
                     while (i < uncoveredHours.length) {
                       const start = uncoveredHours[i];
                       let end = start;
-                      while (i + 1 < uncoveredHours.length && uncoveredHours[i + 1] === end + 1) { end = uncoveredHours[++i]; }
-                      ranges.push(end === start ? `${start}h` : `${start}h–${end + 1}h`);
+                      while (i + 1 < uncoveredHours.length && uncoveredHours[i + 1] === end + 30) { end = uncoveredHours[++i]; }
+                      ranges.push(`${formatTimeBE(minutesToTime(start))}–${formatTimeBE(minutesToTime(end + 30))}`);
                       i++;
                     }
                     return (
