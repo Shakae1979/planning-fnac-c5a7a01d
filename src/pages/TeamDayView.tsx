@@ -230,16 +230,19 @@ const TeamDayView = () => {
         )}
 
         {(isDayFerie || ferie.length > 0) && (
-          <div className="rounded-lg border border-muted bg-muted/30 p-3 mb-4 flex items-center gap-2">
-            <Flag className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">
+          <div className="rounded-lg bg-gray-900 dark:bg-gray-100 p-3 mb-4 flex items-center justify-center gap-2">
+            <Flag className="h-4 w-4 text-white dark:text-gray-900" />
+            <span className="text-sm font-bold uppercase tracking-wider text-white dark:text-gray-900">
+              {t("schedule.holiday")}
+            </span>
+            <span className="text-xs font-medium text-white/80 dark:text-gray-900/80">
               {t("teamDay.holidayBanner")}
               {ferie.length > 0 && ` — ${ferie.length} ${t("teamDay.employeeConcerned")}`}
             </span>
           </div>
         )}
 
-        <HourlyGrid ref={gridRef} employees={teamDay || []} date={dateStr} onStateChange={handleGridStateChange} />
+        <HourlyGrid ref={gridRef} employees={teamDay || []} date={dateStr} isFerie={isDayFerie} onStateChange={handleGridStateChange} />
 
         <div className="grid grid-cols-1 max-sm:landscape:grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4">
           <div className="space-y-3">
