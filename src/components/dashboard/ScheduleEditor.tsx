@@ -151,18 +151,17 @@ export function ScheduleEditor() {
   }));
 
   const { currentStore } = useStore();
-  const { scheduleStart, scheduleEnd } = useStoreSettings();
+  const { weekStartMin, weekEndMin, getDayRange } = useStoreSettings();
   const isDirection = currentStore?.is_direction === true;
   const hasLunchBreak = currentStore?.has_lunch_break === true && !isDirection;
 
   const TIME_SLOTS = useMemo(() => {
     const slots: string[] = [];
-    for (let h = scheduleStart; h <= scheduleEnd; h++) {
-      slots.push(`${String(h).padStart(2, "0")}:00`);
-      if (h < scheduleEnd) slots.push(`${String(h).padStart(2, "0")}:30`);
+    for (let m = weekStartMin; m <= weekEndMin; m += 30) {
+      slots.push(`${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`);
     }
     return slots;
-  }, [scheduleStart, scheduleEnd]);
+  }, [weekStartMin, weekEndMin]);
 
   // Fetch all non-direction stores for location options in direction mode
   const { data: allStores } = useQuery({
