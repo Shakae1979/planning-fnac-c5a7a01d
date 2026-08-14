@@ -99,7 +99,12 @@ export function AssistantChat() {
         });
 
         if (!res.ok || !res.body) {
-          const msg = res.status === 403 ? t("assistant.forbidden") : t("assistant.error");
+          const msg =
+            res.status === 403
+              ? t("assistant.forbidden")
+              : res.status === 429
+                ? t("assistant.quota")
+                : t("assistant.error");
           setMessages((m) => {
             const copy = [...m];
             copy[copy.length - 1] = { role: "assistant", content: msg };
@@ -175,6 +180,7 @@ export function AssistantChat() {
             <p className="text-[11px] text-muted-foreground text-left">
               {t("assistant.subtitle")}
               {currentStore ? ` — ${currentStore.name}` : ""}
+              {` · ${t("assistant.quotaHint")}`}
             </p>
           </SheetHeader>
 
