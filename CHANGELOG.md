@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.94 — 14/08/2026
+
+- **Alertes de couverture** : la catégorie Stagiaires n'apparaît plus dans « Non couverts » lorsqu'aucun stagiaire n'est planifié ce jour.
+
 ## v4.93 — 14/08/2026
 
 - **Entête figée** : la ligne des jours reste visible en haut lors du défilement, dans l'encodage du planning et dans Planning semaine.
