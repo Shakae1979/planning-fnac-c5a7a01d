@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
-import { useStoreSettings, DAY_KEYS, type DayKey } from "@/hooks/useStoreSettings";
+import { useStoreSettings, DAY_KEYS, timeToMin, type DayKey } from "@/hooks/useStoreSettings";
 import { ROLE_KEYS, ROLE_COLORS as CENTRAL_ROLE_COLORS } from "@/lib/role-colors";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -88,8 +88,9 @@ function RolePicker({ anchorRect, onSelect, onClose, roleLabels, multi }: {
 
 const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: string; onStateChange?: (s: { canSave: boolean; saving: boolean }) => void }>(function HourlyGridImpl({ employees, date, onStateChange }, ref) {
   const { t } = useI18n();
-  const { getDayRange } = useStoreSettings();
-  const dayRange = useMemo(() => getDayRange(dayKeyFromDate(date)), [date, getDayRange]);
+  const { dayHours } = useStoreSettings();
+  const day = dayHours[dayKeyFromDate(date)];
+  const dayRange = { startMin: timeToMin(day.start), endMin: timeToMin(day.end), closed: day.closed };
   const { role } = useAuth();
   const canEdit = role === "admin" || role === "editor" || role === "manager";
   const HALF_HOURS = useMemo(
