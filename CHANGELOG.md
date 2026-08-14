@@ -3,6 +3,11 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.90 — 14/08/2026
+
+- **Équipe du jour alignée sur les horaires du magasin** : les alertes « Non couverts » utilisent désormais la plage d'ouverture réelle du jour affiché (paramètres du magasin) au lieu de plages fixes, avec une précision à la demi-heure et affichage au format belge (ex. 09h30–11h00).
+- Aucun contrôle de couverture les jours marqués « Fermé ».
+
 ## v4.89 — 14/08/2026
 
 - **Horaires d'ouverture par jour** : dans les Paramètres du magasin, chaque responsable définit une plage horaire différente pour chaque jour de la semaine, par pas de 30 minutes (06h00 → 22h00), avec possibilité de marquer un jour comme fermé.
