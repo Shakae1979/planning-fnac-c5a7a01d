@@ -115,7 +115,7 @@ const TeamDayView = () => {
       const end = schedule ? (schedule as any)[`${dayKey}_end`] : null;
       const breakStart = schedule ? (schedule as any)[`${dayKey}_break_start`] : null;
       const breakEnd = schedule ? (schedule as any)[`${dayKey}_break_end`] : null;
-      const isFerie = start === "FERIE" || end === "FERIE"; // legacy data
+      const isFerie = isDayFerie || start === "FERIE" || end === "FERIE"; // legacy data + global day flag
       const isExt = start === "EXT" || end === "EXT";
       const isRoulement = start === "ROULEMENT" || end === "ROULEMENT";
       const isRepos = start === "REPOS";
@@ -162,7 +162,7 @@ const TeamDayView = () => {
 
   const daySetting = dayHours?.[dayKey as keyof typeof dayHours];
   const requiredSlot =
-    daySetting && !daySetting.closed
+    daySetting && !daySetting.closed && !isDayFerie
       ? { start: timeToMinutes(daySetting.start), end: timeToMinutes(daySetting.end) }
       : null;
   const coverageAlerts: { role: string; uncoveredHours: number[] }[] = [];
