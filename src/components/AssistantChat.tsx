@@ -16,6 +16,22 @@ interface Msg {
 
 const STORAGE_KEY = "planning-fnac-assistant";
 
+/** Rendu léger : **gras** uniquement, le reste en texte brut. */
+function RichText({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return (
+    <>
+      {parts.map((p, i) =>
+        p.startsWith("**") && p.endsWith("**") ? (
+          <strong key={i}>{p.slice(2, -2)}</strong>
+        ) : (
+          <span key={i}>{p}</span>
+        ),
+      )}
+    </>
+  );
+}
+
 export function AssistantChat() {
   const { role } = useAuth();
   const { currentStore } = useStore();
@@ -141,7 +157,7 @@ export function AssistantChat() {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="right" className="w-full sm:max-w-md flex flex-col p-0 gap-0">
           <SheetHeader className="px-4 py-3 border-b">
-            <SheetTitle className="flex items-center gap-2 text-base">
+            <SheetTitle className="flex items-center gap-2 text-base pr-8">
               <Bot className="h-4 w-4 text-primary" />
               {t("assistant.title")}
               {messages.length > 0 && (
@@ -187,14 +203,15 @@ export function AssistantChat() {
                     : "bg-muted mr-2"
                 }`}
               >
-                {m.content ||
-                  (busy && i === messages.length - 1 ? (
+                {m.content ? (
+                  <RichText text={m.content} />
+                ) : busy && i === messages.length - 1 ? (
                     <span className="inline-flex gap-1 items-center text-muted-foreground text-xs">
                       <span className="h-1.5 w-1.5 rounded-full bg-current animate-bounce" />
                       <span className="h-1.5 w-1.5 rounded-full bg-current animate-bounce [animation-delay:120ms]" />
                       <span className="h-1.5 w-1.5 rounded-full bg-current animate-bounce [animation-delay:240ms]" />
                     </span>
-                  ) : null)}
+                ) : null}
               </div>
             ))}
           </div>
