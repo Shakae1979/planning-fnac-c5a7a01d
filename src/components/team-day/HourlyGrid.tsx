@@ -86,7 +86,7 @@ function RolePicker({ anchorRect, onSelect, onClose, roleLabels, multi }: {
   );
 }
 
-const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: string; onStateChange?: (s: { canSave: boolean; saving: boolean }) => void }>(function HourlyGridImpl({ employees, date, onStateChange }, ref) {
+const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: string; isFerie?: boolean; onStateChange?: (s: { canSave: boolean; saving: boolean }) => void }>(function HourlyGridImpl({ employees, date, isFerie = false, onStateChange }, ref) {
   const { t } = useI18n();
   const { dayHours } = useStoreSettings();
   const day = dayHours[dayKeyFromDate(date)];
@@ -260,7 +260,13 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
           </Button>
         </div>
       </div>
-      <div className="overflow-x-auto rounded-lg border">
+      {isFerie && (
+        <div className="mb-2 flex items-center gap-2 rounded-lg bg-gray-900 dark:bg-gray-100 px-3 py-1.5">
+          <Flag className="h-3.5 w-3.5 text-white dark:text-gray-900" />
+          <span className="text-xs font-bold uppercase tracking-wider text-white dark:text-gray-900">{t("schedule.holiday")}</span>
+        </div>
+      )}
+      <div className={`overflow-x-auto rounded-lg border ${isFerie ? "opacity-60 grayscale" : ""}`}>
         <table className="w-full text-xs border-collapse">
           <thead>
             <tr className="bg-muted/50">
