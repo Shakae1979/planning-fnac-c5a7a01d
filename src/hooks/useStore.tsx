@@ -20,16 +20,59 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
+const lastStoreKey = (userId: string) => `planning-fnac:last-store:${userId}`;
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const { user, role } = useAuth();
   const [stores, setStores] = useState<Store[]>([]);
-  const [currentStore, setCurrentStore] = useState<Store | null>(null);
+  const [currentStore, setCurrentStoreState] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
+
+  /** Sélection manuelle : mémorisée comme magasin par défaut de la prochaine connexion. */
+  const setCurrentStore = (store: Store) => {
+    setCurrentStoreState(store);
+    if (user?.id) {
+      try {
+        localStorage.setItem(lastStoreKey(user.id), store.id);
+      } catch {
+        // localStorage indisponible : on ignore, la sélection reste effective pour la session.
+      }
+    }
+  };
+
+  /**
+   * Résout le magasin affiché à l'ouverture :
+   * 1. dernier magasin sélectionné, 2. magasin de rattachement, 3. premier magasin non-Direction.
+   */
+  const resolveInitialStore = async (list: Store[], userId: string, email?: string | null) => {
+    if (list.length === 0) return null;
+
+    let lastId: string | null = null;
+    try {
+      lastId = localStorage.getItem(lastStoreKey(userId));
+    } catch {
+      lastId = null;
+    }
+    const remembered = lastId ? list.find((s) => s.id === lastId) : undefined;
+    if (remembered) return remembered;
+
+    if (email) {
+      const { data } = await supabase
+        .from("employees")
+        .select("store_id")
+        .eq("email", email)
+        .maybeSingle();
+      const own = data?.store_id ? list.find((s) => s.id === data.store_id) : undefined;
+      if (own) return own;
+    }
+
+    return list.find((s) => !s.is_direction) ?? list[0];
+  };
 
   useEffect(() => {
     if (!user) {
       setStores([]);
-      setCurrentStore(null);
+      setCurrentStoreState(null);
       setLoading(false);
       return;
     }
@@ -43,7 +86,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const storeList = (data ?? []).map((s: any) => ({ id: s.id, name: s.name, city: s.city, has_ab_weeks: s.has_ab_weeks ?? false, has_lunch_break: s.has_lunch_break ?? false, is_direction: s.is_direction ?? false }));
         setStores(storeList);
         if (!currentStore && storeList.length > 0) {
-          setCurrentStore(storeList[0]);
+          setCurrentStoreState(await resolveInitialStore(storeList, user.id, user.email));
         }
       } else {
         // Editor/user sees only assigned stores
@@ -76,7 +119,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
         setStores(storeList);
         if (!currentStore && storeList.length > 0) {
-          setCurrentStore(storeList[0]);
+          setCurrentStoreState(await resolveInitialStore(storeList, user.id, user.email));
         }
       }
 
