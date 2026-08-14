@@ -45,7 +45,7 @@ export function CongesCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [currentQuarter, setCurrentQuarter] = useState(Math.floor(new Date().getMonth() / 3));
-  const year = new Date().getFullYear();
+  const [year, setYear] = useState(new Date().getFullYear());
 
   const congeTypes = CONGE_TYPES_KEYS.map((k) => ({
     value: k,
@@ -131,6 +131,16 @@ export function CongesCalendar() {
       <PrintLegend />
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 mr-1">
+            <Button variant="outline" size="icon" onClick={() => setYear((y) => y - 1)}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="min-w-[3.5rem] text-center text-sm font-bold tabular-nums">{year}</span>
+            <Button variant="outline" size="icon" onClick={() => setYear((y) => y + 1)}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="w-px h-6 bg-border" />
           <div className="flex items-center gap-1 mr-2">
             {["T1", "T2", "T3", "T4"].map((label, qi) => (
               <Button
