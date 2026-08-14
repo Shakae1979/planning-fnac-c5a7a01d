@@ -362,6 +362,20 @@ const TeamDayView = () => {
               </div>
             )}
 
+            {ferie.length > 0 && (
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1">
+                  <Flag className="h-3 w-3" />
+                  {t("schedule.holiday")}
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {ferie.map((emp) => (
+                    <span key={emp.id} className="py-0.5 px-2 rounded bg-gray-900 dark:bg-gray-100 text-[11px] text-white dark:text-gray-900">{getDisplayName(emp)}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {off.length > 0 && (
               <div>
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("teamDay.rest")}</div>
