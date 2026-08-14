@@ -3,6 +3,12 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.88 — 14/08/2026
+
+- **Préparation 2027** : les jours fériés belges sont désormais calculés automatiquement pour n'importe quelle année (fériés fixes + ceux liés à Pâques), plus de liste figée sur 2026.
+- **Vacances scolaires 2027** ajoutées pour les deux communautés (FWB et Vlaanderen) — dates issues des calendriers publiés, à revérifier en cas d'ajustement officiel.
+- **Sélecteur d'année dans les Congés** : navigation ‹ année › permettant de consulter les années passées et d'encoder dès maintenant les congés 2027.
+
 ## v4.87 — 14/08/2026
 - **Assistant IA (lecture seule)** : nouveau bouton « Assistant » dans l'en-tête (Admin, Manager, Éditeur). Il répond en FR/NL aux questions sur l'équipe, le planning d'une semaine, les congés, les trous de couverture d'une journée et l'ETP contractuel vs planifié, en s'appuyant sur les règles métier (pause 1h ≥6h, heures de table, Roulement/Extérieur à 0h, plafond ETP des cadres). Historique conservé dans le navigateur uniquement, aucune écriture en base.
 
