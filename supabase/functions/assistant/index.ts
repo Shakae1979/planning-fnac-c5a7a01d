@@ -68,6 +68,38 @@ Deno.serve(async (req) => {
   if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
   const { messages, store_id, lang, today } = parsed.data;
 
+  // ---------- Quota : 10 questions par utilisateur et par jour ----------
+  const DAILY_LIMIT = 10;
+  const admin = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+  const dayKeyBrussels = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Brussels",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+
+  const { data: usage } = await admin
+    .from("assistant_usage")
+    .select("id, count")
+    .eq("user_id", userData.user.id)
+    .eq("day", dayKeyBrussels)
+    .maybeSingle();
+
+  const used = usage?.count ?? 0;
+  if (used >= DAILY_LIMIT) {
+    return json({ error: "quota_exceeded", limit: DAILY_LIMIT }, 429);
+  }
+  if (usage) {
+    await admin.from("assistant_usage").update({ count: used + 1 }).eq("id", usage.id);
+  } else {
+    await admin
+      .from("assistant_usage")
+      .insert({ user_id: userData.user.id, day: dayKeyBrussels, count: 1 });
+  }
+
   // ---------- Outils (lecture seule, RLS de l'utilisateur) ----------
   const fetchEmployees = async (storeId: string) => {
     const { data, error } = await supabase

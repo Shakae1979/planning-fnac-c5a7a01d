@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.97 — 14/08/2026
+
+- **Assistant IA** : limite de 10 questions par utilisateur et par jour (compteur serveur, remise à zéro chaque jour à minuit heure belge), avec message clair quand la limite est atteinte.
+
 ## v4.96 — 14/08/2026
 
 - **SEO** : titres, descriptions et aperçus sociaux uniques par page (react-helmet-async), balise canonique, sitemap.xml référencé dans robots.txt et structure de titres corrigée (H1 sur la connexion, H1 visible sur mobile, H2 dans la vue d'ensemble).

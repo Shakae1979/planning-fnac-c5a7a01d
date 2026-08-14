@@ -85,6 +85,14 @@ const translations = {
     fr: "Tu n'as pas accès à l'assistant.",
     nl: "Je hebt geen toegang tot de assistent.",
   },
+  "assistant.quota": {
+    fr: "Limite atteinte : 10 questions par jour. Réessaie demain.",
+    nl: "Limiet bereikt: 10 vragen per dag. Probeer het morgen opnieuw.",
+  },
+  "assistant.quotaHint": {
+    fr: "10 questions par jour",
+    nl: "10 vragen per dag",
+  },
   "assistant.s1": {
     fr: "Qui est en congé cette semaine ?",
     nl: "Wie heeft deze week verlof?",
