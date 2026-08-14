@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.85 — 14/07/2026
+- **Intégrations agents (MCP)** : l'application expose un serveur MCP sécurisé par OAuth (connexion avec son compte Planning Fnac) avec 6 outils : `whoami`, `list_stores`, `list_employees`, `get_week_schedule`, `list_leaves`, `create_leave`. Nouvelle page de consentement `/.lovable/oauth/consent`.
+
 ## v4.84 — 14/07/2026
 - **Contrats à 0h autorisés** : correction du fallback qui remplaçait 0h par 36h à la sauvegarde (création, édition, import).
 
