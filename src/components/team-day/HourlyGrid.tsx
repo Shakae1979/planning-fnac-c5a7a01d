@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
-import { useStoreSettings } from "@/hooks/useStoreSettings";
+import { useStoreSettings, DAY_KEYS, timeToMin, type DayKey } from "@/hooks/useStoreSettings";
 import { ROLE_KEYS, ROLE_COLORS as CENTRAL_ROLE_COLORS } from "@/lib/role-colors";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -16,13 +16,20 @@ export interface HourlyGridHandle {
   saving: boolean;
 }
 
-function buildHalfHours(startHour: number, endHour: number) {
+function buildHalfHours(startMin: number, endMin: number) {
   const slots: { hour: number; minute: number; label: string }[] = [];
-  for (let h = startHour; h < endHour; h++) {
-    slots.push({ hour: h, minute: 0, label: `${h}h` });
-    slots.push({ hour: h, minute: 30, label: `${h}h30` });
+  for (let m = startMin; m < endMin; m += 30) {
+    const hour = Math.floor(m / 60);
+    const minute = m % 60;
+    slots.push({ hour, minute, label: minute === 0 ? `${hour}h` : `${hour}h30` });
   }
   return slots;
+}
+
+function dayKeyFromDate(date: string): DayKey {
+  const [y, m, d] = date.split("-").map(Number);
+  const js = new Date(y, (m || 1) - 1, d || 1).getDay();
+  return DAY_KEYS[js === 0 ? 6 : js - 1];
 }
 
 // Roles for the legend & cell coloring. "heure_de_table" is a special case (transparent striped).
@@ -81,10 +88,15 @@ function RolePicker({ anchorRect, onSelect, onClose, roleLabels, multi }: {
 
 const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: string; onStateChange?: (s: { canSave: boolean; saving: boolean }) => void }>(function HourlyGridImpl({ employees, date, onStateChange }, ref) {
   const { t } = useI18n();
-  const { scheduleStart, scheduleEnd } = useStoreSettings();
+  const { dayHours } = useStoreSettings();
+  const day = dayHours[dayKeyFromDate(date)];
+  const dayRange = { startMin: timeToMin(day.start), endMin: timeToMin(day.end), closed: day.closed };
   const { role } = useAuth();
   const canEdit = role === "admin" || role === "editor" || role === "manager";
-  const HALF_HOURS = useMemo(() => buildHalfHours(scheduleStart, scheduleEnd), [scheduleStart, scheduleEnd]);
+  const HALF_HOURS = useMemo(
+    () => (dayRange.closed ? [] : buildHalfHours(dayRange.startMin, dayRange.endMin)),
+    [dayRange.closed, dayRange.startMin, dayRange.endMin]
+  );
   const active = employees.filter((e) => e.hasShift && !e.conge);
   const [overrides, setOverrides] = useState<Overrides>({});
 
@@ -166,7 +178,7 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
   }), [dirty, saving, canEdit]);
   useEffect(() => { onStateChange?.({ canSave: canEdit && dirty && !saving, saving }); }, [dirty, saving, onStateChange, canEdit]);
 
-  if (active.length === 0) return null;
+  if (active.length === 0 || dayRange.closed) return null;
 
   const handleCellClick = (empId: string, hour: number, e: React.MouseEvent, minute: number = 0) => {
     if (!canEdit) return;

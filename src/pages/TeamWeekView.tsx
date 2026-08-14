@@ -66,7 +66,7 @@ const TeamWeekView = () => {
 
   const { currentStore } = useStore();
   const { employees } = useStoreEmployees(ROLE_ORDER);
-  const { scheduleStart, scheduleEnd } = useStoreSettings();
+  const { scheduleStart, scheduleEnd, getDayRange } = useStoreSettings();
   const HOURS = Array.from({ length: scheduleEnd - scheduleStart }, (_, i) => i + scheduleStart);
 
   const { data: schedules } = useQuery({
@@ -128,6 +128,16 @@ const TeamWeekView = () => {
   const GRID_START = scheduleStart * 60;
   const GRID_END = scheduleEnd * 60;
   const GRID_SPAN = GRID_END - GRID_START;
+
+  // Portions of a day column that fall outside the store's opening hours
+  const closedSegments = (day: DayKey) => {
+    const r = getDayRange(day as any);
+    if (r.closed) return [{ left: 0, width: 100 }];
+    const segs: { left: number; width: number }[] = [];
+    if (r.startMin > GRID_START) segs.push({ left: 0, width: ((r.startMin - GRID_START) / GRID_SPAN) * 100 });
+    if (r.endMin < GRID_END) segs.push({ left: ((r.endMin - GRID_START) / GRID_SPAN) * 100, width: ((GRID_END - r.endMin) / GRID_SPAN) * 100 });
+    return segs;
+  };
 
   const grouped = employees?.reduce((acc, emp) => {
     if (!acc[emp.role]) acc[emp.role] = [];
@@ -268,6 +278,13 @@ const TeamWeekView = () => {
                                     <div key={h} className="flex-1 border-r border-border/10 last:border-r-0" />
                                   ))}
                                 </div>
+                                {closedSegments(day).map((seg, si) => (
+                                  <div
+                                    key={`closed-${si}`}
+                                    className="absolute top-0 bottom-0 bg-muted/60 pointer-events-none"
+                                    style={{ left: `${seg.left}%`, width: `${seg.width}%` }}
+                                  />
+                                ))}
 
                                 {congeType ? (
                                   <div className="absolute inset-0 flex items-center px-0.5">

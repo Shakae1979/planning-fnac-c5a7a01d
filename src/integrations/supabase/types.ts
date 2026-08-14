@@ -255,6 +255,7 @@ export type Database = {
       store_settings: {
         Row: {
           created_at: string
+          day_hours: Json | null
           id: string
           schedule_end_hour: number
           schedule_start_hour: number
@@ -262,6 +263,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          day_hours?: Json | null
           id?: string
           schedule_end_hour?: number
           schedule_start_hour?: number
@@ -269,6 +271,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          day_hours?: Json | null
           id?: string
           schedule_end_hour?: number
           schedule_start_hour?: number

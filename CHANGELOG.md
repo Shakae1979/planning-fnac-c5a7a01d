@@ -3,6 +3,12 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.89 — 14/08/2026
+
+- **Horaires d'ouverture par jour** : dans les Paramètres du magasin, chaque responsable définit une plage horaire différente pour chaque jour de la semaine, par pas de 30 minutes (06h00 → 22h00), avec possibilité de marquer un jour comme fermé.
+- **Bouton « Appliquer à tous les jours »** pour recopier rapidement la ligne du lundi.
+- **Plannings synchronisés** : la grille du jour suit la plage du jour affiché, le Gantt semaine grise les zones hors ouverture, et l'encodage semaine utilise les bornes du jour concerné.
+
 ## v4.88 — 14/08/2026
 
 - **Préparation 2027** : les jours fériés belges sont désormais calculés automatiquement pour n'importe quelle année (fériés fixes + ceux liés à Pâques), plus de liste figée sur 2026.
