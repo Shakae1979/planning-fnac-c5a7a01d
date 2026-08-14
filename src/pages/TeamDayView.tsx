@@ -78,12 +78,8 @@ const TeamDayView = () => {
   const congeLabels = (type: string) => t(`leave.${type}` as any) || type;
   const roleLabels = (role: string) => t(`role.${role}.plural` as any) || t(`role.${role}` as any) || role;
 
-  const REQUIRED_SLOTS: Record<string, { start: number; end: number } | null> = {
-    lundi: { start: 10, end: 19 }, mardi: { start: 10, end: 19 }, mercredi: { start: 10, end: 19 },
-    jeudi: { start: 10, end: 19 }, vendredi: { start: 10, end: 20 }, samedi: { start: 10, end: 19 }, dimanche: null,
-  };
-
   const { currentStore } = useStore();
+  const { dayHours } = useStoreSettings();
   const { employees } = useStoreEmployees();
 
   const { data: schedules } = useQuery({
