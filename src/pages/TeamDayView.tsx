@@ -171,6 +171,8 @@ const TeamDayView = () => {
   if (requiredSlot && requiredSlot.end > requiredSlot.start && working.length > 0) {
     for (const role of ROLE_ORDER) {
       const group = workingByRole[role] || [];
+      // Les stagiaires sont un renfort : pas d'alerte de couverture si aucun n'est planifié
+      if (role === "stagiaire" && group.length === 0) continue;
       const uncovered: number[] = [];
       for (let m = requiredSlot.start; m < requiredSlot.end; m += 30) {
         const covered = group.some((emp) => timeToMinutes(emp.start) <= m && timeToMinutes(emp.end) > m);
