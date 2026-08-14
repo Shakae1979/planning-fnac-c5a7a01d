@@ -54,6 +54,7 @@ const Index = () => {
               <Calendar className="h-5 w-5" style={{ color: "hsl(var(--sidebar-active))" }} />
               <h1 className="text-base font-extrabold tracking-tight" style={{ color: "hsl(var(--sidebar-active))" }}>
                 {t("header.title")}
+                <span className="hidden lg:inline font-semibold opacity-80"> — {t("header.tagline")}</span>
               </h1>
             </div>
 
