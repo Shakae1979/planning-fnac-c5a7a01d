@@ -17,6 +17,7 @@ import TeamWeekView from "./pages/TeamWeekView.tsx";
 import CongesView from "./pages/CongesView.tsx";
 import MyAccount from "./pages/MyAccount.tsx";
 import Login from "./pages/Login.tsx";
+import OAuthConsent from "./pages/OAuthConsent.tsx";
 import ChangePassword from "./pages/ChangePassword.tsx";
 import { Loader2 } from "lucide-react";
 import { AppFooter } from "@/components/layout/AppFooter";
@@ -60,8 +61,16 @@ function ProtectedRoute({ children, adminOnly = false }: { children: React.React
   return <>{children}</>;
 }
 
+function safeNext(raw: string | null): string | null {
+  if (!raw) return null;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return null;
+  return raw;
+}
+
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const location = useLocation();
+  const next = safeNext(new URLSearchParams(location.search).get("next"));
 
   if (loading) {
     return (
@@ -73,7 +82,8 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
+      <Route path="/login" element={user ? <Navigate to={next ?? "/"} replace /> : <Login />} />
+      <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
       <Route path="/changer-mot-de-passe" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
       <Route path="/" element={<ProtectedRoute adminOnly><Index /></ProtectedRoute>} />
       <Route path="/mon-planning/:employeeName" element={<ProtectedRoute><EmployeeView /></ProtectedRoute>} />
