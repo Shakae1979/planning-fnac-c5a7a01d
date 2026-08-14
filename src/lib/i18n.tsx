@@ -785,21 +785,63 @@ export function useI18n() {
   return ctx;
 }
 
-/** Helper to get holidays map in current language */
-export function getHolidays2026(t: (key: TranslationKey) => string): Record<string, string> {
+/** Dimanche de Pâques (algorithme Meeus/Jones/Butcher), en date locale. */
+function easterSunday(year: number): Date {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31); // 3 = mars, 4 = avril
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(year, month - 1, day);
+}
+
+function ymd(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function addDays(d: Date, n: number): Date {
+  const r = new Date(d);
+  r.setDate(r.getDate() + n);
+  return r;
+}
+
+/**
+ * Jours fériés légaux belges pour n'importe quelle année,
+ * libellés dans la langue courante.
+ */
+export function getHolidays(
+  year: number,
+  t: (key: TranslationKey) => string
+): Record<string, string> {
+  const easter = easterSunday(year);
   return {
-    "2026-01-01": t("holiday.nouvelAn"),
-    "2026-04-05": t("holiday.paques"),
-    "2026-04-06": t("holiday.lundiPaques"),
-    "2026-05-01": t("holiday.feteTravail"),
-    "2026-05-14": t("holiday.ascension"),
-    "2026-05-25": t("holiday.pentecote"),
-    "2026-07-21": t("holiday.feteNationale"),
-    "2026-08-15": t("holiday.assomption"),
-    "2026-11-01": t("holiday.toussaint"),
-    "2026-11-11": t("holiday.armistice"),
-    "2026-12-25": t("holiday.noel"),
+    [`${year}-01-01`]: t("holiday.nouvelAn"),
+    [ymd(easter)]: t("holiday.paques"),
+    [ymd(addDays(easter, 1))]: t("holiday.lundiPaques"),
+    [`${year}-05-01`]: t("holiday.feteTravail"),
+    [ymd(addDays(easter, 39))]: t("holiday.ascension"),
+    [ymd(addDays(easter, 50))]: t("holiday.pentecote"),
+    [`${year}-07-21`]: t("holiday.feteNationale"),
+    [`${year}-08-15`]: t("holiday.assomption"),
+    [`${year}-11-01`]: t("holiday.toussaint"),
+    [`${year}-11-11`]: t("holiday.armistice"),
+    [`${year}-12-25`]: t("holiday.noel"),
   };
+}
+
+/** @deprecated conservé pour compatibilité — utilise getHolidays(year, t). */
+export function getHolidays2026(t: (key: TranslationKey) => string): Record<string, string> {
+  return getHolidays(2026, t);
 }
 
 /** Helper to get day names array for calendar grids (index 0 = dimanche) */
