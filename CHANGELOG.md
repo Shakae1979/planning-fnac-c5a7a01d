@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.95 — 14/08/2026
+
+- **Alertes de couverture** : la catégorie Stagiaires est désormais toujours exclue de « Non couverts », les stagiaires étant considérés comme un renfort et non comme une couverture obligatoire.
+
 ## v4.94 — 14/08/2026
 
 - **Alertes de couverture** : la catégorie Stagiaires n'apparaît plus dans « Non couverts » lorsqu'aucun stagiaire n'est planifié ce jour.
