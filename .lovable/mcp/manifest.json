@@ -1,0 +1,196 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.2",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://pkxrmkijomabvzmszcxr.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "planning-fnac",
+      "version": "1.0.0",
+      "title": "Planning Fnac"
+    },
+    "tools": [
+      {
+        "name": "whoami",
+        "title": "Mon compte",
+        "description": "Return the signed-in user's email and application role (admin, manager, editor, user).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_stores",
+        "title": "Lister les magasins",
+        "description": "List the stores the signed-in user can access, with their planning options.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_employees",
+        "title": "Lister les collaborateurs",
+        "description": "List employees of a store (name, role, contract hours, active status).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Store id; omit to list all accessible employees."
+            },
+            "include_inactive": {
+              "type": "boolean",
+              "description": "Include inactive employees (default false)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_week_schedule",
+        "title": "Planning d'une semaine",
+        "description": "Get the weekly schedule (start/end and lunch breaks per day) for a store and a week starting on Monday (YYYY-MM-DD).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Store id."
+            },
+            "week_start": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "Monday of the week, local date YYYY-MM-DD."
+            }
+          },
+          "required": [
+            "store_id",
+            "week_start"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_leaves",
+        "title": "Lister les congés",
+        "description": "List leaves/absences overlapping a date range, optionally filtered by store.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "date_start": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "Range start, YYYY-MM-DD."
+            },
+            "date_end": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "Range end, YYYY-MM-DD."
+            },
+            "store_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Limit to employees of this store."
+            }
+          },
+          "required": [
+            "date_start",
+            "date_end"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_leave",
+        "title": "Créer un congé",
+        "description": "Create a leave/absence for an employee over a date range.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "employee_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Employee id."
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Leave type code (e.g. CA, RC, MAL)."
+            },
+            "date_start": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "First day, YYYY-MM-DD."
+            },
+            "date_end": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "Last day, YYYY-MM-DD."
+            },
+            "notes": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "employee_id",
+            "type",
+            "date_start",
+            "date_end"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
