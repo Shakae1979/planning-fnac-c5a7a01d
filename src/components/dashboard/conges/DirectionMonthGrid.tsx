@@ -9,7 +9,7 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDateBE, formatLocalDate, getDisplayName } from "@/lib/format";
 import { getSchoolHolidayInfo } from "@/lib/school-holidays";
-import { useI18n, getHolidays2026, getDayNames } from "@/lib/i18n";
+import { useI18n, getHolidays, getDayNames } from "@/lib/i18n";
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
@@ -38,7 +38,7 @@ interface DirectionMonthGridProps {
 
 export function DirectionMonthGrid({ year, month, employees, conges, managerStoreNames = {}, deleteMutation, onAddConge }: DirectionMonthGridProps) {
   const { t, monthShort } = useI18n();
-  const HOLIDAYS = getHolidays2026(t);
+  const HOLIDAYS = getHolidays(year, t);
   const DAY_NAMES = getDayNames(t);
 
   const congeTypes = CONGE_TYPES.map((ct) => ({

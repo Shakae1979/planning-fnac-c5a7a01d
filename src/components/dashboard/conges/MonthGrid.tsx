@@ -5,7 +5,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { formatDateBE, getDisplayName } from "@/lib/format";
-import { useI18n, getHolidays2026, getDayNames } from "@/lib/i18n";
+import { useI18n, getHolidays, getDayNames } from "@/lib/i18n";
 import { ROLE_COLORS as CENTRAL_ROLE_COLORS } from "@/lib/role-colors";
 
 const ROLE_COLUMNS: { key: string; headerBg: string; borderColor: string; text: string }[] = (
@@ -56,7 +56,7 @@ export function MonthGrid({ year, month, employees, conges, deleteMutation, onAd
   const [showTypeDialog, setShowTypeDialog] = useState(false);
   const [selectedType, setSelectedType] = useState("conge");
 
-  const HOLIDAYS = getHolidays2026(t);
+  const HOLIDAYS = getHolidays(year, t);
   const DAY_NAMES = getDayNames(t);
 
   const roleLabels: Record<string, string> = {};
