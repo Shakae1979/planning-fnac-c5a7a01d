@@ -115,12 +115,14 @@ const TeamDayView = () => {
       const end = schedule ? (schedule as any)[`${dayKey}_end`] : null;
       const breakStart = schedule ? (schedule as any)[`${dayKey}_break_start`] : null;
       const breakEnd = schedule ? (schedule as any)[`${dayKey}_break_end`] : null;
-      const isFerie = start === "FERIE" || end === "FERIE"; // legacy data
+      const isFerie = isDayFerie || start === "FERIE" || end === "FERIE"; // legacy data + global day flag
       const isExt = start === "EXT" || end === "EXT";
       const isRoulement = start === "ROULEMENT" || end === "ROULEMENT";
       const isRepos = start === "REPOS";
       const isLocation = !!(start && (!end || end.trim() === "") && !isFerie && !isExt && !isRoulement && !isRepos && !/^\d{1,2}:\d{2}$/.test(start));
       const hasShift = !!(start && end && !isFerie && !isExt && !isRoulement && !isLocation);
+      // Had planned hours before the holiday flag neutralised them
+      const hadPlannedShift = !!(start && end && start !== "FERIE" && end !== "FERIE" && !isExt && !isRoulement);
       const conge = conges?.find((c) => c.employee_id === emp.id);
       const notes = schedule?.notes || null;
       let netHours = 0;
@@ -133,7 +135,7 @@ const TeamDayView = () => {
         };
         netHours = computeNetHours(dayScheduleObj).net;
       }
-      return { ...emp, start, end, breakStart, breakEnd, hasShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes };
+      return { ...emp, start, end, breakStart, breakEnd, hasShift, hadPlannedShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes };
     })
     .sort((a, b) => {
       const orderA = ROLE_ORDER.indexOf(a.role);
@@ -147,11 +149,11 @@ const TeamDayView = () => {
 
   const working = teamDay?.filter((e) => e.hasShift && !e.conge) || [];
   const onLeave = teamDay?.filter((e) => e.conge) || [];
-  const ferie = teamDay?.filter((e) => e.isFerie && !e.conge) || []; // legacy
+  const ferie = teamDay?.filter((e) => e.isFerie && !e.conge && (isDayFerie ? e.hadPlannedShift : true)) || [];
   const ext = teamDay?.filter((e) => e.isExt && !e.conge) || [];
   const roulement = teamDay?.filter((e) => e.isRoulement && !e.conge) || [];
   const locationEmps = teamDay?.filter((e) => e.isLocation && !e.conge) || [];
-  const off = teamDay?.filter((e) => !e.hasShift && !e.conge && !e.isFerie && !e.isExt && !e.isRoulement && !e.isLocation) || [];
+  const off = teamDay?.filter((e) => !e.hasShift && !e.conge && !e.isExt && !e.isRoulement && !e.isLocation && (isDayFerie ? !e.hadPlannedShift : !e.isFerie)) || [];
   const isToday = dayOffset === 0;
 
   const workingByRole: Record<string, typeof working> = {};
@@ -162,7 +164,7 @@ const TeamDayView = () => {
 
   const daySetting = dayHours?.[dayKey as keyof typeof dayHours];
   const requiredSlot =
-    daySetting && !daySetting.closed
+    daySetting && !daySetting.closed && !isDayFerie
       ? { start: timeToMinutes(daySetting.start), end: timeToMinutes(daySetting.end) }
       : null;
   const coverageAlerts: { role: string; uncoveredHours: number[] }[] = [];
@@ -228,16 +230,19 @@ const TeamDayView = () => {
         )}
 
         {(isDayFerie || ferie.length > 0) && (
-          <div className="rounded-lg border border-muted bg-muted/30 p-3 mb-4 flex items-center gap-2">
-            <Flag className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">
+          <div className="rounded-lg bg-gray-900 dark:bg-gray-100 p-3 mb-4 flex items-center justify-center gap-2">
+            <Flag className="h-4 w-4 text-white dark:text-gray-900" />
+            <span className="text-sm font-bold uppercase tracking-wider text-white dark:text-gray-900">
+              {t("schedule.holiday")}
+            </span>
+            <span className="text-xs font-medium text-white/80 dark:text-gray-900/80">
               {t("teamDay.holidayBanner")}
               {ferie.length > 0 && ` — ${ferie.length} ${t("teamDay.employeeConcerned")}`}
             </span>
           </div>
         )}
 
-        <HourlyGrid ref={gridRef} employees={teamDay || []} date={dateStr} onStateChange={handleGridStateChange} />
+        <HourlyGrid ref={gridRef} employees={teamDay || []} date={dateStr} isFerie={isDayFerie} onStateChange={handleGridStateChange} />
 
         <div className="grid grid-cols-1 max-sm:landscape:grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4">
           <div className="space-y-3">
@@ -352,6 +357,20 @@ const TeamDayView = () => {
                         {emp.locationName}
                       </span>
                     </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {ferie.length > 0 && (
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1">
+                  <Flag className="h-3 w-3" />
+                  {t("schedule.holiday")}
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {ferie.map((emp) => (
+                    <span key={emp.id} className="py-0.5 px-2 rounded bg-gray-900 dark:bg-gray-100 text-[11px] text-white dark:text-gray-900">{getDisplayName(emp)}</span>
                   ))}
                 </div>
               </div>
