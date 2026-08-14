@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.87 — 14/08/2026
+- **Assistant IA (lecture seule)** : nouveau bouton « Assistant » dans l'en-tête (Admin, Manager, Éditeur). Il répond en FR/NL aux questions sur l'équipe, le planning d'une semaine, les congés, les trous de couverture d'une journée et l'ETP contractuel vs planifié, en s'appuyant sur les règles métier (pause 1h ≥6h, heures de table, Roulement/Extérieur à 0h, plafond ETP des cadres). Historique conservé dans le navigateur uniquement, aucune écriture en base.
+
 ## v4.86 — 14/08/2026
 - **Magasin par défaut à la connexion** : l'application ouvre sur le dernier magasin sélectionné, sinon sur le magasin de rattachement du collaborateur (« Direction Fnac » n'est plus choisi par défaut).
 

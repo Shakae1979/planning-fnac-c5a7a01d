@@ -61,6 +61,42 @@ const translations = {
   "direction.assignDesc": { fr: "Assignez les utilisateurs qui auront accès à la vue Direction", nl: "Wijs gebruikers toe die toegang krijgen tot de Directieweergave" },
   "store.assignUser": { fr: "Assigner un utilisateur", nl: "Gebruiker toewijzen" },
   "nav.logout": { fr: "Déconnexion", nl: "Afmelden" },
+
+  // ========== Assistant IA ==========
+  "assistant.title": { fr: "Assistant", nl: "Assistent" },
+  "assistant.subtitle": {
+    fr: "Questions sur le planning, les congés et les heures",
+    nl: "Vragen over planning, verlof en uren",
+  },
+  "assistant.empty": {
+    fr: "Pose ta question, ou choisis un exemple :",
+    nl: "Stel je vraag, of kies een voorbeeld:",
+  },
+  "assistant.placeholder": {
+    fr: "Ex. : qui travaille samedi matin ?",
+    nl: "Bv.: wie werkt zaterdagochtend?",
+  },
+  "assistant.new": { fr: "Nouvelle", nl: "Nieuw" },
+  "assistant.error": {
+    fr: "Une erreur est survenue. Réessaie dans un instant.",
+    nl: "Er is een fout opgetreden. Probeer het zo meteen opnieuw.",
+  },
+  "assistant.forbidden": {
+    fr: "Tu n'as pas accès à l'assistant.",
+    nl: "Je hebt geen toegang tot de assistent.",
+  },
+  "assistant.s1": {
+    fr: "Qui est en congé cette semaine ?",
+    nl: "Wie heeft deze week verlof?",
+  },
+  "assistant.s2": {
+    fr: "Y a-t-il des trous de couverture demain ?",
+    nl: "Zijn er dekkingsgaten morgen?",
+  },
+  "assistant.s3": {
+    fr: "Quel est l'écart ETP de cette semaine ?",
+    nl: "Wat is het VTE-verschil van deze week?",
+  },
   "nav.collapse": { fr: "Réduire", nl: "Inklappen" },
   "nav.expand": { fr: "Agrandir", nl: "Uitklappen" },
   "nav.planning": { fr: "Planning", nl: "Planning" },
