@@ -673,6 +673,10 @@ const translations = {
   "settings.errorSaving": { fr: "Erreur lors de la sauvegarde", nl: "Fout bij het opslaan" },
   "settings.planningHours": { fr: "Horaires planning", nl: "Planningsuren" },
   "settings.hoursSaved": { fr: "Horaires sauvegardés", nl: "Uren opgeslagen" },
+  "settings.day": { fr: "Jour", nl: "Dag" },
+  "settings.closed": { fr: "Fermé", nl: "Gesloten" },
+  "settings.applyToAll": { fr: "Appliquer à tous les jours", nl: "Op alle dagen toepassen" },
+  "settings.storeClosed": { fr: "Magasin fermé ce jour", nl: "Winkel gesloten op deze dag" },
 
   // ========== Hourly grid extras ==========
   "hourlyGrid.applySelection": { fr: "Appliquer à la sélection", nl: "Toepassen op selectie" },
