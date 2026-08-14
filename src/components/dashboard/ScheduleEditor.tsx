@@ -1220,7 +1220,13 @@ export function ScheduleEditor() {
                         const isRoulement = startVal?.toLowerCase() === "roulement" || endVal?.toLowerCase() === "roulement";
                         return (
                           <td key={`${day.key}-cell`} colSpan={2} className={`py-0.5 px-0.5 ${isRoulement ? "bg-muted/60" : isCellSource ? "bg-primary/10" : ferieDay ? "bg-muted/50" : ""}`}>
-                            {isDirection ? (
+                            {ferieDay ? (
+                              <div className="flex items-center justify-center py-1">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-900 dark:bg-gray-100 text-[9px] font-bold text-white dark:text-gray-900 uppercase tracking-wide">
+                                  <Flag className="h-2.5 w-2.5" />{t("schedule.holiday")}
+                                </span>
+                              </div>
+                            ) : isDirection ? (
                               /* Direction mode: single location select */
                               <div className="flex items-center gap-0.5">
                                 <select
@@ -1314,7 +1320,7 @@ export function ScheduleEditor() {
                               )}
                             </div>
                             )}
-                            {hasLunchBreak && !isDirection && !isRoulement && (
+                            {hasLunchBreak && !ferieDay && !isDirection && !isRoulement && (
                               <div className="flex items-center gap-0.5 mt-0.5" title={t("schedule.break" as any)}>
                                 <input
                                   type="text"
@@ -1334,13 +1340,6 @@ export function ScheduleEditor() {
                                   placeholder={t("schedule.break" as any)}
                                   className="flex-1 min-w-0 px-0 py-0 text-[10px] rounded border border-dashed bg-muted/30 focus:outline-none focus:ring-1 focus:ring-accent font-mono-data text-center text-muted-foreground"
                                 />
-                              </div>
-                            )}
-                            {ferieDay && (
-                              <div className="text-center mt-0.5">
-                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0 rounded bg-foreground text-[8px] font-bold text-background uppercase">
-                                  <Flag className="h-2 w-2" />{t("schedule.holiday")}
-                                </span>
                               </div>
                             )}
                           </td>

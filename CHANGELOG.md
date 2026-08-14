@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.92 — 14/08/2026
+
+- **Jour férié dans l'encodage du planning** : les champs d'horaires (et l'heure de table) sont masqués et remplacés par un bloc « FÉRIÉ ». Les heures encodées restent enregistrées et continuent de compter dans le total hebdomadaire.
+
 ## v4.91 — 14/08/2026
 
 - **Jour férié dans Équipe du jour** : le drapeau férié prend désormais le pas sur les horaires — bandeau férié bien visible, horaires masqués, collaborateurs concernés listés sous « Férié », compteurs de présence à 0 et plus d'alertes de couverture.
