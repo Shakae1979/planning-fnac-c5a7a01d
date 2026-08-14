@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      assistant_usage: {
+        Row: {
+          count: number
+          created_at: string
+          day: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          day?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          day?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       conges: {
         Row: {
           created_at: string
