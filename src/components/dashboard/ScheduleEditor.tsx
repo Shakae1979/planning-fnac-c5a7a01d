@@ -1004,17 +1004,17 @@ export function ScheduleEditor() {
 
       {/* Schedule grid */}
       <div className="kpi-card overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-auto max-h-[75vh]">
           <table className="w-full text-[11px]">
             <thead>
               <tr className="border-b">
-                <th className="pb-1 pr-2 text-left font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[90px] max-w-[110px]">
+                <th className="pt-1 pb-1 pr-2 text-left font-semibold text-muted-foreground sticky left-0 top-0 bg-card z-30 min-w-[90px] max-w-[110px]">
                   {t("schedule.seller")}
                 </th>
                 {DAYS.map((day) => {
                   const ferie = isDayFerie(day.key);
                   return (
-                  <th key={day.key} colSpan={2} className={`pb-1 text-center font-semibold min-w-[80px] ${ferie ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900" : "text-muted-foreground"}`}>
+                  <th key={day.key} colSpan={2} className={`sticky top-0 z-20 pt-1 pb-1 text-center font-semibold min-w-[80px] ${ferie ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900" : "bg-card text-muted-foreground"}`}>
                     <div className="flex items-center justify-center gap-1">
                       {copiedDay !== null && copiedDay !== day.key && (
                         <Checkbox
@@ -1055,7 +1055,7 @@ export function ScheduleEditor() {
                   </th>
                   );
                 })}
-                <th className="pb-1 text-center font-semibold text-muted-foreground min-w-[40px]">{t("schedule.total")}</th>
+                <th className="sticky top-0 z-20 bg-card pt-1 pb-1 text-center font-semibold text-muted-foreground min-w-[40px]">{t("schedule.total")}</th>
               </tr>
               {/* Day comments row */}
               <tr className="border-b bg-muted/30">
