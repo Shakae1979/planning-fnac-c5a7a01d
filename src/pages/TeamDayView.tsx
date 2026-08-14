@@ -17,12 +17,6 @@ import { useI18n } from "@/lib/i18n";
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 
-function timeToHours(t: string | null): number {
-  if (!t) return 0;
-  const [h, m] = t.split(":").map(Number);
-  return h + (m || 0) / 60;
-}
-
 function timeToMinutes(t: string | null): number {
   if (!t) return 0;
   const [h, m] = t.split(":").map(Number);
