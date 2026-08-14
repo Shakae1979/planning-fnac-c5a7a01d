@@ -11,15 +11,22 @@ import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName } from "@/l
 import { computeNetHours } from "@/lib/hours";
 import { useStore } from "@/hooks/useStore";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useI18n } from "@/lib/i18n";
 
 const ROLE_ORDER = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"];
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 
-function timeToHours(t: string | null): number {
+function timeToMinutes(t: string | null): number {
   if (!t) return 0;
   const [h, m] = t.split(":").map(Number);
-  return h + (m || 0) / 60;
+  return h * 60 + (m || 0);
+}
+
+function minutesToTime(min: number): string {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
 function getMonday(date: Date): Date {
@@ -65,12 +72,8 @@ const TeamDayView = () => {
   const congeLabels = (type: string) => t(`leave.${type}` as any) || type;
   const roleLabels = (role: string) => t(`role.${role}.plural` as any) || t(`role.${role}` as any) || role;
 
-  const REQUIRED_SLOTS: Record<string, { start: number; end: number } | null> = {
-    lundi: { start: 10, end: 19 }, mardi: { start: 10, end: 19 }, mercredi: { start: 10, end: 19 },
-    jeudi: { start: 10, end: 19 }, vendredi: { start: 10, end: 20 }, samedi: { start: 10, end: 19 }, dimanche: null,
-  };
-
   const { currentStore } = useStore();
+  const { dayHours } = useStoreSettings();
   const { employees } = useStoreEmployees();
 
   const { data: schedules } = useQuery({
@@ -157,15 +160,19 @@ const TeamDayView = () => {
     workingByRole[emp.role].push(emp);
   }
 
-  const requiredSlot = REQUIRED_SLOTS[dayKey];
+  const daySetting = dayHours?.[dayKey as keyof typeof dayHours];
+  const requiredSlot =
+    daySetting && !daySetting.closed
+      ? { start: timeToMinutes(daySetting.start), end: timeToMinutes(daySetting.end) }
+      : null;
   const coverageAlerts: { role: string; uncoveredHours: number[] }[] = [];
-  if (requiredSlot && working.length > 0) {
+  if (requiredSlot && requiredSlot.end > requiredSlot.start && working.length > 0) {
     for (const role of ROLE_ORDER) {
       const group = workingByRole[role] || [];
       const uncovered: number[] = [];
-      for (let h = requiredSlot.start; h < requiredSlot.end; h++) {
-        const covered = group.some((emp) => timeToHours(emp.start) <= h && timeToHours(emp.end) > h);
-        if (!covered) uncovered.push(h);
+      for (let m = requiredSlot.start; m < requiredSlot.end; m += 30) {
+        const covered = group.some((emp) => timeToMinutes(emp.start) <= m && timeToMinutes(emp.end) > m);
+        if (!covered) uncovered.push(m);
       }
       if (uncovered.length > 0) coverageAlerts.push({ role, uncoveredHours: uncovered });
     }
@@ -285,8 +292,8 @@ const TeamDayView = () => {
                     while (i < uncoveredHours.length) {
                       const start = uncoveredHours[i];
                       let end = start;
-                      while (i + 1 < uncoveredHours.length && uncoveredHours[i + 1] === end + 1) { end = uncoveredHours[++i]; }
-                      ranges.push(end === start ? `${start}h` : `${start}h–${end + 1}h`);
+                      while (i + 1 < uncoveredHours.length && uncoveredHours[i + 1] === end + 30) { end = uncoveredHours[++i]; }
+                      ranges.push(`${formatTimeBE(minutesToTime(start))}–${formatTimeBE(minutesToTime(end + 30))}`);
                       i++;
                     }
                     return (
