@@ -244,7 +244,7 @@ export function DashboardOverview() {
 
       {/* Coverage heatmap */}
       <div className="kpi-card overflow-hidden">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-4">{t("recap.coverage")}</h3>
+        <h2 className="text-sm font-semibold text-muted-foreground mb-4">{t("recap.coverage")}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
@@ -296,7 +296,7 @@ export function DashboardOverview() {
 
       {/* Category coverage */}
       <div className="kpi-card">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-4">{t("recap.categoryCoverage")}</h3>
+        <h2 className="text-sm font-semibold text-muted-foreground mb-4">{t("recap.categoryCoverage")}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
