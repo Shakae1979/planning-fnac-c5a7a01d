@@ -3,6 +3,11 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.91 — 14/08/2026
+
+- **Jour férié dans Équipe du jour** : le drapeau férié prend désormais le pas sur les horaires — bandeau férié bien visible, horaires masqués, collaborateurs concernés listés sous « Férié », compteurs de présence à 0 et plus d'alertes de couverture.
+- Grille horaire du jour grisée et vide les jours fériés (toujours éditable pour les ouvertures exceptionnelles).
+
 ## v4.90 — 14/08/2026
 
 - **Équipe du jour alignée sur les horaires du magasin** : les alertes « Non couverts » utilisent désormais la plage d'ouverture réelle du jour affiché (paramètres du magasin) au lieu de plages fixes, avec une précision à la demi-heure et affichage au format belge (ex. 09h30–11h00).
