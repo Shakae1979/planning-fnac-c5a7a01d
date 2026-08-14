@@ -175,11 +175,11 @@ const TeamWeekView = () => {
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-indigo-400" /> {t("teamWeek.exterior")}</span>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-auto max-h-[75vh]">
           <table className="w-full border-collapse text-xs" style={{ minWidth: 1200 }}>
             <thead>
               <tr>
-                <th className="sticky left-0 z-20 bg-card border-b border-r px-2 py-2 text-left font-semibold text-muted-foreground w-[140px]">
+                <th className="sticky left-0 top-0 z-30 bg-card border-b border-r px-2 py-2 text-left font-semibold text-muted-foreground w-[140px]">
                   {t("teamWeek.seller")}
                 </th>
                 {DAYS.map((day, di) => {
@@ -187,7 +187,7 @@ const TeamWeekView = () => {
                   dayDate.setDate(dayDate.getDate() + di);
                   const isFerieDay = dayComments?.find(dc => dc.day_key === day.key)?.is_ferie ?? false;
                   return (
-                    <th key={day.key} className={`border-b border-r px-1 py-2 text-center font-semibold ${isFerieDay ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900" : "text-muted-foreground"}`} style={{ minWidth: 140 }}>
+                    <th key={day.key} className={`sticky top-0 z-20 border-b border-r px-1 py-2 text-center font-semibold ${isFerieDay ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900" : "bg-card text-muted-foreground"}`} style={{ minWidth: 140 }}>
                       <div className="flex items-center justify-center gap-1">
                         <span>{day.label}</span>
                         {isFerieDay && <Flag className="h-3 w-3" />}
