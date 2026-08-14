@@ -21,6 +21,8 @@ import OAuthConsent from "./pages/OAuthConsent.tsx";
 import ChangePassword from "./pages/ChangePassword.tsx";
 import { Loader2 } from "lucide-react";
 import { AppFooter } from "@/components/layout/AppFooter";
+import { HelmetProvider } from "react-helmet-async";
+import { RouteMeta } from "@/components/seo/RouteMeta";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +100,7 @@ function AppRoutes() {
 }
 
 const App = () => (
+  <HelmetProvider>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -107,6 +110,7 @@ const App = () => (
           <ThemeProvider>
             <AuthProvider>
               <StoreProvider>
+                <RouteMeta />
                 <AppRoutes />
                 <AppFooter />
               </StoreProvider>
@@ -116,6 +120,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </HelmetProvider>
 );
 
 export default App;
