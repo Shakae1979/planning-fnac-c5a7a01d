@@ -97,7 +97,7 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
             </span>
           )}
 
-          <div className="hidden xl:flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
             <div className="h-5 w-px shrink-0" style={{ background: "hsl(var(--sidebar-fg) / 0.2)" }} />
             {Icon && <Icon className="h-5 w-5 shrink-0" style={{ color: "hsl(var(--sidebar-fg))" }} />}
             <div className="min-w-0">
