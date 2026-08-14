@@ -119,6 +119,7 @@ const translations = {
   "header.weekPlan": { fr: "Planning semaine", nl: "Weekplanning" },
   "header.myPlan": { fr: "Mon planning", nl: "Mijn planning" },
   "header.title": { fr: "Planning Fnac", nl: "Planning Fnac" },
+  "header.tagline": { fr: "Gestion des plannings", nl: "Planningbeheer" },
   "header.mgmt": { fr: "Gestion des plannings", nl: "Roosterbeheer" },
 
   // ========== Days short ==========
