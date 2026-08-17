@@ -43,7 +43,7 @@ function ProtectedRoute({ children, adminOnly = false }: { children: React.React
       });
   }, [user?.email]);
 
-  if (loading) {
+  if (loading || (user && role === null) || (user && mustChange === null)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
