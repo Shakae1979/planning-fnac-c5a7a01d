@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.99 — 17/08/2026
+
+- **Stabilité au rafraîchissement** : l'application attend désormais de connaître le rôle avant d'afficher une page — fin des redirections parasites (admin renvoyé vers « Équipe du jour »), du magasin qui change tout seul et des clignotements d'interface après un F5.
+
 ## v4.98 — 17/08/2026
 
 - **Impression** : rétablissement de la vue complète — les tableaux à en-tête figé (planning, planning semaine, congés) ne sont plus coupés à la zone visible, les en-têtes se répètent sur chaque page et les lignes ne sont plus coupées en deux.
