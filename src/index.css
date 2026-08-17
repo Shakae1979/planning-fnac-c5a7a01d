@@ -167,6 +167,25 @@
     print-color-adjust: exact;
     font-size: 10px !important;
   }
+  /* Vue complète : neutraliser les conteneurs défilants à hauteur limitée */
+  [class*="overflow-auto"],
+  [class*="overflow-y-auto"],
+  [class*="overflow-x-auto"],
+  [class*="overflow-hidden"] {
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .sticky,
+  [class*="sticky"] {
+    position: static !important;
+  }
+  thead {
+    display: table-header-group;
+  }
+  tr {
+    break-inside: avoid;
+  }
   nav, button, .no-print {
     display: none !important;
   }
