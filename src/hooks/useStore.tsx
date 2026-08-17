@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
@@ -27,9 +27,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [stores, setStores] = useState<Store[]>([]);
   const [currentStore, setCurrentStoreState] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
+  const currentStoreRef = useRef<Store | null>(null);
+  const requestIdRef = useRef(0);
 
   /** Sélection manuelle : mémorisée comme magasin par défaut de la prochaine connexion. */
   const setCurrentStore = (store: Store) => {
+    currentStoreRef.current = store;
     setCurrentStoreState(store);
     if (user?.id) {
       try {
@@ -71,11 +74,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!user) {
+      requestIdRef.current += 1;
+      currentStoreRef.current = null;
       setStores([]);
       setCurrentStoreState(null);
       setLoading(false);
       return;
     }
+
+    // Tant que le rôle n'est pas connu, on ne charge rien : éviter une première
+    // liste restreinte remplacée ensuite (magasin qui « saute » au rafraîchissement).
+    if (!role) {
+      setLoading(true);
+      return;
+    }
+
+    const reqId = ++requestIdRef.current;
+    const isStale = () => reqId !== requestIdRef.current;
 
     const fetchStores = async () => {
       setLoading(true);
@@ -84,9 +99,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         // Admin sees all stores
         const { data } = await supabase.from("stores").select("*").order("name");
         const storeList = (data ?? []).map((s: any) => ({ id: s.id, name: s.name, city: s.city, has_ab_weeks: s.has_ab_weeks ?? false, has_lunch_break: s.has_lunch_break ?? false, is_direction: s.is_direction ?? false }));
+        if (isStale()) return;
         setStores(storeList);
-        if (!currentStore && storeList.length > 0) {
-          setCurrentStoreState(await resolveInitialStore(storeList, user.id, user.email));
+        if (!currentStoreRef.current && storeList.length > 0) {
+          const initial = await resolveInitialStore(storeList, user.id, user.email);
+          if (isStale()) return;
+          currentStoreRef.current = initial;
+          setCurrentStoreState(initial);
         }
       } else {
         // Editor/user sees only assigned stores
@@ -117,17 +136,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             });
           }
         }
+        if (isStale()) return;
         setStores(storeList);
-        if (!currentStore && storeList.length > 0) {
-          setCurrentStoreState(await resolveInitialStore(storeList, user.id, user.email));
+        if (!currentStoreRef.current && storeList.length > 0) {
+          const initial = await resolveInitialStore(storeList, user.id, user.email);
+          if (isStale()) return;
+          currentStoreRef.current = initial;
+          setCurrentStoreState(initial);
         }
       }
 
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     };
 
     fetchStores();
-  }, [user, role]);
+  }, [user?.id, role]);
 
   return (
     <StoreContext.Provider value={{ stores, currentStore, setCurrentStore, loading }}>
