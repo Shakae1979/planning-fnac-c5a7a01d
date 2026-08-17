@@ -32,7 +32,14 @@ function ProtectedRoute({ children, adminOnly = false }: { children: React.React
   const location = useLocation();
 
   React.useEffect(() => {
-    if (!user?.email) return;
+    if (!user) {
+      setMustChange(null);
+      return;
+    }
+    if (!user.email) {
+      setMustChange(false);
+      return;
+    }
     supabase
       .from("employees")
       .select("must_change_password")
