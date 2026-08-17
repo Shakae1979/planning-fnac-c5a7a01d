@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v4.98 — 17/08/2026
+
+- **Impression** : rétablissement de la vue complète — les tableaux à en-tête figé (planning, planning semaine, congés) ne sont plus coupés à la zone visible, les en-têtes se répètent sur chaque page et les lignes ne sont plus coupées en deux.
+
 ## v4.97 — 14/08/2026
 
 - **Assistant IA** : limite de 10 questions par utilisateur et par jour (compteur serveur, remise à zéro chaque jour à minuit heure belge), avec message clair quand la limite est atteinte.
