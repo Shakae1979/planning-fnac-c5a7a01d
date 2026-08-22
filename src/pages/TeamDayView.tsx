@@ -5,7 +5,9 @@ import { WeekNavigator } from "@/components/WeekNavigator";
 import HourlyGrid, { type HourlyGridHandle } from "@/components/team-day/HourlyGrid";
 import { FnacHeader } from "@/components/FnacHeader";
 import { RotateHint } from "@/components/RotateHint";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
+import { groupDayRoles, buildRoleSegments, splitHoursByRole, toMin, type DayRoleRow } from "@/lib/day-roles";
+
 import { Button } from "@/components/ui/button";
 import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName } from "@/lib/format";
 import { computeNetHours } from "@/lib/hours";
