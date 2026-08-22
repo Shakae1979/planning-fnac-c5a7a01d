@@ -3,7 +3,12 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.06 — 22/08/2026
+
+- **Semaine type et multi-métiers** : les plages de métier encodées sont désormais mémorisées avec la semaine type (A/B) et réappliquées lors de l'application du modèle.
+
 ## v5.05 — 22/08/2026
+
 
 - **Simplification visuelle** : mise à jour des libellés dans l'éditeur de rôles journaliers pour plus de clarté ("Autre rôle").
 
