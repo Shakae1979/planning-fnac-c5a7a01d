@@ -14,6 +14,8 @@ import { Save, Shield, PenTool, User, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
 import { useAuth } from "@/hooks/useAuth";
+import { getRoleColors } from "@/lib/role-colors";
+
 
 const ROLE_KEYS = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
 
