@@ -343,14 +343,18 @@ const TeamWeekView = () => {
                                       return (
                                         <>
                                           <div
-                                            className={`absolute h-5 rounded ${colors.bar} flex items-center justify-center text-[9px] font-semibold text-white shadow-sm`}
+                                            className={`absolute h-5 rounded ${dayColors.bar} flex items-center justify-center gap-1 text-[9px] font-semibold text-white shadow-sm ${isRoleSwitch ? "ring-1 ring-white/70 dark:ring-black/40" : ""}`}
                                             style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
-                                            title={`${formatTimeBE(start)} — ${formatTimeBE(end)}${showBreak ? `\nPause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}` : ""}`}
+                                            title={`${formatTimeBE(start)} — ${formatTimeBE(end)}${showBreak ? `\nPause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}` : ""}${isRoleSwitch ? `\n${t("schedule.dayRole" as any)} : ${t(`role.${dayRole}` as any)}` : ""}`}
                                           >
                                             {widthPct > 12 && (
                                               <span>{isFerie ? `🏴 ` : ""}{formatTimeBE(start)}–{formatTimeBE(end)}</span>
                                             )}
+                                            {isRoleSwitch && widthPct > 20 && (
+                                              <span className="px-1 rounded bg-black/25 uppercase tracking-wide">{t(`role.${dayRole}.short` as any)}</span>
+                                            )}
                                           </div>
+
                                           {showBreak && (
                                             <div
                                               className="absolute h-5 rounded bg-white/70 dark:bg-white/40 border border-white/80 pointer-events-none"
