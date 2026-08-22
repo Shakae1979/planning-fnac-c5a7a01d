@@ -234,6 +234,18 @@ export function StoreManager() {
     onError: (err) => toast.error((err as Error).message),
   });
 
+  const toggleMultiRolesMutation = useMutation({
+    mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
+      const { error } = await supabase.from("stores").update({ has_multi_roles: enabled } as any).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["stores"] });
+      toast.success(t("store.updated"));
+    },
+    onError: (err) => toast.error((err as Error).message),
+  });
+
   // Editors/admins available to assign (not already assigned to this store)
   const getAvailableUsers = (storeId: string) => {
     const assigned = new Set((storeManagers[storeId] || []).map((m) => m.user_id));
@@ -375,6 +387,19 @@ export function StoreManager() {
                     <div>
                       <span className="text-xs font-medium text-foreground">{t("store.lunchBreak" as any)}</span>
                       <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.lunchBreakDesc" as any)}</span>
+                    </div>
+                  </div>
+
+                  {/* Multi-roles toggle */}
+                  <div className="pl-11 flex items-center gap-2 py-1">
+                    <Switch
+                      checked={(store as any).has_multi_roles ?? false}
+                      onCheckedChange={(checked) => toggleMultiRolesMutation.mutate({ id: store.id, enabled: checked })}
+                      disabled={toggleMultiRolesMutation.isPending}
+                    />
+                    <div>
+                      <span className="text-xs font-medium text-foreground">{t("store.multiRoles" as any)}</span>
+                      <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.multiRolesDesc" as any)}</span>
                     </div>
                   </div>
 

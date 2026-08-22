@@ -487,6 +487,9 @@ const translations = {
   "store.abWeeksDesc": { fr: "Alterner entre deux semaines types", nl: "Afwisselen tussen twee modelweken" },
   "store.lunchBreak": { fr: "Encodage de l'heure de table", nl: "Invoer van de etenstijd" },
   "store.lunchBreakDesc": { fr: "Permettre de saisir la pause par jour", nl: "Mogelijk maken om de pauze per dag in te voeren" },
+  "store.multiRoles": { fr: "Multi-métiers", nl: "Multi-functies" },
+  "store.multiRolesDesc": { fr: "Autoriser les métiers secondaires et le changement de métier en journée", nl: "Secundaire functies en functiewissel tijdens de dag toestaan" },
+
   "schedule.break": { fr: "Pause", nl: "Pauze" },
   "store.deleted": { fr: "Magasin supprimé !", nl: "Winkel verwijderd!" },
   "store.nameAndCity": { fr: "Nom et ville requis", nl: "Naam en stad vereist" },

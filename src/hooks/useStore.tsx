@@ -8,6 +8,7 @@ interface Store {
   city: string;
   has_ab_weeks?: boolean;
   has_lunch_break?: boolean;
+  has_multi_roles?: boolean;
   is_direction?: boolean;
 }
 
@@ -98,7 +99,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (role === "admin") {
         // Admin sees all stores
         const { data } = await supabase.from("stores").select("*").order("name");
-        const storeList = (data ?? []).map((s: any) => ({ id: s.id, name: s.name, city: s.city, has_ab_weeks: s.has_ab_weeks ?? false, has_lunch_break: s.has_lunch_break ?? false, is_direction: s.is_direction ?? false }));
+        const storeList = (data ?? []).map((s: any) => ({ id: s.id, name: s.name, city: s.city, has_ab_weeks: s.has_ab_weeks ?? false, has_lunch_break: s.has_lunch_break ?? false, has_multi_roles: s.has_multi_roles ?? false, is_direction: s.is_direction ?? false }));
         if (isStale()) return;
         setStores(storeList);
         if (!currentStoreRef.current && storeList.length > 0) {
@@ -116,13 +117,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           city: s.store_city,
           has_lunch_break: s.store_has_lunch_break ?? false,
           has_ab_weeks: s.store_has_ab_weeks ?? false,
+          has_multi_roles: (s as any).store_has_multi_roles ?? false,
           is_direction: s.store_is_direction ?? false,
         }));
         // Managers also get access to the Direction Fnac virtual store automatically
         if (role === "manager" && !storeList.some((s) => s.is_direction)) {
           const { data: dirData } = await supabase
             .from("stores")
-            .select("id, name, city, has_ab_weeks, has_lunch_break, is_direction")
+            .select("id, name, city, has_ab_weeks, has_lunch_break, has_multi_roles, is_direction")
             .eq("is_direction", true)
             .maybeSingle();
           if (dirData) {
@@ -132,6 +134,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               city: dirData.city,
               has_ab_weeks: dirData.has_ab_weeks ?? false,
               has_lunch_break: dirData.has_lunch_break ?? false,
+              has_multi_roles: (dirData as any).has_multi_roles ?? false,
               is_direction: dirData.is_direction ?? false,
             });
           }

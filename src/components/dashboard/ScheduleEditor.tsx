@@ -340,7 +340,8 @@ export function ScheduleEditor() {
     },
   });
 
-  const dayRoleMap = useMemo(() => groupDayRoles(dayRoles), [dayRoles]);
+  const multiRolesEnabled = currentStore?.has_multi_roles === true;
+  const dayRoleMap = useMemo(() => (multiRolesEnabled ? groupDayRoles(dayRoles) : {}), [dayRoles, multiRolesEnabled]);
 
   const saveDayRanges = async (empId: string, dayIndex: number, ranges: { role: string; start: string; end: string }[]) => {
     const date = getDayDate(currentMonday, dayIndex);
@@ -1390,7 +1391,7 @@ export function ScheduleEditor() {
                             )}
                             {(() => {
                               const secondaries = (((emp as any).secondary_roles as string[] | null) || []).filter((r) => r && r !== emp.role);
-                              if (secondaries.length === 0 || ferieDay || isDirection || !hasValue || isRoulement) return null;
+                              if (!multiRolesEnabled || secondaries.length === 0 || ferieDay || isDirection || !hasValue || isRoulement) return null;
                               const dayDate = getDayDate(currentMonday, dayIndex);
                               const isTime = (v: string | null) => !!v && /^\d{1,2}:\d{2}$/.test(v);
                               if (!isTime(startVal) || !isTime(endVal)) return null;

@@ -115,7 +115,8 @@ const TeamWeekView = () => {
     },
   });
 
-  const dayRoleMap = useMemo(() => groupDayRoles(dayRoles), [dayRoles]);
+  const multiRolesEnabled = currentStore?.has_multi_roles === true;
+  const dayRoleMap = useMemo(() => (multiRolesEnabled ? groupDayRoles(dayRoles) : {}), [dayRoles, multiRolesEnabled]);
 
 
 

@@ -6,6 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { formatDateBE, formatLocalDate, getDisplayName } from "@/lib/format";
 import { computeNetHours } from "@/lib/hours";
 import { groupDayRoles, buildRoleSegments, splitHoursByRole, type DayRoleRow } from "@/lib/day-roles";
+import { useStore } from "@/hooks/useStore";
 
 
 type Employee = { id: string; name: string; last_name?: string | null; role: string; contract_hours: number; is_cadre?: boolean };
@@ -44,6 +45,8 @@ function addDays(d: Date, n: number) {
 
 export function OverviewInsights({ employees, schedules, coverage, dayKeys, weekMonday }: Props) {
   const { t } = useI18n();
+  const { currentStore } = useStore();
+  const multiRolesEnabled = currentStore?.has_multi_roles === true;
 
   // ---- Persisted card order ----
   const [order, setOrder] = useState<CardId[]>(() => {
@@ -94,7 +97,7 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
   );
   const { data: weekDayRoles = [] } = useQuery({
     queryKey: ["overview-day-roles", weekDates[0], weekDates[weekDates.length - 1], employees.length],
-    enabled: weekDates.length > 0 && employees.length > 0,
+    enabled: multiRolesEnabled && weekDates.length > 0 && employees.length > 0,
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("employee_day_roles")
@@ -105,7 +108,7 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
       return (data || []) as DayRoleRow[];
     },
   });
-  const dayRoleMap = useMemo(() => groupDayRoles(weekDayRoles), [weekDayRoles]);
+  const dayRoleMap = useMemo(() => (multiRolesEnabled ? groupDayRoles(weekDayRoles) : {}), [weekDayRoles, multiRolesEnabled]);
 
   const plannedByRole = useMemo(() => {
     const acc: Record<string, number> = {};

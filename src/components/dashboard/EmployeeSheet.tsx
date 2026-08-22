@@ -15,6 +15,7 @@ import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
 import { useAuth } from "@/hooks/useAuth";
 import { getRoleColors } from "@/lib/role-colors";
+import { useStore } from "@/hooks/useStore";
 
 
 const ROLE_KEYS = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
@@ -49,6 +50,8 @@ interface EmployeeSheetProps {
 export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateAccountRole }: EmployeeSheetProps) {
   const queryClient = useQueryClient();
   const { t } = useI18n();
+  const { currentStore } = useStore();
+  const multiRolesEnabled = currentStore?.has_multi_roles === true;
   const { role: appRole } = useAuth();
   const canEditCadre = appRole === "admin" || appRole === "manager";
   const [name, setName] = useState("");
@@ -178,6 +181,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
             </Select>
           </div>
 
+          {multiRolesEnabled && (
           <div className="space-y-2">
             <Label>{t("employee.secondaryRoles" as any)}</Label>
             <p className="text-[11px] text-muted-foreground -mt-1">{t("employee.secondaryRoles.help" as any)}</p>
@@ -202,6 +206,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
               })}
             </div>
           </div>
+          )}
 
 
           <div className="space-y-2">
