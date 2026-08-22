@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/hooks/useStore";
-import { Calendar, Clock, User, Palmtree, Flag, Thermometer, GraduationCap, Baby, Stethoscope, Hourglass, MoreHorizontal, HelpCircle, Sun, RefreshCw, MapPin, type LucideIcon } from "lucide-react";
+import { Calendar, Clock, User, Users, Palmtree, Flag, Thermometer, GraduationCap, Baby, Stethoscope, Hourglass, MoreHorizontal, HelpCircle, Sun, RefreshCw, MapPin, type LucideIcon } from "lucide-react";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ const CONGE_DOT_COLORS: Record<string, string> = {
   parental:    "bg-fuchsia-500",
   medical:     "bg-yellow-500",
   fincarriere: "bg-teal-500",
+  syndicat:    "bg-indigo-500",
   divers:      "bg-amber-500",
   autre:       "bg-slate-500",
 };
@@ -47,6 +48,7 @@ const CONGE_ICONS: Record<string, LucideIcon> = {
   parental:    Baby,            // parental
   medical:     Stethoscope,     // rendez-vous médical
   fincarriere: Hourglass,       // fin de carrière
+  syndicat:    Users,           // journée syndicale
   divers:      MoreHorizontal,  // divers
   autre:       HelpCircle,      // autre
 };

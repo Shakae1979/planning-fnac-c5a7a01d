@@ -5,20 +5,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { computeNetHours, timeToHours, getDayDate, BREAK_HOURS } from "@/lib/hours";
 import { formatLocalDate, formatTimeBE, formatDateBE, getDisplayName } from "@/lib/format";
-import { Clock, Palmtree, Sun, Thermometer, GraduationCap, Baby, Stethoscope, Hourglass, MoreHorizontal, HelpCircle, MapPin, RefreshCw, Flag, type LucideIcon } from "lucide-react";
+import { Clock, Palmtree, Sun, Thermometer, GraduationCap, Baby, Stethoscope, Hourglass, MoreHorizontal, HelpCircle, MapPin, RefreshCw, Flag, Users, type LucideIcon } from "lucide-react";
 
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
 
 const CONGE_ICONS: Record<string, LucideIcon> = {
   conge: Palmtree, rtt: Sun, maladie: Thermometer, formation: GraduationCap,
-  parental: Baby, medical: Stethoscope, fincarriere: Hourglass,
+  parental: Baby, medical: Stethoscope, fincarriere: Hourglass, syndicat: Users,
   divers: MoreHorizontal, autre: HelpCircle,
 };
 
 const CONGE_COLORS: Record<string, string> = {
   conge: "bg-blue-500", rtt: "bg-emerald-500", maladie: "bg-red-600",
   formation: "bg-violet-500", parental: "bg-fuchsia-500", medical: "bg-yellow-500",
-  fincarriere: "bg-teal-500", divers: "bg-amber-500", autre: "bg-slate-500",
+  fincarriere: "bg-teal-500", syndicat: "bg-indigo-500", divers: "bg-amber-500", autre: "bg-slate-500",
 };
 
 interface Props {
