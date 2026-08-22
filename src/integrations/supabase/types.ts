@@ -358,6 +358,7 @@ export type Database = {
           created_at: string
           has_ab_weeks: boolean
           has_lunch_break: boolean
+          has_multi_roles: boolean
           id: string
           is_direction: boolean
           name: string
@@ -367,6 +368,7 @@ export type Database = {
           created_at?: string
           has_ab_weeks?: boolean
           has_lunch_break?: boolean
+          has_multi_roles?: boolean
           id?: string
           is_direction?: boolean
           name: string
@@ -376,6 +378,7 @@ export type Database = {
           created_at?: string
           has_ab_weeks?: boolean
           has_lunch_break?: boolean
+          has_multi_roles?: boolean
           id?: string
           is_direction?: boolean
           name?: string
@@ -572,6 +575,7 @@ export type Database = {
           store_city: string
           store_has_ab_weeks: boolean
           store_has_lunch_break: boolean
+          store_has_multi_roles: boolean
           store_id: string
           store_is_direction: boolean
           store_name: string
