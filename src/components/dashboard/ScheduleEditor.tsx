@@ -320,6 +320,45 @@ export function ScheduleEditor() {
     },
   });
 
+  // Rôle du jour (collaborateurs multi-métiers)
+  const { data: dayRoles } = useQuery({
+    queryKey: ["employee-day-roles", weekStr],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("employee_day_roles")
+        .select("employee_id, date, role")
+        .gte("date", weekStr)
+        .lte("date", weekEndStr);
+      if (error) throw error;
+      return (data || []) as { employee_id: string; date: string; role: string }[];
+    },
+  });
+
+  const dayRoleMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    (dayRoles || []).forEach((r) => { map[`${r.employee_id}__${r.date}`] = r.role; });
+    return map;
+  }, [dayRoles]);
+
+  const saveDayRole = async (empId: string, dayIndex: number, role: string | null, mainRole: string) => {
+    const date = getDayDate(currentMonday, dayIndex);
+    try {
+      if (!role || role === mainRole) {
+        const { error } = await (supabase as any).from("employee_day_roles").delete().eq("employee_id", empId).eq("date", date);
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase as any)
+          .from("employee_day_roles")
+          .upsert({ employee_id: empId, date, role }, { onConflict: "employee_id,date" });
+        if (error) throw error;
+      }
+      queryClient.invalidateQueries({ queryKey: ["employee-day-roles"] });
+    } catch (e) {
+      toast.error(t("misc.errorSaving" as any));
+    }
+  };
+
+
   const [localDayComments, setLocalDayComments] = useState<Record<string, string>>({});
   const [localFerieDays, setLocalFerieDays] = useState<Record<string, boolean>>({});
 
