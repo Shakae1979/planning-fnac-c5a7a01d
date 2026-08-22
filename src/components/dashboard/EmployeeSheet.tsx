@@ -55,6 +55,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
   const [role, setRole] = useState("technique");
   const [hours, setHours] = useState("36");
   const [isCadre, setIsCadre] = useState(false);
+  const [secondaryRoles, setSecondaryRoles] = useState<string[]>([]);
   const [accessRole, setAccessRole] = useState("user");
   const [savingAccessRole, setSavingAccessRole] = useState(false);
 
@@ -66,8 +67,10 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
       setRole(employee.role);
       setHours(String(employee.contract_hours));
       setIsCadre(Boolean((employee as any).is_cadre));
+      setSecondaryRoles(((employee as any).secondary_roles as string[] | null) || []);
     }
   }, [employee]);
+
 
   useEffect(() => {
     if (account) {
