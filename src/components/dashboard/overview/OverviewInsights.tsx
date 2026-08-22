@@ -45,6 +45,8 @@ function addDays(d: Date, n: number) {
 
 export function OverviewInsights({ employees, schedules, coverage, dayKeys, weekMonday }: Props) {
   const { t } = useI18n();
+  const { currentStore } = useStore();
+  const multiRolesEnabled = currentStore?.has_multi_roles === true;
 
   // ---- Persisted card order ----
   const [order, setOrder] = useState<CardId[]>(() => {

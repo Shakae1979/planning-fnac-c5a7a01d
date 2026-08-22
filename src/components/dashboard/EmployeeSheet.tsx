@@ -50,6 +50,8 @@ interface EmployeeSheetProps {
 export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateAccountRole }: EmployeeSheetProps) {
   const queryClient = useQueryClient();
   const { t } = useI18n();
+  const { currentStore } = useStore();
+  const multiRolesEnabled = currentStore?.has_multi_roles === true;
   const { role: appRole } = useAuth();
   const canEditCadre = appRole === "admin" || appRole === "manager";
   const [name, setName] = useState("");
@@ -204,6 +206,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
               })}
             </div>
           </div>
+          )}
 
 
           <div className="space-y-2">
