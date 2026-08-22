@@ -108,8 +108,24 @@ const TeamDayView = () => {
   const dayComment = dayComments?.find((c) => c.day_key === dayKey)?.comment || null;
   const isDayFerie = dayComments?.find((c) => c.day_key === dayKey)?.is_ferie ?? false;
 
+  // Rôle du jour (collaborateurs multi-métiers)
+  const { data: dayRoles } = useQuery({
+    queryKey: ["team-day-roles", dateStr],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("employee_day_roles")
+        .select("employee_id, role")
+        .eq("date", dateStr);
+      if (error) throw error;
+      return (data || []) as { employee_id: string; role: string }[];
+    },
+  });
+
   const teamDay = employees
-    ?.map((emp) => {
+    ?.map((employeeRow) => {
+      const dayRole = dayRoles?.find((r) => r.employee_id === employeeRow.id)?.role;
+      const emp = dayRole ? { ...employeeRow, role: dayRole } : employeeRow;
+
       const schedule = schedules?.find((s) => s.employee_id === emp.id);
       const start = schedule ? (schedule as any)[`${dayKey}_start`] : null;
       const end = schedule ? (schedule as any)[`${dayKey}_end`] : null;
