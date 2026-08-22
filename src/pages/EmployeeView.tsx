@@ -35,6 +35,7 @@ const CONGE_DOT_COLORS: Record<string, string> = {
   parental:    "bg-fuchsia-500",
   medical:     "bg-yellow-500",
   fincarriere: "bg-teal-500",
+  syndicat:    "bg-indigo-500",
   divers:      "bg-amber-500",
   autre:       "bg-slate-500",
 };
@@ -47,6 +48,7 @@ const CONGE_ICONS: Record<string, LucideIcon> = {
   parental:    Baby,            // parental
   medical:     Stethoscope,     // rendez-vous médical
   fincarriere: Hourglass,       // fin de carrière
+  syndicat:    Users,           // journée syndicale
   divers:      MoreHorizontal,  // divers
   autre:       HelpCircle,      // autre
 };

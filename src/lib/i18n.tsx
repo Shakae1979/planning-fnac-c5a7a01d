@@ -224,6 +224,8 @@ const translations = {
   "leave.medical.short": { fr: "MÉD", nl: "MED" },
   "leave.fincarriere": { fr: "Fin de carrière", nl: "Einde loopbaan" },
   "leave.fincarriere.short": { fr: "FDC", nl: "ELB" },
+  "leave.syndicat": { fr: "Syndicat", nl: "Vakbond" },
+  "leave.syndicat.short": { fr: "SYN", nl: "VAK" },
   "leave.school": { fr: "Congé scolaire", nl: "Schoolvakantie" },
   "leave.school.fr": { fr: "Congé scol. FR", nl: "Schoolvak. FR" },
   "leave.school.nl": { fr: "Congé scol. NL", nl: "Schoolvak. NL" },
