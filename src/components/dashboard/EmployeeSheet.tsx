@@ -102,7 +102,9 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
           email: email.trim() || null,
           role,
           contract_hours: nextContractHours,
+          secondary_roles: secondaryRoles.filter((r) => r !== role),
           ...(canEditCadre ? { is_cadre: isCadre } : {}),
+
         })
         .eq("id", employee.id);
       if (error) throw error;
