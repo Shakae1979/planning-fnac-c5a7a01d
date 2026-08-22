@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.02 — 22/08/2026
+
+- **Changement de métier en cours de journée** : on peut désormais encoder plusieurs plages horaires de métier pour un même jour (ex. 2h en caisse puis passage en technique). Le planning semaine affiche la barre en plusieurs segments colorés, « Équipe du jour » classe le collaborateur dans chaque métier avec la plage concernée, la grille horaire se colore par plage, et les heures sont réparties au prorata dans les compteurs par département.
+
 ## v5.01 — 22/08/2026
 
 - **Collaborateurs multi-métiers** : possibilité de déclarer des « métiers secondaires » sur la fiche collaborateur, puis de choisir le métier exercé jour par jour depuis l'encodage du planning (petite pastille dans la case). Dans « Planning semaine », la barre prend la couleur et l'abréviation du métier du jour ; dans « Équipe du jour », le collaborateur apparaît sous le métier exercé ce jour-là. Aucun changement visuel pour les collaborateurs mono-métier.

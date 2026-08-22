@@ -13,6 +13,8 @@ import { useI18n } from "@/lib/i18n";
 import React from "react";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { ROLE_ORDER, ROLE_COLORS } from "@/lib/role-colors";
+import { groupDayRoles, buildRoleSegments, rolesOfDay, toMin, type DayRoleRow } from "@/lib/day-roles";
+
 
 const CONGE_COLORS: Record<string, string> = {
   conge: "bg-lime-500", rtt: "bg-cyan-500", maladie: "bg-rose-600", formation: "bg-violet-500",
@@ -99,25 +101,22 @@ const TeamWeekView = () => {
     },
   });
 
-  // Rôle du jour (collaborateurs multi-métiers)
+  // Rôle du jour (collaborateurs multi-métiers) — plages horaires possibles
   const { data: dayRoles } = useQuery({
     queryKey: ["team-week-day-roles", weekStr],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("employee_day_roles")
-        .select("employee_id, date, role")
+        .select("employee_id, date, role, start_time, end_time")
         .gte("date", weekStr)
         .lte("date", weekEndStr);
       if (error) throw error;
-      return (data || []) as { employee_id: string; date: string; role: string }[];
+      return (data || []) as DayRoleRow[];
     },
   });
 
-  const dayRoleMap = useMemo(() => {
-    const map: Record<string, string> = {};
-    (dayRoles || []).forEach((r) => { map[`${r.employee_id}__${r.date}`] = r.role; });
-    return map;
-  }, [dayRoles]);
+  const dayRoleMap = useMemo(() => groupDayRoles(dayRoles), [dayRoles]);
+
 
 
   // Auto-include dimanche column only when at least one schedule has Sunday hours
@@ -291,9 +290,10 @@ const TeamWeekView = () => {
                             const isRepos = start === "REPOS";
                             const isLocation = !!(start && (!end || end.trim() === "") && !isLegacyFerie && !isExt && !isRoulement && !isRepos && !/^\d{1,2}:\d{2}$/.test(start));
                             const hasShift = !!(start && end && !isExt && !isRoulement && !isLegacyFerie && !isLocation);
-                            const dayRole = dayRoleMap[`${emp.id}__${getDayDate(currentMonday, di)}`];
-                            const isRoleSwitch = !!dayRole && dayRole !== emp.role;
-                            const dayColors = isRoleSwitch ? (ROLE_COLORS[dayRole as keyof typeof ROLE_COLORS] || colors) : colors;
+                            const dayRoleRows = dayRoleMap[`${emp.id}__${getDayDate(currentMonday, di)}`];
+                            const roleSegments = hasShift ? buildRoleSegments(dayRoleRows, emp.role, start, end) : [];
+                            const isRoleSwitch = rolesOfDay(roleSegments).some((r) => r !== emp.role);
+
 
 
                             return (
@@ -342,18 +342,38 @@ const TeamWeekView = () => {
                                       const breakWidthPct = showBreak ? ((bEndMin - bStartMin) / GRID_SPAN) * 100 : 0;
                                       return (
                                         <>
-                                          <div
-                                            className={`absolute h-5 rounded ${dayColors.bar} flex items-center justify-center gap-1 text-[9px] font-semibold text-white shadow-sm ${isRoleSwitch ? "ring-1 ring-white/70 dark:ring-black/40" : ""}`}
-                                            style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
-                                            title={`${formatTimeBE(start)} — ${formatTimeBE(end)}${showBreak ? `\nPause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}` : ""}${isRoleSwitch ? `\n${t("schedule.dayRole" as any)} : ${t(`role.${dayRole}` as any)}` : ""}`}
-                                          >
-                                            {widthPct > 12 && (
-                                              <span>{isFerie ? `🏴 ` : ""}{formatTimeBE(start)}–{formatTimeBE(end)}</span>
-                                            )}
-                                            {isRoleSwitch && widthPct > 20 && (
-                                              <span className="px-1 rounded bg-black/25 uppercase tracking-wide">{t(`role.${dayRole}.short` as any)}</span>
-                                            )}
-                                          </div>
+                                          {(isRoleSwitch && roleSegments.length > 0
+                                            ? roleSegments
+                                            : [{ role: emp.role, start: start as string, end: end as string }]
+                                          ).map((seg, sidx) => {
+                                            const segStart = Math.max(toMin(seg.start) ?? clampStart, clampStart);
+                                            const segEnd = Math.min(toMin(seg.end) ?? clampEnd, clampEnd);
+                                            if (segEnd <= segStart) return null;
+                                            const segLeft = ((segStart - GRID_START) / GRID_SPAN) * 100;
+                                            const segWidth = ((segEnd - segStart) / GRID_SPAN) * 100;
+                                            const segColors = (ROLE_COLORS[seg.role as keyof typeof ROLE_COLORS] || colors);
+                                            const isFirst = sidx === 0;
+                                            const isLast = segEnd >= clampEnd;
+                                            return (
+                                              <div
+                                                key={`seg-${sidx}`}
+                                                className={`absolute h-5 ${segColors.bar} flex items-center justify-center gap-1 text-[9px] font-semibold text-white shadow-sm overflow-hidden ${isFirst ? "rounded-l" : ""} ${isLast ? "rounded-r" : ""} ${isRoleSwitch && !isFirst ? "border-l border-white/70" : ""}`}
+                                                style={{ left: `${segLeft}%`, width: `${segWidth}%` }}
+                                                title={`${formatTimeBE(start)} — ${formatTimeBE(end)}${showBreak ? `\nPause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}` : ""}${isRoleSwitch ? `\n${formatTimeBE(seg.start)}–${formatTimeBE(seg.end)} · ${t(`role.${seg.role}` as any)}` : ""}`}
+                                              >
+                                                {isRoleSwitch ? (
+                                                  segWidth > 6 && (
+                                                    <span className="uppercase tracking-wide truncate px-0.5">{t(`role.${seg.role}.short` as any)}</span>
+                                                  )
+                                                ) : (
+                                                  segWidth > 12 && (
+                                                    <span>{isFerie ? `🏴 ` : ""}{formatTimeBE(start)}–{formatTimeBE(end)}</span>
+                                                  )
+                                                )}
+                                              </div>
+                                            );
+                                          })}
+
 
                                           {showBreak && (
                                             <div

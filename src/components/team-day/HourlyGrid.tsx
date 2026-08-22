@@ -53,6 +53,8 @@ const ROLE_BORDER_L: Record<string, string> = Object.fromEntries(
 interface Employee {
   id: string; name: string; role: string; start: string | null; end: string | null; hasShift: boolean; conge: any;
   breakStart?: string | null; breakEnd?: string | null;
+  roleSegments?: { role: string; start: string; end: string }[];
+
 }
 
 function timeToHours(t: string | null): number {
@@ -309,9 +311,13 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
                     const slotTime = slot.hour + slot.minute / 60;
                     const isWorking = empStart <= slotTime && empEnd > slotTime;
                     const overrideKey = `${emp.id}-${slot.hour}-${slot.minute}`;
+                    const segRole = (emp.roleSegments || []).find(
+                      (s) => timeToHours(s.start) <= slotTime && timeToHours(s.end) > slotTime
+                    )?.role;
                     const cellRole = overrides[overrideKey]
-                      || (lunchSlots.has(overrideKey) ? "heure_de_table" : emp.role);
+                      || (lunchSlots.has(overrideKey) ? "heure_de_table" : (segRole || emp.role));
                     const colorClass = ROLE_BG[cellRole] || "bg-accent/20";
+
                     const isSelected = selected.has(overrideKey);
                     return (
                       <td key={i} className={`px-0 py-1 text-center ${slot.minute === 30 ? "border-r-2 border-r-foreground/30" : "border-r border-r-muted/40"} last:border-r-0 ${isWorking ? `${colorClass} ${canEdit ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}` : ""} ${isSelected ? "ring-2 ring-inset ring-primary" : ""}`}

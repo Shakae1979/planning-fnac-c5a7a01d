@@ -5,7 +5,9 @@ import { WeekNavigator } from "@/components/WeekNavigator";
 import HourlyGrid, { type HourlyGridHandle } from "@/components/team-day/HourlyGrid";
 import { FnacHeader } from "@/components/FnacHeader";
 import { RotateHint } from "@/components/RotateHint";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
+import { groupDayRoles, buildRoleSegments, splitHoursByRole, toMin, type DayRoleRow } from "@/lib/day-roles";
+
 import { Button } from "@/components/ui/button";
 import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName } from "@/lib/format";
 import { computeNetHours } from "@/lib/hours";
@@ -108,23 +110,24 @@ const TeamDayView = () => {
   const dayComment = dayComments?.find((c) => c.day_key === dayKey)?.comment || null;
   const isDayFerie = dayComments?.find((c) => c.day_key === dayKey)?.is_ferie ?? false;
 
-  // Rôle du jour (collaborateurs multi-métiers)
+  // Rôle du jour (collaborateurs multi-métiers) — plages horaires possibles
   const { data: dayRoles } = useQuery({
     queryKey: ["team-day-roles", dateStr],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("employee_day_roles")
-        .select("employee_id, role")
+        .select("employee_id, date, role, start_time, end_time")
         .eq("date", dateStr);
       if (error) throw error;
-      return (data || []) as { employee_id: string; role: string }[];
+      return (data || []) as DayRoleRow[];
     },
   });
 
+  const dayRoleMap = useMemo(() => groupDayRoles(dayRoles), [dayRoles]);
+
   const teamDay = employees
-    ?.map((employeeRow) => {
-      const dayRole = dayRoles?.find((r) => r.employee_id === employeeRow.id)?.role;
-      const emp = dayRole ? { ...employeeRow, role: dayRole } : employeeRow;
+    ?.map((emp) => {
+
 
       const schedule = schedules?.find((s) => s.employee_id === emp.id);
       const start = schedule ? (schedule as any)[`${dayKey}_start`] : null;
@@ -151,7 +154,11 @@ const TeamDayView = () => {
         };
         netHours = computeNetHours(dayScheduleObj).net;
       }
-      return { ...emp, start, end, breakStart, breakEnd, hasShift, hadPlannedShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes };
+      const roleSegments = hasShift
+        ? buildRoleSegments(dayRoleMap[`${emp.id}__${dateStr}`], emp.role, start, end)
+        : [];
+      return { ...emp, start, end, breakStart, breakEnd, hasShift, hadPlannedShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes, roleSegments };
+
     })
     .sort((a, b) => {
       const orderA = ROLE_ORDER.indexOf(a.role);
@@ -172,10 +179,26 @@ const TeamDayView = () => {
   const off = teamDay?.filter((e) => !e.hasShift && !e.conge && !e.isExt && !e.isRoulement && !e.isLocation && (isDayFerie ? !e.hadPlannedShift : !e.isFerie)) || [];
   const isToday = dayOffset === 0;
 
-  const workingByRole: Record<string, typeof working> = {};
+  // Un collaborateur peut exercer plusieurs métiers dans la journée : il apparaît
+  // dans chaque département, avec la plage horaire correspondante.
+  type WorkingEntry = (typeof working)[number] & { segStart: string; segEnd: string; isSplit: boolean };
+  const workingByRole: Record<string, WorkingEntry[]> = {};
   for (const emp of working) {
-    if (!workingByRole[emp.role]) workingByRole[emp.role] = [];
-    workingByRole[emp.role].push(emp);
+    const segs = emp.roleSegments.length > 0
+      ? emp.roleSegments
+      : [{ role: emp.role, start: emp.start as string, end: emp.end as string }];
+    const isSplit = segs.length > 1;
+    const hoursByRole = splitHoursByRole(emp.netHours, segs);
+    for (const seg of segs) {
+      (workingByRole[seg.role] ||= []).push({
+        ...emp,
+        role: seg.role,
+        segStart: seg.start,
+        segEnd: seg.end,
+        isSplit,
+        netHours: isSplit ? (hoursByRole[seg.role] || 0) / segs.filter((s) => s.role === seg.role).length : emp.netHours,
+      });
+    }
   }
 
   const daySetting = dayHours?.[dayKey as keyof typeof dayHours];
@@ -191,10 +214,11 @@ const TeamDayView = () => {
       const group = workingByRole[role] || [];
       const uncovered: number[] = [];
       for (let m = requiredSlot.start; m < requiredSlot.end; m += 30) {
-        const covered = group.some((emp) => timeToMinutes(emp.start) <= m && timeToMinutes(emp.end) > m);
+        const covered = group.some((emp) => (toMin(emp.segStart) ?? 0) <= m && (toMin(emp.segEnd) ?? 0) > m);
         if (!covered) uncovered.push(m);
       }
       if (uncovered.length > 0) coverageAlerts.push({ role, uncoveredHours: uncovered });
+
     }
   }
 
@@ -273,12 +297,16 @@ const TeamDayView = () => {
                     {roleLabels(role)} ({group.length})
                   </div>
                   <div className="space-y-0.5">
-                    {group.map((emp) => (
-                      <div key={emp.id}>
+                    {group.map((emp, gi) => (
+                      <div key={`${emp.id}-${gi}`}>
                         <div className="flex items-center justify-between py-1 px-2 rounded bg-accent/5 text-xs">
-                          <span className="font-medium">{getDisplayName(emp)}</span>
+                          <span className="font-medium">
+                            {getDisplayName(emp)}
+                            {emp.isSplit && <span className="ml-1 text-[9px] text-muted-foreground">({roleLabels(emp.role)})</span>}
+                          </span>
                           <span className="text-muted-foreground font-mono-data text-[11px]">
-                            {formatTimeBE(emp.start)}–{formatTimeBE(emp.end)} <span className="ml-1">{emp.netHours.toFixed(1)}h</span>
+                            {formatTimeBE(emp.isSplit ? emp.segStart : emp.start)}–{formatTimeBE(emp.isSplit ? emp.segEnd : emp.end)} <span className="ml-1">{emp.netHours.toFixed(1)}h</span>
+
                           </span>
                         </div>
                         {emp.breakStart && emp.breakEnd && (
