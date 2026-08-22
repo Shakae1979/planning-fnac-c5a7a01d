@@ -950,6 +950,31 @@ export function ScheduleEditor() {
         const { error } = await supabase.from("weekly_schedules").insert(rows);
         if (error) throw error;
       }
+
+      // Multi-métiers : mémoriser aussi les plages de métier de la semaine affichée.
+      if (multiRolesEnabled) {
+        const tplDates = weekDatesFrom(tplWeek);
+        const sourceDates = weekDatesFrom(weekStr);
+        await (supabase as any).from("employee_day_roles").delete().in("date", tplDates);
+        const roleRows = (dayRoles || [])
+          .map((r) => {
+            const idx = sourceDates.indexOf(r.date);
+            if (idx < 0) return null;
+            return {
+              employee_id: r.employee_id,
+              date: tplDates[idx],
+              role: r.role,
+              start_time: r.start_time ?? null,
+              end_time: r.end_time ?? null,
+            };
+          })
+          .filter(Boolean);
+        if (roleRows.length > 0) {
+          const { error } = await (supabase as any).from("employee_day_roles").insert(roleRows);
+          if (error) throw error;
+        }
+      }
+
       return tplWeek;
     },
     onSuccess: (tplWeek) => {
