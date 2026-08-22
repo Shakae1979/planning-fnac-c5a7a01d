@@ -710,7 +710,36 @@ export function ScheduleEditor() {
         if (error) throw error;
       });
       await Promise.all(updatePromises);
+
+      // Multi-métiers : restituer les plages de métier mémorisées avec la semaine type.
+      if (multiRolesEnabled) {
+        const tplDates = weekDatesFrom(tplWeek);
+        const targetDates = weekDatesFrom(weekStr);
+        const { data: tplRoles } = await (supabase as any)
+          .from("employee_day_roles")
+          .select("employee_id, date, role, start_time, end_time")
+          .in("date", tplDates);
+        await (supabase as any).from("employee_day_roles").delete().in("date", targetDates);
+        const roleRows = (tplRoles || [])
+          .map((r: any) => {
+            const idx = tplDates.indexOf(r.date);
+            if (idx < 0) return null;
+            return {
+              employee_id: r.employee_id,
+              date: targetDates[idx],
+              role: r.role,
+              start_time: r.start_time,
+              end_time: r.end_time,
+            };
+          })
+          .filter(Boolean);
+        if (roleRows.length > 0) {
+          const { error } = await (supabase as any).from("employee_day_roles").insert(roleRows);
+          if (error) throw error;
+        }
+      }
       return tplWeek;
+
     },
     onSuccess: (tplWeek) => {
       queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
