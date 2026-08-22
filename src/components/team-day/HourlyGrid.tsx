@@ -53,6 +53,8 @@ const ROLE_BORDER_L: Record<string, string> = Object.fromEntries(
 interface Employee {
   id: string; name: string; role: string; start: string | null; end: string | null; hasShift: boolean; conge: any;
   breakStart?: string | null; breakEnd?: string | null;
+  roleSegments?: { role: string; start: string; end: string }[];
+
 }
 
 function timeToHours(t: string | null): number {
