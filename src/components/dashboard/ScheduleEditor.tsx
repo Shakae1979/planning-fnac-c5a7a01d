@@ -743,6 +743,9 @@ export function ScheduleEditor() {
     },
     onSuccess: (tplWeek) => {
       queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
+      queryClient.invalidateQueries({ queryKey: ["employee-day-roles"] });
+      queryClient.invalidateQueries({ queryKey: ["team-day-roles"] });
+
       if (tplWeek === TEMPLATE_WEEK_B) {
         toast.success(t("schedule.templateBApplied" as any));
       } else if (hasABWeeks) {
