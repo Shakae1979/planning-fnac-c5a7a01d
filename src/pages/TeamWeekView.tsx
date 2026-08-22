@@ -342,18 +342,38 @@ const TeamWeekView = () => {
                                       const breakWidthPct = showBreak ? ((bEndMin - bStartMin) / GRID_SPAN) * 100 : 0;
                                       return (
                                         <>
-                                          <div
-                                            className={`absolute h-5 rounded ${dayColors.bar} flex items-center justify-center gap-1 text-[9px] font-semibold text-white shadow-sm ${isRoleSwitch ? "ring-1 ring-white/70 dark:ring-black/40" : ""}`}
-                                            style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
-                                            title={`${formatTimeBE(start)} — ${formatTimeBE(end)}${showBreak ? `\nPause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}` : ""}${isRoleSwitch ? `\n${t("schedule.dayRole" as any)} : ${t(`role.${dayRole}` as any)}` : ""}`}
-                                          >
-                                            {widthPct > 12 && (
-                                              <span>{isFerie ? `🏴 ` : ""}{formatTimeBE(start)}–{formatTimeBE(end)}</span>
-                                            )}
-                                            {isRoleSwitch && widthPct > 20 && (
-                                              <span className="px-1 rounded bg-black/25 uppercase tracking-wide">{t(`role.${dayRole}.short` as any)}</span>
-                                            )}
-                                          </div>
+                                          {(isRoleSwitch && roleSegments.length > 0
+                                            ? roleSegments
+                                            : [{ role: emp.role, start: start as string, end: end as string }]
+                                          ).map((seg, sidx) => {
+                                            const segStart = Math.max(toMin(seg.start) ?? clampStart, clampStart);
+                                            const segEnd = Math.min(toMin(seg.end) ?? clampEnd, clampEnd);
+                                            if (segEnd <= segStart) return null;
+                                            const segLeft = ((segStart - GRID_START) / GRID_SPAN) * 100;
+                                            const segWidth = ((segEnd - segStart) / GRID_SPAN) * 100;
+                                            const segColors = (ROLE_COLORS[seg.role as keyof typeof ROLE_COLORS] || colors);
+                                            const isFirst = sidx === 0;
+                                            const isLast = segEnd >= clampEnd;
+                                            return (
+                                              <div
+                                                key={`seg-${sidx}`}
+                                                className={`absolute h-5 ${segColors.bar} flex items-center justify-center gap-1 text-[9px] font-semibold text-white shadow-sm overflow-hidden ${isFirst ? "rounded-l" : ""} ${isLast ? "rounded-r" : ""} ${isRoleSwitch && !isFirst ? "border-l border-white/70" : ""}`}
+                                                style={{ left: `${segLeft}%`, width: `${segWidth}%` }}
+                                                title={`${formatTimeBE(start)} — ${formatTimeBE(end)}${showBreak ? `\nPause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}` : ""}${isRoleSwitch ? `\n${formatTimeBE(seg.start)}–${formatTimeBE(seg.end)} · ${t(`role.${seg.role}` as any)}` : ""}`}
+                                              >
+                                                {isRoleSwitch ? (
+                                                  segWidth > 6 && (
+                                                    <span className="uppercase tracking-wide truncate px-0.5">{t(`role.${seg.role}.short` as any)}</span>
+                                                  )
+                                                ) : (
+                                                  segWidth > 12 && (
+                                                    <span>{isFerie ? `🏴 ` : ""}{formatTimeBE(start)}–{formatTimeBE(end)}</span>
+                                                  )
+                                                )}
+                                              </div>
+                                            );
+                                          })}
+
 
                                           {showBreak && (
                                             <div
