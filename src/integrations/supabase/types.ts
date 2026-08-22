@@ -193,22 +193,28 @@ export type Database = {
           created_at: string
           date: string
           employee_id: string
+          end_time: string | null
           id: string
           role: string
+          start_time: string | null
         }
         Insert: {
           created_at?: string
           date: string
           employee_id: string
+          end_time?: string | null
           id?: string
           role: string
+          start_time?: string | null
         }
         Update: {
           created_at?: string
           date?: string
           employee_id?: string
+          end_time?: string | null
           id?: string
           role?: string
+          start_time?: string | null
         }
         Relationships: [
           {
