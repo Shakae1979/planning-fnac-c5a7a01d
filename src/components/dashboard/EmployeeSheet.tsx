@@ -15,6 +15,7 @@ import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
 import { useAuth } from "@/hooks/useAuth";
 import { getRoleColors } from "@/lib/role-colors";
+import { useStore } from "@/hooks/useStore";
 
 
 const ROLE_KEYS = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
@@ -178,6 +179,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
             </Select>
           </div>
 
+          {multiRolesEnabled && (
           <div className="space-y-2">
             <Label>{t("employee.secondaryRoles" as any)}</Label>
             <p className="text-[11px] text-muted-foreground -mt-1">{t("employee.secondaryRoles.help" as any)}</p>
