@@ -4,6 +4,9 @@ import { AlertTriangle, CheckCircle2, CalendarOff, Gauge, Users2, GripVertical, 
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { formatDateBE, formatLocalDate, getDisplayName } from "@/lib/format";
+import { computeNetHours } from "@/lib/hours";
+import { groupDayRoles, buildRoleSegments, splitHoursByRole, type DayRoleRow } from "@/lib/day-roles";
+
 
 type Employee = { id: string; name: string; last_name?: string | null; role: string; contract_hours: number; is_cadre?: boolean };
 type Schedule = Record<string, any> & { employee_id: string };
