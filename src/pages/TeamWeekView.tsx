@@ -291,6 +291,10 @@ const TeamWeekView = () => {
                             const isRepos = start === "REPOS";
                             const isLocation = !!(start && (!end || end.trim() === "") && !isLegacyFerie && !isExt && !isRoulement && !isRepos && !/^\d{1,2}:\d{2}$/.test(start));
                             const hasShift = !!(start && end && !isExt && !isRoulement && !isLegacyFerie && !isLocation);
+                            const dayRole = dayRoleMap[`${emp.id}__${getDayDate(currentMonday, di)}`];
+                            const isRoleSwitch = !!dayRole && dayRole !== emp.role;
+                            const dayColors = isRoleSwitch ? (ROLE_COLORS[dayRole as keyof typeof ROLE_COLORS] || colors) : colors;
+
 
                             return (
                               <td key={day} className={`border-r p-0 relative ${isFerie ? "bg-gray-100 dark:bg-gray-800/50" : ""}`} style={{ height: 32 }}>
