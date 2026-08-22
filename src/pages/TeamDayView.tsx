@@ -154,7 +154,11 @@ const TeamDayView = () => {
         };
         netHours = computeNetHours(dayScheduleObj).net;
       }
-      return { ...emp, start, end, breakStart, breakEnd, hasShift, hadPlannedShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes };
+      const roleSegments = hasShift
+        ? buildRoleSegments(dayRoleMap[`${emp.id}__${dateStr}`], emp.role, start, end)
+        : [];
+      return { ...emp, start, end, breakStart, breakEnd, hasShift, hadPlannedShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes, roleSegments };
+
     })
     .sort((a, b) => {
       const orderA = ROLE_ORDER.indexOf(a.role);
