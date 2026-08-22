@@ -1381,7 +1381,47 @@ export function ScheduleEditor() {
                                 />
                               </div>
                             )}
+                            {(() => {
+                              const secondaries = (((emp as any).secondary_roles as string[] | null) || []).filter((r) => r && r !== emp.role);
+                              if (secondaries.length === 0 || ferieDay || isDirection || !hasValue) return null;
+                              const dayDate = getDayDate(currentMonday, dayIndex);
+                              const currentRole = dayRoleMap[`${emp.id}__${dayDate}`] || emp.role;
+                              const opts = [emp.role, ...secondaries];
+                              return (
+                                <div className="flex justify-center mt-0.5 no-print">
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <button
+                                        type="button"
+                                        title={`${t("schedule.dayRole" as any)} : ${t(`role.${currentRole}` as any)}`}
+                                        className="flex items-center gap-1 px-1 py-0 rounded-full border border-border/60 hover:bg-muted text-[9px] text-muted-foreground"
+                                      >
+                                        <span className={`w-2 h-2 rounded-full ${getRoleColors(currentRole).dot}`} />
+                                        {t(`role.${currentRole}.short` as any)}
+                                      </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent align="center" className="w-40 p-1">
+                                      {opts.map((r) => (
+                                        <button
+                                          key={r}
+                                          type="button"
+                                          onClick={() => saveDayRole(emp.id, dayIndex, r, emp.role)}
+                                          className={`w-full flex items-center gap-2 px-2 py-1 rounded text-xs text-left hover:bg-muted ${r === currentRole ? "bg-muted font-medium" : ""}`}
+                                        >
+                                          <span className={`w-2.5 h-2.5 rounded-full ${getRoleColors(r).dot}`} />
+                                          {t(`role.${r}` as any)}
+                                          {r === emp.role && (
+                                            <span className="ml-auto text-[9px] text-muted-foreground">{t("schedule.dayRole.main" as any)}</span>
+                                          )}
+                                        </button>
+                                      ))}
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                              );
+                            })()}
                           </td>
+
                         );
                       })}
                       <td className="py-0.5 text-center">
