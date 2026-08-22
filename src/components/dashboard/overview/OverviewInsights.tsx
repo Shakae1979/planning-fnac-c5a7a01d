@@ -126,7 +126,7 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
         if (!net) return;
         const segs = buildRoleSegments(dayRoleMap[`${sc.employee_id}__${weekDates[i]}`], mainRole, start, end);
         const split = segs.length > 0 ? splitHoursByRole(net, segs) : { [mainRole]: net };
-        for (const [role, h] of Object.entries(split)) acc[role] = (acc[role] || 0) + h;
+        for (const [role, h] of Object.entries(split) as [string, number][]) acc[role] = (acc[role] || 0) + h;
       });
     }
     return acc;
