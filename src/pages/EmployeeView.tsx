@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/hooks/useStore";
-import { Calendar, Clock, User, Palmtree, Flag, Thermometer, GraduationCap, Baby, Stethoscope, Hourglass, MoreHorizontal, HelpCircle, Sun, RefreshCw, MapPin, type LucideIcon } from "lucide-react";
+import { Calendar, Clock, User, Users, Palmtree, Flag, Thermometer, GraduationCap, Baby, Stethoscope, Hourglass, MoreHorizontal, HelpCircle, Sun, RefreshCw, MapPin, type LucideIcon } from "lucide-react";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
