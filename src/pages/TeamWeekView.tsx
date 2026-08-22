@@ -99,6 +99,27 @@ const TeamWeekView = () => {
     },
   });
 
+  // Rôle du jour (collaborateurs multi-métiers)
+  const { data: dayRoles } = useQuery({
+    queryKey: ["team-week-day-roles", weekStr],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("employee_day_roles")
+        .select("employee_id, date, role")
+        .gte("date", weekStr)
+        .lte("date", weekEndStr);
+      if (error) throw error;
+      return (data || []) as { employee_id: string; date: string; role: string }[];
+    },
+  });
+
+  const dayRoleMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    (dayRoles || []).forEach((r) => { map[`${r.employee_id}__${r.date}`] = r.role; });
+    return map;
+  }, [dayRoles]);
+
+
   // Auto-include dimanche column only when at least one schedule has Sunday hours
   // or a Sunday day_comment exists for the week.
   const showSunday = useMemo(() => {
