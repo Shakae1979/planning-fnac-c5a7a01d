@@ -138,6 +138,16 @@ function getDayDate(monday: Date, dayIndex: number): string {
   return formatLocalDate(d);
 }
 
+/** Les 7 dates (lundi → dimanche) d'une semaine à partir de sa date de lundi (YYYY-MM-DD). */
+function weekDatesFrom(mondayStr: string): string[] {
+  const [y, m, d] = mondayStr.split("-").map(Number);
+  return Array.from({ length: 7 }, (_, i) => {
+    const dt = new Date(y, m - 1, d + i);
+    return formatLocalDate(dt);
+  });
+}
+
+
 export function ScheduleEditor() {
   const queryClient = useQueryClient();
   const { t } = useI18n();
@@ -700,10 +710,42 @@ export function ScheduleEditor() {
         if (error) throw error;
       });
       await Promise.all(updatePromises);
+
+      // Multi-métiers : restituer les plages de métier mémorisées avec la semaine type.
+      if (multiRolesEnabled) {
+        const tplDates = weekDatesFrom(tplWeek);
+        const targetDates = weekDatesFrom(weekStr);
+        const { data: tplRoles } = await (supabase as any)
+          .from("employee_day_roles")
+          .select("employee_id, date, role, start_time, end_time")
+          .in("date", tplDates);
+        await (supabase as any).from("employee_day_roles").delete().in("date", targetDates);
+        const roleRows = (tplRoles || [])
+          .map((r: any) => {
+            const idx = tplDates.indexOf(r.date);
+            if (idx < 0) return null;
+            return {
+              employee_id: r.employee_id,
+              date: targetDates[idx],
+              role: r.role,
+              start_time: r.start_time,
+              end_time: r.end_time,
+            };
+          })
+          .filter(Boolean);
+        if (roleRows.length > 0) {
+          const { error } = await (supabase as any).from("employee_day_roles").insert(roleRows);
+          if (error) throw error;
+        }
+      }
       return tplWeek;
+
     },
     onSuccess: (tplWeek) => {
       queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
+      queryClient.invalidateQueries({ queryKey: ["employee-day-roles"] });
+      queryClient.invalidateQueries({ queryKey: ["team-day-roles"] });
+
       if (tplWeek === TEMPLATE_WEEK_B) {
         toast.success(t("schedule.templateBApplied" as any));
       } else if (hasABWeeks) {
@@ -908,6 +950,31 @@ export function ScheduleEditor() {
         const { error } = await supabase.from("weekly_schedules").insert(rows);
         if (error) throw error;
       }
+
+      // Multi-métiers : mémoriser aussi les plages de métier de la semaine affichée.
+      if (multiRolesEnabled) {
+        const tplDates = weekDatesFrom(tplWeek);
+        const sourceDates = weekDatesFrom(weekStr);
+        await (supabase as any).from("employee_day_roles").delete().in("date", tplDates);
+        const roleRows = (dayRoles || [])
+          .map((r) => {
+            const idx = sourceDates.indexOf(r.date);
+            if (idx < 0) return null;
+            return {
+              employee_id: r.employee_id,
+              date: tplDates[idx],
+              role: r.role,
+              start_time: r.start_time ?? null,
+              end_time: r.end_time ?? null,
+            };
+          })
+          .filter(Boolean);
+        if (roleRows.length > 0) {
+          const { error } = await (supabase as any).from("employee_day_roles").insert(roleRows);
+          if (error) throw error;
+        }
+      }
+
       return tplWeek;
     },
     onSuccess: (tplWeek) => {
