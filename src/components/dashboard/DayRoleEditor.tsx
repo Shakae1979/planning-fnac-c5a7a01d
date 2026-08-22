@@ -114,7 +114,7 @@ export default function DayRoleEditor({ rows, mainRole, secondaries, shiftStart,
           </div>
 
           {ranges.length === 0 && (
-            <p className="text-[10px] text-muted-foreground">{t("schedule.dayRole.help" as any)}</p>
+            <p className="text-[10px] text-muted-foreground">Autre rôle</p>
           )}
 
           <div className="space-y-1">
@@ -167,7 +167,7 @@ export default function DayRoleEditor({ rows, mainRole, secondaries, shiftStart,
               className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] hover:bg-muted text-muted-foreground"
             >
               <Plus className="h-3 w-3" />
-              {t("schedule.dayRole.addRange" as any)}
+              Autre rôle
             </button>
             <button
               type="button"
