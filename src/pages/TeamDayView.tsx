@@ -297,12 +297,16 @@ const TeamDayView = () => {
                     {roleLabels(role)} ({group.length})
                   </div>
                   <div className="space-y-0.5">
-                    {group.map((emp) => (
-                      <div key={emp.id}>
+                    {group.map((emp, gi) => (
+                      <div key={`${emp.id}-${gi}`}>
                         <div className="flex items-center justify-between py-1 px-2 rounded bg-accent/5 text-xs">
-                          <span className="font-medium">{getDisplayName(emp)}</span>
+                          <span className="font-medium">
+                            {getDisplayName(emp)}
+                            {emp.isSplit && <span className="ml-1 text-[9px] text-muted-foreground">({roleLabels(emp.role)})</span>}
+                          </span>
                           <span className="text-muted-foreground font-mono-data text-[11px]">
-                            {formatTimeBE(emp.start)}–{formatTimeBE(emp.end)} <span className="ml-1">{emp.netHours.toFixed(1)}h</span>
+                            {formatTimeBE(emp.isSplit ? emp.segStart : emp.start)}–{formatTimeBE(emp.isSplit ? emp.segEnd : emp.end)} <span className="ml-1">{emp.netHours.toFixed(1)}h</span>
+
                           </span>
                         </div>
                         {emp.breakStart && emp.breakEnd && (
