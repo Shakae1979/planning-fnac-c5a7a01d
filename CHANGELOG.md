@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.03 — 22/08/2026
+
+- **Multi-métiers activable par magasin** : la fonctionnalité multi-métiers (métiers secondaires et changement de métier en cours de journée) se déclenche désormais via un interrupteur dans les paramètres du magasin. Désactivée par défaut, elle masque les métiers secondaires, la pastille d'encodage et les segments de couleur pour les magasins qui ne l'utilisent pas.
+
 ## v5.02 — 22/08/2026
 
 - **Changement de métier en cours de journée** : on peut désormais encoder plusieurs plages horaires de métier pour un même jour (ex. 2h en caisse puis passage en technique). Le planning semaine affiche la barre en plusieurs segments colorés, « Équipe du jour » classe le collaborateur dans chaque métier avec la plage concernée, la grille horaire se colore par plage, et les heures sont réparties au prorata dans les compteurs par département.
