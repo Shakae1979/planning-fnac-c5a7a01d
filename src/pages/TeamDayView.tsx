@@ -179,10 +179,26 @@ const TeamDayView = () => {
   const off = teamDay?.filter((e) => !e.hasShift && !e.conge && !e.isExt && !e.isRoulement && !e.isLocation && (isDayFerie ? !e.hadPlannedShift : !e.isFerie)) || [];
   const isToday = dayOffset === 0;
 
-  const workingByRole: Record<string, typeof working> = {};
+  // Un collaborateur peut exercer plusieurs métiers dans la journée : il apparaît
+  // dans chaque département, avec la plage horaire correspondante.
+  type WorkingEntry = (typeof working)[number] & { segStart: string; segEnd: string; isSplit: boolean };
+  const workingByRole: Record<string, WorkingEntry[]> = {};
   for (const emp of working) {
-    if (!workingByRole[emp.role]) workingByRole[emp.role] = [];
-    workingByRole[emp.role].push(emp);
+    const segs = emp.roleSegments.length > 0
+      ? emp.roleSegments
+      : [{ role: emp.role, start: emp.start as string, end: emp.end as string }];
+    const isSplit = segs.length > 1;
+    const hoursByRole = splitHoursByRole(emp.netHours, segs);
+    for (const seg of segs) {
+      (workingByRole[seg.role] ||= []).push({
+        ...emp,
+        role: seg.role,
+        segStart: seg.start,
+        segEnd: seg.end,
+        isSplit,
+        netHours: isSplit ? (hoursByRole[seg.role] || 0) / segs.filter((s) => s.role === seg.role).length : emp.netHours,
+      });
+    }
   }
 
   const daySetting = dayHours?.[dayKey as keyof typeof dayHours];
@@ -198,10 +214,11 @@ const TeamDayView = () => {
       const group = workingByRole[role] || [];
       const uncovered: number[] = [];
       for (let m = requiredSlot.start; m < requiredSlot.end; m += 30) {
-        const covered = group.some((emp) => timeToMinutes(emp.start) <= m && timeToMinutes(emp.end) > m);
+        const covered = group.some((emp) => (toMin(emp.segStart) ?? 0) <= m && (toMin(emp.segEnd) ?? 0) > m);
         if (!covered) uncovered.push(m);
       }
       if (uncovered.length > 0) coverageAlerts.push({ role, uncoveredHours: uncovered });
+
     }
   }
 
