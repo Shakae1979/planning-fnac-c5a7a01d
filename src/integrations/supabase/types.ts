@@ -188,6 +188,38 @@ export type Database = {
           },
         ]
       }
+      employee_day_roles: {
+        Row: {
+          created_at: string
+          date: string
+          employee_id: string
+          id: string
+          role: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          employee_id: string
+          id?: string
+          role: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          employee_id?: string
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_day_roles_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           contract_hours: number
@@ -200,6 +232,7 @@ export type Database = {
           must_change_password: boolean
           name: string
           role: string
+          secondary_roles: string[]
           sort_order: number
           store_id: string | null
         }
@@ -214,6 +247,7 @@ export type Database = {
           must_change_password?: boolean
           name: string
           role?: string
+          secondary_roles?: string[]
           sort_order?: number
           store_id?: string | null
         }
@@ -228,6 +262,7 @@ export type Database = {
           must_change_password?: boolean
           name?: string
           role?: string
+          secondary_roles?: string[]
           sort_order?: number
           store_id?: string | null
         }

@@ -8,6 +8,9 @@ import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquar
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { getRoleColors } from "@/lib/role-colors";
+
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName, getISOYear, isoWeeksInYear, getMondayFromISOWeek } from "@/lib/format";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
@@ -319,6 +322,45 @@ export function ScheduleEditor() {
       return data;
     },
   });
+
+  // Rôle du jour (collaborateurs multi-métiers)
+  const { data: dayRoles } = useQuery({
+    queryKey: ["employee-day-roles", weekStr],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("employee_day_roles")
+        .select("employee_id, date, role")
+        .gte("date", weekStr)
+        .lte("date", weekEndStr);
+      if (error) throw error;
+      return (data || []) as { employee_id: string; date: string; role: string }[];
+    },
+  });
+
+  const dayRoleMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    (dayRoles || []).forEach((r) => { map[`${r.employee_id}__${r.date}`] = r.role; });
+    return map;
+  }, [dayRoles]);
+
+  const saveDayRole = async (empId: string, dayIndex: number, role: string | null, mainRole: string) => {
+    const date = getDayDate(currentMonday, dayIndex);
+    try {
+      if (!role || role === mainRole) {
+        const { error } = await (supabase as any).from("employee_day_roles").delete().eq("employee_id", empId).eq("date", date);
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase as any)
+          .from("employee_day_roles")
+          .upsert({ employee_id: empId, date, role }, { onConflict: "employee_id,date" });
+        if (error) throw error;
+      }
+      queryClient.invalidateQueries({ queryKey: ["employee-day-roles"] });
+    } catch (e) {
+      toast.error(t("misc.errorSaving" as any));
+    }
+  };
+
 
   const [localDayComments, setLocalDayComments] = useState<Record<string, string>>({});
   const [localFerieDays, setLocalFerieDays] = useState<Record<string, boolean>>({});
@@ -1342,7 +1384,47 @@ export function ScheduleEditor() {
                                 />
                               </div>
                             )}
+                            {(() => {
+                              const secondaries = (((emp as any).secondary_roles as string[] | null) || []).filter((r) => r && r !== emp.role);
+                              if (secondaries.length === 0 || ferieDay || isDirection || !hasValue) return null;
+                              const dayDate = getDayDate(currentMonday, dayIndex);
+                              const currentRole = dayRoleMap[`${emp.id}__${dayDate}`] || emp.role;
+                              const opts = [emp.role, ...secondaries];
+                              return (
+                                <div className="flex justify-center mt-0.5 no-print">
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <button
+                                        type="button"
+                                        title={`${t("schedule.dayRole" as any)} : ${t(`role.${currentRole}` as any)}`}
+                                        className="flex items-center gap-1 px-1 py-0 rounded-full border border-border/60 hover:bg-muted text-[9px] text-muted-foreground"
+                                      >
+                                        <span className={`w-2 h-2 rounded-full ${getRoleColors(currentRole).dot}`} />
+                                        {t(`role.${currentRole}.short` as any)}
+                                      </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent align="center" className="w-40 p-1">
+                                      {opts.map((r) => (
+                                        <button
+                                          key={r}
+                                          type="button"
+                                          onClick={() => saveDayRole(emp.id, dayIndex, r, emp.role)}
+                                          className={`w-full flex items-center gap-2 px-2 py-1 rounded text-xs text-left hover:bg-muted ${r === currentRole ? "bg-muted font-medium" : ""}`}
+                                        >
+                                          <span className={`w-2.5 h-2.5 rounded-full ${getRoleColors(r).dot}`} />
+                                          {t(`role.${r}` as any)}
+                                          {r === emp.role && (
+                                            <span className="ml-auto text-[9px] text-muted-foreground">{t("schedule.dayRole.main" as any)}</span>
+                                          )}
+                                        </button>
+                                      ))}
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                              );
+                            })()}
                           </td>
+
                         );
                       })}
                       <td className="py-0.5 text-center">

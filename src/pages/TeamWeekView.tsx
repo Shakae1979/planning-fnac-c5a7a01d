@@ -99,6 +99,27 @@ const TeamWeekView = () => {
     },
   });
 
+  // Rôle du jour (collaborateurs multi-métiers)
+  const { data: dayRoles } = useQuery({
+    queryKey: ["team-week-day-roles", weekStr],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("employee_day_roles")
+        .select("employee_id, date, role")
+        .gte("date", weekStr)
+        .lte("date", weekEndStr);
+      if (error) throw error;
+      return (data || []) as { employee_id: string; date: string; role: string }[];
+    },
+  });
+
+  const dayRoleMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    (dayRoles || []).forEach((r) => { map[`${r.employee_id}__${r.date}`] = r.role; });
+    return map;
+  }, [dayRoles]);
+
+
   // Auto-include dimanche column only when at least one schedule has Sunday hours
   // or a Sunday day_comment exists for the week.
   const showSunday = useMemo(() => {
@@ -270,6 +291,10 @@ const TeamWeekView = () => {
                             const isRepos = start === "REPOS";
                             const isLocation = !!(start && (!end || end.trim() === "") && !isLegacyFerie && !isExt && !isRoulement && !isRepos && !/^\d{1,2}:\d{2}$/.test(start));
                             const hasShift = !!(start && end && !isExt && !isRoulement && !isLegacyFerie && !isLocation);
+                            const dayRole = dayRoleMap[`${emp.id}__${getDayDate(currentMonday, di)}`];
+                            const isRoleSwitch = !!dayRole && dayRole !== emp.role;
+                            const dayColors = isRoleSwitch ? (ROLE_COLORS[dayRole as keyof typeof ROLE_COLORS] || colors) : colors;
+
 
                             return (
                               <td key={day} className={`border-r p-0 relative ${isFerie ? "bg-gray-100 dark:bg-gray-800/50" : ""}`} style={{ height: 32 }}>
@@ -318,14 +343,18 @@ const TeamWeekView = () => {
                                       return (
                                         <>
                                           <div
-                                            className={`absolute h-5 rounded ${colors.bar} flex items-center justify-center text-[9px] font-semibold text-white shadow-sm`}
+                                            className={`absolute h-5 rounded ${dayColors.bar} flex items-center justify-center gap-1 text-[9px] font-semibold text-white shadow-sm ${isRoleSwitch ? "ring-1 ring-white/70 dark:ring-black/40" : ""}`}
                                             style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
-                                            title={`${formatTimeBE(start)} — ${formatTimeBE(end)}${showBreak ? `\nPause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}` : ""}`}
+                                            title={`${formatTimeBE(start)} — ${formatTimeBE(end)}${showBreak ? `\nPause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}` : ""}${isRoleSwitch ? `\n${t("schedule.dayRole" as any)} : ${t(`role.${dayRole}` as any)}` : ""}`}
                                           >
                                             {widthPct > 12 && (
                                               <span>{isFerie ? `🏴 ` : ""}{formatTimeBE(start)}–{formatTimeBE(end)}</span>
                                             )}
+                                            {isRoleSwitch && widthPct > 20 && (
+                                              <span className="px-1 rounded bg-black/25 uppercase tracking-wide">{t(`role.${dayRole}.short` as any)}</span>
+                                            )}
                                           </div>
+
                                           {showBreak && (
                                             <div
                                               className="absolute h-5 rounded bg-white/70 dark:bg-white/40 border border-white/80 pointer-events-none"

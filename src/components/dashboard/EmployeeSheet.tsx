@@ -14,6 +14,8 @@ import { Save, Shield, PenTool, User, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
 import { useAuth } from "@/hooks/useAuth";
+import { getRoleColors } from "@/lib/role-colors";
+
 
 const ROLE_KEYS = ["responsable", "technique", "editorial", "stock", "caisse", "stagiaire"] as const;
 
@@ -26,7 +28,9 @@ interface Employee {
   contract_hours: number;
   is_active: boolean;
   is_cadre?: boolean;
+  secondary_roles?: string[] | null;
 }
+
 
 interface AppAccount {
   id: string;
@@ -53,6 +57,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
   const [role, setRole] = useState("technique");
   const [hours, setHours] = useState("36");
   const [isCadre, setIsCadre] = useState(false);
+  const [secondaryRoles, setSecondaryRoles] = useState<string[]>([]);
   const [accessRole, setAccessRole] = useState("user");
   const [savingAccessRole, setSavingAccessRole] = useState(false);
 
@@ -64,8 +69,10 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
       setRole(employee.role);
       setHours(String(employee.contract_hours));
       setIsCadre(Boolean((employee as any).is_cadre));
+      setSecondaryRoles(((employee as any).secondary_roles as string[] | null) || []);
     }
   }, [employee]);
+
 
   useEffect(() => {
     if (account) {
@@ -97,7 +104,9 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
           email: email.trim() || null,
           role,
           contract_hours: nextContractHours,
+          secondary_roles: secondaryRoles.filter((r) => r !== role),
           ...(canEditCadre ? { is_cadre: isCadre } : {}),
+
         })
         .eq("id", employee.id);
       if (error) throw error;
@@ -168,6 +177,32 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
               </SelectContent>
             </Select>
           </div>
+
+          <div className="space-y-2">
+            <Label>{t("employee.secondaryRoles" as any)}</Label>
+            <p className="text-[11px] text-muted-foreground -mt-1">{t("employee.secondaryRoles.help" as any)}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {ROLE_KEYS.filter((r) => r !== role).map((r) => {
+                const selected = secondaryRoles.includes(r);
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() =>
+                      setSecondaryRoles((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]))
+                    }
+                    className={`px-2 py-1 rounded-full border text-[11px] transition-colors ${
+                      selected ? "border-accent bg-accent/15 text-foreground" : "border-border text-muted-foreground hover:bg-muted/60"
+                    }`}
+                  >
+                    <span className={`inline-block w-2 h-2 rounded-full mr-1 align-middle ${getRoleColors(r).dot}`} />
+                    {t(`role.${r}` as any)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
 
           <div className="space-y-2">
             <Label htmlFor="emp-hours">{t("team.contractHours")}</Label>

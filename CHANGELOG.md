@@ -3,7 +3,12 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.01 — 22/08/2026
+
+- **Collaborateurs multi-métiers** : possibilité de déclarer des « métiers secondaires » sur la fiche collaborateur, puis de choisir le métier exercé jour par jour depuis l'encodage du planning (petite pastille dans la case). Dans « Planning semaine », la barre prend la couleur et l'abréviation du métier du jour ; dans « Équipe du jour », le collaborateur apparaît sous le métier exercé ce jour-là. Aucun changement visuel pour les collaborateurs mono-métier.
+
 ## v5.00 — 22/08/2026
+
 
 - **Congés** : nouveau type d'absence « Syndicat » (journée syndicale), en indigo, disponible à l'encodage, dans la légende, à l'impression et sur la fiche collaborateur (FR : SYN / NL : VAK).
 
