@@ -138,6 +138,16 @@ function getDayDate(monday: Date, dayIndex: number): string {
   return formatLocalDate(d);
 }
 
+/** Les 7 dates (lundi → dimanche) d'une semaine à partir de sa date de lundi (YYYY-MM-DD). */
+function weekDatesFrom(mondayStr: string): string[] {
+  const [y, m, d] = mondayStr.split("-").map(Number);
+  return Array.from({ length: 7 }, (_, i) => {
+    const dt = new Date(y, m - 1, d + i);
+    return formatLocalDate(dt);
+  });
+}
+
+
 export function ScheduleEditor() {
   const queryClient = useQueryClient();
   const { t } = useI18n();
