@@ -177,6 +177,32 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
           </div>
 
           <div className="space-y-2">
+            <Label>{t("employee.secondaryRoles" as any)}</Label>
+            <p className="text-[11px] text-muted-foreground -mt-1">{t("employee.secondaryRoles.help" as any)}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {ROLE_KEYS.filter((r) => r !== role).map((r) => {
+                const selected = secondaryRoles.includes(r);
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() =>
+                      setSecondaryRoles((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]))
+                    }
+                    className={`px-2 py-1 rounded-full border text-[11px] transition-colors ${
+                      selected ? "border-accent bg-accent/15 text-foreground" : "border-border text-muted-foreground hover:bg-muted/60"
+                    }`}
+                  >
+                    <span className={`inline-block w-2 h-2 rounded-full mr-1 align-middle ${getRoleColors(r).dot}`} />
+                    {t(`role.${r}` as any)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+
+          <div className="space-y-2">
             <Label htmlFor="emp-hours">{t("team.contractHours")}</Label>
             <Input id="emp-hours" type="number" value={hours} onChange={(e) => setHours(e.target.value)} min={0} max={48} className="font-mono-data" />
           </div>
