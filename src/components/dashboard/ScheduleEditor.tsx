@@ -8,6 +8,9 @@ import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquar
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { getRoleColors } from "@/lib/role-colors";
+
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName, getISOYear, isoWeeksInYear, getMondayFromISOWeek } from "@/lib/format";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
