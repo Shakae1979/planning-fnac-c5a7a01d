@@ -13,6 +13,8 @@ import { useI18n } from "@/lib/i18n";
 import React from "react";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { ROLE_ORDER, ROLE_COLORS } from "@/lib/role-colors";
+import { groupDayRoles, buildRoleSegments, rolesOfDay, toMin, type DayRoleRow } from "@/lib/day-roles";
+
 
 const CONGE_COLORS: Record<string, string> = {
   conge: "bg-lime-500", rtt: "bg-cyan-500", maladie: "bg-rose-600", formation: "bg-violet-500",
