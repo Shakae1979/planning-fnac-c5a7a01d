@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.04 — 22/08/2026
+
+- **Multi-métiers plus facile à retrouver** : le descriptif de la bascule dans les paramètres du magasin détaille désormais ce qu'elle débloque, et l'encodage du planning affiche un rappel lorsque des collaborateurs ont des métiers secondaires alors que l'option est éteinte.
+
 ## v5.03 — 22/08/2026
 
 - **Multi-métiers activable par magasin** : la fonctionnalité multi-métiers (métiers secondaires et changement de métier en cours de journée) se déclenche désormais via un interrupteur dans les paramètres du magasin. Désactivée par défaut, elle masque les métiers secondaires, la pastille d'encodage et les segments de couleur pour les magasins qui ne l'utilisent pas.

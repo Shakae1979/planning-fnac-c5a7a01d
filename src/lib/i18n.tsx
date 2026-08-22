@@ -488,7 +488,8 @@ const translations = {
   "store.lunchBreak": { fr: "Encodage de l'heure de table", nl: "Invoer van de etenstijd" },
   "store.lunchBreakDesc": { fr: "Permettre de saisir la pause par jour", nl: "Mogelijk maken om de pauze per dag in te voeren" },
   "store.multiRoles": { fr: "Multi-métiers", nl: "Multi-functies" },
-  "store.multiRolesDesc": { fr: "Autoriser les métiers secondaires et le changement de métier en journée", nl: "Secundaire functies en functiewissel tijdens de dag toestaan" },
+  "store.multiRolesDesc": { fr: "Débloque les métiers secondaires sur la fiche collaborateur, la pastille de métier dans l'encodage du planning et les couleurs par plage dans Planning semaine et Équipe du jour", nl: "Ontgrendelt secundaire functies op de medewerkersfiche, de functiebadge bij het inplannen en de kleuren per tijdvak in Weekplanning en Team van de dag" },
+  "schedule.multiRolesOff": { fr: "Multi-métiers désactivé pour ce magasin : activez-le dans Paramètres magasin pour encoder un changement de métier.", nl: "Multi-functies staat uit voor deze winkel: schakel het in bij Winkelinstellingen om een functiewissel in te voeren." },
 
   "schedule.break": { fr: "Pause", nl: "Pauze" },
   "store.deleted": { fr: "Magasin supprimé !", nl: "Winkel verwijderd!" },

@@ -963,8 +963,17 @@ export function ScheduleEditor() {
   const isCopyMode = copiedEmployee !== null || copiedDay !== null;
   const isCellCopyMode = copiedCell !== null;
 
+  const someoneHasSecondaryRoles = employees.some(
+    (e) => ((((e as any).secondary_roles as string[] | null) || []).filter((r) => r && r !== e.role).length > 0)
+  );
+
   return (
     <div className="space-y-4">
+      {!multiRolesEnabled && someoneHasSecondaryRoles && (
+        <div className="rounded-lg border border-dashed border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+          {t("schedule.multiRolesOff" as any)}
+        </div>
+      )}
       {/* Week navigation */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
