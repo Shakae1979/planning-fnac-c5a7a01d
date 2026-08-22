@@ -108,23 +108,24 @@ const TeamDayView = () => {
   const dayComment = dayComments?.find((c) => c.day_key === dayKey)?.comment || null;
   const isDayFerie = dayComments?.find((c) => c.day_key === dayKey)?.is_ferie ?? false;
 
-  // Rôle du jour (collaborateurs multi-métiers)
+  // Rôle du jour (collaborateurs multi-métiers) — plages horaires possibles
   const { data: dayRoles } = useQuery({
     queryKey: ["team-day-roles", dateStr],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("employee_day_roles")
-        .select("employee_id, role")
+        .select("employee_id, date, role, start_time, end_time")
         .eq("date", dateStr);
       if (error) throw error;
-      return (data || []) as { employee_id: string; role: string }[];
+      return (data || []) as DayRoleRow[];
     },
   });
 
+  const dayRoleMap = useMemo(() => groupDayRoles(dayRoles), [dayRoles]);
+
   const teamDay = employees
-    ?.map((employeeRow) => {
-      const dayRole = dayRoles?.find((r) => r.employee_id === employeeRow.id)?.role;
-      const emp = dayRole ? { ...employeeRow, role: dayRole } : employeeRow;
+    ?.map((emp) => {
+
 
       const schedule = schedules?.find((s) => s.employee_id === emp.id);
       const start = schedule ? (schedule as any)[`${dayKey}_start`] : null;
