@@ -26,7 +26,9 @@ interface Employee {
   contract_hours: number;
   is_active: boolean;
   is_cadre?: boolean;
+  secondary_roles?: string[] | null;
 }
+
 
 interface AppAccount {
   id: string;
