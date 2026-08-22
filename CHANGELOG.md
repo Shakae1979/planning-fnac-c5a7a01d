@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.00 — 22/08/2026
+
+- **Congés** : nouveau type d'absence « Syndicat » (journée syndicale), en indigo, disponible à l'encodage, dans la légende, à l'impression et sur la fiche collaborateur (FR : SYN / NL : VAK).
+
 ## v4.99 — 17/08/2026
 
 - **Stabilité au rafraîchissement** : l'application attend désormais de connaître le rôle avant d'afficher une page — fin des redirections parasites (admin renvoyé vers « Équipe du jour »), du magasin qui change tout seul et des clignotements d'interface après un F5.
