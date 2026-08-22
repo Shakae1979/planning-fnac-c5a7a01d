@@ -84,13 +84,60 @@ export function OverviewInsights({ employees, schedules, coverage, dayKeys, week
   const occupancy = totalContract > 0 ? Math.round((totalPlanned / totalContract) * 100) : 0;
   const diffHours = totalPlanned - totalContract;
 
+  // ---- Répartition des heures par métier (plages multi-métiers incluses) ----
+  const weekDates = useMemo(
+    () => dayKeys.map((_, i) => formatLocalDate(addDays(weekMonday, i))),
+    [dayKeys, weekMonday]
+  );
+  const { data: weekDayRoles = [] } = useQuery({
+    queryKey: ["overview-day-roles", weekDates[0], weekDates[weekDates.length - 1], employees.length],
+    enabled: weekDates.length > 0 && employees.length > 0,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("employee_day_roles")
+        .select("employee_id, date, role, start_time, end_time")
+        .in("date", weekDates)
+        .in("employee_id", employees.map((e) => e.id));
+      if (error) throw error;
+      return (data || []) as DayRoleRow[];
+    },
+  });
+  const dayRoleMap = useMemo(() => groupDayRoles(weekDayRoles), [weekDayRoles]);
+
+  const plannedByRole = useMemo(() => {
+    const acc: Record<string, number> = {};
+    const empRole = new Map(employees.map((e) => [e.id, e.role]));
+    for (const sc of schedules as any[]) {
+      const mainRole = empRole.get(sc.employee_id);
+      if (!mainRole) continue;
+      dayKeys.forEach((dk, i) => {
+        const start = sc[`${dk}_start`];
+        const end = sc[`${dk}_end`];
+        if (!start || !end) return;
+        const net = computeNetHours({
+          [`${dk}_start`]: start,
+          [`${dk}_end`]: end,
+          [`${dk}_break_start`]: sc[`${dk}_break_start`],
+          [`${dk}_break_end`]: sc[`${dk}_break_end`],
+        }).net;
+        if (!net) return;
+        const segs = buildRoleSegments(dayRoleMap[`${sc.employee_id}__${weekDates[i]}`], mainRole, start, end);
+        const split = segs.length > 0 ? splitHoursByRole(net, segs) : { [mainRole]: net };
+        for (const [role, h] of Object.entries(split)) acc[role] = (acc[role] || 0) + h;
+      });
+    }
+    return acc;
+  }, [schedules, employees, dayKeys, dayRoleMap, weekDates]);
+
   const occupancyByRole = ROLE_ORDER.map((role) => {
     const emps = employees.filter((e) => e.role === role);
     const contract = emps.reduce((s, e) => s + Number(e.contract_hours || 0), 0);
-    const planned = emps.reduce((s, e) => s + (plannedByEmp.get(e.id) ?? 0), 0);
+    const fallback = emps.reduce((s, e) => s + (plannedByEmp.get(e.id) ?? 0), 0);
+    const planned = plannedByRole[role] ?? fallback;
     const pct = contract > 0 ? Math.round((planned / contract) * 100) : 0;
     return { role, contract, planned, pct, count: emps.length };
   }).filter((r) => r.count > 0);
+
 
   // ---- Unplanned employees (full list, sorted by role hierarchy) ----
   const scheduledIds = new Set(schedules.map((s) => s.employee_id));
