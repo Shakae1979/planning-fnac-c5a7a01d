@@ -335,6 +335,11 @@ const translations = {
   "employee.isCadre.label": { fr: "Cadre", nl: "Kaderlid" },
   "employee.isCadre.help": { fr: "Plafonne les heures planifiées aux heures de contrat dans le calcul ETP (l'affichage des heures réelles reste inchangé).", nl: "Begrenst de geplande uren tot de contracturen voor de FTE-berekening (de werkelijke uren blijven zichtbaar)." },
   "employee.cadreBadge": { fr: "Cadre", nl: "Kaderlid" },
+  "employee.secondaryRoles": { fr: "Métiers secondaires", nl: "Bijkomende functies" },
+  "employee.secondaryRoles.help": { fr: "Permet de changer de métier au jour le jour dans le planning.", nl: "Maakt het mogelijk om per dag van functie te wisselen in de planning." },
+  "schedule.dayRole": { fr: "Métier du jour", nl: "Functie van de dag" },
+  "schedule.dayRole.main": { fr: "Métier principal", nl: "Hoofdfunctie" },
+
 
   // ========== Schedule editor ==========
   "schedule.weekOf": { fr: "Semaine du", nl: "Week van" },
