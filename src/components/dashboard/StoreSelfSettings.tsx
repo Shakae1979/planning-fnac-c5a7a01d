@@ -13,7 +13,7 @@ export function StoreSelfSettings() {
   const queryClient = useQueryClient();
 
   const updateFlag = useMutation({
-    mutationFn: async (values: { has_ab_weeks?: boolean; has_lunch_break?: boolean }) => {
+    mutationFn: async (values: { has_ab_weeks?: boolean; has_lunch_break?: boolean; has_multi_roles?: boolean }) => {
       if (!currentStore) return;
       const { error } = await supabase.from("stores").update(values as any).eq("id", currentStore.id);
       if (error) throw error;
@@ -64,6 +64,18 @@ export function StoreSelfSettings() {
           <div>
             <p className="text-sm font-medium text-foreground">{t("store.lunchBreak")}</p>
             <p className="text-xs text-muted-foreground">{t("store.lunchBreakDesc")}</p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3">
+          <Switch
+            checked={currentStore.has_multi_roles ?? false}
+            onCheckedChange={(checked) => updateFlag.mutate({ has_multi_roles: checked })}
+            disabled={updateFlag.isPending}
+          />
+          <div>
+            <p className="text-sm font-medium text-foreground">{t("store.multiRoles")}</p>
+            <p className="text-xs text-muted-foreground">{t("store.multiRolesDesc")}</p>
           </div>
         </div>
       </div>
