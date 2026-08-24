@@ -356,6 +356,7 @@ export type Database = {
         Row: {
           city: string
           created_at: string
+          external_code: number | null
           has_ab_weeks: boolean
           has_lunch_break: boolean
           has_multi_roles: boolean
@@ -366,6 +367,7 @@ export type Database = {
         Insert: {
           city: string
           created_at?: string
+          external_code?: number | null
           has_ab_weeks?: boolean
           has_lunch_break?: boolean
           has_multi_roles?: boolean
@@ -376,6 +378,7 @@ export type Database = {
         Update: {
           city?: string
           created_at?: string
+          external_code?: number | null
           has_ab_weeks?: boolean
           has_lunch_break?: boolean
           has_multi_roles?: boolean
@@ -568,6 +571,51 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calc_week_net_hours: { Args: { _schedule: Json }; Returns: number }
+      export_hours_monthly: {
+        Args: {
+          _employee_id?: string
+          _from: string
+          _include_inactive?: boolean
+          _store_code?: number
+          _to: string
+        }
+        Returns: {
+          contract_hours: number
+          email: string
+          employee_id: string
+          last_name: string
+          month: string
+          month_contract: number
+          month_gap: number
+          month_worked: number
+          name: string
+          store_code: number
+          store_name: string
+          weeks_count: number
+        }[]
+      }
+      export_hours_weekly: {
+        Args: {
+          _employee_id?: string
+          _from: string
+          _include_inactive?: boolean
+          _store_code?: number
+          _to: string
+        }
+        Returns: {
+          contract_hours: number
+          email: string
+          employee_id: string
+          hours_gap: number
+          hours_worked: number
+          last_name: string
+          name: string
+          store_code: number
+          store_name: string
+          week_start: string
+        }[]
+      }
       get_my_role: { Args: never; Returns: string }
       get_my_stores: {
         Args: never
