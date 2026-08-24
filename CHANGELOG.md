@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.08 — 24/08/2026
+
+- **Sécurité des données** : les plannings, congés, collaborateurs et commentaires ne sont plus accessibles publiquement (connexion obligatoire) et seules les personnes admin / responsable / éditeur peuvent les modifier. Les vendeurs conservent un accès en lecture seule.
+
 ## v5.07 — 24/08/2026
 
 - **Stabilité de l'encodage du planning** : correction d'un plantage à l'ouverture de l'onglet « Semaine » lorsque les collaborateurs n'avaient pas encore fini de charger (rafraîchissement ou changement de magasin).
