@@ -278,7 +278,7 @@ export function ScheduleEditor() {
     reorderMutation.mutate(updates);
   };
 
-  const employees = isDirection ? directionEmployees : regularEmployees;
+  const employees = (isDirection ? directionEmployees : regularEmployees) ?? [];
 
   const { data: schedules, isLoading } = useQuery({
     queryKey: ["schedules", weekStr],
