@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
     const { data, error } = await supabase.rpc(fn, {
       _from: from,
       _to: to,
-      _store_code: storeCode,
+      _store_id: storeId,
       _employee_id: employeeId,
       _include_inactive: includeInactive,
     });
