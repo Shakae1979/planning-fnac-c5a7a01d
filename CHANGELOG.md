@@ -3,9 +3,11 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
-## v5.06 — 22/08/2026
+## v5.07 — 24/08/2026
 
-- **Semaine type et multi-métiers** : les plages de métier encodées sont désormais mémorisées avec la semaine type (A/B) et réappliquées lors de l'application du modèle.
+- **Stabilité de l'encodage du planning** : correction d'un plantage à l'ouverture de l'onglet « Semaine » lorsque les collaborateurs n'avaient pas encore fini de charger (rafraîchissement ou changement de magasin).
+
+## v5.06 — 22/08/2026
 
 ## v5.05 — 22/08/2026
 
