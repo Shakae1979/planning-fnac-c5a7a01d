@@ -577,7 +577,7 @@ export type Database = {
           _employee_id?: string
           _from: string
           _include_inactive?: boolean
-          _store_code?: number
+          _store_id?: string
           _to: string
         }
         Returns: {
@@ -590,7 +590,7 @@ export type Database = {
           month_gap: number
           month_worked: number
           name: string
-          store_code: number
+          store_id: string
           store_name: string
           weeks_count: number
         }[]
@@ -600,7 +600,7 @@ export type Database = {
           _employee_id?: string
           _from: string
           _include_inactive?: boolean
-          _store_code?: number
+          _store_id?: string
           _to: string
         }
         Returns: {
@@ -611,7 +611,7 @@ export type Database = {
           hours_worked: number
           last_name: string
           name: string
-          store_code: number
+          store_id: string
           store_name: string
           week_start: string
         }[]
