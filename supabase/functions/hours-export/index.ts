@@ -63,15 +63,15 @@ Deno.serve(async (req) => {
     }
     if (from > to) return json({ error: "'from' must be before 'to'" }, 400);
 
-    const storeCodeRaw = p.get("store_code");
-    let storeCode: number | null = null;
-    if (storeCodeRaw !== null && storeCodeRaw !== "") {
-      storeCode = Number(storeCodeRaw);
-      if (!Number.isInteger(storeCode)) return json({ error: "store_code must be an integer" }, 400);
+    const UUID_RE = /^[0-9a-f-]{36}$/i;
+
+    const storeId = p.get("store_id");
+    if (storeId && !UUID_RE.test(storeId)) {
+      return json({ error: "store_id must be a UUID" }, 400);
     }
 
     const employeeId = p.get("employee_id");
-    if (employeeId && !/^[0-9a-f-]{36}$/i.test(employeeId)) {
+    if (employeeId && !UUID_RE.test(employeeId)) {
       return json({ error: "employee_id must be a UUID" }, 400);
     }
 
