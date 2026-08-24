@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.10 — 24/08/2026
+
+- **Export heures — identifiant magasin brut** : l'export renvoie désormais l'identifiant unique du magasin (UUID) au lieu du code interne, et le filtre magasin se fait sur ce même identifiant. Les outils externes gèrent eux-mêmes leur correspondance de codes.
+
 ## v5.09 — 24/08/2026
 
 - **Export heures pour outils externes** : nouvel endpoint sécurisé (clé d'API dédiée) exposant, en lecture seule, les heures prestées vs contrat par collaborateur — au choix par semaine ou par mois planning — avec le code magasin interne (Liège 1, Gand 2, LLN 7, TDO 9, Aalst 10, Charleroi 11, Luxembourg 12, Woluwe 14). Les heures sont recalculées quand la semaine n'a jamais été rouverte.
