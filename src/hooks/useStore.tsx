@@ -9,6 +9,7 @@ interface Store {
   has_ab_weeks?: boolean;
   has_lunch_break?: boolean;
   has_multi_roles?: boolean;
+  has_two_floors?: boolean;
   is_direction?: boolean;
 }
 
