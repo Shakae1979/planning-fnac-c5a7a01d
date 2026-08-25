@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
 import { useStoreSettings, DAY_KEYS, timeToMin, type DayKey } from "@/hooks/useStoreSettings";
-import { ROLE_KEYS, ROLE_COLORS as CENTRAL_ROLE_COLORS } from "@/lib/role-colors";
+import { ROLE_KEYS, ROLE_COLORS as CENTRAL_ROLE_COLORS, getRoleColorsFor } from "@/lib/role-colors";
 import { useAuth } from "@/hooks/useAuth";
 
 export interface HourlyGridHandle {
@@ -53,6 +53,7 @@ const ROLE_BORDER_L: Record<string, string> = Object.fromEntries(
 interface Employee {
   id: string; name: string; role: string; start: string | null; end: string | null; hasShift: boolean; conge: any;
   breakStart?: string | null; breakEnd?: string | null;
+  floor?: number | null;
   roleSegments?: { role: string; start: string; end: string }[];
 
 }
@@ -286,7 +287,7 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
               const empEnd = timeToHours(emp.end);
               const prevRole = idx > 0 ? active[idx - 1].role : null;
               const isFirstOfRole = prevRole !== emp.role;
-              const borderL = ROLE_BORDER_L[emp.role] || "border-l-muted";
+              const borderL = ROLE_BORDER_L[emp.role] ? getRoleColorsFor(emp.role, emp.floor, twoFloorsEnabled).borderL : "border-l-muted";
               return (
                 <tr key={emp.id} className={isFirstOfRole && idx > 0 ? "border-t-4 border-t-foreground/25" : "border-t"}>
                   <td className={`sticky left-0 bg-card px-2 py-1 border-r border-l-4 ${borderL}`}>
@@ -316,7 +317,9 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
                     )?.role;
                     const cellRole = overrides[overrideKey]
                       || (lunchSlots.has(overrideKey) ? "heure_de_table" : (segRole || emp.role));
-                    const colorClass = ROLE_BG[cellRole] || "bg-accent/20";
+                    const colorClass = ROLE_KEYS.includes(cellRole as any)
+                      ? getRoleColorsFor(cellRole, emp.floor, twoFloorsEnabled).barSoft
+                      : (ROLE_BG[cellRole] || "bg-accent/20");
 
                     const isSelected = selected.has(overrideKey);
                     return (
