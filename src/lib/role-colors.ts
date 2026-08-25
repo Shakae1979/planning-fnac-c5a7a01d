@@ -130,7 +130,61 @@ export const ROLE_COLORS: Record<RoleKey, RoleColorVariants> = {
 
 export const ROLE_ORDER: RoleKey[] = [...ROLE_KEYS];
 
+/**
+ * Second-floor variants (stores with `has_two_floors`).
+ * Same hue as the ground floor, darker shade, so both remain readable side by side.
+ * Only PT (technique) and PE (editorial) are split across floors.
+ */
+export const FLOOR2_ROLE_COLORS: Partial<Record<RoleKey, RoleColorVariants>> = {
+  technique: {
+    hue: "orange",
+    dot: "bg-orange-800",
+    bar: "bg-orange-800",
+    barSoft: "bg-orange-800/80",
+    bgSoft: "bg-orange-100 dark:bg-orange-950/40",
+    bgChip: "bg-orange-200 text-orange-900",
+    bgChipDark: "bg-orange-200 text-orange-900 dark:bg-orange-900/50 dark:text-orange-200",
+    headerBg: "bg-orange-200 dark:bg-orange-900/60",
+    borderL: "border-l-orange-800",
+    text: "text-orange-900 dark:text-orange-100",
+    editorBg: "bg-orange-200 dark:bg-orange-950/60",
+    congesHeaderBg: "bg-orange-200 dark:bg-orange-900/70",
+    congesBorderL: "border-l-2 border-l-orange-500 dark:border-l-orange-700",
+  },
+  editorial: {
+    hue: "amber",
+    dot: "bg-amber-700",
+    bar: "bg-amber-700",
+    barSoft: "bg-amber-700/80",
+    bgSoft: "bg-amber-100 dark:bg-amber-950/40",
+    bgChip: "bg-amber-200 text-amber-900",
+    bgChipDark: "bg-amber-200 text-amber-900 dark:bg-amber-900/50 dark:text-amber-200",
+    headerBg: "bg-amber-200 dark:bg-amber-900/60",
+    borderL: "border-l-amber-700",
+    text: "text-amber-900 dark:text-amber-100",
+    editorBg: "bg-amber-200 dark:bg-amber-950/60",
+    congesHeaderBg: "bg-amber-200 dark:bg-amber-900/70",
+    congesBorderL: "border-l-2 border-l-amber-500 dark:border-l-amber-700",
+  },
+};
+
+/** Roles that can be split across two floors. */
+export const FLOOR_SPLIT_ROLES: RoleKey[] = ["technique", "editorial"];
+
 /** Safe accessor: falls back to caisse variants for unknown roles. */
 export function getRoleColors(role: string): RoleColorVariants {
   return ROLE_COLORS[role as RoleKey] ?? ROLE_COLORS.caisse;
 }
+
+/**
+ * Floor-aware accessor. Returns the darker shade for floor 2 collaborators
+ * in PT/PE when the store runs on two floors, otherwise the standard palette.
+ */
+export function getRoleColorsFor(role: string, floor?: number | null, enabled = true): RoleColorVariants {
+  if (enabled && floor === 2) {
+    const alt = FLOOR2_ROLE_COLORS[role as RoleKey];
+    if (alt) return alt;
+  }
+  return getRoleColors(role);
+}
+

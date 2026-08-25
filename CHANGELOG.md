@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.11 — 25/08/2026
+
+- **Magasin à 2 étages** : nouveau réglage magasin. Une fois activé, chaque vendeur PT (Technique) et PE (Éditorial) reçoit un étage (1 ou 2) dans sa fiche, et le planning (encodage, planning semaine, équipe du jour) affiche une nuance plus foncée de la même teinte pour l'étage 2.
+
 ## v5.10 — 24/08/2026
 
 - **Export heures — identifiant magasin brut** : l'export renvoie désormais l'identifiant unique du magasin (UUID) au lieu du code interne, et le filtre magasin se fait sur ce même identifiant. Les outils externes gèrent eux-mêmes leur correspondance de codes.
