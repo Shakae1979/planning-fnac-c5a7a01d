@@ -12,7 +12,7 @@ import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { useI18n } from "@/lib/i18n";
 import React from "react";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
-import { ROLE_ORDER, ROLE_COLORS } from "@/lib/role-colors";
+import { ROLE_ORDER, ROLE_COLORS, getRoleColorsFor, FLOOR2_ROLE_COLORS } from "@/lib/role-colors";
 import { groupDayRoles, buildRoleSegments, rolesOfDay, toMin, type DayRoleRow } from "@/lib/day-roles";
 
 
@@ -183,10 +183,18 @@ const TeamWeekView = () => {
       <div className="w-full px-4 py-4">
         <div className="flex flex-wrap gap-3 mb-4 text-xs no-print">
           {ROLE_ORDER.map(role => (
-            <span key={role} className="flex items-center gap-1.5">
-              <span className={`inline-block w-3 h-3 rounded ${ROLE_COLORS[role]?.bar}`} />
-              {roleLabels(role)}
-            </span>
+            <React.Fragment key={role}>
+              <span className="flex items-center gap-1.5">
+                <span className={`inline-block w-3 h-3 rounded ${ROLE_COLORS[role]?.bar}`} />
+                {roleLabels(role)}{twoFloorsEnabled && FLOOR2_ROLE_COLORS[role] ? ` — ${t("legend.floor1" as any)}` : ""}
+              </span>
+              {twoFloorsEnabled && FLOOR2_ROLE_COLORS[role] && (
+                <span className="flex items-center gap-1.5">
+                  <span className={`inline-block w-3 h-3 rounded ${FLOOR2_ROLE_COLORS[role]!.bar}`} />
+                  {roleLabels(role)} — {t("legend.floor2" as any)}
+                </span>
+              )}
+            </React.Fragment>
           ))}
           <span className="ml-2 border-l pl-2 flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-lime-500" /> {t("leave.conge")}</span>
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-violet-500" /> {t("leave.formation")}</span>
@@ -352,7 +360,7 @@ const TeamWeekView = () => {
                                             if (segEnd <= segStart) return null;
                                             const segLeft = ((segStart - GRID_START) / GRID_SPAN) * 100;
                                             const segWidth = ((segEnd - segStart) / GRID_SPAN) * 100;
-                                            const segColors = (ROLE_COLORS[seg.role as keyof typeof ROLE_COLORS] || colors);
+                                            const segColors = getRoleColorsFor(seg.role, (emp as any).floor, twoFloorsEnabled);
                                             const isFirst = sidx === 0;
                                             const isLast = segEnd >= clampEnd;
                                             return (
