@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.13 — 25/08/2026
+
+- **Paramètres magasins** : les tuiles magasins sont désormais réductibles (icône flèche dans l'en-tête). L'état replié/développé est mémorisé par magasin et indique en condensé les options actives (semaines A/B, heure de table, multi-métiers, 2 étages). Cela allège considérablement l'affichage en mode admin sur cette page.
+
 ## v5.12 — 25/08/2026
 
 - **Correction** : les interrupteurs des paramètres magasin (semaines A/B, heure de table, multi-métiers, 2 étages) restent désormais correctement cochés après clic — le contexte magasin est rafraîchi immédiatement après enregistrement.

@@ -10,7 +10,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, Pencil, Store, X, Save, Loader2, UserPlus, UserMinus, Crown } from "lucide-react";
+import { Plus, Trash2, Pencil, Store, X, Save, Loader2, UserPlus, UserMinus, Crown, ChevronDown, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
@@ -39,6 +39,22 @@ export function StoreManager() {
   const [creatingManagerStoreId, setCreatingManagerStoreId] = useState<string | null>(null);
   const [newManagerEmail, setNewManagerEmail] = useState("");
   const [newManagerPassword, setNewManagerPassword] = useState("");
+
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("fnac-store-collapsed") || "{}") as Record<string, boolean>;
+    } catch {
+      return {};
+    }
+  });
+
+  const toggleCollapse = (id: string) => {
+    setCollapsed((prev) => {
+      const next = { ...prev, [id]: !prev[id] };
+      localStorage.setItem("fnac-store-collapsed", JSON.stringify(next));
+      return next;
+    });
+  };
 
   const { data: stores, isLoading } = useQuery({
     queryKey: ["stores"],
@@ -320,6 +336,7 @@ export function StoreManager() {
               const managers = storeManagers[store.id] || [];
               const isAddingManager = addingManagerStoreId === store.id;
               const availableUsers = getAvailableUsers(store.id);
+              const isCollapsed = !!collapsed[store.id];
 
               if (isEditing) {
                 return (
@@ -337,6 +354,12 @@ export function StoreManager() {
               }
 
               const isDirectionStore = (store as any).is_direction === true;
+              const activeFeatures = [
+                (store as any).has_ab_weeks && t("store.abWeeks" as any),
+                (store as any).has_lunch_break && t("store.lunchBreak" as any),
+                (store as any).has_multi_roles && t("store.multiRoles" as any),
+                (store as any).has_two_floors && t("store.twoFloors" as any),
+              ].filter(Boolean) as string[];
 
               return (
                 <div key={store.id} className={`rounded-lg border bg-card p-3 space-y-2 ${isDirectionStore ? "border-amber-300/50" : ""}`}>
@@ -353,6 +376,15 @@ export function StoreManager() {
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                        title={isCollapsed ? t("store.expand" as any) : t("store.collapse" as any)}
+                        onClick={() => toggleCollapse(store.id)}
+                      >
+                        {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </Button>
                       <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground"
                         onClick={() => { setEditingId(store.id); setEditName(store.name); setEditCity(store.city); }}>
                         <Pencil className="h-3.5 w-3.5" />
@@ -386,215 +418,229 @@ export function StoreManager() {
                     </div>
                   </div>
 
-                  {/* A/B weeks toggle */}
-                  <div className="pl-11 flex items-center gap-2 py-1">
-                    <Switch
-                      checked={(store as any).has_ab_weeks ?? false}
-                      onCheckedChange={(checked) => toggleABMutation.mutate({ id: store.id, enabled: checked })}
-                      disabled={toggleABMutation.isPending}
-                    />
-                    <div>
-                      <span className="text-xs font-medium text-foreground">{t("store.abWeeks" as any)}</span>
-                      <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.abWeeksDesc" as any)}</span>
+                  {isCollapsed ? (
+                    <div className="pl-11 flex flex-wrap gap-1.5">
+                      {activeFeatures.length === 0 ? (
+                        <span className="text-[10px] text-muted-foreground italic">{t("store.noActiveFeatures" as any)}</span>
+                      ) : (
+                        activeFeatures.map((feature) => (
+                          <Badge key={feature} variant="secondary" className="text-[10px] px-1.5 py-0 h-5 font-normal">
+                            {feature}
+                          </Badge>
+                        ))
+                      )}
                     </div>
-                  </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {/* A/B weeks toggle */}
+                      <div className="pl-11 flex items-center gap-2 py-1">
+                        <Switch
+                          checked={(store as any).has_ab_weeks ?? false}
+                          onCheckedChange={(checked) => toggleABMutation.mutate({ id: store.id, enabled: checked })}
+                          disabled={toggleABMutation.isPending}
+                        />
+                        <div>
+                          <span className="text-xs font-medium text-foreground">{t("store.abWeeks" as any)}</span>
+                          <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.abWeeksDesc" as any)}</span>
+                        </div>
+                      </div>
 
-                  {/* Lunch break toggle */}
-                  <div className="pl-11 flex items-center gap-2 py-1">
-                    <Switch
-                      checked={(store as any).has_lunch_break ?? false}
-                      onCheckedChange={(checked) => toggleLunchBreakMutation.mutate({ id: store.id, enabled: checked })}
-                      disabled={toggleLunchBreakMutation.isPending}
-                    />
-                    <div>
-                      <span className="text-xs font-medium text-foreground">{t("store.lunchBreak" as any)}</span>
-                      <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.lunchBreakDesc" as any)}</span>
-                    </div>
-                  </div>
+                      {/* Lunch break toggle */}
+                      <div className="pl-11 flex items-center gap-2 py-1">
+                        <Switch
+                          checked={(store as any).has_lunch_break ?? false}
+                          onCheckedChange={(checked) => toggleLunchBreakMutation.mutate({ id: store.id, enabled: checked })}
+                          disabled={toggleLunchBreakMutation.isPending}
+                        />
+                        <div>
+                          <span className="text-xs font-medium text-foreground">{t("store.lunchBreak" as any)}</span>
+                          <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.lunchBreakDesc" as any)}</span>
+                        </div>
+                      </div>
 
-                  {/* Multi-roles toggle */}
-                  <div className="pl-11 flex items-center gap-2 py-1">
-                    <Switch
-                      checked={(store as any).has_multi_roles ?? false}
-                      onCheckedChange={(checked) => toggleMultiRolesMutation.mutate({ id: store.id, enabled: checked })}
-                      disabled={toggleMultiRolesMutation.isPending}
-                    />
-                    <div>
-                      <span className="text-xs font-medium text-foreground">{t("store.multiRoles" as any)}</span>
-                      <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.multiRolesDesc" as any)}</span>
-                    </div>
-                  </div>
+                      {/* Multi-roles toggle */}
+                      <div className="pl-11 flex items-center gap-2 py-1">
+                        <Switch
+                          checked={(store as any).has_multi_roles ?? false}
+                          onCheckedChange={(checked) => toggleMultiRolesMutation.mutate({ id: store.id, enabled: checked })}
+                          disabled={toggleMultiRolesMutation.isPending}
+                        />
+                        <div>
+                          <span className="text-xs font-medium text-foreground">{t("store.multiRoles" as any)}</span>
+                          <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.multiRolesDesc" as any)}</span>
+                        </div>
+                      </div>
 
-                  {/* Two floors toggle */}
-                  <div className="pl-11 flex items-center gap-2 py-1">
-                    <Switch
-                      checked={(store as any).has_two_floors ?? false}
-                      onCheckedChange={(checked) => toggleTwoFloorsMutation.mutate({ id: store.id, enabled: checked })}
-                      disabled={toggleTwoFloorsMutation.isPending}
-                    />
-                    <div>
-                      <span className="text-xs font-medium text-foreground">{t("store.twoFloors" as any)}</span>
-                      <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.twoFloorsDesc" as any)}</span>
-                    </div>
-                  </div>
+                      {/* Two floors toggle */}
+                      <div className="pl-11 flex items-center gap-2 py-1">
+                        <Switch
+                          checked={(store as any).has_two_floors ?? false}
+                          onCheckedChange={(checked) => toggleTwoFloorsMutation.mutate({ id: store.id, enabled: checked })}
+                          disabled={toggleTwoFloorsMutation.isPending}
+                        />
+                        <div>
+                          <span className="text-xs font-medium text-foreground">{t("store.twoFloors" as any)}</span>
+                          <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.twoFloorsDesc" as any)}</span>
+                        </div>
+                      </div>
 
+                      {/* Managers section */}
+                      <div className="pl-11 space-y-1">
+                        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          {t("store.managers")}
+                        </div>
+                        {managers.length === 0 && (
+                          <p className="text-xs text-muted-foreground italic">{t("store.noManager")}</p>
+                        )}
+                        {managers.map((mgr) => (
+                          <div key={mgr.user_id} className="flex items-center justify-between py-1 px-2 rounded bg-accent/5 text-xs group">
+                            <span className="flex items-center gap-1.5">
+                              {mgr.is_manager ? (
+                                <Crown className="h-3.5 w-3.5 text-amber-500" />
+                              ) : (
+                                <span className="text-sm">👤</span>
+                              )}
+                              <span className="font-medium text-foreground">{mgr.email}</span>
+                              <span className="text-muted-foreground">({mgr.role})</span>
+                              {mgr.is_manager && (
+                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 border-amber-500/50 text-amber-600">
+                                  Store Manager
+                                </Badge>
+                              )}
+                            </span>
+                            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {callerRole === "admin" && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={`h-6 w-6 p-0 ${mgr.is_manager ? "text-amber-500 hover:text-amber-600" : "text-muted-foreground hover:text-amber-500"}`}
+                                  title={mgr.is_manager ? t("store.removeManager" as any) : t("store.setAsManager" as any)}
+                                  onClick={() => setManagerMutation.mutate({ user_id: mgr.user_id, store_id: store.id, is_manager: !mgr.is_manager })}
+                                  disabled={setManagerMutation.isPending}
+                                >
+                                  <Crown className="h-3 w-3" />
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0 text-destructive/50 hover:text-destructive"
+                                onClick={() => unassignMutation.mutate({ user_id: mgr.user_id, store_id: store.id })}
+                                disabled={unassignMutation.isPending}
+                              >
+                                <UserMinus className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
 
-
-                  {/* Managers section */}
-                  <div className="pl-11 space-y-1">
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      {t("store.managers")}
-                    </div>
-                    {managers.length === 0 && (
-                      <p className="text-xs text-muted-foreground italic">{t("store.noManager")}</p>
-                    )}
-                    {managers.map((mgr) => (
-                      <div key={mgr.user_id} className="flex items-center justify-between py-1 px-2 rounded bg-accent/5 text-xs group">
-                        <span className="flex items-center gap-1.5">
-                          {mgr.is_manager ? (
-                            <Crown className="h-3.5 w-3.5 text-amber-500" />
-                          ) : (
-                            <span className="text-sm">👤</span>
-                          )}
-                          <span className="font-medium text-foreground">{mgr.email}</span>
-                          <span className="text-muted-foreground">({mgr.role})</span>
-                          {mgr.is_manager && (
-                            <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 border-amber-500/50 text-amber-600">
-                              Store Manager
-                            </Badge>
-                          )}
-                        </span>
-                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {callerRole === "admin" && (
+                        {isAddingManager ? (
+                          <div className="space-y-2 mt-1">
+                            <div className="flex items-center gap-2">
+                              <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                                <SelectTrigger className="h-8 text-xs flex-1">
+                                  <SelectValue placeholder={t("store.selectUser")} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {availableUsers.length === 0 ? (
+                                    <div className="px-2 py-1.5 text-[11px] text-muted-foreground italic">
+                                      {t("store.noEligibleUser" as any)}
+                                    </div>
+                                  ) : (
+                                    availableUsers.map((u) => (
+                                      <SelectItem key={u.id} value={u.id}>{u.email} ({u.role})</SelectItem>
+                                    ))
+                                  )}
+                                </SelectContent>
+                              </Select>
+                              <Button
+                                size="sm"
+                                className="h-8"
+                                disabled={!selectedUserId || assignMutation.isPending}
+                                onClick={() => assignMutation.mutate({ user_id: selectedUserId, store_id: store.id })}
+                              >
+                                {assignMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-8" onClick={() => { setAddingManagerStoreId(null); setSelectedUserId(""); }}>
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            {availableUsers.length === 0 && (
+                              <p className="text-[11px] text-muted-foreground">
+                                {t("store.noEligibleUserHint" as any)}
+                              </p>
+                            )}
+                            <button
+                              type="button"
+                              className="text-[11px] text-accent hover:underline"
+                              onClick={() => { setAddingManagerStoreId(null); setSelectedUserId(""); setCreatingManagerStoreId(store.id); }}
+                            >
+                              {t("store.orCreateNew" as any)}
+                            </button>
+                          </div>
+                        ) : creatingManagerStoreId === store.id ? (
+                          <div className="space-y-2 mt-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Input
+                                type="email"
+                                placeholder={t("store.createManagerEmail" as any)}
+                                value={newManagerEmail}
+                                onChange={(e) => setNewManagerEmail(e.target.value)}
+                                className="h-8 text-xs flex-1 min-w-[160px]"
+                              />
+                              <Input
+                                type="password"
+                                placeholder={t("store.createManagerPassword" as any)}
+                                value={newManagerPassword}
+                                onChange={(e) => setNewManagerPassword(e.target.value)}
+                                className="h-8 text-xs w-36"
+                              />
+                              <Button
+                                size="sm"
+                                className="h-8"
+                                disabled={!newManagerEmail.trim() || !newManagerPassword.trim() || createManagerMutation.isPending}
+                                onClick={() => createManagerMutation.mutate({ email: newManagerEmail.trim(), password: newManagerPassword.trim(), store_id: store.id })}
+                              >
+                                {createManagerMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-8" onClick={() => { setCreatingManagerStoreId(null); setNewManagerEmail(""); setNewManagerPassword(""); }}>
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <button
+                              type="button"
+                              className="text-[11px] text-accent hover:underline"
+                              onClick={() => { setCreatingManagerStoreId(null); setNewManagerEmail(""); setNewManagerPassword(""); setAddingManagerStoreId(store.id); }}
+                            >
+                              {t("store.assignExisting" as any)}
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 mt-1">
                             <Button
                               variant="ghost"
                               size="sm"
-                              className={`h-6 w-6 p-0 ${mgr.is_manager ? "text-amber-500 hover:text-amber-600" : "text-muted-foreground hover:text-amber-500"}`}
-                              title={mgr.is_manager ? t("store.removeManager" as any) : t("store.setAsManager" as any)}
-                              onClick={() => setManagerMutation.mutate({ user_id: mgr.user_id, store_id: store.id, is_manager: !mgr.is_manager })}
-                              disabled={setManagerMutation.isPending}
+                              className="h-7 text-xs text-accent hover:text-accent"
+                              onClick={() => { setAddingManagerStoreId(store.id); setSelectedUserId(""); }}
                             >
-                              <Crown className="h-3 w-3" />
+                              <UserPlus className="h-3 w-3 mr-1" />
+                              {t("store.addManager")}
                             </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 text-destructive/50 hover:text-destructive"
-                            onClick={() => unassignMutation.mutate({ user_id: mgr.user_id, store_id: store.id })}
-                            disabled={unassignMutation.isPending}
-                          >
-                            <UserMinus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-
-                    {isAddingManager ? (
-                      <div className="space-y-2 mt-1">
-                        <div className="flex items-center gap-2">
-                          <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                            <SelectTrigger className="h-8 text-xs flex-1">
-                              <SelectValue placeholder={t("store.selectUser")} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {availableUsers.length === 0 ? (
-                                <div className="px-2 py-1.5 text-[11px] text-muted-foreground italic">
-                                  {t("store.noEligibleUser" as any)}
-                                </div>
-                              ) : (
-                                availableUsers.map((u) => (
-                                  <SelectItem key={u.id} value={u.id}>{u.email} ({u.role})</SelectItem>
-                                ))
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <Button
-                            size="sm"
-                            className="h-8"
-                            disabled={!selectedUserId || assignMutation.isPending}
-                            onClick={() => assignMutation.mutate({ user_id: selectedUserId, store_id: store.id })}
-                          >
-                            {assignMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                          </Button>
-                          <Button size="sm" variant="ghost" className="h-8" onClick={() => { setAddingManagerStoreId(null); setSelectedUserId(""); }}>
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        {availableUsers.length === 0 && (
-                          <p className="text-[11px] text-muted-foreground">
-                            {t("store.noEligibleUserHint" as any)}
-                          </p>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs text-accent hover:text-accent"
+                              onClick={() => { setCreatingManagerStoreId(store.id); setNewManagerEmail(""); setNewManagerPassword(""); }}
+                            >
+                              <Plus className="h-3 w-3 mr-1" />
+                              {t("store.createManager" as any)}
+                            </Button>
+                          </div>
                         )}
-                        <button
-                          type="button"
-                          className="text-[11px] text-accent hover:underline"
-                          onClick={() => { setAddingManagerStoreId(null); setSelectedUserId(""); setCreatingManagerStoreId(store.id); }}
-                        >
-                          {t("store.orCreateNew" as any)}
-                        </button>
                       </div>
-                    ) : creatingManagerStoreId === store.id ? (
-                      <div className="space-y-2 mt-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Input
-                            type="email"
-                            placeholder={t("store.createManagerEmail" as any)}
-                            value={newManagerEmail}
-                            onChange={(e) => setNewManagerEmail(e.target.value)}
-                            className="h-8 text-xs flex-1 min-w-[160px]"
-                          />
-                          <Input
-                            type="password"
-                            placeholder={t("store.createManagerPassword" as any)}
-                            value={newManagerPassword}
-                            onChange={(e) => setNewManagerPassword(e.target.value)}
-                            className="h-8 text-xs w-36"
-                          />
-                          <Button
-                            size="sm"
-                            className="h-8"
-                            disabled={!newManagerEmail.trim() || !newManagerPassword.trim() || createManagerMutation.isPending}
-                            onClick={() => createManagerMutation.mutate({ email: newManagerEmail.trim(), password: newManagerPassword.trim(), store_id: store.id })}
-                          >
-                            {createManagerMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
-                          </Button>
-                          <Button size="sm" variant="ghost" className="h-8" onClick={() => { setCreatingManagerStoreId(null); setNewManagerEmail(""); setNewManagerPassword(""); }}>
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <button
-                          type="button"
-                          className="text-[11px] text-accent hover:underline"
-                          onClick={() => { setCreatingManagerStoreId(null); setNewManagerEmail(""); setNewManagerPassword(""); setAddingManagerStoreId(store.id); }}
-                        >
-                          {t("store.assignExisting" as any)}
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 mt-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 text-xs text-accent hover:text-accent"
-                          onClick={() => { setAddingManagerStoreId(store.id); setSelectedUserId(""); }}
-                        >
-                          <UserPlus className="h-3 w-3 mr-1" />
-                          {t("store.addManager")}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 text-xs text-accent hover:text-accent"
-                          onClick={() => { setCreatingManagerStoreId(store.id); setNewManagerEmail(""); setNewManagerPassword(""); }}
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          {t("store.createManager" as any)}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                  <InlineStoreSettings storeId={store.id} storeName={store.name} />
+                      <InlineStoreSettings storeId={store.id} storeName={store.name} />
+                    </div>
+                  )}
                 </div>
               );
             })}
