@@ -117,6 +117,66 @@ const FAQ_FR: FAQItem[] = [
     question: "Peut-on personnaliser les heures d'ouverture du magasin ?",
     answer: "Oui. Depuis l'administration, chaque magasin peut configurer ses propres heures d'ouverture entre 06h et 22h. Ces réglages influencent la grille du jour et les alertes de suggestions hors horaires.",
   },
+  {
+    question: "Peut-on définir des horaires d'ouverture différents selon le jour ?",
+    answer: "Oui. Dans 'Paramètres magasin', chaque jour de la semaine peut avoir ses propres heures d'ouverture et de fermeture, réglables par tranche de 30 minutes. La grille du jour et les alertes de couverture s'y adaptent automatiquement.",
+  },
+  {
+    question: "Comment activer l'heure de table (pause) pour mon magasin ?",
+    answer: "Dans 'Paramètres magasin', activez l'option 'Heure de table'. Des champs de pause apparaissent alors dans l'encodage du planning et la pause est déduite du total au lieu de la déduction automatique d'1h.",
+  },
+  {
+    question: "Comment sont calculées les heures nettes ?",
+    answer: "Une pause d'1h est déduite uniquement si le service dure 6h ou plus (sauf si l'heure de table manuelle est activée). Les statuts 'Roulement' et 'Extérieur' comptent pour 0h.",
+  },
+  {
+    question: "Qu'est-ce que le multi-métiers ?",
+    answer: "Activable par magasin dans 'Paramètres magasin'. Une fois activé, chaque collaborateur peut recevoir des rôles secondaires dans sa fiche, et un rôle du jour différent de son rôle habituel peut être choisi dans le planning.",
+  },
+  {
+    question: "Peut-on changer de métier en cours de journée ?",
+    answer: "Oui, si le multi-métiers est actif. Dans le planning, utilisez 'Autre rôle' pour ajouter une plage horaire avec un rôle différent (ex. 2h en Caisse puis Technique). Les couleurs correspondantes s'affichent dans le planning semaine et l'équipe du jour.",
+  },
+  {
+    question: "À quoi sert l'option 'Magasin à 2 étages' ?",
+    answer: "Elle apparaît sous le multi-métiers dans les paramètres du magasin. Si elle est cochée, les rôles PT bas, PT haut, PE bas et PE haut deviennent disponibles avec leurs couleurs dédiées. Trésorerie reste disponible dès que le multi-métiers est actif.",
+  },
+  {
+    question: "La semaine type conserve-t-elle le multi-métiers ?",
+    answer: "Oui. Les rôles du jour et les plages de changement de métier sont enregistrés avec la semaine type et réappliqués lors de son application.",
+  },
+  {
+    question: "Comment réorganiser l'ordre des collaborateurs dans le planning ?",
+    answer: "Dans l'encodage du planning, glissez-déposez la poignée à gauche du nom d'un collaborateur. L'ordre est mémorisé par magasin, à l'intérieur de chaque catégorie de rôle.",
+  },
+  {
+    question: "À quoi sert le statut 'Cadre' d'un collaborateur ?",
+    answer: "Un cadre dépasse souvent 36h/semaine. En cochant 'Cadre' dans sa fiche, ses heures sont plafonnées à ses heures contractuelles uniquement pour le calcul de l'ETP, sans modifier son planning réel.",
+  },
+  {
+    question: "Comment lire le compteur ETP ?",
+    answer: "L'ETP (équivalent temps plein) est calculé sur une base de 36h/semaine et affiché dans la vue d'ensemble. Il utilise les mêmes heures que le compteur d'heures de l'équipe.",
+  },
+  {
+    question: "Quels sont les niveaux d'accès ?",
+    answer: "Utilisateur (lecture), Éditeur (encodage du planning), Responsable (en plus : paramètres de son magasin, gestion des comptes, Direction Fnac) et Admin (accès complet, tous les magasins).",
+  },
+  {
+    question: "Comment fonctionne l'assistant IA ?",
+    answer: "L'assistant répond aux questions sur les données de votre magasin (plannings, congés, heures). Il est réservé aux éditeurs, responsables et admins, et limité à 10 questions par jour et par compte.",
+  },
+  {
+    question: "J'ai oublié mon mot de passe, que faire ?",
+    answer: "Sur la page de connexion, cliquez sur 'Mot de passe oublié'. Un email pré-rempli s'ouvre vers l'administrateur, qui réinitialisera votre accès.",
+  },
+  {
+    question: "Peut-on réduire les tuiles magasin en mode admin ?",
+    answer: "Oui. Dans 'Paramètres magasin', chaque tuile dispose d'une flèche pour la réduire ou la développer. L'état est mémorisé et un résumé des options actives reste visible.",
+  },
+  {
+    question: "Quels types d'absences sont disponibles ?",
+    answer: "Neuf types sont proposés, dont la journée Syndicat (SYN). En cas de chevauchement, une boîte de dialogue vous propose la marche à suivre. La légende est accessible via l'icône d'information.",
+  },
 ];
 
 const FAQ_NL: FAQItem[] = [
