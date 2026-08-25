@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.17 — 25/08/2026
+- Équipe du jour : les rôles Trésorerie, PT bas/haut et PE bas/haut s'affichent avec leur vraie couleur dans la grille horaire (cases, barre du collaborateur, légende).
+- La légende et le sélecteur de rôle suivent désormais les réglages du magasin (multi-métiers et option 2 étages).
+
 ## v5.16 — 25/08/2026
 - Rubrique Aide mise à jour : nouvelles questions FR/NL (multi-métiers, changement de métier en journée, magasin à 2 étages, heure de table, horaires par jour, cadre & ETP, niveaux d'accès, assistant IA, mot de passe oublié, tuiles magasin réductibles, absences Syndicat).
 - Libellé du bouton d'aide traduit en néerlandais (« Hulp »).
