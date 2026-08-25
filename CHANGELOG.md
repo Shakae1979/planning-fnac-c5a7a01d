@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.16 — 25/08/2026
+- Rubrique Aide mise à jour : nouvelles questions FR/NL (multi-métiers, changement de métier en journée, magasin à 2 étages, heure de table, horaires par jour, cadre & ETP, niveaux d'accès, assistant IA, mot de passe oublié, tuiles magasin réductibles, absences Syndicat).
+- Libellé du bouton d'aide traduit en néerlandais (« Hulp »).
+
 ## v5.15 — 25/08/2026
 
 - **Option « Magasin à 2 étages »** : nouvel interrupteur dans les paramètres du magasin (admin et responsable), proposé uniquement lorsque le multi-métiers est activé.

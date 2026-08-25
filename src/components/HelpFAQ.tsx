@@ -371,7 +371,7 @@ export function HelpFAQ() {
         title={lang === "nl" ? "Hulp" : "Aide"}
       >
         <HelpCircle className="h-3.5 w-3.5" />
-        <span className="hidden sm:inline">{lang === "nl" ? "Aide" : "Aide"}</span>
+        <span className="hidden sm:inline">{lang === "nl" ? "Hulp" : "Aide"}</span>
       </Button>
 
       {open && (
