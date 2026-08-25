@@ -3,7 +3,11 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.18 — 25/08/2026
+- Sécurité : les données de planning (collaborateurs, congés, horaires, rôles du jour, remplacements de rôle, commentaires de journée) ne sont plus visibles par tout compte connecté. L'accès en lecture est limité aux administrateurs, aux personnes affectées au magasin concerné et aux comptes affectés à la Direction Fnac.
+
 ## v5.17 — 25/08/2026
+
 - Équipe du jour : les rôles Trésorerie, PT bas/haut et PE bas/haut s'affichent avec leur vraie couleur dans la grille horaire (cases, barre du collaborateur, légende).
 - La légende et le sélecteur de rôle suivent désormais les réglages du magasin (multi-métiers et option 2 étages).
 
