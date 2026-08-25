@@ -3,6 +3,11 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.14 — 25/08/2026
+
+- **Fin du mode « Magasin à 2 étages »** : le réglage magasin et le champ « Étage » de la fiche collaborateur sont supprimés.
+- **Nouveaux métiers via le multi-métiers** : quand le multi-métiers est activé, cinq métiers supplémentaires sont disponibles en rôle secondaire et en rôle du jour — Trésorerie, PT bas, PT haut, PE bas, PE haut — chacun avec sa propre couleur (PT haut en orange foncé, PE haut en ambre foncé, Trésorerie en fuchsia).
+
 ## v5.13 — 25/08/2026
 
 - **Paramètres magasins** : les tuiles magasins sont désormais réductibles (icône flèche dans l'en-tête). L'état replié/développé est mémorisé par magasin et indique en condensé les options actives (semaines A/B, heure de table, multi-métiers, 2 étages). Cela allège considérablement l'affichage en mode admin sur cette page.

@@ -100,7 +100,7 @@ function displayTimeBE(value: string): string {
 const SPECIAL_KEYWORDS = ["roulement", "ext", "ferie", "repos"];
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
 
-import { ROLE_COLORS as CENTRAL_ROLE_COLORS, ROLE_KEYS, getRoleColorsFor } from "@/lib/role-colors";
+import { ROLE_COLORS as CENTRAL_ROLE_COLORS, ROLE_KEYS } from "@/lib/role-colors";
 
 const DEPT_COLORS: Record<string, { bg: string; border: string }> = Object.fromEntries(
   ROLE_KEYS.map((key) => [key, { bg: CENTRAL_ROLE_COLORS[key].editorBg, border: CENTRAL_ROLE_COLORS[key].borderL }])
@@ -170,7 +170,6 @@ export function ScheduleEditor() {
   const { weekStartMin, weekEndMin, getDayRange } = useStoreSettings();
   const isDirection = currentStore?.is_direction === true;
   const hasLunchBreak = currentStore?.has_lunch_break === true && !isDirection;
-  const twoFloorsEnabled = currentStore?.has_two_floors === true && !isDirection;
 
   const TIME_SLOTS = useMemo(() => {
     const slots: string[] = [];
@@ -1263,7 +1262,7 @@ export function ScheduleEditor() {
                   const totalH = Math.round(((totalMinutes - breakMinutes) / 60) * 10) / 10;
                   const diff = totalH - emp.contract_hours;
 
-                  const empColors = getRoleColorsFor(emp.role, (emp as any).floor, twoFloorsEnabled);
+                  const empColors = getRoleColors(emp.role);
                   const deptColor = DEPT_COLORS[emp.role]
                     ? { bg: empColors.editorBg, border: empColors.borderL }
                     : { bg: "", border: "border-l-muted" };

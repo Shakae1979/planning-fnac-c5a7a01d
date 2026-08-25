@@ -131,12 +131,30 @@ export const ROLE_COLORS: Record<RoleKey, RoleColorVariants> = {
 export const ROLE_ORDER: RoleKey[] = [...ROLE_KEYS];
 
 /**
- * Second-floor variants (stores with `has_two_floors`).
- * Same hue as the ground floor, darker shade, so both remain readable side by side.
- * Only PT (technique) and PE (editorial) are split across floors.
+ * Métiers supplémentaires disponibles quand le magasin a le multi-métiers activé.
+ * Utilisables uniquement comme rôle secondaire / rôle du jour (pas comme métier principal).
  */
-export const FLOOR2_ROLE_COLORS: Partial<Record<RoleKey, RoleColorVariants>> = {
-  technique: {
+export const EXTRA_ROLE_KEYS = ["tresorerie", "pt_bas", "pt_haut", "pe_bas", "pe_haut"] as const;
+export type ExtraRoleKey = typeof EXTRA_ROLE_KEYS[number];
+
+export const EXTRA_ROLE_COLORS: Record<ExtraRoleKey, RoleColorVariants> = {
+  tresorerie: {
+    hue: "fuchsia",
+    dot: "bg-fuchsia-500",
+    bar: "bg-fuchsia-500",
+    barSoft: "bg-fuchsia-500/80",
+    bgSoft: "bg-fuchsia-50 dark:bg-fuchsia-950/20",
+    bgChip: "bg-fuchsia-100 text-fuchsia-800",
+    bgChipDark: "bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/30 dark:text-fuchsia-400",
+    headerBg: "bg-fuchsia-100 dark:bg-fuchsia-900/40",
+    borderL: "border-l-fuchsia-500",
+    text: "text-fuchsia-800 dark:text-fuchsia-200",
+    editorBg: "bg-fuchsia-100 dark:bg-fuchsia-950/40",
+    congesHeaderBg: "bg-fuchsia-100 dark:bg-fuchsia-900/50",
+    congesBorderL: "border-l-2 border-l-fuchsia-300 dark:border-l-fuchsia-500",
+  },
+  pt_bas: { ...ROLE_COLORS.technique },
+  pt_haut: {
     hue: "orange",
     dot: "bg-orange-800",
     bar: "bg-orange-800",
@@ -151,7 +169,8 @@ export const FLOOR2_ROLE_COLORS: Partial<Record<RoleKey, RoleColorVariants>> = {
     congesHeaderBg: "bg-orange-200 dark:bg-orange-900/70",
     congesBorderL: "border-l-2 border-l-orange-500 dark:border-l-orange-700",
   },
-  editorial: {
+  pe_bas: { ...ROLE_COLORS.editorial },
+  pe_haut: {
     hue: "amber",
     dot: "bg-amber-700",
     bar: "bg-amber-700",
@@ -168,23 +187,12 @@ export const FLOOR2_ROLE_COLORS: Partial<Record<RoleKey, RoleColorVariants>> = {
   },
 };
 
-/** Roles that can be split across two floors. */
-export const FLOOR_SPLIT_ROLES: RoleKey[] = ["technique", "editorial"];
-
 /** Safe accessor: falls back to caisse variants for unknown roles. */
 export function getRoleColors(role: string): RoleColorVariants {
-  return ROLE_COLORS[role as RoleKey] ?? ROLE_COLORS.caisse;
-}
-
-/**
- * Floor-aware accessor. Returns the darker shade for floor 2 collaborators
- * in PT/PE when the store runs on two floors, otherwise the standard palette.
- */
-export function getRoleColorsFor(role: string, floor?: number | null, enabled = true): RoleColorVariants {
-  if (enabled && floor === 2) {
-    const alt = FLOOR2_ROLE_COLORS[role as RoleKey];
-    if (alt) return alt;
-  }
-  return getRoleColors(role);
+  return (
+    ROLE_COLORS[role as RoleKey] ??
+    EXTRA_ROLE_COLORS[role as ExtraRoleKey] ??
+    ROLE_COLORS.caisse
+  );
 }
 

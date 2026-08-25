@@ -12,7 +12,7 @@ import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { useI18n } from "@/lib/i18n";
 import React from "react";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
-import { ROLE_ORDER, ROLE_COLORS, getRoleColorsFor, FLOOR2_ROLE_COLORS } from "@/lib/role-colors";
+import { ROLE_ORDER, ROLE_COLORS, getRoleColors, EXTRA_ROLE_KEYS } from "@/lib/role-colors";
 import { groupDayRoles, buildRoleSegments, rolesOfDay, toMin, type DayRoleRow } from "@/lib/day-roles";
 
 
@@ -68,7 +68,6 @@ const TeamWeekView = () => {
 
   const { currentStore } = useStore();
   const { employees } = useStoreEmployees(ROLE_ORDER);
-  const twoFloorsEnabled = currentStore?.has_two_floors === true;
   const { scheduleStart, scheduleEnd, getDayRange } = useStoreSettings();
   const HOURS = Array.from({ length: scheduleEnd - scheduleStart }, (_, i) => i + scheduleStart);
 
@@ -187,15 +186,15 @@ const TeamWeekView = () => {
             <React.Fragment key={role}>
               <span className="flex items-center gap-1.5">
                 <span className={`inline-block w-3 h-3 rounded ${ROLE_COLORS[role]?.bar}`} />
-                {roleLabels(role)}{twoFloorsEnabled && FLOOR2_ROLE_COLORS[role] ? ` — ${t("legend.floor1" as any)}` : ""}
+                {roleLabels(role)}
               </span>
-              {twoFloorsEnabled && FLOOR2_ROLE_COLORS[role] && (
-                <span className="flex items-center gap-1.5">
-                  <span className={`inline-block w-3 h-3 rounded ${FLOOR2_ROLE_COLORS[role]!.bar}`} />
-                  {roleLabels(role)} — {t("legend.floor2" as any)}
-                </span>
-              )}
             </React.Fragment>
+          ))}
+          {currentStore?.has_multi_roles === true && EXTRA_ROLE_KEYS.map(role => (
+            <span key={role} className="flex items-center gap-1.5">
+              <span className={`inline-block w-3 h-3 rounded ${getRoleColors(role).bar}`} />
+              {t(`role.${role}` as any)}
+            </span>
           ))}
           <span className="ml-2 border-l pl-2 flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-lime-500" /> {t("leave.conge")}</span>
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-violet-500" /> {t("leave.formation")}</span>
@@ -361,7 +360,7 @@ const TeamWeekView = () => {
                                             if (segEnd <= segStart) return null;
                                             const segLeft = ((segStart - GRID_START) / GRID_SPAN) * 100;
                                             const segWidth = ((segEnd - segStart) / GRID_SPAN) * 100;
-                                            const segColors = getRoleColorsFor(seg.role, (emp as any).floor, twoFloorsEnabled);
+                                            const segColors = getRoleColors(seg.role);
                                             const isFirst = sidx === 0;
                                             const isLast = segEnd >= clampEnd;
                                             return (
