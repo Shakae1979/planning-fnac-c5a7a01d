@@ -489,6 +489,15 @@ const translations = {
   "store.lunchBreakDesc": { fr: "Permettre de saisir la pause par jour", nl: "Mogelijk maken om de pauze per dag in te voeren" },
   "store.multiRoles": { fr: "Multi-métiers", nl: "Multi-functies" },
   "store.multiRolesDesc": { fr: "Débloque les métiers secondaires sur la fiche collaborateur, la pastille de métier dans l'encodage du planning et les couleurs par plage dans Planning semaine et Équipe du jour", nl: "Ontgrendelt secundaire functies op de medewerkersfiche, de functiebadge bij het inplannen en de kleuren per tijdvak in Weekplanning en Team van de dag" },
+  "store.twoFloors": { fr: "Magasin à 2 étages", nl: "Winkel met 2 verdiepingen" },
+  "store.twoFloorsDesc": { fr: "Distingue les vendeurs PT (Technique) et PE (Éditorial) du 2e étage par une nuance plus foncée dans les plannings", nl: "Onderscheidt PT- (Techniek) en PE-verkopers (Redactioneel) van de 2e verdieping met een donkerdere tint in de planningen" },
+  "employee.floor": { fr: "Étage", nl: "Verdieping" },
+  "employee.floor.help": { fr: "Détermine la nuance de couleur du collaborateur dans les plannings", nl: "Bepaalt de kleurtint van de medewerker in de planningen" },
+  "employee.floor.1": { fr: "Étage 1", nl: "Verdieping 1" },
+  "employee.floor.2": { fr: "Étage 2", nl: "Verdieping 2" },
+  "legend.floor1": { fr: "Ét. 1", nl: "Verd. 1" },
+  "legend.floor2": { fr: "Ét. 2", nl: "Verd. 2" },
+
   "schedule.multiRolesOff": { fr: "Multi-métiers désactivé pour ce magasin : activez-le dans Paramètres magasin pour encoder un changement de métier.", nl: "Multi-functies staat uit voor deze winkel: schakel het in bij Winkelinstellingen om een functiewissel in te voeren." },
 
   "schedule.break": { fr: "Pause", nl: "Pauze" },
