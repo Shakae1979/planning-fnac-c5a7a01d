@@ -79,6 +79,19 @@ export function StoreSelfSettings() {
             <p className="text-xs text-muted-foreground">{t("store.multiRolesDesc")}</p>
           </div>
         </div>
+
+        <div className="flex items-start gap-3">
+          <Switch
+            checked={currentStore.has_two_floors ?? false}
+            onCheckedChange={(checked) => updateFlag.mutate({ has_two_floors: checked })}
+            disabled={updateFlag.isPending}
+          />
+          <div>
+            <p className="text-sm font-medium text-foreground">{t("store.twoFloors" as any)}</p>
+            <p className="text-xs text-muted-foreground">{t("store.twoFloorsDesc" as any)}</p>
+          </div>
+        </div>
+
       </div>
 
       <div className="kpi-card">
