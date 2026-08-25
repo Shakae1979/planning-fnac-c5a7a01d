@@ -186,26 +186,12 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
             </Select>
           </div>
 
-          {twoFloorsEnabled && (role === "technique" || role === "editorial") && (
-          <div className="space-y-2">
-            <Label>{t("employee.floor" as any)}</Label>
-            <p className="text-[11px] text-muted-foreground -mt-1">{t("employee.floor.help" as any)}</p>
-            <Select value={floor} onValueChange={setFloor}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">{t("employee.floor.1" as any)}</SelectItem>
-                <SelectItem value="2">{t("employee.floor.2" as any)}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          )}
-
           {multiRolesEnabled && (
           <div className="space-y-2">
             <Label>{t("employee.secondaryRoles" as any)}</Label>
             <p className="text-[11px] text-muted-foreground -mt-1">{t("employee.secondaryRoles.help" as any)}</p>
             <div className="flex flex-wrap gap-1.5">
-              {ROLE_KEYS.filter((r) => r !== role).map((r) => {
+              {[...ROLE_KEYS, ...EXTRA_ROLE_KEYS].filter((r) => r !== role).map((r) => {
                 const selected = secondaryRoles.includes(r);
                 return (
                   <button
