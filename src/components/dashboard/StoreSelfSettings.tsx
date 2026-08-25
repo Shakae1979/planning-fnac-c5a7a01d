@@ -9,7 +9,7 @@ import { InlineStoreSettings } from "./InlineStoreSettings";
 
 export function StoreSelfSettings() {
   const { t } = useI18n();
-  const { currentStore } = useStore();
+  const { currentStore, refreshStores } = useStore();
   const queryClient = useQueryClient();
 
   const updateFlag = useMutation({
@@ -21,6 +21,7 @@ export function StoreSelfSettings() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.updated"));
     },
     onError: (err) => toast.error((err as Error).message),
