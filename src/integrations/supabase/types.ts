@@ -231,6 +231,7 @@ export type Database = {
           contract_hours: number
           created_at: string
           email: string | null
+          floor: number
           id: string
           is_active: boolean
           is_cadre: boolean
@@ -246,6 +247,7 @@ export type Database = {
           contract_hours?: number
           created_at?: string
           email?: string | null
+          floor?: number
           id?: string
           is_active?: boolean
           is_cadre?: boolean
@@ -261,6 +263,7 @@ export type Database = {
           contract_hours?: number
           created_at?: string
           email?: string | null
+          floor?: number
           id?: string
           is_active?: boolean
           is_cadre?: boolean
@@ -360,6 +363,7 @@ export type Database = {
           has_ab_weeks: boolean
           has_lunch_break: boolean
           has_multi_roles: boolean
+          has_two_floors: boolean
           id: string
           is_direction: boolean
           name: string
@@ -371,6 +375,7 @@ export type Database = {
           has_ab_weeks?: boolean
           has_lunch_break?: boolean
           has_multi_roles?: boolean
+          has_two_floors?: boolean
           id?: string
           is_direction?: boolean
           name: string
@@ -382,6 +387,7 @@ export type Database = {
           has_ab_weeks?: boolean
           has_lunch_break?: boolean
           has_multi_roles?: boolean
+          has_two_floors?: boolean
           id?: string
           is_direction?: boolean
           name?: string
