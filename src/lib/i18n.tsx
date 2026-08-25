@@ -477,6 +477,9 @@ const translations = {
 
   // ========== Stores ==========
   "store.title": { fr: "Gestion des magasins", nl: "Winkelbeheer" },
+  "store.collapse": { fr: "Réduire le magasin", nl: "Winkel inklappen" },
+  "store.expand": { fr: "Développer le magasin", nl: "Winkel uitklappen" },
+  "store.noActiveFeatures": { fr: "Aucune option active", nl: "Geen actieve opties" },
   "store.add": { fr: "Ajouter un magasin", nl: "Winkel toevoegen" },
   "store.name": { fr: "Nom", nl: "Naam" },
   "store.city": { fr: "Ville", nl: "Stad" },
