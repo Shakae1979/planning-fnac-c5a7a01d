@@ -12,7 +12,7 @@ import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { useI18n } from "@/lib/i18n";
 import React from "react";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
-import { ROLE_ORDER, ROLE_COLORS, getRoleColors } from "@/lib/role-colors";
+import { ROLE_ORDER, ROLE_COLORS, getRoleColors, EXTRA_ROLE_KEYS } from "@/lib/role-colors";
 import { groupDayRoles, buildRoleSegments, rolesOfDay, toMin, type DayRoleRow } from "@/lib/day-roles";
 
 

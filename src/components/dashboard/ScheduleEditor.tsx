@@ -100,7 +100,7 @@ function displayTimeBE(value: string): string {
 const SPECIAL_KEYWORDS = ["roulement", "ext", "ferie", "repos"];
 const DAY_KEYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
 
-import { ROLE_COLORS as CENTRAL_ROLE_COLORS, ROLE_KEYS, getRoleColors } from "@/lib/role-colors";
+import { ROLE_COLORS as CENTRAL_ROLE_COLORS, ROLE_KEYS } from "@/lib/role-colors";
 
 const DEPT_COLORS: Record<string, { bg: string; border: string }> = Object.fromEntries(
   ROLE_KEYS.map((key) => [key, { bg: CENTRAL_ROLE_COLORS[key].editorBg, border: CENTRAL_ROLE_COLORS[key].borderL }])
