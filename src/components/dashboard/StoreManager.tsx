@@ -416,6 +416,21 @@ export function StoreManager() {
                     </div>
                   </div>
 
+                  {/* Two floors toggle */}
+                  <div className="pl-11 flex items-center gap-2 py-1">
+                    <Switch
+                      checked={(store as any).has_two_floors ?? false}
+                      onCheckedChange={(checked) => toggleTwoFloorsMutation.mutate({ id: store.id, enabled: checked })}
+                      disabled={toggleTwoFloorsMutation.isPending}
+                    />
+                    <div>
+                      <span className="text-xs font-medium text-foreground">{t("store.twoFloors" as any)}</span>
+                      <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.twoFloorsDesc" as any)}</span>
+                    </div>
+                  </div>
+
+
+
                   {/* Managers section */}
                   <div className="pl-11 space-y-1">
                     <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
