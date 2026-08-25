@@ -117,6 +117,66 @@ const FAQ_FR: FAQItem[] = [
     question: "Peut-on personnaliser les heures d'ouverture du magasin ?",
     answer: "Oui. Depuis l'administration, chaque magasin peut configurer ses propres heures d'ouverture entre 06h et 22h. Ces réglages influencent la grille du jour et les alertes de suggestions hors horaires.",
   },
+  {
+    question: "Peut-on définir des horaires d'ouverture différents selon le jour ?",
+    answer: "Oui. Dans 'Paramètres magasin', chaque jour de la semaine peut avoir ses propres heures d'ouverture et de fermeture, réglables par tranche de 30 minutes. La grille du jour et les alertes de couverture s'y adaptent automatiquement.",
+  },
+  {
+    question: "Comment activer l'heure de table (pause) pour mon magasin ?",
+    answer: "Dans 'Paramètres magasin', activez l'option 'Heure de table'. Des champs de pause apparaissent alors dans l'encodage du planning et la pause est déduite du total au lieu de la déduction automatique d'1h.",
+  },
+  {
+    question: "Comment sont calculées les heures nettes ?",
+    answer: "Une pause d'1h est déduite uniquement si le service dure 6h ou plus (sauf si l'heure de table manuelle est activée). Les statuts 'Roulement' et 'Extérieur' comptent pour 0h.",
+  },
+  {
+    question: "Qu'est-ce que le multi-métiers ?",
+    answer: "Activable par magasin dans 'Paramètres magasin'. Une fois activé, chaque collaborateur peut recevoir des rôles secondaires dans sa fiche, et un rôle du jour différent de son rôle habituel peut être choisi dans le planning.",
+  },
+  {
+    question: "Peut-on changer de métier en cours de journée ?",
+    answer: "Oui, si le multi-métiers est actif. Dans le planning, utilisez 'Autre rôle' pour ajouter une plage horaire avec un rôle différent (ex. 2h en Caisse puis Technique). Les couleurs correspondantes s'affichent dans le planning semaine et l'équipe du jour.",
+  },
+  {
+    question: "À quoi sert l'option 'Magasin à 2 étages' ?",
+    answer: "Elle apparaît sous le multi-métiers dans les paramètres du magasin. Si elle est cochée, les rôles PT bas, PT haut, PE bas et PE haut deviennent disponibles avec leurs couleurs dédiées. Trésorerie reste disponible dès que le multi-métiers est actif.",
+  },
+  {
+    question: "La semaine type conserve-t-elle le multi-métiers ?",
+    answer: "Oui. Les rôles du jour et les plages de changement de métier sont enregistrés avec la semaine type et réappliqués lors de son application.",
+  },
+  {
+    question: "Comment réorganiser l'ordre des collaborateurs dans le planning ?",
+    answer: "Dans l'encodage du planning, glissez-déposez la poignée à gauche du nom d'un collaborateur. L'ordre est mémorisé par magasin, à l'intérieur de chaque catégorie de rôle.",
+  },
+  {
+    question: "À quoi sert le statut 'Cadre' d'un collaborateur ?",
+    answer: "Un cadre dépasse souvent 36h/semaine. En cochant 'Cadre' dans sa fiche, ses heures sont plafonnées à ses heures contractuelles uniquement pour le calcul de l'ETP, sans modifier son planning réel.",
+  },
+  {
+    question: "Comment lire le compteur ETP ?",
+    answer: "L'ETP (équivalent temps plein) est calculé sur une base de 36h/semaine et affiché dans la vue d'ensemble. Il utilise les mêmes heures que le compteur d'heures de l'équipe.",
+  },
+  {
+    question: "Quels sont les niveaux d'accès ?",
+    answer: "Utilisateur (lecture), Éditeur (encodage du planning), Responsable (en plus : paramètres de son magasin, gestion des comptes, Direction Fnac) et Admin (accès complet, tous les magasins).",
+  },
+  {
+    question: "Comment fonctionne l'assistant IA ?",
+    answer: "L'assistant répond aux questions sur les données de votre magasin (plannings, congés, heures). Il est réservé aux éditeurs, responsables et admins, et limité à 10 questions par jour et par compte.",
+  },
+  {
+    question: "J'ai oublié mon mot de passe, que faire ?",
+    answer: "Sur la page de connexion, cliquez sur 'Mot de passe oublié'. Un email pré-rempli s'ouvre vers l'administrateur, qui réinitialisera votre accès.",
+  },
+  {
+    question: "Peut-on réduire les tuiles magasin en mode admin ?",
+    answer: "Oui. Dans 'Paramètres magasin', chaque tuile dispose d'une flèche pour la réduire ou la développer. L'état est mémorisé et un résumé des options actives reste visible.",
+  },
+  {
+    question: "Quels types d'absences sont disponibles ?",
+    answer: "Neuf types sont proposés, dont la journée Syndicat (SYN). En cas de chevauchement, une boîte de dialogue vous propose la marche à suivre. La légende est accessible via l'icône d'information.",
+  },
 ];
 
 const FAQ_NL: FAQItem[] = [
@@ -228,6 +288,66 @@ const FAQ_NL: FAQItem[] = [
     question: "Kunnen de openingstijden van de winkel worden aangepast?",
     answer: "Ja. Via het beheer kan elke winkel eigen openingstijden tussen 06u en 22u instellen. Deze instellingen bepalen het dagrooster en de waarschuwingen bij voorstellen buiten de openingstijden.",
   },
+  {
+    question: "Kunnen de openingstijden per dag verschillen?",
+    answer: "Ja. In 'Winkelinstellingen' kan elke dag van de week eigen openings- en sluitingsuren hebben, instelbaar per 30 minuten. Het dagrooster en de dekkingswaarschuwingen passen zich automatisch aan.",
+  },
+  {
+    question: "Hoe activeer ik de middagpauze voor mijn winkel?",
+    answer: "Activeer in 'Winkelinstellingen' de optie 'Middagpauze'. Er verschijnen dan pauzevelden bij het invoeren van de planning en de pauze wordt afgetrokken in plaats van de automatische aftrek van 1u.",
+  },
+  {
+    question: "Hoe worden de netto-uren berekend?",
+    answer: "Er wordt 1u pauze afgetrokken enkel als de dienst 6u of langer duurt (tenzij de manuele middagpauze actief is). De statussen 'Roulement' en 'Extérieur' tellen voor 0u.",
+  },
+  {
+    question: "Wat is multi-functies (multi-métiers)?",
+    answer: "Per winkel activeerbaar in 'Winkelinstellingen'. Eenmaal actief kan elke medewerker secundaire rollen krijgen in zijn fiche, en kan in de planning een dagrol worden gekozen die afwijkt van zijn gewone rol.",
+  },
+  {
+    question: "Kan iemand van functie wisselen tijdens de dag?",
+    answer: "Ja, als multi-functies actief is. Gebruik in de planning 'Andere rol' om een tijdsblok met een andere rol toe te voegen (bv. 2u Kassa, daarna Techniek). De kleuren verschijnen in de weekplanning en het team van de dag.",
+  },
+  {
+    question: "Waarvoor dient de optie 'Winkel met 2 verdiepingen'?",
+    answer: "Ze verschijnt onder multi-functies in de winkelinstellingen. Indien aangevinkt worden de rollen PT beneden, PT boven, PE beneden en PE boven beschikbaar met hun eigen kleuren. Trésorerie blijft beschikbaar zodra multi-functies actief is.",
+  },
+  {
+    question: "Bewaart de modelweek ook de multi-functies?",
+    answer: "Ja. De dagrollen en de tijdsblokken met functiewissel worden mee opgeslagen in de modelweek en opnieuw toegepast.",
+  },
+  {
+    question: "Hoe wijzig ik de volgorde van de medewerkers in de planning?",
+    answer: "Sleep in de planning het handvat links van de naam van een medewerker. De volgorde wordt per winkel bewaard, binnen elke rolcategorie.",
+  },
+  {
+    question: "Waarvoor dient de status 'Kaderlid' (Cadre)?",
+    answer: "Een kaderlid overschrijdt vaak 36u/week. Door 'Cadre' aan te vinken in de fiche worden zijn uren enkel voor de VTE-berekening geplafonneerd op de contracturen, zonder de echte planning te wijzigen.",
+  },
+  {
+    question: "Hoe lees ik de VTE-teller?",
+    answer: "De VTE (voltijds equivalent) wordt berekend op basis van 36u/week en getoond in het overzicht. Ze gebruikt dezelfde uren als de urenteller van het team.",
+  },
+  {
+    question: "Welke toegangsniveaus bestaan er?",
+    answer: "Gebruiker (lezen), Editor (planning invoeren), Verantwoordelijke (bijkomend: instellingen van zijn winkel, accountbeheer, Direction Fnac) en Admin (volledige toegang, alle winkels).",
+  },
+  {
+    question: "Hoe werkt de AI-assistent?",
+    answer: "De assistent beantwoordt vragen over de gegevens van uw winkel (planning, verlof, uren). Hij is voorbehouden aan editors, verantwoordelijken en admins, en beperkt tot 10 vragen per dag per account.",
+  },
+  {
+    question: "Ik ben mijn wachtwoord vergeten, wat nu?",
+    answer: "Klik op de inlogpagina op 'Wachtwoord vergeten'. Er opent een vooraf ingevulde e-mail naar de beheerder, die uw toegang opnieuw instelt.",
+  },
+  {
+    question: "Kan ik de winkeltegels inklappen als admin?",
+    answer: "Ja. In 'Winkelinstellingen' heeft elke tegel een pijltje om in of uit te klappen. De staat wordt onthouden en een samenvatting van de actieve opties blijft zichtbaar.",
+  },
+  {
+    question: "Welke afwezigheidstypes zijn beschikbaar?",
+    answer: "Er zijn negen types, waaronder de vakbondsdag (VAK). Bij overlapping toont een dialoogvenster de mogelijke keuzes. De legende is bereikbaar via het infopictogram.",
+  },
 ];
 
 export function HelpFAQ() {
@@ -251,7 +371,7 @@ export function HelpFAQ() {
         title={lang === "nl" ? "Hulp" : "Aide"}
       >
         <HelpCircle className="h-3.5 w-3.5" />
-        <span className="hidden sm:inline">{lang === "nl" ? "Aide" : "Aide"}</span>
+        <span className="hidden sm:inline">{lang === "nl" ? "Hulp" : "Aide"}</span>
       </Button>
 
       {open && (
