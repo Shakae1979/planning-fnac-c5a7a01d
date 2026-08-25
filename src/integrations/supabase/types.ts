@@ -575,6 +575,8 @@ export type Database = {
     }
     Functions: {
       calc_week_net_hours: { Args: { _schedule: Json }; Returns: number }
+      can_view_employee: { Args: { _employee_id: string }; Returns: boolean }
+      can_view_store: { Args: { _store_id: string }; Returns: boolean }
       export_hours_monthly: {
         Args: {
           _employee_id?: string
