@@ -33,23 +33,23 @@ function dayKeyFromDate(date: string): DayKey {
   return DAY_KEYS[js === 0 ? 6 : js - 1];
 }
 
-// Roles for the legend & cell coloring. "heure_de_table" is a special case (transparent striped).
-const ROLES: { key: string; color: string; dot: string }[] = [
-  ...ROLE_KEYS.map((key) => ({
-    key,
-    color: CENTRAL_ROLE_COLORS[key].barSoft,
-    dot: CENTRAL_ROLE_COLORS[key].dot,
-  })),
-  { key: "heure_de_table", color: "bg-transparent", dot: "bg-gray-300 border border-gray-400" },
-  { key: "tresorerie", color: "bg-fuchsia-500", dot: "bg-fuchsia-500" },
-  { key: "picking", color: "bg-cyan-500/80", dot: "bg-cyan-500" },
+interface RoleLegendItem { key: string; color: string; dot: string; borderL: string }
+
+/** Entrées spéciales qui ne sont pas de vrais métiers. */
+const SPECIAL_ROLES: RoleLegendItem[] = [
+  { key: "heure_de_table", color: "bg-transparent", dot: "bg-gray-300 border border-gray-400", borderL: "border-l-muted" },
+  { key: "picking", color: "bg-cyan-500/80", dot: "bg-cyan-500", borderL: "border-l-cyan-500" },
 ];
 
-const ROLE_BG: Record<string, string> = Object.fromEntries(ROLES.map((r) => [r.key, r.color]));
+/** Liste des rôles affichés (légende, sélecteur, couleurs) selon les réglages du magasin. */
+function buildRoleList(multiRoles?: boolean | null, twoFloors?: boolean | null): RoleLegendItem[] {
+  const base = [...ROLE_KEYS, ...getExtraRoleKeys(multiRoles, twoFloors)].map((key) => {
+    const c = getRoleColors(key);
+    return { key, color: c.barSoft, dot: c.dot, borderL: c.borderL };
+  });
+  return [...base, ...SPECIAL_ROLES];
+}
 
-const ROLE_BORDER_L: Record<string, string> = Object.fromEntries(
-  ROLE_KEYS.map((key) => [key, CENTRAL_ROLE_COLORS[key].borderL])
-);
 
 interface Employee {
   id: string; name: string; role: string; start: string | null; end: string | null; hasShift: boolean; conge: any;
