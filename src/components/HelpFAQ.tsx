@@ -288,6 +288,66 @@ const FAQ_NL: FAQItem[] = [
     question: "Kunnen de openingstijden van de winkel worden aangepast?",
     answer: "Ja. Via het beheer kan elke winkel eigen openingstijden tussen 06u en 22u instellen. Deze instellingen bepalen het dagrooster en de waarschuwingen bij voorstellen buiten de openingstijden.",
   },
+  {
+    question: "Kunnen de openingstijden per dag verschillen?",
+    answer: "Ja. In 'Winkelinstellingen' kan elke dag van de week eigen openings- en sluitingsuren hebben, instelbaar per 30 minuten. Het dagrooster en de dekkingswaarschuwingen passen zich automatisch aan.",
+  },
+  {
+    question: "Hoe activeer ik de middagpauze voor mijn winkel?",
+    answer: "Activeer in 'Winkelinstellingen' de optie 'Middagpauze'. Er verschijnen dan pauzevelden bij het invoeren van de planning en de pauze wordt afgetrokken in plaats van de automatische aftrek van 1u.",
+  },
+  {
+    question: "Hoe worden de netto-uren berekend?",
+    answer: "Er wordt 1u pauze afgetrokken enkel als de dienst 6u of langer duurt (tenzij de manuele middagpauze actief is). De statussen 'Roulement' en 'Extérieur' tellen voor 0u.",
+  },
+  {
+    question: "Wat is multi-functies (multi-métiers)?",
+    answer: "Per winkel activeerbaar in 'Winkelinstellingen'. Eenmaal actief kan elke medewerker secundaire rollen krijgen in zijn fiche, en kan in de planning een dagrol worden gekozen die afwijkt van zijn gewone rol.",
+  },
+  {
+    question: "Kan iemand van functie wisselen tijdens de dag?",
+    answer: "Ja, als multi-functies actief is. Gebruik in de planning 'Andere rol' om een tijdsblok met een andere rol toe te voegen (bv. 2u Kassa, daarna Techniek). De kleuren verschijnen in de weekplanning en het team van de dag.",
+  },
+  {
+    question: "Waarvoor dient de optie 'Winkel met 2 verdiepingen'?",
+    answer: "Ze verschijnt onder multi-functies in de winkelinstellingen. Indien aangevinkt worden de rollen PT beneden, PT boven, PE beneden en PE boven beschikbaar met hun eigen kleuren. Trésorerie blijft beschikbaar zodra multi-functies actief is.",
+  },
+  {
+    question: "Bewaart de modelweek ook de multi-functies?",
+    answer: "Ja. De dagrollen en de tijdsblokken met functiewissel worden mee opgeslagen in de modelweek en opnieuw toegepast.",
+  },
+  {
+    question: "Hoe wijzig ik de volgorde van de medewerkers in de planning?",
+    answer: "Sleep in de planning het handvat links van de naam van een medewerker. De volgorde wordt per winkel bewaard, binnen elke rolcategorie.",
+  },
+  {
+    question: "Waarvoor dient de status 'Kaderlid' (Cadre)?",
+    answer: "Een kaderlid overschrijdt vaak 36u/week. Door 'Cadre' aan te vinken in de fiche worden zijn uren enkel voor de VTE-berekening geplafonneerd op de contracturen, zonder de echte planning te wijzigen.",
+  },
+  {
+    question: "Hoe lees ik de VTE-teller?",
+    answer: "De VTE (voltijds equivalent) wordt berekend op basis van 36u/week en getoond in het overzicht. Ze gebruikt dezelfde uren als de urenteller van het team.",
+  },
+  {
+    question: "Welke toegangsniveaus bestaan er?",
+    answer: "Gebruiker (lezen), Editor (planning invoeren), Verantwoordelijke (bijkomend: instellingen van zijn winkel, accountbeheer, Direction Fnac) en Admin (volledige toegang, alle winkels).",
+  },
+  {
+    question: "Hoe werkt de AI-assistent?",
+    answer: "De assistent beantwoordt vragen over de gegevens van uw winkel (planning, verlof, uren). Hij is voorbehouden aan editors, verantwoordelijken en admins, en beperkt tot 10 vragen per dag per account.",
+  },
+  {
+    question: "Ik ben mijn wachtwoord vergeten, wat nu?",
+    answer: "Klik op de inlogpagina op 'Wachtwoord vergeten'. Er opent een vooraf ingevulde e-mail naar de beheerder, die uw toegang opnieuw instelt.",
+  },
+  {
+    question: "Kan ik de winkeltegels inklappen als admin?",
+    answer: "Ja. In 'Winkelinstellingen' heeft elke tegel een pijltje om in of uit te klappen. De staat wordt onthouden en een samenvatting van de actieve opties blijft zichtbaar.",
+  },
+  {
+    question: "Welke afwezigheidstypes zijn beschikbaar?",
+    answer: "Er zijn negen types, waaronder de vakbondsdag (VAK). Bij overlapping toont een dialoogvenster de mogelijke keuzes. De legende is bereikbaar via het infopictogram.",
+  },
 ];
 
 export function HelpFAQ() {
