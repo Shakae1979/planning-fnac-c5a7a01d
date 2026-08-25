@@ -270,7 +270,20 @@ export function StoreManager() {
     onError: (err) => toast.error((err as Error).message),
   });
 
-  
+  const toggleTwoFloorsMutation = useMutation({
+    mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
+      const { error } = await supabase.from("stores").update({ has_two_floors: enabled } as any).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
+      toast.success(t("store.updated"));
+    },
+    onError: (err) => toast.error((err as Error).message),
+  });
+
+
 
   // Editors/admins available to assign (not already assigned to this store)
   const getAvailableUsers = (storeId: string) => {
