@@ -186,15 +186,15 @@ const TeamWeekView = () => {
             <React.Fragment key={role}>
               <span className="flex items-center gap-1.5">
                 <span className={`inline-block w-3 h-3 rounded ${ROLE_COLORS[role]?.bar}`} />
-                {roleLabels(role)}{twoFloorsEnabled && FLOOR2_ROLE_COLORS[role] ? ` — ${t("legend.floor1" as any)}` : ""}
+                {roleLabels(role)}
               </span>
-              {twoFloorsEnabled && FLOOR2_ROLE_COLORS[role] && (
-                <span className="flex items-center gap-1.5">
-                  <span className={`inline-block w-3 h-3 rounded ${FLOOR2_ROLE_COLORS[role]!.bar}`} />
-                  {roleLabels(role)} — {t("legend.floor2" as any)}
-                </span>
-              )}
             </React.Fragment>
+          ))}
+          {currentStore?.has_multi_roles === true && EXTRA_ROLE_KEYS.map(role => (
+            <span key={role} className="flex items-center gap-1.5">
+              <span className={`inline-block w-3 h-3 rounded ${getRoleColors(role).bar}`} />
+              {t(`role.${role}` as any)}
+            </span>
           ))}
           <span className="ml-2 border-l pl-2 flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-lime-500" /> {t("leave.conge")}</span>
           <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-violet-500" /> {t("leave.formation")}</span>
