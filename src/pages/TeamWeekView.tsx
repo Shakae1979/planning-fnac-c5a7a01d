@@ -12,7 +12,7 @@ import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { useI18n } from "@/lib/i18n";
 import React from "react";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
-import { ROLE_ORDER, ROLE_COLORS, getRoleColors, EXTRA_ROLE_KEYS } from "@/lib/role-colors";
+import { ROLE_ORDER, ROLE_COLORS, getRoleColors, getExtraRoleKeys } from "@/lib/role-colors";
 import { groupDayRoles, buildRoleSegments, rolesOfDay, toMin, type DayRoleRow } from "@/lib/day-roles";
 
 
@@ -190,7 +190,7 @@ const TeamWeekView = () => {
               </span>
             </React.Fragment>
           ))}
-          {currentStore?.has_multi_roles === true && EXTRA_ROLE_KEYS.map(role => (
+          {getExtraRoleKeys(currentStore?.has_multi_roles, currentStore?.has_two_floors).map(role => (
             <span key={role} className="flex items-center gap-1.5">
               <span className={`inline-block w-3 h-3 rounded ${getRoleColors(role).bar}`} />
               {t(`role.${role}` as any)}

@@ -14,7 +14,7 @@ import { Save, Shield, PenTool, User, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
 import { useAuth } from "@/hooks/useAuth";
-import { getRoleColors, EXTRA_ROLE_KEYS } from "@/lib/role-colors";
+import { getRoleColors, getExtraRoleKeys } from "@/lib/role-colors";
 import { useStore } from "@/hooks/useStore";
 
 
@@ -52,6 +52,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
   const { t } = useI18n();
   const { currentStore } = useStore();
   const multiRolesEnabled = currentStore?.has_multi_roles === true;
+  const extraRoleKeys = getExtraRoleKeys(currentStore?.has_multi_roles, currentStore?.has_two_floors);
   const { role: appRole } = useAuth();
   const canEditCadre = appRole === "admin" || appRole === "manager";
   const [name, setName] = useState("");
@@ -186,7 +187,7 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
             <Label>{t("employee.secondaryRoles" as any)}</Label>
             <p className="text-[11px] text-muted-foreground -mt-1">{t("employee.secondaryRoles.help" as any)}</p>
             <div className="flex flex-wrap gap-1.5">
-              {[...ROLE_KEYS, ...EXTRA_ROLE_KEYS].filter((r) => r !== role).map((r) => {
+              {[...ROLE_KEYS, ...extraRoleKeys].filter((r) => r !== role).map((r) => {
                 const selected = secondaryRoles.includes(r);
                 return (
                   <button
