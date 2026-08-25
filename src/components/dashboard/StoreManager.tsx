@@ -82,6 +82,7 @@ export function StoreManager() {
     onSuccess: () => {
       setNewName(""); setNewCity("");
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.created"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -95,6 +96,7 @@ export function StoreManager() {
     onSuccess: () => {
       setEditingId(null);
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.updated"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -107,6 +109,7 @@ export function StoreManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.deleted"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -217,6 +220,7 @@ export function StoreManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.updated"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -229,6 +233,7 @@ export function StoreManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.updated"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -241,6 +246,7 @@ export function StoreManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.updated"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -253,6 +259,7 @@ export function StoreManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.updated"));
     },
     onError: (err) => toast.error((err as Error).message),
