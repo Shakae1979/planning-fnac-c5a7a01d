@@ -9,7 +9,7 @@ import { WeekNavigator } from "@/components/WeekNavigator";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { getRoleColors } from "@/lib/role-colors";
+import { getRoleColors, FLOOR_ROLE_KEYS } from "@/lib/role-colors";
 import { groupDayRoles, type DayRoleRow } from "@/lib/day-roles";
 import DayRoleEditor from "./DayRoleEditor";
 
@@ -1469,7 +1469,9 @@ export function ScheduleEditor() {
                               </div>
                             )}
                             {(() => {
-                              const secondaries = (((emp as any).secondary_roles as string[] | null) || []).filter((r) => r && r !== emp.role);
+                              const secondaries = (((emp as any).secondary_roles as string[] | null) || [])
+                                .filter((r) => r && r !== emp.role)
+                                .filter((r) => currentStore?.has_two_floors === true || !(FLOOR_ROLE_KEYS as readonly string[]).includes(r));
                               if (!multiRolesEnabled || secondaries.length === 0 || ferieDay || isDirection || !hasValue || isRoulement) return null;
                               const dayDate = getDayDate(currentMonday, dayIndex);
                               const isTime = (v: string | null) => !!v && /^\d{1,2}:\d{2}$/.test(v);

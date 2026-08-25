@@ -3,6 +3,11 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.15 — 25/08/2026
+
+- **Option « Magasin à 2 étages »** : nouvel interrupteur dans les paramètres du magasin (admin et responsable), proposé uniquement lorsque le multi-métiers est activé.
+- **Métiers d'étage conditionnels** : PT bas, PT haut, PE bas et PE haut n'apparaissent dans les rôles secondaires, le rôle du jour et les légendes que si l'option 2 étages est cochée. Trésorerie reste disponible dès que le multi-métiers est actif.
+
 ## v5.14 — 25/08/2026
 
 - **Fin du mode « Magasin à 2 étages »** : le réglage magasin et le champ « Étage » de la fiche collaborateur sont supprimés.

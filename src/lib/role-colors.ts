@@ -187,6 +187,24 @@ export const EXTRA_ROLE_COLORS: Record<ExtraRoleKey, RoleColorVariants> = {
   },
 };
 
+/** Métiers supplémentaires liés à l'option « Magasin à 2 étages ». */
+export const FLOOR_ROLE_KEYS = ["pt_bas", "pt_haut", "pe_bas", "pe_haut"] as const;
+/** Métiers supplémentaires disponibles dès que le multi-métiers est actif. */
+export const BASE_EXTRA_ROLE_KEYS = ["tresorerie"] as const;
+
+/**
+ * Liste des métiers supplémentaires visibles selon les réglages du magasin.
+ * - multi-métiers désactivé : aucun
+ * - multi-métiers activé : Trésorerie
+ * - + option 2 étages : PT bas / PT haut / PE bas / PE haut
+ */
+export function getExtraRoleKeys(multiRoles?: boolean | null, twoFloors?: boolean | null): ExtraRoleKey[] {
+  if (!multiRoles) return [];
+  return twoFloors
+    ? [...BASE_EXTRA_ROLE_KEYS, ...FLOOR_ROLE_KEYS]
+    : [...BASE_EXTRA_ROLE_KEYS];
+}
+
 /** Safe accessor: falls back to caisse variants for unknown roles. */
 export function getRoleColors(role: string): RoleColorVariants {
   return (
@@ -195,4 +213,5 @@ export function getRoleColors(role: string): RoleColorVariants {
     ROLE_COLORS.caisse
   );
 }
+
 

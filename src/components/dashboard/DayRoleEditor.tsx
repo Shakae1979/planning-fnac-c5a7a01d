@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { Plus, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useI18n } from "@/lib/i18n";
-import { getRoleColors } from "@/lib/role-colors";
+import { getRoleColors, FLOOR_ROLE_KEYS } from "@/lib/role-colors";
+import { useStore } from "@/hooks/useStore";
 import { buildRoleSegments, rolesOfDay, toMin, toTime, type DayRoleRow } from "@/lib/day-roles";
 import { formatTimeBE } from "@/lib/format";
 
@@ -29,7 +30,12 @@ function buildOptions(startMin: number, endMin: number): string[] {
 
 export default function DayRoleEditor({ rows, mainRole, secondaries, shiftStart, shiftEnd, onSave }: Props) {
   const { t } = useI18n();
+  const { currentStore } = useStore();
   const [open, setOpen] = useState(false);
+  const twoFloors = currentStore?.has_two_floors === true;
+  const availableSecondaries = secondaries.filter(
+    (r) => twoFloors || !(FLOOR_ROLE_KEYS as readonly string[]).includes(r)
+  );
 
   const sMin = toMin(shiftStart);
   const eMin = toMin(shiftEnd);
@@ -50,7 +56,7 @@ export default function DayRoleEditor({ rows, mainRole, secondaries, shiftStart,
   if (sMin === null || eMin === null || eMin <= sMin) return null;
 
   const timeOptions = buildOptions(sMin, eMin);
-  const roleOptions = [mainRole, ...secondaries];
+  const roleOptions = [mainRole, ...availableSecondaries];
 
   const update = (i: number, patch: Partial<DayRoleRange>) => {
     const next = ranges.map((r, idx) => (idx === i ? { ...r, ...patch } : r));
@@ -63,7 +69,7 @@ export default function DayRoleEditor({ rows, mainRole, secondaries, shiftStart,
     const startM = toMin(start) ?? sMin;
     if (startM >= eMin) return;
     const end = toTime(Math.min(eMin, startM + 120));
-    setDraft([...ranges, { role: secondaries[0] || mainRole, start, end }]);
+    setDraft([...ranges, { role: availableSecondaries[0] || mainRole, start, end }]);
   };
 
   const removeRange = (i: number) => setDraft(ranges.filter((_, idx) => idx !== i));

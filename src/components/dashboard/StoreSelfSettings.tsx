@@ -13,7 +13,7 @@ export function StoreSelfSettings() {
   const queryClient = useQueryClient();
 
   const updateFlag = useMutation({
-    mutationFn: async (values: { has_ab_weeks?: boolean; has_lunch_break?: boolean; has_multi_roles?: boolean }) => {
+    mutationFn: async (values: { has_ab_weeks?: boolean; has_lunch_break?: boolean; has_multi_roles?: boolean; has_two_floors?: boolean }) => {
       if (!currentStore) return;
       const { error } = await supabase.from("stores").update(values as any).eq("id", currentStore.id);
       if (error) throw error;
@@ -81,7 +81,19 @@ export function StoreSelfSettings() {
           </div>
         </div>
 
-        
+        {currentStore.has_multi_roles && (
+          <div className="flex items-start gap-3 pl-6 border-l-2 border-border">
+            <Switch
+              checked={currentStore.has_two_floors ?? false}
+              onCheckedChange={(checked) => updateFlag.mutate({ has_two_floors: checked })}
+              disabled={updateFlag.isPending}
+            />
+            <div>
+              <p className="text-sm font-medium text-foreground">{t("store.twoFloors")}</p>
+              <p className="text-xs text-muted-foreground">{t("store.twoFloorsDesc")}</p>
+            </div>
+          </div>
+        )}
 
       </div>
 

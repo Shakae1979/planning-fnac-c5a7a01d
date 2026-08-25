@@ -270,7 +270,20 @@ export function StoreManager() {
     onError: (err) => toast.error((err as Error).message),
   });
 
-  
+  const toggleTwoFloorsMutation = useMutation({
+    mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
+      const { error } = await supabase.from("stores").update({ has_two_floors: enabled } as any).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
+      toast.success(t("store.updated"));
+    },
+    onError: (err) => toast.error((err as Error).message),
+  });
+
+
 
   // Editors/admins available to assign (not already assigned to this store)
   const getAvailableUsers = (storeId: string) => {
@@ -346,6 +359,7 @@ export function StoreManager() {
                 (store as any).has_ab_weeks && t("store.abWeeks" as any),
                 (store as any).has_lunch_break && t("store.lunchBreak" as any),
                 (store as any).has_multi_roles && t("store.multiRoles" as any),
+                (store as any).has_two_floors && t("store.twoFloors" as any),
               ].filter(Boolean) as string[];
 
               return (
@@ -457,6 +471,21 @@ export function StoreManager() {
                           <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.multiRolesDesc" as any)}</span>
                         </div>
                       </div>
+
+                      {/* Two floors toggle (only meaningful with multi-roles) */}
+                      {(store as any).has_multi_roles && (
+                        <div className="pl-16 flex items-center gap-2 py-1 border-l-2 border-border ml-11">
+                          <Switch
+                            checked={(store as any).has_two_floors ?? false}
+                            onCheckedChange={(checked) => toggleTwoFloorsMutation.mutate({ id: store.id, enabled: checked })}
+                            disabled={toggleTwoFloorsMutation.isPending}
+                          />
+                          <div>
+                            <span className="text-xs font-medium text-foreground">{t("store.twoFloors" as any)}</span>
+                            <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.twoFloorsDesc" as any)}</span>
+                          </div>
+                        </div>
+                      )}
 
 
                       {/* Managers section */}
