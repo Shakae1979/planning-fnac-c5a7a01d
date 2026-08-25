@@ -4,7 +4,7 @@ import { getSchoolHolidayInfo } from "@/lib/school-holidays";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { formatDateBE, getDisplayName } from "@/lib/format";
+import { formatDateBE, getDisplayName, getCompactName } from "@/lib/format";
 import { useI18n, getHolidays, getDayNames } from "@/lib/i18n";
 import { ROLE_COLORS as CENTRAL_ROLE_COLORS } from "@/lib/role-colors";
 
@@ -160,7 +160,7 @@ function VerticalMonthColumn({ year, month, employees, conges, deleteMutation, o
                               const typeColor = congeTypes.find(ct => ct.value === leave.type)?.color ?? "bg-muted";
                               return (
                                 <span key={emp.id} className={`${typeColor} text-white text-[10px] px-1 py-0.5 rounded truncate block`} title={`${getDisplayName(emp)} — ${congeTypes.find(ct => ct.value === leave.type)?.label ?? ""}`}>
-                                  {getDisplayName(emp).split(" ")[0]}
+                                  {getCompactName(emp)}
                                 </span>
                               );
                             })}

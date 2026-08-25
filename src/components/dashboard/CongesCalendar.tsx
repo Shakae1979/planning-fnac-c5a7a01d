@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, ChevronLeft, ChevronRight, Printer, CalendarIcon, Info } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { formatDateBE, formatLocalDate } from "@/lib/format";
+import { formatDateBE, formatLocalDate, getDisplayName } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { QuarterView } from "./conges/QuarterView";
@@ -221,7 +221,7 @@ export function CongesCalendar() {
             <label className="text-xs text-muted-foreground">{t("conges.seller")}</label>
             <select value={formEmp} onChange={(e) => setFormEmp(e.target.value)} className="w-full mt-1 px-3 py-2 text-sm rounded-md border bg-background">
               <option value="">{t("action.choose")}</option>
-              {employees?.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
+              {employees?.map((e) => <option key={e.id} value={e.id}>{getDisplayName(e)}</option>)}
             </select>
           </div>
           <div>
