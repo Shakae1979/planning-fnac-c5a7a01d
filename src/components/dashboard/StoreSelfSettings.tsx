@@ -13,7 +13,7 @@ export function StoreSelfSettings() {
   const queryClient = useQueryClient();
 
   const updateFlag = useMutation({
-    mutationFn: async (values: { has_ab_weeks?: boolean; has_lunch_break?: boolean; has_multi_roles?: boolean }) => {
+    mutationFn: async (values: { has_ab_weeks?: boolean; has_lunch_break?: boolean; has_multi_roles?: boolean; has_two_floors?: boolean }) => {
       if (!currentStore) return;
       const { error } = await supabase.from("stores").update(values as any).eq("id", currentStore.id);
       if (error) throw error;
