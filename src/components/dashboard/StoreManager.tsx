@@ -14,6 +14,7 @@ import { Plus, Trash2, Pencil, Store, X, Save, Loader2, UserPlus, UserMinus, Cro
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
+import { useStore } from "@/hooks/useStore";
 import { InlineStoreSettings } from "./InlineStoreSettings";
 
 interface ManagerInfo {
@@ -25,6 +26,7 @@ interface ManagerInfo {
 
 export function StoreManager() {
   const queryClient = useQueryClient();
+  const { refreshStores } = useStore();
   const { t } = useI18n();
   const { role: callerRole } = useAuth();
   const [newName, setNewName] = useState("");
@@ -82,6 +84,7 @@ export function StoreManager() {
     onSuccess: () => {
       setNewName(""); setNewCity("");
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.created"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -95,6 +98,7 @@ export function StoreManager() {
     onSuccess: () => {
       setEditingId(null);
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.updated"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -107,6 +111,7 @@ export function StoreManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.deleted"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -217,6 +222,7 @@ export function StoreManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.updated"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -229,6 +235,7 @@ export function StoreManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.updated"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -241,6 +248,7 @@ export function StoreManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.updated"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -253,6 +261,7 @@ export function StoreManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
+      refreshStores();
       toast.success(t("store.updated"));
     },
     onError: (err) => toast.error((err as Error).message),

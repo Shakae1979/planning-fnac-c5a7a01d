@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
@@ -18,6 +18,7 @@ interface StoreContextType {
   currentStore: Store | null;
   setCurrentStore: (store: Store) => void;
   loading: boolean;
+  refreshStores: () => Promise<void>;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -74,7 +75,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return list.find((s) => !s.is_direction) ?? list[0];
   };
 
-  useEffect(() => {
+  const fetchStores = useCallback(async () => {
     if (!user) {
       requestIdRef.current += 1;
       currentStoreRef.current = null;
@@ -94,76 +95,79 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const reqId = ++requestIdRef.current;
     const isStale = () => reqId !== requestIdRef.current;
 
-    const fetchStores = async () => {
-      setLoading(true);
+    setLoading(true);
+    let storeList: Store[] = [];
 
-      if (role === "admin") {
-        // Admin sees all stores
-        const { data } = await supabase.from("stores").select("*").order("name");
-        const storeList = (data ?? []).map((s: any) => ({ id: s.id, name: s.name, city: s.city, has_ab_weeks: s.has_ab_weeks ?? false, has_lunch_break: s.has_lunch_break ?? false, has_multi_roles: s.has_multi_roles ?? false, has_two_floors: s.has_two_floors ?? false, is_direction: s.is_direction ?? false }));
-        if (isStale()) return;
-        setStores(storeList);
-        if (!currentStoreRef.current && storeList.length > 0) {
-          const initial = await resolveInitialStore(storeList, user.id, user.email);
-          if (isStale()) return;
-          currentStoreRef.current = initial;
-          setCurrentStoreState(initial);
-        }
-      } else {
-        // Editor/user sees only assigned stores
-        const { data } = await supabase.rpc("get_my_stores");
-        const storeList = (data ?? []).map((s: any) => ({
-          id: s.store_id,
-          name: s.store_name,
-          city: s.store_city,
-          has_lunch_break: s.store_has_lunch_break ?? false,
-          has_ab_weeks: s.store_has_ab_weeks ?? false,
-          has_multi_roles: (s as any).store_has_multi_roles ?? false,
-          has_two_floors: (s as any).store_has_two_floors ?? false,
-          is_direction: s.store_is_direction ?? false,
-        }));
-        // Managers also get access to the Direction Fnac virtual store automatically
-        if (role === "manager" && !storeList.some((s) => s.is_direction)) {
-          const { data: dirData } = await supabase
-            .from("stores")
-            .select("id, name, city, has_ab_weeks, has_lunch_break, has_multi_roles, has_two_floors, is_direction")
-            .eq("is_direction", true)
-            .maybeSingle();
-          if (dirData) {
-            storeList.push({
-              id: dirData.id,
-              name: dirData.name,
-              city: dirData.city,
-              has_ab_weeks: dirData.has_ab_weeks ?? false,
-              has_lunch_break: dirData.has_lunch_break ?? false,
-              has_multi_roles: (dirData as any).has_multi_roles ?? false,
-              has_two_floors: (dirData as any).has_two_floors ?? false,
-              is_direction: dirData.is_direction ?? false,
-            });
-          }
-        }
-        if (isStale()) return;
-        setStores(storeList);
-        if (!currentStoreRef.current && storeList.length > 0) {
-          const initial = await resolveInitialStore(storeList, user.id, user.email);
-          if (isStale()) return;
-          currentStoreRef.current = initial;
-          setCurrentStoreState(initial);
+    if (role === "admin") {
+      // Admin sees all stores
+      const { data } = await supabase.from("stores").select("*").order("name");
+      storeList = (data ?? []).map((s: any) => ({ id: s.id, name: s.name, city: s.city, has_ab_weeks: s.has_ab_weeks ?? false, has_lunch_break: s.has_lunch_break ?? false, has_multi_roles: s.has_multi_roles ?? false, has_two_floors: s.has_two_floors ?? false, is_direction: s.is_direction ?? false }));
+    } else {
+      // Editor/user sees only assigned stores
+      const { data } = await supabase.rpc("get_my_stores");
+      storeList = (data ?? []).map((s: any) => ({
+        id: s.store_id,
+        name: s.store_name,
+        city: s.store_city,
+        has_lunch_break: s.store_has_lunch_break ?? false,
+        has_ab_weeks: s.store_has_ab_weeks ?? false,
+        has_multi_roles: (s as any).store_has_multi_roles ?? false,
+        has_two_floors: (s as any).store_has_two_floors ?? false,
+        is_direction: s.store_is_direction ?? false,
+      }));
+      // Managers also get access to the Direction Fnac virtual store automatically
+      if (role === "manager" && !storeList.some((s) => s.is_direction)) {
+        const { data: dirData } = await supabase
+          .from("stores")
+          .select("id, name, city, has_ab_weeks, has_lunch_break, has_multi_roles, has_two_floors, is_direction")
+          .eq("is_direction", true)
+          .maybeSingle();
+        if (dirData) {
+          storeList.push({
+            id: dirData.id,
+            name: dirData.name,
+            city: dirData.city,
+            has_ab_weeks: dirData.has_ab_weeks ?? false,
+            has_lunch_break: dirData.has_lunch_break ?? false,
+            has_multi_roles: (dirData as any).has_multi_roles ?? false,
+            has_two_floors: (dirData as any).has_two_floors ?? false,
+            is_direction: dirData.is_direction ?? false,
+          });
         }
       }
+    }
 
-      if (!isStale()) setLoading(false);
-    };
+    if (isStale()) return;
+    setStores(storeList);
 
+    if (currentStoreRef.current) {
+      // Rafraîchissement : on ré-apparie le magasin courant pour récupérer ses nouveaux réglages.
+      const same = storeList.find((s) => s.id === currentStoreRef.current!.id);
+      if (same) {
+        currentStoreRef.current = same;
+        setCurrentStoreState(same);
+      }
+    } else if (storeList.length > 0) {
+      const initial = await resolveInitialStore(storeList, user.id, user.email);
+      if (isStale()) return;
+      currentStoreRef.current = initial;
+      setCurrentStoreState(initial);
+    }
+
+    if (!isStale()) setLoading(false);
+  }, [user?.id, user?.email, role]);
+
+  useEffect(() => {
     fetchStores();
-  }, [user?.id, role]);
+  }, [fetchStores]);
 
   return (
-    <StoreContext.Provider value={{ stores, currentStore, setCurrentStore, loading }}>
+    <StoreContext.Provider value={{ stores, currentStore, setCurrentStore, loading, refreshStores: fetchStores }}>
       {children}
     </StoreContext.Provider>
   );
 }
+
 
 export function useStore() {
   const ctx = useContext(StoreContext);
