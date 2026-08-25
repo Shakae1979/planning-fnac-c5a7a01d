@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 import { getDisplayName } from "@/lib/format";
 import { useStoreSettings, DAY_KEYS, timeToMin, type DayKey } from "@/hooks/useStoreSettings";
+import { useStore } from "@/hooks/useStore";
 import { ROLE_KEYS, ROLE_COLORS as CENTRAL_ROLE_COLORS, getRoleColorsFor } from "@/lib/role-colors";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -92,6 +93,8 @@ function RolePicker({ anchorRect, onSelect, onClose, roleLabels, multi }: {
 const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: string; isFerie?: boolean; onStateChange?: (s: { canSave: boolean; saving: boolean }) => void }>(function HourlyGridImpl({ employees, date, isFerie = false, onStateChange }, ref) {
   const { t } = useI18n();
   const { dayHours } = useStoreSettings();
+  const { currentStore } = useStore();
+  const twoFloorsEnabled = currentStore?.has_two_floors === true;
   const day = dayHours[dayKeyFromDate(date)];
   const dayRange = { startMin: timeToMin(day.start), endMin: timeToMin(day.end), closed: day.closed };
   const { role } = useAuth();

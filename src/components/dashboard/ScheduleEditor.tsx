@@ -170,6 +170,7 @@ export function ScheduleEditor() {
   const { weekStartMin, weekEndMin, getDayRange } = useStoreSettings();
   const isDirection = currentStore?.is_direction === true;
   const hasLunchBreak = currentStore?.has_lunch_break === true && !isDirection;
+  const twoFloorsEnabled = currentStore?.has_two_floors === true && !isDirection;
 
   const TIME_SLOTS = useMemo(() => {
     const slots: string[] = [];
