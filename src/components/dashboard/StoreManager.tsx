@@ -359,6 +359,7 @@ export function StoreManager() {
                 (store as any).has_ab_weeks && t("store.abWeeks" as any),
                 (store as any).has_lunch_break && t("store.lunchBreak" as any),
                 (store as any).has_multi_roles && t("store.multiRoles" as any),
+                (store as any).has_two_floors && t("store.twoFloors" as any),
               ].filter(Boolean) as string[];
 
               return (
