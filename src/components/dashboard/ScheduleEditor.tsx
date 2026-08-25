@@ -1469,7 +1469,9 @@ export function ScheduleEditor() {
                               </div>
                             )}
                             {(() => {
-                              const secondaries = (((emp as any).secondary_roles as string[] | null) || []).filter((r) => r && r !== emp.role);
+                              const secondaries = (((emp as any).secondary_roles as string[] | null) || [])
+                                .filter((r) => r && r !== emp.role)
+                                .filter((r) => currentStore?.has_two_floors === true || !(FLOOR_ROLE_KEYS as readonly string[]).includes(r));
                               if (!multiRolesEnabled || secondaries.length === 0 || ferieDay || isDirection || !hasValue || isRoulement) return null;
                               const dayDate = getDayDate(currentMonday, dayIndex);
                               const isTime = (v: string | null) => !!v && /^\d{1,2}:\d{2}$/.test(v);
