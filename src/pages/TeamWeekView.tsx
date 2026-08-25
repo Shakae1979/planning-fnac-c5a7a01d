@@ -68,6 +68,7 @@ const TeamWeekView = () => {
 
   const { currentStore } = useStore();
   const { employees } = useStoreEmployees(ROLE_ORDER);
+  const twoFloorsEnabled = currentStore?.has_two_floors === true;
   const { scheduleStart, scheduleEnd, getDayRange } = useStoreSettings();
   const HOURS = Array.from({ length: scheduleEnd - scheduleStart }, (_, i) => i + scheduleStart);
 
