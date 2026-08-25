@@ -9,7 +9,6 @@ interface Store {
   has_ab_weeks?: boolean;
   has_lunch_break?: boolean;
   has_multi_roles?: boolean;
-  has_two_floors?: boolean;
   is_direction?: boolean;
 }
 
@@ -101,7 +100,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (role === "admin") {
       // Admin sees all stores
       const { data } = await supabase.from("stores").select("*").order("name");
-      storeList = (data ?? []).map((s: any) => ({ id: s.id, name: s.name, city: s.city, has_ab_weeks: s.has_ab_weeks ?? false, has_lunch_break: s.has_lunch_break ?? false, has_multi_roles: s.has_multi_roles ?? false, has_two_floors: s.has_two_floors ?? false, is_direction: s.is_direction ?? false }));
+      storeList = (data ?? []).map((s: any) => ({ id: s.id, name: s.name, city: s.city, has_ab_weeks: s.has_ab_weeks ?? false, has_lunch_break: s.has_lunch_break ?? false, has_multi_roles: s.has_multi_roles ?? false, is_direction: s.is_direction ?? false }));
     } else {
       // Editor/user sees only assigned stores
       const { data } = await supabase.rpc("get_my_stores");
@@ -112,14 +111,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         has_lunch_break: s.store_has_lunch_break ?? false,
         has_ab_weeks: s.store_has_ab_weeks ?? false,
         has_multi_roles: (s as any).store_has_multi_roles ?? false,
-        has_two_floors: (s as any).store_has_two_floors ?? false,
         is_direction: s.store_is_direction ?? false,
       }));
       // Managers also get access to the Direction Fnac virtual store automatically
       if (role === "manager" && !storeList.some((s) => s.is_direction)) {
         const { data: dirData } = await supabase
           .from("stores")
-          .select("id, name, city, has_ab_weeks, has_lunch_break, has_multi_roles, has_two_floors, is_direction")
+          .select("id, name, city, has_ab_weeks, has_lunch_break, has_multi_roles, is_direction")
           .eq("is_direction", true)
           .maybeSingle();
         if (dirData) {
@@ -130,7 +128,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             has_ab_weeks: dirData.has_ab_weeks ?? false,
             has_lunch_break: dirData.has_lunch_break ?? false,
             has_multi_roles: (dirData as any).has_multi_roles ?? false,
-            has_two_floors: (dirData as any).has_two_floors ?? false,
             is_direction: dirData.is_direction ?? false,
           });
         }

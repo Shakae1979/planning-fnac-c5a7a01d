@@ -12,7 +12,7 @@ import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { useI18n } from "@/lib/i18n";
 import React from "react";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
-import { ROLE_ORDER, ROLE_COLORS, getRoleColorsFor, FLOOR2_ROLE_COLORS } from "@/lib/role-colors";
+import { ROLE_ORDER, ROLE_COLORS, getRoleColors } from "@/lib/role-colors";
 import { groupDayRoles, buildRoleSegments, rolesOfDay, toMin, type DayRoleRow } from "@/lib/day-roles";
 
 
@@ -68,7 +68,6 @@ const TeamWeekView = () => {
 
   const { currentStore } = useStore();
   const { employees } = useStoreEmployees(ROLE_ORDER);
-  const twoFloorsEnabled = currentStore?.has_two_floors === true;
   const { scheduleStart, scheduleEnd, getDayRange } = useStoreSettings();
   const HOURS = Array.from({ length: scheduleEnd - scheduleStart }, (_, i) => i + scheduleStart);
 
@@ -361,7 +360,7 @@ const TeamWeekView = () => {
                                             if (segEnd <= segStart) return null;
                                             const segLeft = ((segStart - GRID_START) / GRID_SPAN) * 100;
                                             const segWidth = ((segEnd - segStart) / GRID_SPAN) * 100;
-                                            const segColors = getRoleColorsFor(seg.role, (emp as any).floor, twoFloorsEnabled);
+                                            const segColors = getRoleColors(seg.role);
                                             const isFirst = sidx === 0;
                                             const isLast = segEnd >= clampEnd;
                                             return (
