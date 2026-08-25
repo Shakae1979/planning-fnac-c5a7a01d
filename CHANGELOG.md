@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.19 — 25/08/2026
+- Congés : les noms de famille sont affichés (liste de sélection en nom complet, pastilles du calendrier en « Prénom N. ») pour distinguer les homonymes.
+
 ## v5.18 — 25/08/2026
 - Sécurité : les données de planning (collaborateurs, congés, horaires, rôles du jour, remplacements de rôle, commentaires de journée) ne sont plus visibles par tout compte connecté. L'accès en lecture est limité aux administrateurs, aux personnes affectées au magasin concerné et aux comptes affectés à la Direction Fnac.
 

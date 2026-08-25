@@ -106,6 +106,12 @@ export function getDisplayName(emp: { name: string; last_name?: string | null })
   return [emp.name, emp.last_name].filter(Boolean).join(" ");
 }
 
+/** Compact name for narrow cells: "Prénom N." */
+export function getCompactName(emp: { name: string; last_name?: string | null }): string {
+  const last = emp.last_name?.trim();
+  return last ? `${emp.name} ${last.charAt(0).toUpperCase()}.` : emp.name;
+}
+
 /** Sort employees by role order, then custom sort_order, then name. */
 export function sortByRoleOrder<T extends { role: string; name: string; sort_order?: number | null }>(
   list: T[],
