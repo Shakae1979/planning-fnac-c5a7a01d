@@ -119,16 +119,19 @@ export function TeamAndAccounts() {
     retry: 2,
     queryFn: async () => {
       const data = await callManageUsers({ action: "list" });
-      const allAccounts = (data || []) as (AppUser & { stores?: { store_id: string }[] })[];
+      const all = (data || []) as AppUser[];
 
-      if (!currentStore?.id) return allAccounts;
+      const scoped = currentStore?.id
+        ? all.filter((account) =>
+            (account.stores || []).some((store) => store.store_id === currentStore.id)
+          )
+        : all;
 
-      return allAccounts.filter((account) =>
-        (account.stores || []).some((store) => store.store_id === currentStore.id)
-      );
+      return { all, scoped };
     },
   });
-  const accounts = accountsData ?? [];
+  const accounts = accountsData?.scoped ?? [];
+  const allAccounts = accountsData?.all ?? [];
   const accountsLoading = authLoading || (!!user && accountsQueryLoading);
 
   // Fetch store assignments to filter accounts by current store
