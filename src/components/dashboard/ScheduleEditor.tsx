@@ -1452,12 +1452,25 @@ export function ScheduleEditor() {
           </table>
         </div>
       </div>
-      <SuggestionsDialog
-        open={suggestDialogOpen}
-        suggestions={suggestions}
-        onClose={() => setSuggestDialogOpen(false)}
-        onApply={applySuggestions}
-      />
+      <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("schedule.resetConfirmTitle" as any)}</AlertDialogTitle>
+            <AlertDialogDescription>{t("schedule.resetConfirmDesc" as any)}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={resetWeekMutation.isPending}>
+              {t("action.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => resetWeekMutation.mutate()}
+              disabled={resetWeekMutation.isPending}
+            >
+              {resetWeekMutation.isPending ? t("action.saving") : t("action.validate")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
