@@ -127,7 +127,7 @@ const FAQ_FR: FAQItem[] = [
   },
   {
     question: "Comment sont calculées les heures nettes ?",
-    answer: "Une pause d'1h est déduite uniquement si le service dure 6h ou plus (sauf si l'heure de table manuelle est activée). Les statuts 'Roulement' et 'Extérieur' comptent pour 0h.",
+    answer: "Une pause d'1h est déduite uniquement si le service dure strictement plus de 6h (sauf si l'heure de table manuelle est activée). Les statuts 'Roulement' et 'Extérieur' comptent pour 0h.",
   },
   {
     question: "Qu'est-ce que le multi-métiers ?",

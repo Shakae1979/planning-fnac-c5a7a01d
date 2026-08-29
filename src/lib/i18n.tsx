@@ -383,7 +383,7 @@ const translations = {
   "schedule.exterior": { fr: "Extérieur", nl: "Extern" },
   "schedule.holiday": { fr: "Férié", nl: "Feestdag" },
   "schedule.rotation": { fr: "Roulement", nl: "Wekelijks vrij" },
-  "schedule.breakNote": { fr: "Les heures affichées sont brutes. Le total soustrait 1h de pause par jour travaillé (≥ 6h).", nl: "De getoonde uren zijn bruto. Het totaal trekt 1u pauze af per gewerkte dag (≥ 6u)." },
+  "schedule.breakNote": { fr: "Les heures affichées sont brutes. Le total soustrait 1h de pause par jour travaillé (> 6h).", nl: "De getoonde uren zijn bruto. Het totaal trekt 1u pauze af per gewerkte dag (> 6u)." },
 
   // ========== Recap ==========
   "recap.contractHours": { fr: "Heures contrat", nl: "Contracturen" },
@@ -526,7 +526,7 @@ const translations = {
   "teamWeek.notes": { fr: "📝 Notes", nl: "📝 Notities" },
   "teamWeek.ferie": { fr: "Férié", nl: "Feestdag" },
   "teamWeek.exterior": { fr: "Extérieur", nl: "Extern" },
-  "teamWeek.breakNote": { fr: "Les heures affichées sont brutes. Le total soustrait 1h de pause par jour travaillé (≥ 6h).", nl: "De getoonde uren zijn bruto. Het totaal trekt 1u pauze af per gewerkte dag (≥ 6u)." },
+  "teamWeek.breakNote": { fr: "Les heures affichées sont brutes. Le total soustrait 1h de pause par jour travaillé (> 6h).", nl: "De getoonde uren zijn bruto. Het totaal trekt 1u pauze af per gewerkte dag (> 6u)." },
   "teamWeek.markHoliday": { fr: "Jour marqué comme férié pour tous les employés", nl: "Dag gemarkeerd als feestdag voor alle medewerkers" },
   "teamWeek.markedHoliday": { fr: "Jour marqué comme férié !", nl: "Dag gemarkeerd als feestdag!" },
 
