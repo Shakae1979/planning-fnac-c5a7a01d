@@ -475,6 +475,14 @@ export function TeamAndAccounts() {
                     {/* Account actions */}
                     {account ? (
                       <>
+                        {accountStores.length > 1 && (
+                          <Button variant="ghost" size="sm" className="text-xs gap-1 text-muted-foreground"
+                            onClick={() => handleUnlinkAccount(account.id)}
+                            disabled={linkingUserId === account.id}>
+                            {linkingUserId === account.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Link2Off className="h-3.5 w-3.5" />}
+                            {t("team.unlinkStore" as any)}
+                          </Button>
+                        )}
                         <Button variant="ghost" size="sm"
                           className="text-destructive/60 hover:text-destructive text-xs gap-1"
                           onClick={() => handleDeleteAccount(account.id)}
@@ -483,6 +491,13 @@ export function TeamAndAccounts() {
                           {t("team.deleteAccount" as any)}
                         </Button>
                       </>
+                    ) : unlinkedAccount ? (
+                      <Button variant="outline" size="sm" className="text-xs gap-1"
+                        onClick={() => handleLinkAccount(unlinkedAccount.id)}
+                        disabled={linkingUserId === unlinkedAccount.id}>
+                        {linkingUserId === unlinkedAccount.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Link2 className="h-3.5 w-3.5" />}
+                        {t("team.linkToStore" as any)}
+                      </Button>
                     ) : emp.email && !accountsLoading && !accountsQueryError ? (
                       <Button variant="outline" size="sm" className="text-xs gap-1"
                         onClick={() => { setCreatingForId(isCreating ? null : emp.id); setAccountPassword(""); setAccountRole("user"); }}>
