@@ -134,7 +134,7 @@ export function NotificationBell() {
                 <div className="flex items-center gap-1.5">
                   {!n.is_read && <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: "hsl(var(--sidebar-active))" }} />}
                   <span className="text-[11px] font-semibold text-foreground">
-                    S{getWeekNumber(new Date(n.week_start + "T00:00:00"))} · {formatDateBE(n.week_start)}
+                    S{getWeekNumber(new Date(n.week_start + "T00:00:00"))} · {formatDateBE(new Date(n.week_start + "T00:00:00"))}
                   </span>
                 </div>
                 <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug">{n.message}</p>
