@@ -351,6 +351,7 @@ const TeamWeekView = () => {
                                       const breakWidthPct = showBreak ? ((bEndMin - bStartMin) / GRID_SPAN) * 100 : 0;
                                       return (
                                         <>
+                                          {/* Segments colorés (fond uniquement) */}
                                           {(isRoleSwitch && roleSegments.length > 0
                                             ? roleSegments
                                             : [{ role: emp.role, start: start as string, end: end as string }]
@@ -363,19 +364,26 @@ const TeamWeekView = () => {
                                             const segColors = getRoleColors(seg.role);
                                             const isFirst = sidx === 0;
                                             const isLast = segEnd >= clampEnd;
+                                            const isRoleSwitchActive = isRoleSwitch && roleSegments.length > 0;
                                             return (
                                               <div
                                                 key={`seg-${sidx}`}
-                                                className={`absolute h-5 ${segColors.bar} flex items-center justify-center gap-1 text-[9px] font-semibold text-white shadow-sm overflow-hidden ${isFirst ? "rounded-l" : ""} ${isLast ? "rounded-r" : ""} ${isRoleSwitch && !isFirst ? "border-l border-white/70" : ""}`}
+                                                className={`absolute h-5 ${segColors.bar} shadow-sm overflow-hidden ${isFirst ? "rounded-l" : ""} ${isLast ? "rounded-r" : ""} ${isRoleSwitchActive && !isFirst ? "border-l border-white/70" : ""}`}
                                                 style={{ left: `${segLeft}%`, width: `${segWidth}%` }}
-                                                title={`${formatTimeBE(start)} — ${formatTimeBE(end)}${showBreak ? `\nPause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}` : ""}${isRoleSwitch ? `\n${formatTimeBE(seg.start)}–${formatTimeBE(seg.end)} · ${t(`role.${seg.role}` as any)}` : ""}`}
-                                              >
-                                                {segWidth > 12 && (
-                                                  <span>{formatTimeBE(seg.start)}–{formatTimeBE(seg.end)}</span>
-                                                )}
-                                              </div>
+                                              />
                                             );
                                           })}
+
+                                          {/* Libellé horaire unique sur toute la plage du shift */}
+                                          {widthPct > 12 && (
+                                            <div
+                                              className="absolute h-5 flex items-center justify-center text-[9px] font-semibold text-white shadow-sm overflow-hidden rounded"
+                                              style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
+                                              title={`${formatTimeBE(start)} — ${formatTimeBE(end)}${showBreak ? `\nPause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}` : ""}${isRoleSwitch && roleSegments.length > 0 ? `\n${roleSegments.map(seg => `${formatTimeBE(seg.start)}–${formatTimeBE(seg.end)} · ${t(`role.${seg.role}` as any)}`).join("\n")}` : ""}`}
+                                            >
+                                              <span>{formatTimeBE(start)}–{formatTimeBE(end)}</span>
+                                            </div>
+                                          )}
 
 
                                           {showBreak && (
