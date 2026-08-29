@@ -419,12 +419,37 @@ export function TeamAndAccounts() {
                             {account.role === "admin" ? <Shield className="h-3 w-3" /> : (account.role === "editor" || account.role === "manager") ? <PenTool className="h-3 w-3" /> : <User className="h-3 w-3" />}
                             {account.role === "admin" ? t("access.admin" as any) : account.role === "manager" ? t("access.manager" as any) : account.role === "editor" ? t("access.editor" as any) : t("access.user" as any)}
                           </Badge>
+                        ) : unlinkedAccount ? (
+                          <Badge variant="secondary" className="text-[10px] py-0 text-muted-foreground">
+                            {t("team.existingAccount" as any)}
+                          </Badge>
                         ) : emp.email && !accountsLoading && !accountsQueryError ? (
                           <Badge variant="secondary" className="text-[10px] py-0 text-muted-foreground">
                             {t("team.noAccount" as any)}
                           </Badge>
                         ) : null}
                       </div>
+                      {accountStores.length > 0 && (
+                        <div className="flex items-center flex-wrap gap-1 mt-0.5">
+                          {accountStores.map((s) => (
+                            <Badge key={s.store_id} variant="outline" className="text-[9px] py-0 gap-1">
+                              <Store className="h-2.5 w-2.5" />
+                              {s.store_name}{s.is_manager ? " ★" : ""}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      {account && myRole === "admin" && currentAssignment && (
+                        <label className="flex items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={currentAssignment.is_manager}
+                            onChange={(e) => handleToggleManager(account.id, e.target.checked)}
+                            className="h-3 w-3 cursor-pointer accent-primary"
+                          />
+                          {t("team.storeManagerHere" as any)}
+                        </label>
+                      )}
                       <div className="text-xs text-muted-foreground flex items-center gap-1">
                         <select value={emp.role}
                           onChange={(e) => updateRoleMutation.mutate({ id: emp.id, role: e.target.value })}
