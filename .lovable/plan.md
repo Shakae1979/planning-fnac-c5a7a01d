@@ -1,21 +1,30 @@
-# Jean-Laurent visible comme responsable de Fnac TDO
+# Responsables TDO + notifications de changement d'horaire
 
-## Diagnostic
+## 1. Jean-Laurent visible comme responsable de Fnac TDO
 
-Côté base de données, tout est déjà correct : Jean-Laurent a le rôle `manager`, une assignation `is_manager = true` sur Fnac TDO et Fnac LLN, et une fiche employé dans les deux magasins.
+Diagnostic confirmé : la base est correcte (rôle `manager`, assignation `is_manager` sur TDO et LLN, fiches employés dans les deux magasins). Le bug est dans `src/components/dashboard/StoreManager.tsx` : la rubrique « Responsables » ne liste que les rôles `editor`/`admin`.
 
-Le problème est dans l'écran admin « Gestion des magasins » (`src/components/dashboard/StoreManager.tsx`) : la rubrique **Responsables** de chaque tuile magasin ne liste que les comptes de rôle `editor` ou `admin`. Le rôle `manager` (créé en v4.69) n'y a jamais été ajouté — donc Jean-Laurent (et tout responsable de magasin) n'apparaît jamais dans cette liste.
+- Inclure le rôle `manager` dans le filtre `storeManagers` (ligne ~83).
+- Même correction dans `getAvailableUsers` (ligne ~294) pour le menu « Ajouter un responsable ».
 
-## Changements
+## 2. Notifications de changement d'horaire (jamais implémenté)
 
-Dans `src/components/dashboard/StoreManager.tsx` :
+État réel : aucune trace du système annoncé — ni table, ni edge function, ni code UI. À construire :
 
-1. **Liste des responsables par magasin** (ligne ~83) : inclure le rôle `manager` dans le filtre qui construit `storeManagers`, aux côtés de `editor` et `admin`. Jean-Laurent apparaîtra alors dans la tuile Fnac TDO avec la couronne et le badge « Store Manager ».
+### Base de données (migration)
+- Table `public.schedule_notifications` : `id`, `employee_id`, `store_id`, `week_start`, `message`, `is_read`, `created_at` (+ GRANTs, RLS : lecture par le collaborateur concerné, écriture staff).
+- Table `public.notified_schedule_snapshots` : empreinte (hash) du planning notifié par employé/semaine, pour n'envoyer que les vrais changements.
 
-2. **Menu « Ajouter un responsable »** (`getAvailableUsers`, ligne ~294) : même correction, pour qu'un compte de rôle `manager` puisse aussi être proposé à l'ajout sur un autre magasin.
+### Application
+- Bouton « Notifier l'équipe » dans `ScheduleEditor.tsx` : compare le planning actuel au dernier snapshot notifié et crée une notification par employé dont les horaires ont changé.
+- Cloche de notification dans le header : badge avec le nombre de non lues, panneau listant les changements (semaine, jour, avant → après), bouton « marquer comme lu ».
+- Visible par tous les utilisateurs connectés ; un vendeur ne voit que ses propres notifications.
 
-3. **Versioning** : bump de `src/lib/version.ts` (v5.26) + entrée en haut de `CHANGELOG.md` (FR, date du jour).
+## 3. Versioning
+
+Bump `src/lib/version.ts` (v5.26) + entrées en haut de `CHANGELOG.md` (FR, date du jour).
 
 ## Vérification
 
-- Recharger l'écran Gestion des magasins et confirmer que `jean-laurent.stubbe@be.fnac.com` apparaît dans les Responsables de Fnac TDO et Fnac LLN avec le badge Store Manager.
+- Gestion des magasins : Jean-Laurent apparaît dans les Responsables de Fnac TDO avec le badge Store Manager.
+- Modifier un horaire, cliquer « Notifier l'équipe », vérifier que la cloche affiche la notification côté collaborateur.
