@@ -11,7 +11,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  Plus, Trash2, Mail, X, Users, Shield, User, Loader2, KeyRound, UserPlus, PenTool,
+  Plus, Trash2, Mail, X, Users, Shield, User, Loader2, KeyRound, UserPlus, PenTool, Store, Link2, Link2Off,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useStore } from "@/hooks/useStore";
