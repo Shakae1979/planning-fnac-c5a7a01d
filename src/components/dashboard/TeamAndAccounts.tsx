@@ -26,11 +26,18 @@ const ROLE_COLORS: Record<string, string> = Object.fromEntries(
   ROLE_KEYS.map((k) => [k, CENTRAL_ROLE_COLORS[k].bgChip])
 );
 
+interface AppUserStore {
+  store_id: string;
+  store_name: string;
+  is_manager: boolean;
+}
+
 interface AppUser {
   id: string;
   email: string;
   role: string;
   created_at: string;
+  stores?: AppUserStore[];
 }
 
 export function TeamAndAccounts() {
