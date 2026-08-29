@@ -1,6 +1,7 @@
 import { Users, CalendarDays, User, UserCog, LogOut, Palmtree, Store, Sun, Moon } from "lucide-react";
 import { HelpFAQ } from "@/components/HelpFAQ";
 import { AssistantChat } from "@/components/AssistantChat";
+import { NotificationBell } from "@/components/NotificationBell";
 import { ReactNode, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -135,6 +136,7 @@ export function FnacHeader({ title, subtitle, icon: Icon, children }: FnacHeader
 
         <div className="flex items-center gap-1 shrink-0">
           {children}
+          <NotificationBell />
           <AssistantChat />
           <HelpFAQ />
           <button
