@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
-import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin, RotateCcw, GripVertical } from "lucide-react";
+import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin, RotateCcw, GripVertical, Bell } from "lucide-react";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,6 +16,7 @@ import DayRoleEditor from "./DayRoleEditor";
 
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
+import { notifyTeamWeek } from "@/lib/schedule-notify";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import {
   AlertDialog,
@@ -838,6 +839,28 @@ export function ScheduleEditor() {
     }
   };
 
+  const notifyTeamMutation = useMutation({
+    mutationFn: async () => {
+      const count = await notifyTeamWeek({
+        weekStart: weekStr,
+        storeId: currentStore?.id,
+        employees: employees ?? [],
+        schedules: schedules ?? [],
+      });
+      return count;
+    },
+    onSuccess: (count) => {
+      if (count === 0) {
+        toast.info(t("schedule.notifyNone" as any));
+      } else {
+        toast.success(t("schedule.notifySuccess" as any).replace("{n}", String(count)));
+      }
+    },
+    onError: (err) => {
+      toast.error(t("schedule.errorSaving") + ": " + (err as Error).message);
+    },
+  });
+
   const resetWeekMutation = useMutation({
     mutationFn: async () => {
       if (!schedules || schedules.length === 0) return;
@@ -1023,6 +1046,15 @@ export function ScheduleEditor() {
           )}
           <Button variant="outline" size="sm" onClick={() => copyPreviousWeekMutation.mutate()}>
             <ChevronLeft className="h-3.5 w-3.5 mr-1" /> {t("schedule.copyPrevWeek")}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => notifyTeamMutation.mutate()}
+            disabled={hasEdits || notifyTeamMutation.isPending || !schedules || schedules.length === 0}
+            title={hasEdits ? t("schedule.notifyTeamHint" as any) : t("schedule.notifyTeam" as any)}
+          >
+            <Bell className="h-3.5 w-3.5 mr-1" /> {t("schedule.notifyTeam" as any)}
           </Button>
           <Button
             variant="outline"

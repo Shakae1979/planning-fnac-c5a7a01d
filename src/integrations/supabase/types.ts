@@ -282,6 +282,83 @@ export type Database = {
           },
         ]
       }
+      notified_schedule_snapshots: {
+        Row: {
+          employee_id: string
+          id: string
+          notified_at: string
+          snapshot_hash: string
+          week_start: string
+        }
+        Insert: {
+          employee_id: string
+          id?: string
+          notified_at?: string
+          snapshot_hash: string
+          week_start: string
+        }
+        Update: {
+          employee_id?: string
+          id?: string
+          notified_at?: string
+          snapshot_hash?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notified_schedule_snapshots_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_notifications: {
+        Row: {
+          created_at: string
+          employee_id: string
+          id: string
+          is_read: boolean
+          message: string
+          store_id: string | null
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          id?: string
+          is_read?: boolean
+          message: string
+          store_id?: string | null
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          store_id?: string | null
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_notifications_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_notifications_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schedule_role_overrides: {
         Row: {
           created_at: string

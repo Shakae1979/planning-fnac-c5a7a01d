@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.26 — 29/08/2026
+- Notifications d'horaires : nouveau bouton **« Notifier l'équipe »** dans l'encodage du planning. Chaque collaborateur dont les horaires de la semaine ont changé depuis la dernière notification reçoit une notification détaillée (jour par jour, avant → après). Une **cloche** dans l'en-tête affiche les notifications non lues avec badge, détail des changements et bouton « Tout marquer comme lu ».
+- Gestion des magasins (admin) : les comptes de rôle **Responsable (manager)** apparaissent désormais dans la rubrique « Responsables » de chaque magasin et dans le menu « Ajouter un responsable » (avant : seuls éditeurs et admins étaient listés).
+
 ## v5.25 — 29/08/2026
 - Comptes multi-magasins : un compte existant peut désormais être **rattaché à un 2e magasin** depuis Équipe & Comptes (bouton « Rattacher à ce magasin »), avec badges des magasins liés, détachement du magasin courant et case « Responsable de ce magasin » (admin).
 - Création de compte : si l'adresse e-mail existe déjà, le compte est automatiquement rattaché au magasin courant au lieu d'afficher une erreur.
