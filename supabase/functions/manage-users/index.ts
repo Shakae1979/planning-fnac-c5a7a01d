@@ -157,6 +157,23 @@ Deno.serve(async (req) => {
         }
       }
 
+      // If the email already exists, link that account to the store instead of failing
+      const existingUsers = await listAllUsers();
+      const existing = existingUsers.find(
+        (u: any) => (u.email || "").toLowerCase() === String(email).toLowerCase()
+      );
+      if (existing) {
+        if (store_id) {
+          const { error: linkError } = await adminClient
+            .from("user_store_assignments")
+            .upsert({ user_id: existing.id, store_id }, { onConflict: "user_id,store_id" });
+          if (linkError) throw linkError;
+        }
+        return new Response(JSON.stringify({ success: true, linked: true, user_id: existing.id }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       const { data: newUser, error } = await adminClient.auth.admin.createUser({
         email,
         password,
