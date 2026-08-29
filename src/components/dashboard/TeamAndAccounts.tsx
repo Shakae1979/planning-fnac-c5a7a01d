@@ -75,6 +75,7 @@ export function TeamAndAccounts() {
   const [accountRole, setAccountRole] = useState<string>("user");
   const [savingAccount, setSavingAccount] = useState(false);
   const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
+  const [linkingUserId, setLinkingUserId] = useState<string | null>(null);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
 
 
