@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.21 — 29/08/2026
+- Planning semaine (vue équipe) : les segments multi-métiers / 2 étages n'affichent plus le libellé du rôle (« PT HAUT », …) mais le créneau horaire du segment. Les couleurs par rôle sont conservées et le rôle reste visible dans l'infobulle.
+
 ## v5.20 — 29/08/2026
 - Planning hebdomadaire : ajout d'un bouton **Réinitialiser** pour effacer tous les horaires de la semaine affichée, avec confirmation.
 - Planning hebdomadaire : suppression du bouton **Suggérer** et de la fonctionnalité de suggestions intelligentes.

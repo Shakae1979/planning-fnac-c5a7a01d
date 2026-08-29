@@ -370,14 +370,8 @@ const TeamWeekView = () => {
                                                 style={{ left: `${segLeft}%`, width: `${segWidth}%` }}
                                                 title={`${formatTimeBE(start)} — ${formatTimeBE(end)}${showBreak ? `\nPause ${formatTimeBE(breakStart)}–${formatTimeBE(breakEnd)}` : ""}${isRoleSwitch ? `\n${formatTimeBE(seg.start)}–${formatTimeBE(seg.end)} · ${t(`role.${seg.role}` as any)}` : ""}`}
                                               >
-                                                {isRoleSwitch ? (
-                                                  segWidth > 6 && (
-                                                    <span className="uppercase tracking-wide truncate px-0.5">{t(`role.${seg.role}.short` as any)}</span>
-                                                  )
-                                                ) : (
-                                                  segWidth > 12 && (
-                                                    <span>{isFerie ? `🏴 ` : ""}{formatTimeBE(start)}–{formatTimeBE(end)}</span>
-                                                  )
+                                                {segWidth > 12 && (
+                                                  <span>{formatTimeBE(seg.start)}–{formatTimeBE(seg.end)}</span>
                                                 )}
                                               </div>
                                             );
