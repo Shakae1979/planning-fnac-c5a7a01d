@@ -22,6 +22,20 @@
       "when": 1788015829635,
       "tag": "0002_schedule_notifications_select_own",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788016888924,
+      "tag": "0003_fix_schedule_notifications_own_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788016933628,
+      "tag": "0004_employees_select_own_by_email",
+      "breakpoints": true
     }
   ]
 }
