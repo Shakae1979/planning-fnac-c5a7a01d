@@ -1,38 +1,32 @@
-# Notifier les collaborateurs d'un changement d'horaire
+# Rattacher un compte existant à un 2e magasin
 
-Objectif : quand un responsable a fini de modifier une semaine, il clique sur « Notifier l'équipe » et chaque collaborateur concerné voit, à sa connexion, une notification listant ses jours modifiés.
+Réponse courte : oui, c'est déjà possible côté base — un compte peut être lié à plusieurs magasins (table d'affectations `user_store_assignments`, un enregistrement par magasin, avec un indicateur « responsable » par magasin). Ce qui manque, c'est le geste dans l'interface : aujourd'hui l'onglet Équipe & Comptes ne montre que les comptes déjà affectés au magasin sélectionné, donc sur le 2e magasin le responsable apparaît comme « sans compte », et recréer un compte échoue puisque l'e-mail existe déjà.
 
-## Fonctionnement pour l'utilisateur
+## Ce qui sera ajouté
 
-**Côté responsable (Planning / encodage semaine)**
-- Un bouton « Notifier l'équipe » à côté des actions existantes de la semaine.
-- Il compare les horaires actuels de la semaine avec l'état déjà notifié, et affiche un récapitulatif avant envoi : « 4 collaborateurs concernés, 7 jours modifiés ».
-- Si rien n'a changé depuis la dernière notification, le bouton indique « Aucun changement à notifier ».
-- Confirmation → les notifications sont créées et l'état notifié est mis à jour.
+**1. Bouton « Rattacher ce compte au magasin »**
+- Dans Équipe & Comptes, quand un collaborateur du magasin courant a une adresse e-mail qui correspond à un compte existant non affecté à ce magasin, on affiche « Compte existant — Rattacher à ce magasin » au lieu du formulaire de création.
+- Un clic ajoute l'affectation au magasin courant, sans toucher au mot de passe ni au rôle existant.
 
-**Côté collaborateur**
-- Une cloche dans l'en-tête avec une pastille du nombre de notifications non lues.
-- Au clic : liste des changements, du plus récent au plus ancien, par ex. « Semaine du 07/09 — mercredi : 09h00–17h00 (était 12h00–20h00) », « vendredi : repos (était 09h00–17h00) ».
-- Bouton « Tout marquer comme lu » ; un clic sur une notification la marque lue.
-- Visible pour tout compte relié à un collaborateur (rattachement par e-mail, comme aujourd'hui).
+**2. Création de compte tolérante**
+- Si on tente de créer un compte avec une adresse déjà utilisée, au lieu d'une erreur, le système rattache le compte existant au magasin courant et le signale clairement (« Compte déjà existant : rattaché à ce magasin »). Le mot de passe saisi n'est pas appliqué.
 
-## Portée
+**3. Case « Responsable de ce magasin »**
+- Sur la ligne du compte, une case permet à un admin de marquer le compte comme responsable du magasin courant, indépendamment de l'autre magasin (l'indicateur est déjà par affectation).
 
-Seuls les horaires de travail déclenchent une notification : heures de début/fin de chaque jour de la semaine (y compris passage à un jour de repos ou inversement). Les congés, rôles du jour et commentaires ne déclenchent rien.
+**4. Liste des magasins du compte**
+- Sur la ligne du compte, affichage des magasins auxquels il est rattaché (petits badges), et possibilité de détacher du magasin courant.
+
+## Cas des 2 responsables actuels
+
+Une fois l'interface en place, il suffit pour chacun : sélectionner le 2e magasin → Équipe & Comptes → « Rattacher à ce magasin » → cocher « Responsable de ce magasin ». Leur sélecteur de magasin en haut proposera alors les deux, avec le rôle responsable sur chacun.
 
 ## Détails techniques
 
-**Base de données**
-- `schedule_notifications` : `id`, `employee_id`, `week_start`, `changes` (jsonb : jour, ancien créneau, nouveau créneau), `created_at`, `read_at`, `created_by`.
-  - GRANT `select, update` à `authenticated`, `insert` au staff, `all` à `service_role`.
-  - RLS : lecture/mise à jour de `read_at` uniquement si la notification appartient au collaborateur dont l'e-mail correspond à celui de l'utilisateur connecté ; insertion réservée au staff via `is_staff(auth.uid())`.
-- `notified_schedule_snapshots` : `employee_id`, `week_start`, `snapshot` (jsonb des 7 paires début/fin), `updated_at`, clé unique `(employee_id, week_start)`. Sert de référence pour le diff. Accès staff uniquement.
+- Aucune migration : `user_store_assignments` a déjà la contrainte unique `(user_id, store_id)` et la colonne `is_manager`; les actions `assign_store`, `unassign_store` et `set_manager` existent dans la fonction `manage-users`.
+- `supabase/functions/manage-users/index.ts` : dans `create`, détecter l'e-mail déjà présent (`listUsers` / erreur de duplicat) et basculer sur un `upsert` d'affectation en renvoyant `{ linked: true }` au lieu d'une erreur.
+- `src/components/dashboard/TeamAndAccounts.tsx` : conserver la liste complète des comptes (avant filtrage par magasin) pour détecter les correspondances par e-mail, ajouter le bouton de rattachement, les badges magasins, le détachement et la case responsable (visible admin).
+- Traductions FR/NL dans `src/lib/i18n.tsx`.
+- Bump `src/lib/version.ts` + entrée CHANGELOG.
 
-**Front**
-- `ScheduleEditor.tsx` : bouton + dialogue de confirmation ; calcul du diff entre les lignes `weekly_schedules` de la semaine affichée et les snapshots, insertion des notifications puis upsert des snapshots.
-- Nouveau `src/components/NotificationBell.tsx` monté dans `FnacHeader.tsx` : requête des notifications non lues du collaborateur courant, popover avec la liste, marquage lu.
-- Nouveau hook `src/hooks/useMyEmployee.tsx` (ou réutilisation existante) pour résoudre le collaborateur lié à l'e-mail du compte connecté.
-- Traductions FR/NL dans `i18n.tsx`.
-
-**Divers**
-- Bump de `src/lib/version.ts` en v5.25 + entrée CHANGELOG.
+Note : la fonctionnalité de notification de changement d'horaire, déjà approuvée, reste à implémenter ensuite.
