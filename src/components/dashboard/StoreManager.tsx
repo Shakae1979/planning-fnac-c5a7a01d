@@ -80,7 +80,7 @@ export function StoreManager() {
   const storeManagers: Record<string, ManagerInfo[]> = {};
   if (allUsers) {
     for (const u of allUsers) {
-      if (u.role === "editor" || u.role === "admin") {
+      if (u.role === "editor" || u.role === "admin" || u.role === "manager") {
         for (const s of u.stores || []) {
           if (!storeManagers[s.store_id]) storeManagers[s.store_id] = [];
           storeManagers[s.store_id].push({ user_id: u.id, email: u.email, role: u.role, is_manager: s.is_manager });
@@ -291,7 +291,7 @@ export function StoreManager() {
     const allowedEmails = employeeEmailsByStore?.[storeId] ?? new Set<string>();
     return (allUsers || []).filter(
       (u) =>
-        (u.role === "editor" || u.role === "admin") &&
+        (u.role === "editor" || u.role === "admin" || u.role === "manager") &&
         !assigned.has(u.id) &&
         !!u.email &&
         allowedEmails.has(u.email.toLowerCase())
