@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
-import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin, Sparkles, GripVertical } from "lucide-react";
+import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin, RotateCcw, GripVertical } from "lucide-react";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,9 +15,18 @@ import DayRoleEditor from "./DayRoleEditor";
 
 
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName, getISOYear, isoWeeksInYear, getMondayFromISOWeek } from "@/lib/format";
+import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
-import { SuggestionsDialog, type Suggestion, type SuggestionSource } from "./SuggestionsDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   DndContext,
   closestCenter,
@@ -403,9 +412,7 @@ export function ScheduleEditor() {
   const [copiedCell, setCopiedCell] = useState<{ empId: string; dayKey: string } | null>(null);
   const [activeInput, setActiveInput] = useState<{ key: string; raw: string } | null>(null);
 
-  const [suggestDialogOpen, setSuggestDialogOpen] = useState(false);
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [suggestLoading, setSuggestLoading] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   const toggleTarget = (empId: string) => {
     setSelectedTargets((prev) => {
@@ -831,111 +838,39 @@ export function ScheduleEditor() {
     }
   };
 
-  const buildSuggestions = async () => {
-    if (!employees) return;
-    setSuggestLoading(true);
-    try {
-      const prev1 = formatWeekDate(addWeeks(currentMonday, -1));
-      const prev2 = formatWeekDate(addWeeks(currentMonday, -2));
-      const isoYear = getISOYear(currentMonday);
-      const isoWeek = getWeekNumber(currentMonday);
-      const targetYear = isoYear - 1;
-      const targetWeek = Math.min(isoWeek, isoWeeksInYear(targetYear));
-      const lastYear = formatWeekDate(getMondayFromISOWeek(targetWeek, targetYear));
-      const tplWeek = hasABWeeks
-        ? (getWeekNumber(currentMonday) % 2 === 0 ? TEMPLATE_WEEK_B : TEMPLATE_WEEK)
-        : TEMPLATE_WEEK;
-
-      const [r1, r2, rY, rT] = await Promise.all([
-        supabase.from("weekly_schedules").select("*").eq("week_start", prev1),
-        supabase.from("weekly_schedules").select("*").eq("week_start", prev2),
-        supabase.from("weekly_schedules").select("*").eq("week_start", lastYear),
-        supabase.from("weekly_schedules").select("*").eq("week_start", tplWeek),
-      ]);
-
-      const sourcesOrdered: { rows: any[]; source: SuggestionSource }[] = [
-        { rows: r1.data ?? [], source: "prevWeek" },
-        { rows: r2.data ?? [], source: "prev2Weeks" },
-        { rows: rT.data ?? [], source: "template" },
-        { rows: rY.data ?? [], source: "lastYear" },
-      ];
-
-      if (sourcesOrdered.every((s) => s.rows.length === 0)) {
-        toast.warning(t("schedule.suggestNoData" as any));
-        setSuggestLoading(false);
-        return;
+  const resetWeekMutation = useMutation({
+    mutationFn: async () => {
+      if (!schedules || schedules.length === 0) return;
+      const updates: any = {};
+      for (const day of DAYS) {
+        updates[`${day.key}_start`] = null;
+        updates[`${day.key}_end`] = null;
+        updates[`${day.key}_break_start`] = null;
+        updates[`${day.key}_break_end`] = null;
       }
-
-      const result: Suggestion[] = [];
-
-      for (const emp of employees) {
-        for (let dayIdx = 0; dayIdx < DAYS.length; dayIdx++) {
-          const day = DAYS[dayIdx];
-          const dayRange = getDayRange(day.key as any);
-          const storeStartMin = dayRange.startMin;
-          const storeEndMin = dayRange.endMin;
-          const startField = `${day.key}_start`;
-          const endField = `${day.key}_end`;
-          const currentStart = getValue(emp.id, startField);
-          const currentEnd = getValue(emp.id, endField);
-          // Only fill truly empty cells; skip if anything (incl. special keyword) is set
-          if (currentStart || currentEnd) continue;
-          // Skip if on leave that day
-          if (isOnLeave(emp.id, dayIdx)) continue;
-
-          for (const src of sourcesOrdered) {
-            const row = src.rows.find((r) => r.employee_id === emp.id);
-            if (!row) continue;
-            const s = (row as any)[startField] ?? "";
-            const e = (row as any)[endField] ?? "";
-            if (!s || !e) continue;
-            // Skip special keywords — out of scope
-            if (SPECIAL_KEYWORDS.includes(String(s).toLowerCase())) continue;
-            const [sh, sm] = String(s).split(":").map(Number);
-            const [eh, em] = String(e).split(":").map(Number);
-            if (isNaN(sh) || isNaN(eh)) continue;
-            const startMin = sh * 60 + (sm || 0);
-            const endMin = eh * 60 + (em || 0);
-            const outOfRange = dayRange.closed || startMin < storeStartMin || endMin > storeEndMin;
-            result.push({
-              employeeId: emp.id,
-              employeeName: getDisplayName(emp),
-              dayKey: day.key,
-              dayLabel: day.label,
-              start: s,
-              end: e,
-              source: src.source,
-              outOfRange,
-            });
-            break;
-          }
-        }
-      }
-
-      setSuggestions(result);
-      setSuggestDialogOpen(true);
-    } catch (err) {
-      toast.error("Error: " + (err as Error).message);
-    } finally {
-      setSuggestLoading(false);
-    }
-  };
-
-  const applySuggestions = (selected: Suggestion[]) => {
-    setLocalEdits((prev) => {
-      const next = { ...prev };
-      for (const s of selected) {
-        next[s.employeeId] = {
-          ...next[s.employeeId],
-          [`${s.dayKey}_start`]: s.start,
-          [`${s.dayKey}_end`]: s.end,
-        };
-      }
-      return next;
-    });
-    setSuggestDialogOpen(false);
-    toast.success(t("schedule.suggestApplied" as any));
-  };
+      updates["hours_modified"] = 0;
+      const ids = schedules.map((s) => s.id);
+      const { error } = await supabase
+        .from("weekly_schedules")
+        .update(updates)
+        .in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setLocalEdits({});
+      setLocalDayComments({});
+      setLocalFerieDays({});
+      queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
+      queryClient.invalidateQueries({ queryKey: ["all-schedules"] });
+      queryClient.invalidateQueries({ queryKey: ["day-comments", weekStr] });
+      queryClient.invalidateQueries({ queryKey: ["team-week-day-comments", weekStr] });
+      setResetDialogOpen(false);
+      toast.success(t("schedule.resetSuccess" as any));
+    },
+    onError: (err) => {
+      toast.error(t("schedule.errorSaving") + ": " + (err as Error).message);
+    },
+  });
 
   const saveAsTemplateMutation = useMutation({
     mutationFn: async (templateWeek?: string) => {
@@ -1089,8 +1024,13 @@ export function ScheduleEditor() {
           <Button variant="outline" size="sm" onClick={() => copyPreviousWeekMutation.mutate()}>
             <ChevronLeft className="h-3.5 w-3.5 mr-1" /> {t("schedule.copyPrevWeek")}
           </Button>
-          <Button variant="outline" size="sm" onClick={buildSuggestions} disabled={suggestLoading}>
-            <Sparkles className="h-3.5 w-3.5 mr-1" /> {t("schedule.suggest" as any)}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setResetDialogOpen(true)}
+            disabled={!schedules || schedules.length === 0}
+          >
+            <RotateCcw className="h-3.5 w-3.5 mr-1" /> {t("schedule.reset" as any)}
           </Button>
           <Button size="sm" disabled={!hasEdits || saveMutation.isPending} onClick={() => saveMutation.mutate()}>
             <Save className="h-3.5 w-3.5 mr-1" />
@@ -1512,12 +1452,25 @@ export function ScheduleEditor() {
           </table>
         </div>
       </div>
-      <SuggestionsDialog
-        open={suggestDialogOpen}
-        suggestions={suggestions}
-        onClose={() => setSuggestDialogOpen(false)}
-        onApply={applySuggestions}
-      />
+      <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("schedule.resetConfirmTitle" as any)}</AlertDialogTitle>
+            <AlertDialogDescription>{t("schedule.resetConfirmDesc" as any)}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={resetWeekMutation.isPending}>
+              {t("action.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => resetWeekMutation.mutate()}
+              disabled={resetWeekMutation.isPending}
+            >
+              {resetWeekMutation.isPending ? t("action.saving") : t("action.validate")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
