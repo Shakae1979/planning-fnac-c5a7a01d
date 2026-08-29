@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.27 — 29/08/2026
+- Correctif notifications : la cloche restait vide même quand des notifications existaient. La règle d'accès « mes notifications » interrogeait la table interne des comptes, inaccessible à l'application, ce qui faisait échouer toute la lecture. Elle compare désormais l'e-mail du collaborateur à celui de la session (lecture et marquage comme lu).
+
 ## v5.26 — 29/08/2026
 - Notifications d'horaires : nouveau bouton **« Notifier l'équipe »** dans l'encodage du planning. Chaque collaborateur dont les horaires de la semaine ont changé depuis la dernière notification reçoit une notification détaillée (jour par jour, avant → après). Une **cloche** dans l'en-tête affiche les notifications non lues avec badge, détail des changements et bouton « Tout marquer comme lu ».
 - Gestion des magasins (admin) : les comptes de rôle **Responsable (manager)** apparaissent désormais dans la rubrique « Responsables » de chaque magasin et dans le menu « Ajouter un responsable » (avant : seuls éditeurs et admins étaient listés).

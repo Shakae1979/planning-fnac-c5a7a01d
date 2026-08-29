@@ -51,7 +51,10 @@ export function NotificationBell() {
         .in("employee_id", myEmployeeIds!)
         .order("created_at", { ascending: false })
         .limit(30);
-      if (error) throw error;
+      if (error) {
+        console.error("[notifications] fetch failed", error);
+        throw error;
+      }
       return (data || []) as ScheduleNotification[];
     },
   });
