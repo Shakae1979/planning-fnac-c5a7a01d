@@ -18,7 +18,7 @@ const DAYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dima
 
 /**
  * Net hours rules (Planning Fnac):
- * - 1h break deducted ONLY if a single shift >= 6h
+ * - 1h break deducted ONLY if a single shift is strictly over 6h (> 6h)
  * - 'ROULEMENT' and 'EXT' (Extérieur) count as 0h
  * - Les absences (congé, maladie, férié) ne génèrent AUCUNE heure.
  *   L'écart se calcule strictement sur les heures réellement prestées vs contrat.
@@ -53,7 +53,7 @@ export function computeNetHours(
       if (bStart && bEnd) {
         const pause = Math.max(0, timeToHours(bEnd) - timeToHours(bStart));
         breakMinutes += pause * 60;
-      } else if (dayGross >= 6) {
+      } else if (dayGross > 6) {
         breakMinutes += 60;
       }
     }

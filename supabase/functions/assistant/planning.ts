@@ -28,7 +28,7 @@ export function timeToHours(t: string | null | undefined): number {
 
 /**
  * Heures nettes (règles Planning Fnac) :
- * - pause d'1h déduite UNIQUEMENT si la journée >= 6h (sauf heure de table encodée)
+ * - pause d'1h déduite UNIQUEMENT si la journée > 6h strictement (sauf heure de table encodée)
  * - 'ROULEMENT' et 'EXT' (Extérieur) comptent 0h
  */
 export function computeNetHours(schedule: Record<string, any> | null | undefined) {
@@ -46,7 +46,7 @@ export function computeNetHours(schedule: Record<string, any> | null | undefined
       const bEnd = sch[`${d}_break_end`];
       if (bStart && bEnd) {
         breakMinutes += Math.max(0, timeToHours(bEnd) - timeToHours(bStart)) * 60;
-      } else if (dayGross >= 6) {
+      } else if (dayGross > 6) {
         breakMinutes += 60;
       }
     }
@@ -68,7 +68,7 @@ export function dayHours(schedule: Record<string, any> | null | undefined, dayKe
   const bEnd = sch[`${dayKey}_break_end`];
   let br = 0;
   if (bStart && bEnd) br = Math.max(0, timeToHours(bEnd) - timeToHours(bStart));
-  else if (gross >= 6) br = 1;
+  else if (gross > 6) br = 1;
   return {
     net: gross - br,
     start: String(start),
