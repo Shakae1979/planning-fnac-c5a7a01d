@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.22 — 29/08/2026
+- Planning semaine (vue équipe) : en multi-métiers, le créneau horaire n'apparaît plus qu'une seule fois sur toute la plage du shift. Les couleurs par rôle continuent d'indiquer visuellement les segments ; le détail reste disponible en infobulle.
+
 ## v5.21 — 29/08/2026
 - Planning semaine (vue équipe) : les segments multi-métiers / 2 étages n'affichent plus le libellé du rôle (« PT HAUT », …) mais le créneau horaire du segment. Les couleurs par rôle sont conservées et le rôle reste visible dans l'infobulle.
 
