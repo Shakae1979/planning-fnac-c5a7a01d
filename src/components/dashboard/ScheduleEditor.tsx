@@ -1024,8 +1024,13 @@ export function ScheduleEditor() {
           <Button variant="outline" size="sm" onClick={() => copyPreviousWeekMutation.mutate()}>
             <ChevronLeft className="h-3.5 w-3.5 mr-1" /> {t("schedule.copyPrevWeek")}
           </Button>
-          <Button variant="outline" size="sm" onClick={buildSuggestions} disabled={suggestLoading}>
-            <Sparkles className="h-3.5 w-3.5 mr-1" /> {t("schedule.suggest" as any)}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setResetDialogOpen(true)}
+            disabled={!schedules || schedules.length === 0}
+          >
+            <RotateCcw className="h-3.5 w-3.5 mr-1" /> {t("schedule.reset" as any)}
           </Button>
           <Button size="sm" disabled={!hasEdits || saveMutation.isPending} onClick={() => saveMutation.mutate()}>
             <Save className="h-3.5 w-3.5 mr-1" />
