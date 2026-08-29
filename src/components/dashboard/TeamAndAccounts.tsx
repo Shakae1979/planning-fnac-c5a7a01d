@@ -394,7 +394,10 @@ export function TeamAndAccounts() {
         <div className="space-y-1">
           {active.map((emp) => {
             const account = getAccountForEmployee(emp.email);
+            const unlinkedAccount = account ? null : getUnlinkedAccountForEmployee(emp.email);
             const isCreating = creatingForId === emp.id;
+            const accountStores = account?.stores ?? [];
+            const currentAssignment = accountStores.find((s) => s.store_id === currentStore?.id);
 
             return (
               <div key={emp.id} className="py-2 px-2 rounded table-row-hover">
