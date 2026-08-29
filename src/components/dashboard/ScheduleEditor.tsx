@@ -838,6 +838,28 @@ export function ScheduleEditor() {
     }
   };
 
+  const notifyTeamMutation = useMutation({
+    mutationFn: async () => {
+      const count = await notifyTeamWeek({
+        weekStart: weekStr,
+        storeId: currentStore?.id,
+        employees: employees ?? [],
+        schedules: schedules ?? [],
+      });
+      return count;
+    },
+    onSuccess: (count) => {
+      if (count === 0) {
+        toast.info(t("schedule.notifyNone" as any));
+      } else {
+        toast.success(t("schedule.notifySuccess" as any).replace("{n}", String(count)));
+      }
+    },
+    onError: (err) => {
+      toast.error(t("schedule.errorSaving") + ": " + (err as Error).message);
+    },
+  });
+
   const resetWeekMutation = useMutation({
     mutationFn: async () => {
       if (!schedules || schedules.length === 0) return;
