@@ -252,8 +252,8 @@ export function TeamAndAccounts() {
     }
     setSavingAccount(true);
     try {
-      await callManageUsers({ action: "create", email: employeeEmail, password: accountPassword, role: accountRole, store_id: currentStore?.id });
-      toast.success(t("team.accountCreated" as any));
+      const res = await callManageUsers({ action: "create", email: employeeEmail, password: accountPassword, role: accountRole, store_id: currentStore?.id });
+      toast.success(res?.linked ? t("team.accountLinked" as any) : t("team.accountCreated" as any));
       setCreatingForId(null);
       setAccountPassword("");
       setAccountRole("user");
@@ -262,6 +262,46 @@ export function TeamAndAccounts() {
       toast.error(e.message || t("team.errorCreating" as any));
     }
     setSavingAccount(false);
+  };
+
+  const handleLinkAccount = async (userId: string) => {
+    if (!currentStore?.id) return;
+    setLinkingUserId(userId);
+    try {
+      await callManageUsers({ action: "assign_store", user_id: userId, store_id: currentStore.id });
+      toast.success(t("team.accountLinked" as any));
+      fetchAccounts();
+      queryClient.invalidateQueries({ queryKey: ["user-store-assignments"] });
+    } catch (e: any) {
+      toast.error(e.message || t("team.serverError" as any));
+    }
+    setLinkingUserId(null);
+  };
+
+  const handleUnlinkAccount = async (userId: string) => {
+    if (!currentStore?.id) return;
+    if (!confirm(t("team.unlinkConfirm" as any))) return;
+    setLinkingUserId(userId);
+    try {
+      await callManageUsers({ action: "unassign_store", user_id: userId, store_id: currentStore.id });
+      toast.success(t("team.accountUnlinked" as any));
+      fetchAccounts();
+      queryClient.invalidateQueries({ queryKey: ["user-store-assignments"] });
+    } catch (e: any) {
+      toast.error(e.message || t("team.serverError" as any));
+    }
+    setLinkingUserId(null);
+  };
+
+  const handleToggleManager = async (userId: string, isManager: boolean) => {
+    if (!currentStore?.id) return;
+    try {
+      await callManageUsers({ action: "set_manager", user_id: userId, store_id: currentStore.id, is_manager: isManager });
+      toast.success(t("team.managerUpdated" as any));
+      fetchAccounts();
+    } catch (e: any) {
+      toast.error(e.message || t("team.serverError" as any));
+    }
   };
 
   const handleDeleteAccount = async (userId: string) => {
