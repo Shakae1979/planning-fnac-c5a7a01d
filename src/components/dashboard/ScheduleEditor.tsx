@@ -16,6 +16,7 @@ import DayRoleEditor from "./DayRoleEditor";
 
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
+import { notifyTeamWeek } from "@/lib/schedule-notify";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import {
   AlertDialog,
