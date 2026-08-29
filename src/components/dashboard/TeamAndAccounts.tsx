@@ -166,6 +166,15 @@ export function TeamAndAccounts() {
     return accounts.find((a) => a.email.toLowerCase() === email.toLowerCase()) || null;
   };
 
+  // Account that exists globally but is NOT yet attached to the current store
+  const getUnlinkedAccountForEmployee = (email: string | null) => {
+    if (!email) return null;
+    const found = allAccounts.find((a) => a.email.toLowerCase() === email.toLowerCase());
+    if (!found) return null;
+    const linked = (found.stores || []).some((s) => s.store_id === currentStore?.id);
+    return linked ? null : found;
+  };
+
   // Employee mutations
   const addMutation = useMutation({
     mutationFn: async () => {
