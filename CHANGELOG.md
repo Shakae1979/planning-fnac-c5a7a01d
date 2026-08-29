@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.23 — 29/08/2026
+- Règle de pause : la pause d'1h automatique n'est désormais déduite que si le service dure **strictement plus de 6h** (avant : dès 6h00 pile). Une journée encodée exactement 6h00 compte donc 6h00 net. Règle appliquée partout : planning, assistant IA et export d'heures. L'heure de table encodée manuellement prime toujours.
+
 ## v5.22 — 29/08/2026
 - Planning semaine (vue équipe) : en multi-métiers, le créneau horaire n'apparaît plus qu'une seule fois sur toute la plage du shift. Les couleurs par rôle continuent d'indiquer visuellement les segments ; le détail reste disponible en infobulle.
 
