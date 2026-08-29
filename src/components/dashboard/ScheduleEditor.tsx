@@ -841,7 +841,7 @@ export function ScheduleEditor() {
   const resetWeekMutation = useMutation({
     mutationFn: async () => {
       if (!schedules || schedules.length === 0) return;
-      const updates: Record<string, null> = {};
+      const updates: any = {};
       for (const day of DAYS) {
         updates[`${day.key}_start`] = null;
         updates[`${day.key}_end`] = null;
