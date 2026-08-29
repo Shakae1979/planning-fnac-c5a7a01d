@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.25 — 29/08/2026
+- Comptes multi-magasins : un compte existant peut désormais être **rattaché à un 2e magasin** depuis Équipe & Comptes (bouton « Rattacher à ce magasin »), avec badges des magasins liés, détachement du magasin courant et case « Responsable de ce magasin » (admin).
+- Création de compte : si l'adresse e-mail existe déjà, le compte est automatiquement rattaché au magasin courant au lieu d'afficher une erreur.
+
 ## v5.24 — 29/08/2026
 - Encodage du planning : le total hebdomadaire de la page appliquait encore l'ancienne règle (pause déduite dès 6h00 pile). Il suit désormais la règle « > 6h » comme le reste de l'application, ce qui supprime les alertes rouges « sous contrat » injustifiées.
 

@@ -11,7 +11,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  Plus, Trash2, Mail, X, Users, Shield, User, Loader2, KeyRound, UserPlus, PenTool,
+  Plus, Trash2, Mail, X, Users, Shield, User, Loader2, KeyRound, UserPlus, PenTool, Store, Link2, Link2Off,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useStore } from "@/hooks/useStore";
@@ -26,11 +26,18 @@ const ROLE_COLORS: Record<string, string> = Object.fromEntries(
   ROLE_KEYS.map((k) => [k, CENTRAL_ROLE_COLORS[k].bgChip])
 );
 
+interface AppUserStore {
+  store_id: string;
+  store_name: string;
+  is_manager: boolean;
+}
+
 interface AppUser {
   id: string;
   email: string;
   role: string;
   created_at: string;
+  stores?: AppUserStore[];
 }
 
 export function TeamAndAccounts() {
@@ -68,6 +75,7 @@ export function TeamAndAccounts() {
   const [accountRole, setAccountRole] = useState<string>("user");
   const [savingAccount, setSavingAccount] = useState(false);
   const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
+  const [linkingUserId, setLinkingUserId] = useState<string | null>(null);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
 
 
@@ -119,16 +127,19 @@ export function TeamAndAccounts() {
     retry: 2,
     queryFn: async () => {
       const data = await callManageUsers({ action: "list" });
-      const allAccounts = (data || []) as (AppUser & { stores?: { store_id: string }[] })[];
+      const all = (data || []) as AppUser[];
 
-      if (!currentStore?.id) return allAccounts;
+      const scoped = currentStore?.id
+        ? all.filter((account) =>
+            (account.stores || []).some((store) => store.store_id === currentStore.id)
+          )
+        : all;
 
-      return allAccounts.filter((account) =>
-        (account.stores || []).some((store) => store.store_id === currentStore.id)
-      );
+      return { all, scoped };
     },
   });
-  const accounts = accountsData ?? [];
+  const accounts = accountsData?.scoped ?? [];
+  const allAccounts = accountsData?.all ?? [];
   const accountsLoading = authLoading || (!!user && accountsQueryLoading);
 
   // Fetch store assignments to filter accounts by current store
@@ -154,6 +165,15 @@ export function TeamAndAccounts() {
   const getAccountForEmployee = (email: string | null) => {
     if (!email) return null;
     return accounts.find((a) => a.email.toLowerCase() === email.toLowerCase()) || null;
+  };
+
+  // Account that exists globally but is NOT yet attached to the current store
+  const getUnlinkedAccountForEmployee = (email: string | null) => {
+    if (!email) return null;
+    const found = allAccounts.find((a) => a.email.toLowerCase() === email.toLowerCase());
+    if (!found) return null;
+    const linked = (found.stores || []).some((s) => s.store_id === currentStore?.id);
+    return linked ? null : found;
   };
 
   // Employee mutations
@@ -233,8 +253,8 @@ export function TeamAndAccounts() {
     }
     setSavingAccount(true);
     try {
-      await callManageUsers({ action: "create", email: employeeEmail, password: accountPassword, role: accountRole, store_id: currentStore?.id });
-      toast.success(t("team.accountCreated" as any));
+      const res = await callManageUsers({ action: "create", email: employeeEmail, password: accountPassword, role: accountRole, store_id: currentStore?.id });
+      toast.success(res?.linked ? t("team.accountLinked" as any) : t("team.accountCreated" as any));
       setCreatingForId(null);
       setAccountPassword("");
       setAccountRole("user");
@@ -243,6 +263,46 @@ export function TeamAndAccounts() {
       toast.error(e.message || t("team.errorCreating" as any));
     }
     setSavingAccount(false);
+  };
+
+  const handleLinkAccount = async (userId: string) => {
+    if (!currentStore?.id) return;
+    setLinkingUserId(userId);
+    try {
+      await callManageUsers({ action: "assign_store", user_id: userId, store_id: currentStore.id });
+      toast.success(t("team.accountLinked" as any));
+      fetchAccounts();
+      queryClient.invalidateQueries({ queryKey: ["user-store-assignments"] });
+    } catch (e: any) {
+      toast.error(e.message || t("team.serverError" as any));
+    }
+    setLinkingUserId(null);
+  };
+
+  const handleUnlinkAccount = async (userId: string) => {
+    if (!currentStore?.id) return;
+    if (!confirm(t("team.unlinkConfirm" as any))) return;
+    setLinkingUserId(userId);
+    try {
+      await callManageUsers({ action: "unassign_store", user_id: userId, store_id: currentStore.id });
+      toast.success(t("team.accountUnlinked" as any));
+      fetchAccounts();
+      queryClient.invalidateQueries({ queryKey: ["user-store-assignments"] });
+    } catch (e: any) {
+      toast.error(e.message || t("team.serverError" as any));
+    }
+    setLinkingUserId(null);
+  };
+
+  const handleToggleManager = async (userId: string, isManager: boolean) => {
+    if (!currentStore?.id) return;
+    try {
+      await callManageUsers({ action: "set_manager", user_id: userId, store_id: currentStore.id, is_manager: isManager });
+      toast.success(t("team.managerUpdated" as any));
+      fetchAccounts();
+    } catch (e: any) {
+      toast.error(e.message || t("team.serverError" as any));
+    }
   };
 
   const handleDeleteAccount = async (userId: string) => {
@@ -334,7 +394,10 @@ export function TeamAndAccounts() {
         <div className="space-y-1">
           {active.map((emp) => {
             const account = getAccountForEmployee(emp.email);
+            const unlinkedAccount = account ? null : getUnlinkedAccountForEmployee(emp.email);
             const isCreating = creatingForId === emp.id;
+            const accountStores = account?.stores ?? [];
+            const currentAssignment = accountStores.find((s) => s.store_id === currentStore?.id);
 
             return (
               <div key={emp.id} className="py-2 px-2 rounded table-row-hover">
@@ -356,12 +419,37 @@ export function TeamAndAccounts() {
                             {account.role === "admin" ? <Shield className="h-3 w-3" /> : (account.role === "editor" || account.role === "manager") ? <PenTool className="h-3 w-3" /> : <User className="h-3 w-3" />}
                             {account.role === "admin" ? t("access.admin" as any) : account.role === "manager" ? t("access.manager" as any) : account.role === "editor" ? t("access.editor" as any) : t("access.user" as any)}
                           </Badge>
+                        ) : unlinkedAccount ? (
+                          <Badge variant="secondary" className="text-[10px] py-0 text-muted-foreground">
+                            {t("team.existingAccount" as any)}
+                          </Badge>
                         ) : emp.email && !accountsLoading && !accountsQueryError ? (
                           <Badge variant="secondary" className="text-[10px] py-0 text-muted-foreground">
                             {t("team.noAccount" as any)}
                           </Badge>
                         ) : null}
                       </div>
+                      {accountStores.length > 0 && (
+                        <div className="flex items-center flex-wrap gap-1 mt-0.5">
+                          {accountStores.map((s) => (
+                            <Badge key={s.store_id} variant="outline" className="text-[9px] py-0 gap-1">
+                              <Store className="h-2.5 w-2.5" />
+                              {s.store_name}{s.is_manager ? " ★" : ""}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      {account && myRole === "admin" && currentAssignment && (
+                        <label className="flex items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={currentAssignment.is_manager}
+                            onChange={(e) => handleToggleManager(account.id, e.target.checked)}
+                            className="h-3 w-3 cursor-pointer accent-primary"
+                          />
+                          {t("team.storeManagerHere" as any)}
+                        </label>
+                      )}
                       <div className="text-xs text-muted-foreground flex items-center gap-1">
                         <select value={emp.role}
                           onChange={(e) => updateRoleMutation.mutate({ id: emp.id, role: e.target.value })}
@@ -387,6 +475,14 @@ export function TeamAndAccounts() {
                     {/* Account actions */}
                     {account ? (
                       <>
+                        {accountStores.length > 1 && (
+                          <Button variant="ghost" size="sm" className="text-xs gap-1 text-muted-foreground"
+                            onClick={() => handleUnlinkAccount(account.id)}
+                            disabled={linkingUserId === account.id}>
+                            {linkingUserId === account.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Link2Off className="h-3.5 w-3.5" />}
+                            {t("team.unlinkStore" as any)}
+                          </Button>
+                        )}
                         <Button variant="ghost" size="sm"
                           className="text-destructive/60 hover:text-destructive text-xs gap-1"
                           onClick={() => handleDeleteAccount(account.id)}
@@ -395,6 +491,13 @@ export function TeamAndAccounts() {
                           {t("team.deleteAccount" as any)}
                         </Button>
                       </>
+                    ) : unlinkedAccount ? (
+                      <Button variant="outline" size="sm" className="text-xs gap-1"
+                        onClick={() => handleLinkAccount(unlinkedAccount.id)}
+                        disabled={linkingUserId === unlinkedAccount.id}>
+                        {linkingUserId === unlinkedAccount.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Link2 className="h-3.5 w-3.5" />}
+                        {t("team.linkToStore" as any)}
+                      </Button>
                     ) : emp.email && !accountsLoading && !accountsQueryError ? (
                       <Button variant="outline" size="sm" className="text-xs gap-1"
                         onClick={() => { setCreatingForId(isCreating ? null : emp.id); setAccountPassword(""); setAccountRole("user"); }}>
