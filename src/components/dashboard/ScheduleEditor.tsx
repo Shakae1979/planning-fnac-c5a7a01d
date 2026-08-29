@@ -612,7 +612,7 @@ export function ScheduleEditor() {
                 if (!isNaN(bsh) && !isNaN(beh)) {
                   breakMinutes += Math.max(0, (beh * 60 + (bem || 0)) - (bsh * 60 + (bsm || 0)));
                 }
-              } else if (dayMinutes >= 360) {
+              } else if (dayMinutes > 360) {
                 breakMinutes += 60;
               }
             }
@@ -1193,7 +1193,7 @@ export function ScheduleEditor() {
                           if (!isNaN(bsh) && !isNaN(beh)) {
                             breakMinutes += Math.max(0, (beh * 60 + (bem || 0)) - (bsh * 60 + (bsm || 0)));
                           }
-                        } else if (dayMinutes >= 360) {
+                        } else if (dayMinutes > 360) {
                           breakMinutes += 60;
                         }
                       }
