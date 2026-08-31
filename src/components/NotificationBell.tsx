@@ -62,6 +62,8 @@ export function NotificationBell() {
 
   const unread = (notifications ?? []).filter((n) => !n.is_read);
 
+  useFaviconBadge(unread.length);
+
   const markAllRead = useMutation({
     mutationFn: async () => {
       if (unread.length === 0) return;
