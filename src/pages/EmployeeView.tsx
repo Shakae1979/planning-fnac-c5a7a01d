@@ -10,6 +10,7 @@ import { formatDateLongBE, formatDateMonthBE, formatTimeBE, formatLocalDate, get
 import { FnacHeader } from "@/components/FnacHeader";
 import { useI18n } from "@/lib/i18n";
 import { EmployeeMobileView } from "@/components/employee/EmployeeMobileView";
+import { ScheduleChangeBanner } from "@/components/employee/ScheduleChangeBanner";
 
 import { computeNetHours, timeToHours, getDayDate, BREAK_HOURS } from "@/lib/hours";
 
@@ -219,6 +220,8 @@ const EmployeeView = () => {
       </FnacHeader>
 
       <div className="max-w-3xl mx-auto px-6 py-4">
+        <ScheduleChangeBanner employeeId={employee.id} />
+
         <div className="flex items-center justify-between mb-6">
           <WeekNavigator offset={weekOffset} onChange={setWeekOffset} />
           <div className="text-xs text-muted-foreground">{t("empView.4weeks")}</div>

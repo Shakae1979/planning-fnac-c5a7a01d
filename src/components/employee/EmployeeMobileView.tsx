@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/hooks/useStore";
 import { formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { ScheduleChangeBanner } from "@/components/employee/ScheduleChangeBanner";
 import { getRoleColors } from "@/lib/role-colors";
 
 const BREAK_HOURS = 1;
@@ -206,7 +207,8 @@ export const EmployeeMobileView = ({ employee }: Props) => {
       </div>
 
       {/* Day content - compact, no scroll */}
-      <div className="flex-1 min-h-0 px-3 pt-2 pb-2 flex flex-col gap-2 overflow-hidden">
+      <div className="flex-1 min-h-0 px-3 pt-2 pb-2 flex flex-col gap-2 overflow-y-auto">
+        <ScheduleChangeBanner employeeId={employee.id} />
         <div className="flex items-center justify-between shrink-0">
           <h2 className="text-sm font-semibold capitalize truncate">{dayLongLabel}</h2>
           {isFerie && (
