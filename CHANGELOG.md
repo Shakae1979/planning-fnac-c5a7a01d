@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.29 — 31/08/2026
+- « Mon planning » : nouveau **bandeau de changement d'horaire** en haut de la page (desktop et mobile) listant les modifications non lues, avec bouton « Tout marquer comme lu ».
+
 ## v5.28 — 31/08/2026
 - Notifications : une **pastille jaune avec le nombre de notifications non lues** apparaît désormais sur le favicon (icône de l'onglet) et le titre de l'onglet est préfixé « (3) … ». Tout revient à la normale dès que les notifications sont lues.
 
