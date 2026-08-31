@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.28 — 31/08/2026
+- Notifications : une **pastille jaune avec le nombre de notifications non lues** apparaît désormais sur le favicon (icône de l'onglet) et le titre de l'onglet est préfixé « (3) … ». Tout revient à la normale dès que les notifications sont lues.
+
 ## v5.27 — 29/08/2026
 - Correctif notifications : la cloche restait vide même quand des notifications existaient. La règle d'accès « mes notifications » interrogeait la table interne des comptes, inaccessible à l'application, ce qui faisait échouer toute la lecture. Elle compare désormais l'e-mail du collaborateur à celui de la session (lecture et marquage comme lu).
 

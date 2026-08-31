@@ -7,6 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDateBE, getWeekNumber } from "@/lib/format";
+import { useFaviconBadge } from "@/hooks/useFaviconBadge";
 
 interface ScheduleNotification {
   id: string;
