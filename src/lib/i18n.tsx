@@ -377,6 +377,7 @@ const translations = {
   "schedule.notifySuccess": { fr: "{n} collaborateur(s) notifié(s)", nl: "{n} medewerker(s) verwittigd" },
   "notif.title": { fr: "Notifications", nl: "Meldingen" },
   "notif.empty": { fr: "Aucune notification", nl: "Geen meldingen" },
+  "notif.bannerTitle": { fr: "Ton horaire a été modifié", nl: "Je uurrooster is gewijzigd" },
   "notif.markAllRead": { fr: "Tout marquer comme lu", nl: "Alles als gelezen markeren" },
   "schedule.saved": { fr: "Planning sauvegardé !", nl: "Roosters opgeslagen!" },
   "schedule.templateApplied": { fr: "Semaine type appliquée !", nl: "Modelweek toegepast!" },
