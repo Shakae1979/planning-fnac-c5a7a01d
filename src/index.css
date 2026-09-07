@@ -171,11 +171,10 @@
     background: white !important;
     font-size: 10px !important;
   }
-  /* Vue complète : neutraliser les conteneurs défilants à hauteur limitée */
+  /* Vue complète : neutraliser uniquement les vrais conteneurs défilants */
   [class*="overflow-auto"],
   [class*="overflow-y-auto"],
-  [class*="overflow-x-auto"],
-  [class*="overflow-hidden"] {
+  [class*="overflow-x-auto"] {
     max-height: none !important;
     height: auto !important;
     overflow: visible !important;
