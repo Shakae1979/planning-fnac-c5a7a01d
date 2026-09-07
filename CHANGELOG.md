@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.30 — 07/09/2026
+- Correctif impression : les **couleurs des barres du planning** (par rôle) étaient perdues à l'impression. La conservation des couleurs (`print-color-adjust: exact`) est désormais appliquée à tous les éléments, plus seulement au corps de la page.
+
 ## v5.29 — 31/08/2026
 - « Mon planning » : nouveau **bandeau de changement d'horaire** en haut de la page (desktop et mobile) listant les modifications non lues, avec bouton « Tout marquer comme lu ».
 
