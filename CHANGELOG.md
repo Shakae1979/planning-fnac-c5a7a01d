@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.31 — 07/09/2026
+- Correctif impression : les **barres d'horaires** du planning semaine disparaissaient à l'impression (hauteur écrasée par une règle destinée aux zones défilantes). Les barres colorées par rôle sont de nouveau imprimées correctement, avec la vue complète.
+
 ## v5.30 — 07/09/2026
 - Correctif impression : les **couleurs des barres du planning** (par rôle) étaient perdues à l'impression. La conservation des couleurs (`print-color-adjust: exact`) est désormais appliquée à tous les éléments, plus seulement au corps de la page.
 
