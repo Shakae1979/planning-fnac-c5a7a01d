@@ -150,11 +150,19 @@ const TeamDayView = () => {
       const isFerie = isDayFerie || start === "FERIE" || end === "FERIE"; // legacy data + global day flag
       const isExt = start === "EXT" || end === "EXT";
       const isRoulement = start === "ROULEMENT" || end === "ROULEMENT";
-      const isRepos = start === "REPOS";
-      const isLocation = !!(start && (!end || end.trim() === "") && !isFerie && !isExt && !isRoulement && !isRepos && !/^\d{1,2}:\d{2}$/.test(start));
-      const hasShift = !!(start && end && !isFerie && !isExt && !isRoulement && !isLocation);
+      // WV, REPOS, tiret ou case vide = jour non travaillé (ni horaire, ni déplacement)
+      const isRest = !isFerie && !isExt && !isRoulement && isRestCode(start) && !isTimeValue(end);
+      // Un déplacement = un code magasin (ANTW, BRUGGE, …) sans heure de fin
+      const isLocation = !!(
+        start &&
+        !isTimeValue(start) &&
+        !isTimeValue(end) &&
+        !isFerie && !isExt && !isRoulement && !isRest
+      );
+      // Une journée travaillée exige deux heures valides (évite les NaN sur données abîmées)
+      const hasShift = isTimeValue(start) && isTimeValue(end) && !isFerie && !isExt && !isRoulement && !isRest && !isLocation;
       // Had planned hours before the holiday flag neutralised them
-      const hadPlannedShift = !!(start && end && start !== "FERIE" && end !== "FERIE" && !isExt && !isRoulement);
+      const hadPlannedShift = !!(isTimeValue(start) && isTimeValue(end)) || (start === "FERIE" && end === "FERIE");
       const conge = conges?.find((c) => c.employee_id === emp.id);
       const notes = schedule?.notes || null;
       let netHours = 0;
@@ -162,10 +170,11 @@ const TeamDayView = () => {
         const dayScheduleObj = {
           [`${dayKey}_start`]: start,
           [`${dayKey}_end`]: end,
-          [`${dayKey}_break_start`]: breakStart,
-          [`${dayKey}_break_end`]: breakEnd,
+          [`${dayKey}_break_start`]: isTimeValue(breakStart) ? breakStart : null,
+          [`${dayKey}_break_end`]: isTimeValue(breakEnd) ? breakEnd : null,
         };
-        netHours = computeNetHours(dayScheduleObj).net;
+        const computed = computeNetHours(dayScheduleObj).net;
+        netHours = Number.isFinite(computed) ? computed : 0;
       }
       const roleSegments = hasShift
         ? buildRoleSegments(dayRoleMap[`${emp.id}__${dateStr}`], emp.role, start, end)
