@@ -331,7 +331,7 @@ const TeamDayView = () => {
 
                           </span>
                         </div>
-                        {emp.breakStart && emp.breakEnd && (
+                        {isTimeValue(emp.breakStart) && isTimeValue(emp.breakEnd) && (
                           <div className="ml-2 mt-0.5 text-[10px] text-muted-foreground italic">
                             {t("schedule.break")} {formatTimeBE(emp.breakStart)}–{formatTimeBE(emp.breakEnd)}
                           </div>
