@@ -179,7 +179,7 @@ const TeamDayView = () => {
       const roleSegments = hasShift
         ? buildRoleSegments(dayRoleMap[`${emp.id}__${dateStr}`], emp.role, start, end)
         : [];
-      return { ...emp, start, end, breakStart, breakEnd, hasShift, hadPlannedShift, isFerie, isExt, isRoulement, isLocation, locationName: isLocation ? start : null, netHours, conge, notes, roleSegments };
+      return { ...emp, start, end, breakStart, breakEnd, hasShift, hadPlannedShift, isFerie, isExt, isRoulement, isRest, isLocation, locationName: isLocation ? start : null, netHours, conge, notes, roleSegments };
 
     })
     .sort((a, b) => {
