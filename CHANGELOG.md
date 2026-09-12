@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.32 — 12/09/2026
+- **Équipe du jour** : les journées encodées avec un code (`WV`, `REPOS`, `-`, case vide) sont désormais comptées en **Repos** au lieu d'être classées en déplacement. Les déplacements ne concernent plus que les codes magasin (ANTW, BRUGGE, …) et affichent enfin un libellé traduit.
+- Correctif affichage : plus de `NaNh` ni de « Pause -–- » lorsque l'horaire enregistré n'est pas une heure valide.
+
 ## v5.31 — 07/09/2026
 - Correctif impression : les **barres d'horaires** du planning semaine disparaissaient à l'impression (hauteur écrasée par une règle destinée aux zones défilantes). Les barres colorées par rôle sont de nouveau imprimées correctement, avec la vue complète.
 
