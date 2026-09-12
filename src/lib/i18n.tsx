@@ -533,6 +533,7 @@ const translations = {
   "teamDay.employeeConcerned": { fr: "employé(s) concerné(s)", nl: "betrokken medewerker(s)" },
   "teamDay.hourlyGrid": { fr: "Grille planning", nl: "Uurrooster" },
   "teamDay.employee": { fr: "Employé", nl: "Medewerker" },
+  "teamDay.travel": { fr: "Déplacements", nl: "Verplaatsingen" },
 
   // ========== Team week view ==========
   "teamWeek.title": { fr: "Planning équipe", nl: "Teamplanning" },
