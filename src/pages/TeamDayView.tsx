@@ -54,6 +54,18 @@ function getDayKeyFromDate(date: Date): string {
   return DAY_KEYS[idx];
 }
 
+// Une vraie heure encodée (HH:MM) — tout le reste est un code texte
+function isTimeValue(v: string | null | undefined): boolean {
+  return !!v && /^\d{1,2}:\d{2}$/.test(v.trim());
+}
+
+// Codes signifiant « jour non travaillé » (WV = weekverlof, cases vides ou tirets)
+const REST_CODES = ["WV", "REPOS", "-", "--", ""];
+function isRestCode(v: string | null | undefined): boolean {
+  if (v === null || v === undefined) return false;
+  return REST_CODES.includes(v.trim().toUpperCase());
+}
+
 const TeamDayView = () => {
   const { t } = useI18n();
   const [dayOffset, setDayOffset] = useState(0);
