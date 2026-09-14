@@ -215,6 +215,8 @@ export function ScheduleEditor() {
   const { data: regularEmployees } = useQuery({
     queryKey: ["employees", currentStore?.id],
     enabled: !!currentStore && !isDirection,
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       let query = supabase.from("employees").select("*").eq("is_active", true).order("name");
       if (currentStore) query = query.eq("store_id", currentStore.id);
