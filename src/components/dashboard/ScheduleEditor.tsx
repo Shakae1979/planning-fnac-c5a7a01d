@@ -237,20 +237,25 @@ export function ScheduleEditor() {
   });
 
   const reorderMutation = useMutation({
+    // Une seule opération atomique : l'ordre complet du groupe est enregistré en un appel
     mutationFn: async (updates: { id: string; sort_order: number }[]) => {
-      await Promise.all(
-        updates.map((u) =>
-          supabase.from("employees").update({ sort_order: u.sort_order } as any).eq("id", u.id)
-        )
-      );
+      const ids = [...updates].sort((a, b) => a.sort_order - b.sort_order).map((u) => u.id);
+      const { error } = await (supabase as any).rpc("set_employee_order", { _ids: ids });
+      if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: () => toast.success(t("schedule.orderSaved" as any)),
+    onError: (_e, _v, ctx: any) => {
+      // Rollback de l'ordre affiché
+      if (ctx?.previous !== undefined) {
+        queryClient.setQueryData(["employees", currentStore?.id], ctx.previous);
+      }
+      toast.error(t("schedule.orderError" as any));
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["employees", currentStore?.id] });
       queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       queryClient.invalidateQueries({ queryKey: ["store-employees"] });
-      toast.success(t("schedule.orderSaved" as any));
     },
-    onError: () => toast.error(t("schedule.orderError" as any)),
   });
 
   const dndSensors = useSensors(
