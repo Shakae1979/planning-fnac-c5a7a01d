@@ -275,6 +275,9 @@ export function ScheduleEditor() {
     if (oldIndex === -1 || newIndex === -1) return;
     const newGroup = arrayMove(groupIds, oldIndex, newIndex);
     const updates = newGroup.map((id, idx) => ({ id, sort_order: idx }));
+    // Aucun rechargement pendant l'enregistrement
+    await queryClient.cancelQueries({ queryKey: ["employees", currentStore?.id] });
+    const previous = queryClient.getQueryData(["employees", currentStore?.id]);
     // Optimistic cache update
     queryClient.setQueryData(["employees", currentStore?.id], (old: any) => {
       if (!Array.isArray(old)) return old;
