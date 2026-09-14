@@ -36,6 +36,13 @@
       "when": 1788016933628,
       "tag": "0004_employees_select_own_by_email",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789381602882,
+      "tag": "0005_set_employee_order_fn",
+      "breakpoints": true
     }
   ]
 }

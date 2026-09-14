@@ -16,6 +16,8 @@ export function useStoreEmployees(sortByRole?: string[]) {
   const { data: regularEmployees, isLoading: loadingRegular } = useQuery({
     queryKey: ["store-employees", currentStore?.id],
     enabled: !!currentStore && !isDirection,
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("employees")
@@ -50,6 +52,8 @@ export function useStoreEmployees(sortByRole?: string[]) {
   const { data: allEmployees, isLoading: loadingAllEmp } = useQuery({
     queryKey: ["direction-employees"],
     enabled: isDirection,
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       const { data, error } = await supabase.from("employees").select("*").eq("is_active", true);
       if (error) throw error;
