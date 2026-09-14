@@ -236,6 +236,21 @@ export function ScheduleEditor() {
     },
   });
 
+  const empKey = ["employees", currentStore?.id];
+
+  const sortEmployeeList = (list: any[]) =>
+    [...list].sort((a: any, b: any) => {
+      const ra = ROLE_ORDER.indexOf(a.role);
+      const rb = ROLE_ORDER.indexOf(b.role);
+      const orderA = ra === -1 ? ROLE_ORDER.length : ra;
+      const orderB = rb === -1 ? ROLE_ORDER.length : rb;
+      if (orderA !== orderB) return orderA - orderB;
+      const soA = a.sort_order ?? 0;
+      const soB = b.sort_order ?? 0;
+      if (soA !== soB) return soA - soB;
+      return a.name.localeCompare(b.name, "fr");
+    });
+
   const reorderMutation = useMutation({
     // Une seule opération atomique : l'ordre complet du groupe est enregistré en un appel
     mutationFn: async (updates: { id: string; sort_order: number }[]) => {
@@ -243,16 +258,24 @@ export function ScheduleEditor() {
       const { error } = await (supabase as any).rpc("set_employee_order", { _ids: ids });
       if (error) throw error;
     },
+    // Pas de rechargement pendant l'enregistrement : l'ordre affiché reste celui choisi
+    onMutate: async (updates: { id: string; sort_order: number }[]) => {
+      await queryClient.cancelQueries({ queryKey: empKey });
+      const previous = queryClient.getQueryData(empKey);
+      queryClient.setQueryData(empKey, (old: any) => {
+        if (!Array.isArray(old)) return old;
+        const map = new Map(updates.map((u) => [u.id, u.sort_order]));
+        return sortEmployeeList(old.map((e: any) => (map.has(e.id) ? { ...e, sort_order: map.get(e.id) } : e)));
+      });
+      return { previous };
+    },
     onSuccess: () => toast.success(t("schedule.orderSaved" as any)),
     onError: (_e, _v, ctx: any) => {
-      // Rollback de l'ordre affiché
-      if (ctx?.previous !== undefined) {
-        queryClient.setQueryData(["employees", currentStore?.id], ctx.previous);
-      }
+      if (ctx?.previous !== undefined) queryClient.setQueryData(empKey, ctx.previous);
       toast.error(t("schedule.orderError" as any));
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["employees", currentStore?.id] });
+      queryClient.invalidateQueries({ queryKey: empKey });
       queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       queryClient.invalidateQueries({ queryKey: ["store-employees"] });
     },
@@ -263,7 +286,7 @@ export function ScheduleEditor() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id || !employees) return;
     const activeEmp = employees.find((e) => e.id === active.id);
@@ -274,29 +297,9 @@ export function ScheduleEditor() {
     const newIndex = groupIds.indexOf(over.id as string);
     if (oldIndex === -1 || newIndex === -1) return;
     const newGroup = arrayMove(groupIds, oldIndex, newIndex);
+    // Tout le groupe reçoit une position distincte (y compris ceux jamais classés)
     const updates = newGroup.map((id, idx) => ({ id, sort_order: idx }));
-    // Aucun rechargement pendant l'enregistrement
-    await queryClient.cancelQueries({ queryKey: ["employees", currentStore?.id] });
-    const previous = queryClient.getQueryData(["employees", currentStore?.id]);
-    // Optimistic cache update
-    queryClient.setQueryData(["employees", currentStore?.id], (old: any) => {
-      if (!Array.isArray(old)) return old;
-      const map = new Map(updates.map((u) => [u.id, u.sort_order]));
-      const next = old.map((e: any) => (map.has(e.id) ? { ...e, sort_order: map.get(e.id) } : e));
-      return next.sort((a: any, b: any) => {
-        const ra = ROLE_ORDER.indexOf(a.role);
-        const rb = ROLE_ORDER.indexOf(b.role);
-        const orderA = ra === -1 ? ROLE_ORDER.length : ra;
-        const orderB = rb === -1 ? ROLE_ORDER.length : rb;
-        if (orderA !== orderB) return orderA - orderB;
-        const soA = a.sort_order ?? 0;
-        const soB = b.sort_order ?? 0;
-        if (soA !== soB) return soA - soB;
-        return a.name.localeCompare(b.name, "fr");
-      });
-    });
-    reorderMutation.mutate(updates, { onError: () => undefined } as any);
-    (reorderMutation as any).__previous = previous;
+    reorderMutation.mutate(updates);
   };
 
   const employees = (isDirection ? directionEmployees : regularEmployees) ?? [];
