@@ -15,7 +15,7 @@ import DayRoleEditor from "./DayRoleEditor";
 
 
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName } from "@/lib/format";
+import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName, sortByRoleOrder } from "@/lib/format";
 import { notifyTeamWeek } from "@/lib/schedule-notify";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import {
@@ -213,7 +213,8 @@ export function ScheduleEditor() {
   const { employees: directionEmployees } = useStoreEmployees(ROLE_ORDER);
 
   const { data: regularEmployees } = useQuery({
-    queryKey: ["employees", currentStore?.id],
+    // Clé dédiée : les écrans de gestion partagent une autre liste, triée par nom.
+    queryKey: ["schedule-employees", currentStore?.id],
     enabled: !!currentStore && !isDirection,
     staleTime: 5 * 60_000,
     refetchOnWindowFocus: false,
@@ -222,21 +223,11 @@ export function ScheduleEditor() {
       if (currentStore) query = query.eq("store_id", currentStore.id);
       const { data, error } = await query;
       if (error) throw error;
-      return data?.sort((a, b) => {
-        const ra = ROLE_ORDER.indexOf(a.role);
-        const rb = ROLE_ORDER.indexOf(b.role);
-        const orderA = ra === -1 ? ROLE_ORDER.length : ra;
-        const orderB = rb === -1 ? ROLE_ORDER.length : rb;
-        if (orderA !== orderB) return orderA - orderB;
-        const soA = (a as any).sort_order ?? 0;
-        const soB = (b as any).sort_order ?? 0;
-        if (soA !== soB) return soA - soB;
-        return a.name.localeCompare(b.name, "fr");
-      });
+      return data;
     },
   });
 
-  const empKey = ["employees", currentStore?.id];
+  const empKey = ["schedule-employees", currentStore?.id];
 
   const sortEmployeeList = (list: any[]) =>
     [...list].sort((a: any, b: any) => {
@@ -276,6 +267,7 @@ export function ScheduleEditor() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: empKey });
+      queryClient.invalidateQueries({ queryKey: ["employees", currentStore?.id] });
       queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       queryClient.invalidateQueries({ queryKey: ["store-employees"] });
     },
@@ -302,7 +294,12 @@ export function ScheduleEditor() {
     reorderMutation.mutate(updates);
   };
 
-  const employees = (isDirection ? directionEmployees : regularEmployees) ?? [];
+  // Toujours dériver l'ordre à l'affichage afin qu'aucune réponse ou donnée en cache
+  // ne puisse réintroduire un tri alphabétique dans l'encodage.
+  const employees = useMemo(
+    () => sortByRoleOrder((isDirection ? directionEmployees : regularEmployees) ?? [], ROLE_ORDER),
+    [isDirection, directionEmployees, regularEmployees]
+  );
 
   const { data: schedules, isLoading } = useQuery({
     queryKey: ["schedules", weekStr],
