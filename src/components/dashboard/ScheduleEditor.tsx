@@ -263,7 +263,7 @@ export function ScheduleEditor() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id || !employees) return;
     const activeEmp = employees.find((e) => e.id === active.id);
