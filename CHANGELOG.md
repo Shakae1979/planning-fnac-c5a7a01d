@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.33 — 14/09/2026
+- **Encodage du planning** : l'ordre des collaborateurs ne se mélange plus après un rafraîchissement. Chaque personne a désormais une position unique (correction en base), le glisser-déposer enregistre tout le groupe en une seule opération et la liste n'est plus rechargée pendant l'enregistrement.
+- Affichage plus rapide : la liste des collaborateurs est mise en cache 5 minutes au lieu d'être rechargée à chaque retour sur l'onglet.
+
 ## v5.32 — 12/09/2026
 - **Équipe du jour** : les journées encodées avec un code (`WV`, `REPOS`, `-`, case vide) sont désormais comptées en **Repos** au lieu d'être classées en déplacement. Les déplacements ne concernent plus que les codes magasin (ANTW, BRUGGE, …) et affichent enfin un libellé traduit.
 - Correctif affichage : plus de `NaNh` ni de « Pause -–- » lorsque l'horaire enregistré n'est pas une heure valide.
