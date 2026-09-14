@@ -295,7 +295,8 @@ export function ScheduleEditor() {
         return a.name.localeCompare(b.name, "fr");
       });
     });
-    reorderMutation.mutate(updates);
+    reorderMutation.mutate(updates, { onError: () => undefined } as any);
+    (reorderMutation as any).__previous = previous;
   };
 
   const employees = (isDirection ? directionEmployees : regularEmployees) ?? [];
