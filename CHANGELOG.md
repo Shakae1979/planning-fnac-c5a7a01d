@@ -3,6 +3,11 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.36 — 18/09/2026
+- **Sécurité** : les mots de passe ayant fuité dans des fuites publiques (Have I Been Pwned) sont désormais refusés à la création et au changement de mot de passe.
+- **Sécurité** : le changement de mot de passe exige désormais la saisie du mot de passe actuel (les liens de réinitialisation par e-mail restent fonctionnels).
+
+
 ## v5.35 — 18/09/2026
 - **Sécurité** : mise à jour des bibliothèques vulnérables (navigation, connexion au backend, graphiques, lecture de fichiers Excel, assistant).
 - **Sécurité** : la liste des magasins et leurs horaires d'ouverture ne sont plus lisibles sans être connecté.
