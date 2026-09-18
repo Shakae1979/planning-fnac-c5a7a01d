@@ -3,6 +3,12 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.35 — 18/09/2026
+- **Sécurité** : mise à jour des bibliothèques vulnérables (navigation, connexion au backend, graphiques, lecture de fichiers Excel, assistant).
+- **Sécurité** : la liste des magasins et leurs horaires d'ouverture ne sont plus lisibles sans être connecté.
+- **Sécurité** : impossible d'enregistrer deux collaborateurs avec le même e-mail dans un même magasin.
+- **Sécurité** : les exports d'heures ne sont plus appelables depuis un compte utilisateur, uniquement par le service d'export sécurisé.
+
 ## v5.34 — 14/09/2026
 - **Encodage du planning** : correction définitive du mélange des collaborateurs. L'écran utilise désormais sa propre liste mémorisée et réapplique toujours l'ordre métier → position personnalisée → nom, sans pouvoir récupérer le tri alphabétique d'une autre page.
 
