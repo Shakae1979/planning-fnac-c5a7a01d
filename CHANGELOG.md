@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.38 — 29/09/2026
+- **Correctif** : un collaborateur ajouté, renommé ou désactivé depuis les écrans d'équipe apparaît désormais immédiatement dans l'encodage du planning, sans rafraîchissement manuel.
+
 ## v5.37 — 29/09/2026
 - **Mobile** : la connexion depuis un téléphone ouvre directement « Équipe du jour » au lieu du tableau de bord d'encodage.
 
