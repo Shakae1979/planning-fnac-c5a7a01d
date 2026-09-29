@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.37 — 29/09/2026
+- **Mobile** : la connexion depuis un téléphone ouvre directement « Équipe du jour » au lieu du tableau de bord d'encodage.
+
 ## v5.36 — 18/09/2026
 - **Sécurité** : les mots de passe ayant fuité dans des fuites publiques (Have I Been Pwned) sont désormais refusés à la création et au changement de mot de passe.
 - **Sécurité** : le changement de mot de passe exige désormais la saisie du mot de passe actuel (les liens de réinitialisation par e-mail restent fonctionnels).
