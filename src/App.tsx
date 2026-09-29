@@ -76,6 +76,15 @@ function safeNext(raw: string | null): string | null {
   return raw;
 }
 
+// Téléphone : petit écran + user-agent mobile
+function isPhoneDevice(): boolean {
+  if (typeof window === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  const mobileUA = /Android|iPhone|iPod|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(ua);
+  return mobileUA && window.innerWidth < 768;
+}
+
+
 function AppRoutes() {
   const { user, loading } = useAuth();
   const location = useLocation();
