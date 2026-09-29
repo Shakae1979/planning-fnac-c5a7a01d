@@ -89,6 +89,7 @@ function AppRoutes() {
   const { user, loading } = useAuth();
   const location = useLocation();
   const next = safeNext(new URLSearchParams(location.search).get("next"));
+  const defaultHome = isPhoneDevice() ? "/equipe-du-jour" : "/";
 
   if (loading) {
     return (
@@ -100,10 +101,20 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to={next ?? "/"} replace /> : <Login />} />
+      <Route path="/login" element={user ? <Navigate to={next ?? defaultHome} replace /> : <Login />} />
       <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
       <Route path="/changer-mot-de-passe" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
-      <Route path="/" element={<ProtectedRoute adminOnly><Index /></ProtectedRoute>} />
+      <Route
+        path="/"
+        element={
+          defaultHome !== "/" ? (
+            <Navigate to={defaultHome} replace />
+          ) : (
+            <ProtectedRoute adminOnly><Index /></ProtectedRoute>
+          )
+        }
+      />
+
       <Route path="/mon-planning/:employeeName" element={<ProtectedRoute><EmployeeView /></ProtectedRoute>} />
       <Route path="/mon-planning" element={<ProtectedRoute><EmployeeView /></ProtectedRoute>} />
       <Route path="/equipe-du-jour" element={<ProtectedRoute><TeamDayView /></ProtectedRoute>} />
