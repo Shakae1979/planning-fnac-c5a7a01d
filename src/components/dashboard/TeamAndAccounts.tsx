@@ -196,6 +196,9 @@ export function TeamAndAccounts() {
     onSuccess: () => {
       setNewName(""); setNewLastName(""); setNewHours("36"); setNewRole("technique"); setNewEmail("");
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       toast.success(t("team.employeeAdded" as any));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -208,6 +211,9 @@ export function TeamAndAccounts() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       toast.success(t("team.employeeUpdated" as any));
     },
   });
@@ -219,6 +225,9 @@ export function TeamAndAccounts() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       toast.success(t("team.departmentUpdated" as any));
     },
   });
@@ -230,6 +239,9 @@ export function TeamAndAccounts() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       toast.success(t("team.emailUpdated" as any));
     },
   });
@@ -241,6 +253,9 @@ export function TeamAndAccounts() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       toast.success(t("team.employeeDeleted" as any));
     },
   });

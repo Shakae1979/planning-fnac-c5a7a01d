@@ -119,6 +119,9 @@ export function EmployeeSheet({ employee, open, onOpenChange, account, onUpdateA
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       toast.success(t("sheet.employeeUpdated"));
       onOpenChange(false);
     },

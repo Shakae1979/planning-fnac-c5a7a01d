@@ -60,6 +60,9 @@ export function EmployeeManager() {
       setNewRole("technique");
       setNewEmail("");
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       toast.success(t("team.employeeAdded"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -72,6 +75,9 @@ export function EmployeeManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       toast.success(t("team.employeeUpdated"));
     },
   });
@@ -83,6 +89,9 @@ export function EmployeeManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       toast.success(t("team.departmentUpdated"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -95,6 +104,9 @@ export function EmployeeManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       toast.success(t("team.emailUpdated"));
     },
     onError: (err) => toast.error((err as Error).message),
@@ -107,6 +119,9 @@ export function EmployeeManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["store-employees"] });
+      queryClient.invalidateQueries({ queryKey: ["direction-employees"] });
       toast.success(t("team.deletedPermanent"));
     },
     onError: (err) => toast.error((err as Error).message),
