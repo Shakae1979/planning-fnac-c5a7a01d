@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.40 — 16/10/2026
+- **Budget** : les montants s'affichent en style belge avec séparateur de milliers par point et le sigle € (ex. `1.000.000 €`), tanto dans l'encodage du planning (ligne Budget et total de la semaine) que dans la vue semaine.
+
 ## v5.39 — 16/10/2026
 - **Budget** : nouvelle option dans les paramètres du magasin, ajoutant une ligne Budget par jour au-dessus des notes dans le planning (avec total hebdomadaire).
 

@@ -129,3 +129,43 @@ export function sortByRoleOrder<T extends { role: string; name: string; sort_ord
     return a.name.localeCompare(b.name, "fr");
   });
 }
+
+/**
+ * Parse a free-form amount into a number.
+ * Accepts "1.000.000", "1 000 000", "1.000,50", "42.5", "36h", "1200".
+ */
+export function parseAmount(raw: string | number | null | undefined): number | null {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw === "number") return Number.isFinite(raw) ? raw : null;
+  let s = String(raw).replace(/\s/g, "").replace(/[^\d.,-]/g, "");
+  if (!s) return null;
+  const dots = (s.match(/\./g) || []).length;
+  const commas = (s.match(/,/g) || []).length;
+  if (dots && commas) {
+    // The last separator written wins; the other ones are grouping.
+    const lastDot = s.lastIndexOf(".");
+    const lastComma = s.lastIndexOf(",");
+    if (lastComma > lastDot) s = s.replace(/\./g, "").replace(/,/g, ".");
+    else s = s.replace(/,/g, "");
+  } else if (dots || commas) {
+    const sep = dots ? "." : ",";
+    const parts = s.split(sep);
+    const decimals = parts[parts.length - 1];
+    const isGrouping = parts.length > 2 || (parts.length === 2 && decimals.length === 3);
+    if (isGrouping) s = s.split(sep).join("");
+    else s = s.replace(sep, ".");
+  }
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Format an amount Belgian style: dot grouping, comma decimals, € suffix. 1000000 -> "1.000.000 €" */
+export function formatAmountBE(value: string | number | null | undefined): string {
+  const n = parseAmount(value);
+  if (n === null) return "";
+  const rounded = Math.round(n * 100) / 100;
+  const [intPart, decPart] = Math.abs(rounded).toFixed(2).split(".");
+  const decimals = decPart === "00" ? "" : `,${decPart}`;
+  const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `${rounded < 0 ? "-" : ""}${grouped}${decimals} €`;
+}
