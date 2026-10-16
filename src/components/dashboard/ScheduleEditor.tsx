@@ -15,7 +15,7 @@ import DayRoleEditor from "./DayRoleEditor";
 
 
 import { Button } from "@/components/ui/button";
-import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName, sortByRoleOrder } from "@/lib/format";
+import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName, sortByRoleOrder, formatAmountBE, parseAmount } from "@/lib/format";
 import { notifyTeamWeek } from "@/lib/schedule-notify";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import {
@@ -400,6 +400,7 @@ export function ScheduleEditor() {
 
   const [localDayComments, setLocalDayComments] = useState<Record<string, string>>({});
   const [localDayBudgets, setLocalDayBudgets] = useState<Record<string, string>>({});
+  const [budgetFocus, setBudgetFocus] = useState<Record<string, boolean>>({});
   const [localFerieDays, setLocalFerieDays] = useState<Record<string, boolean>>({});
 
   const isDayFerie = (dayKey: string): boolean => {
@@ -1182,16 +1183,27 @@ export function ScheduleEditor() {
                   </td>
                   {DAYS.map((day) => {
                     const saved = (dayComments?.find((dc) => dc.day_key === day.key) as any)?.budget ?? "";
-                    const value = localDayBudgets[day.key] ?? saved;
+                    const raw = localDayBudgets[day.key] ?? saved;
+                    const value = budgetFocus[day.key] ? raw : raw.trim() ? formatAmountBE(raw) : "";
                     return (
                       <td key={day.key + "-budget"} colSpan={2} className="py-1 px-0">
                         <input
                           type="text"
+                          inputMode="decimal"
                           value={value}
                           onChange={(e) => setLocalDayBudgets((prev) => ({ ...prev, [day.key]: e.target.value }))}
+                          onFocus={() => setBudgetFocus((prev) => ({ ...prev, [day.key]: true }))}
+                          onBlur={() => {
+                            setBudgetFocus((prev) => ({ ...prev, [day.key]: false }));
+                            const n = parseAmount(raw);
+                            if (n !== null) {
+                              const formatted = formatAmountBE(n);
+                              if (formatted !== raw) setLocalDayBudgets((prev) => ({ ...prev, [day.key]: formatted }));
+                            }
+                          }}
                           placeholder="—"
                           className={`w-full px-0.5 py-0.5 text-[10px] text-center rounded border focus:outline-none focus:ring-1 focus:ring-accent font-mono-data ${
-                            value.trim() ? "bg-accent/15 font-semibold border-accent/30" : "bg-background"
+                            raw.trim() ? "bg-accent/15 font-semibold border-accent/30" : "bg-background"
                           }`}
                         />
                       </td>
@@ -1201,10 +1213,10 @@ export function ScheduleEditor() {
                     {(() => {
                       const sum = DAYS.reduce((acc, day) => {
                         const saved = (dayComments?.find((dc) => dc.day_key === day.key) as any)?.budget ?? "";
-                        const n = parseFloat(String(localDayBudgets[day.key] ?? saved).replace(",", ".").replace(/[^\d.]/g, ""));
-                        return acc + (isNaN(n) ? 0 : n);
+                        const n = parseAmount(String(localDayBudgets[day.key] ?? saved));
+                        return acc + (n ?? 0);
                       }, 0);
-                      return sum ? Math.round(sum * 100) / 100 : "—";
+                      return sum ? formatAmountBE(sum) : "—";
                     })()}
                   </td>
                 </tr>
