@@ -510,6 +510,9 @@ const translations = {
   "store.multiRolesDesc": { fr: "Débloque les métiers secondaires sur la fiche collaborateur, la pastille de métier dans l'encodage du planning et les couleurs par plage dans Planning semaine et Équipe du jour", nl: "Ontgrendelt secundaire functies op de medewerkersfiche, de functiebadge bij het inplannen en de kleuren per tijdvak in Weekplanning en Team van de dag" },
   "store.twoFloors": { fr: "Magasin à 2 étages", nl: "Winkel met 2 verdiepingen" },
   "store.twoFloorsDesc": { fr: "Ajoute PT bas, PT haut, PE bas et PE haut aux métiers multi-métiers disponibles", nl: "Voegt TP beneden, TP boven, UG beneden en UG boven toe aan de beschikbare multi-functies" },
+  "store.budget": { fr: "Budget", nl: "Budget" },
+  "store.budgetDesc": { fr: "Affiche une ligne Budget par jour au-dessus des notes dans le planning", nl: "Toont een budgetrij per dag boven de notities in de planning" },
+  "schedule.budget": { fr: "Budget", nl: "Budget" },
 
 
 

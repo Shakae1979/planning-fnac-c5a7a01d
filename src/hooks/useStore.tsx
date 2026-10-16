@@ -10,6 +10,7 @@ interface Store {
   has_lunch_break?: boolean;
   has_multi_roles?: boolean;
   has_two_floors?: boolean;
+  has_budget?: boolean;
   is_direction?: boolean;
 }
 
@@ -136,6 +137,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           });
         }
       }
+    }
+
+    // Option Budget (lue directement sur la table stores, lisible par tout compte connecté)
+    if (storeList.length > 0) {
+      const { data: budgetData } = await (supabase as any)
+        .from("stores")
+        .select("id, has_budget")
+        .in("id", storeList.map((s) => s.id));
+      const budgetMap = new Map<string, boolean>((budgetData ?? []).map((b: any) => [b.id, !!b.has_budget]));
+      storeList = storeList.map((s) => ({ ...s, has_budget: budgetMap.get(s.id) ?? false }));
     }
 
     if (isStale()) return;

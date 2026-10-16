@@ -95,6 +95,19 @@ export function StoreSelfSettings() {
           </div>
         )}
 
+        <div className="flex items-start gap-3">
+          <Switch
+            checked={currentStore.has_budget ?? false}
+            onCheckedChange={(checked) => updateFlag.mutate({ has_budget: checked } as any)}
+            disabled={updateFlag.isPending}
+          />
+          <div>
+            <p className="text-sm font-medium text-foreground">{t("store.budget" as any)}</p>
+            <p className="text-xs text-muted-foreground">{t("store.budgetDesc" as any)}</p>
+          </div>
+        </div>
+
+
       </div>
 
       <div className="kpi-card">
