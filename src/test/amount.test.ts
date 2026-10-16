@@ -6,6 +6,8 @@ describe("parseAmount", () => {
     expect(parseAmount("1.000.000")).toBe(1000000);
     expect(parseAmount("1.000")).toBe(1000);
     expect(parseAmount("12.000.500")).toBe(12000500);
+    // A dot followed by exactly 3 digits is a grouping dot, not a decimal point.
+    expect(parseAmount("1234.567")).toBe(1234567);
   });
 
   it("reads comma decimals and mixed separators", () => {
@@ -37,7 +39,7 @@ describe("formatAmountBE", () => {
   });
 
   it("rounds to cents and keeps the sign", () => {
-    expect(formatAmountBE("1234.567")).toBe("1.234,57 €");
+    expect(formatAmountBE(1234.566)).toBe("1.234,57 €");
     expect(formatAmountBE("-2500")).toBe("-2.500 €");
   });
 
