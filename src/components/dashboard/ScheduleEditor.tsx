@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
-import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Flag, History, MapPin, RotateCcw, GripVertical, Bell } from "lucide-react";
+import { ChevronLeft, Save, Plus, Printer, Copy, ClipboardPaste, X, MessageSquare, Wallet, Flag, History, MapPin, RotateCcw, GripVertical, Bell } from "lucide-react";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -399,6 +399,7 @@ export function ScheduleEditor() {
 
 
   const [localDayComments, setLocalDayComments] = useState<Record<string, string>>({});
+  const [localDayBudgets, setLocalDayBudgets] = useState<Record<string, string>>({});
   const [localFerieDays, setLocalFerieDays] = useState<Record<string, boolean>>({});
 
   const isDayFerie = (dayKey: string): boolean => {
@@ -650,21 +651,22 @@ export function ScheduleEditor() {
       });
 
       // Merge localDayComments and localFerieDays into a single set of day_comments upserts
-      const allDayKeys = new Set([...Object.keys(localDayComments), ...Object.keys(localFerieDays)]);
+      const allDayKeys = new Set([...Object.keys(localDayComments), ...Object.keys(localFerieDays), ...Object.keys(localDayBudgets)]);
       const commentPromises = Array.from(allDayKeys).map(async (dayKey) => {
         const existing = dayComments?.find((dc) => dc.day_key === dayKey);
         const commentVal = localDayComments[dayKey] ?? existing?.comment ?? "";
         const ferieVal = localFerieDays[dayKey] ?? existing?.is_ferie ?? false;
+        const budgetVal = localDayBudgets[dayKey] ?? (existing as any)?.budget ?? "";
         if (existing) {
           const { error } = await supabase
             .from("day_comments")
-            .update({ comment: commentVal, is_ferie: ferieVal })
+            .update({ comment: commentVal, is_ferie: ferieVal, budget: budgetVal } as any)
             .eq("id", existing.id);
           if (error) throw error;
-        } else if (commentVal.trim() || ferieVal) {
+        } else if (commentVal.trim() || ferieVal || budgetVal.trim()) {
           const { error } = await supabase
             .from("day_comments")
-            .insert({ week_start: weekStr, day_key: dayKey, comment: commentVal, is_ferie: ferieVal, store_id: currentStore?.id || null });
+            .insert({ week_start: weekStr, day_key: dayKey, comment: commentVal, is_ferie: ferieVal, budget: budgetVal, store_id: currentStore?.id || null } as any);
           if (error) throw error;
         }
       });
@@ -674,6 +676,7 @@ export function ScheduleEditor() {
     onSuccess: () => {
       setLocalEdits({});
       setLocalDayComments({});
+      setLocalDayBudgets({});
       setLocalFerieDays({});
       queryClient.invalidateQueries({ queryKey: ["schedules", weekStr] });
       queryClient.invalidateQueries({ queryKey: ["all-schedules"] });
@@ -993,7 +996,7 @@ export function ScheduleEditor() {
     return null;
   }, [hasABWeeks, schedules, templatesA, templatesB]);
 
-  const hasEdits = Object.keys(localEdits).length > 0 || Object.keys(localDayComments).length > 0;
+  const hasEdits = Object.keys(localEdits).length > 0 || Object.keys(localDayComments).length > 0 || Object.keys(localDayBudgets).length > 0;
 
   const weekLabel = formatDateLongBE(currentMonday);
 
@@ -1168,6 +1171,44 @@ export function ScheduleEditor() {
                 })}
                 <th className="sticky top-0 z-20 bg-card pt-1 pb-1 text-center font-semibold text-muted-foreground min-w-[40px]">{t("schedule.total")}</th>
               </tr>
+              {/* Budget row (option magasin) */}
+              {currentStore?.has_budget && (
+                <tr className="border-b bg-muted/30">
+                  <td className="py-1 pr-2 sticky left-0 bg-muted/30 z-10">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Wallet className="h-3 w-3" />
+                      <span>{t("schedule.budget" as any)}</span>
+                    </div>
+                  </td>
+                  {DAYS.map((day) => {
+                    const saved = (dayComments?.find((dc) => dc.day_key === day.key) as any)?.budget ?? "";
+                    const value = localDayBudgets[day.key] ?? saved;
+                    return (
+                      <td key={day.key + "-budget"} colSpan={2} className="py-1 px-0">
+                        <input
+                          type="text"
+                          value={value}
+                          onChange={(e) => setLocalDayBudgets((prev) => ({ ...prev, [day.key]: e.target.value }))}
+                          placeholder="—"
+                          className={`w-full px-0.5 py-0.5 text-[10px] text-center rounded border focus:outline-none focus:ring-1 focus:ring-accent font-mono-data ${
+                            value.trim() ? "bg-accent/15 font-semibold border-accent/30" : "bg-background"
+                          }`}
+                        />
+                      </td>
+                    );
+                  })}
+                  <td className="text-center text-[11px] font-mono-data font-medium">
+                    {(() => {
+                      const sum = DAYS.reduce((acc, day) => {
+                        const saved = (dayComments?.find((dc) => dc.day_key === day.key) as any)?.budget ?? "";
+                        const n = parseFloat(String(localDayBudgets[day.key] ?? saved).replace(",", ".").replace(/[^\d.]/g, ""));
+                        return acc + (isNaN(n) ? 0 : n);
+                      }, 0);
+                      return sum ? Math.round(sum * 100) / 100 : "—";
+                    })()}
+                  </td>
+                </tr>
+              )}
               {/* Day comments row */}
               <tr className="border-b bg-muted/30">
                 <td className="py-1 pr-2 sticky left-0 bg-muted/30 z-10">
