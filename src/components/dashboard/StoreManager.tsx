@@ -284,8 +284,8 @@ export function StoreManager() {
   });
 
   const toggleBudgetMutation = useMutation({
-    mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
-      const { error } = await supabase.from("stores").update({ has_budget: enabled } as any).eq("id", id);
+    mutationFn: async ({ id, enabled, field }: { id: string; enabled: boolean; field?: string }) => {
+      const { error } = await supabase.from("stores").update({ [field ?? "has_budget"]: enabled } as any).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -512,8 +512,30 @@ export function StoreManager() {
                           <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.budgetDesc" as any)}</span>
                         </div>
                       </div>
-
-
+                      {/* Budget toggle */}
+                      <div className="pl-11 flex items-center gap-2 py-1">
+                        <Switch
+                          checked={(store as any).has_weather ?? false}
+                          onCheckedChange={(checked) => toggleBudgetMutation.mutate({ id: store.id, enabled: checked, field: "has_weather" })}
+                          disabled={toggleBudgetMutation.isPending}
+                        />
+                        <div>
+                          <span className="text-xs font-medium text-foreground">{t("store.weather" as any)}</span>
+                          <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.weatherDesc" as any)}</span>
+                        </div>
+                      </div>
+                      {/* Budget toggle */}
+                      <div className="pl-11 flex items-center gap-2 py-1">
+                        <Switch
+                          checked={(store as any).has_shift_swaps ?? false}
+                          onCheckedChange={(checked) => toggleBudgetMutation.mutate({ id: store.id, enabled: checked, field: "has_shift_swaps" })}
+                          disabled={toggleBudgetMutation.isPending}
+                        />
+                        <div>
+                          <span className="text-xs font-medium text-foreground">{t("store.shiftSwaps" as any)}</span>
+                          <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.shiftSwapsDesc" as any)}</span>
+                        </div>
+                      </div>
 
                       {/* Managers section */}
                       <div className="pl-11 space-y-1">

@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Wallet } from "lucide-react";
 import { computeNetHours } from "@/lib/hours";
 import { useStore } from "@/hooks/useStore";
+import { useWeather, WeatherBadge } from "@/lib/weather";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useI18n } from "@/lib/i18n";
@@ -89,6 +90,7 @@ const TeamDayView = () => {
   const roleLabels = (role: string) => t(`role.${role}.plural` as any) || t(`role.${role}` as any) || role;
 
   const { currentStore } = useStore();
+  const { data: weather } = useWeather(currentStore?.city, !!(currentStore as any)?.has_weather);
   const { dayHours } = useStoreSettings();
   const { employees } = useStoreEmployees();
 
@@ -274,6 +276,7 @@ const TeamDayView = () => {
         <div className="flex items-center justify-center flex-wrap gap-2 mb-4 max-sm:landscape:mb-2 sm:mb-6">
           <WeekNavigator mode="day" offset={dayOffset} onChange={setDayOffset} />
           <div className="text-xs text-muted-foreground">{dayLabel}{isToday && <span className="ml-2 text-accent font-medium">· {t("teamDay.today")}</span>}</div>
+          {(currentStore as any)?.has_weather && <WeatherBadge data={weather} date={selectedDate} className="rounded-full border border-border px-2 py-1 text-xs" />}
           {canSeeBudget && dayBudget && (
             <div className="print:hidden inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs">
               <Wallet className="h-3.5 w-3.5 text-accent" />

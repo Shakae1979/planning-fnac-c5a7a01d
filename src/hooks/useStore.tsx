@@ -13,6 +13,8 @@ interface Store {
   has_budget?: boolean;
   has_weather?: boolean;
   has_shift_swaps?: boolean;
+  has_weather?: boolean;
+  has_shift_swaps?: boolean;
   is_direction?: boolean;
 }
 
