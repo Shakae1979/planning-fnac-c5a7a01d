@@ -513,6 +513,9 @@ const translations = {
   "store.budget": { fr: "Budget", nl: "Budget" },
   "store.budgetDesc": { fr: "Affiche une ligne Budget par jour au-dessus des notes dans le planning", nl: "Toont een budgetrij per dag boven de notities in de planning" },
   "schedule.budget": { fr: "Budget", nl: "Budget" },
+  "budget.dayGoal": { fr: "Objectif du jour :", nl: "Doel van de dag:" },
+  "budget.weekTotal": { fr: "Budget total semaine", nl: "Totaal weekbudget" },
+  "budget.perHour": { fr: "Productivité prévisionnelle", nl: "Verwachte productiviteit" },
 
 
 
