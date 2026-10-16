@@ -114,6 +114,7 @@ export type Database = {
       }
       day_comments: {
         Row: {
+          budget: string
           comment: string
           created_at: string
           day_key: string
@@ -123,6 +124,7 @@ export type Database = {
           week_start: string
         }
         Insert: {
+          budget?: string
           comment?: string
           created_at?: string
           day_key: string
@@ -132,6 +134,7 @@ export type Database = {
           week_start: string
         }
         Update: {
+          budget?: string
           comment?: string
           created_at?: string
           day_key?: string
@@ -435,6 +438,7 @@ export type Database = {
           created_at: string
           external_code: number | null
           has_ab_weeks: boolean
+          has_budget: boolean
           has_lunch_break: boolean
           has_multi_roles: boolean
           has_two_floors: boolean
@@ -447,6 +451,7 @@ export type Database = {
           created_at?: string
           external_code?: number | null
           has_ab_weeks?: boolean
+          has_budget?: boolean
           has_lunch_break?: boolean
           has_multi_roles?: boolean
           has_two_floors?: boolean
@@ -459,6 +464,7 @@ export type Database = {
           created_at?: string
           external_code?: number | null
           has_ab_weeks?: boolean
+          has_budget?: boolean
           has_lunch_break?: boolean
           has_multi_roles?: boolean
           has_two_floors?: boolean

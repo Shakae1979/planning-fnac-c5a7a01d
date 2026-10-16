@@ -50,6 +50,13 @@
       "when": 1789751399282,
       "tag": "0006_security_hardening_v535",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792147896745,
+      "tag": "0007_store_budget",
+      "breakpoints": true
     }
   ]
 }
