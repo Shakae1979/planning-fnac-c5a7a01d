@@ -9,6 +9,7 @@ import { formatDateMonthBE, formatTimeBE, formatLocalDate, getWeekNumber, getDis
 import { useI18n } from "@/lib/i18n";
 import { ScheduleChangeBanner } from "@/components/employee/ScheduleChangeBanner";
 import { ShiftSwapPanel } from "@/components/swaps/ShiftSwapPanel";
+import { HourRequestPanel } from "@/components/swaps/HourRequests";
 import { getRoleColors } from "@/lib/role-colors";
 
 const BREAK_HOURS = 1;
@@ -211,6 +212,7 @@ export const EmployeeMobileView = ({ employee }: Props) => {
       <div className="flex-1 min-h-0 px-3 pt-2 pb-2 flex flex-col gap-2 overflow-y-auto">
         <ScheduleChangeBanner employeeId={employee.id} />
         <ShiftSwapPanel employee={employee as any} />
+        <HourRequestPanel employee={employee as any} />
         <div className="flex items-center justify-between shrink-0">
           <h2 className="text-sm font-semibold capitalize truncate">{dayLongLabel}</h2>
           {isFerie && (

@@ -19,6 +19,7 @@ import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, format
 import { notifyTeamWeek } from "@/lib/schedule-notify";
 import { useWeather, WeatherBadge } from "@/lib/weather";
 import { ShiftSwapManager } from "@/components/swaps/ShiftSwapManager";
+import { HourRequestManager } from "@/components/swaps/HourRequests";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import {
   AlertDialog,
@@ -1080,6 +1081,7 @@ export function ScheduleEditor() {
             <Bell className="h-3.5 w-3.5 mr-1" /> {t("schedule.notifyTeam" as any)}
           </Button>
           {currentStore?.has_shift_swaps && currentStore?.id && <ShiftSwapManager storeId={currentStore.id} />}
+          {currentStore?.has_shift_swaps && currentStore?.id && <HourRequestManager storeId={currentStore.id} />}
           <Button
             variant="outline"
             size="sm"

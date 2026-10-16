@@ -64,6 +64,13 @@
       "when": 1792160992639,
       "tag": "0008_weather_and_shift_swaps",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792162337865,
+      "tag": "0009_hour_change_requests",
+      "breakpoints": true
     }
   ]
 }
