@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.46 — 16/10/2026
+- Échange avec un collègue : aperçu en direct des deux horaires (« Vous : 09h30–18h00 ⇄ Collègue : 11h30–20h00 ») dans le formulaire.
+
 ## v5.45 — 16/10/2026
 - « Mon planning » : un seul bouton « Faire une demande » avec choix guidé (👥 Échanger avec un collègue / 🙋 Aménager mes horaires) et liste unifiée « Mes demandes ».
 
