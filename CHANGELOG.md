@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.41 — 16/10/2026
+- Budget affiché dans « Équipe du jour » (objectif du jour) et dans le compteur d'heures (total semaine + € / heure planifiée).
+- Confidentialité : budget visible uniquement par Admin / Manager / Éditeur et jamais imprimé.
+
 ## v5.40 — 16/10/2026
 - **Budget** : les montants s'affichent en style belge avec séparateur de milliers par point et le sigle € (ex. `1.000.000 €`), tanto dans l'encodage du planning (ligne Budget et total de la semaine) que dans la vue semaine.
 

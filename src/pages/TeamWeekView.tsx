@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Printer, Palmtree, AlertTriangle, Flag, MapPin } from "lucide-react";
@@ -67,6 +68,8 @@ const TeamWeekView = () => {
   const congeLabels = (type: string) => t(`leave.${type}` as any) || type;
 
   const { currentStore } = useStore();
+  const { role: authRole } = useAuth();
+  const canSeeBudget = !!currentStore?.has_budget && (authRole === "admin" || authRole === "manager" || authRole === "editor");
   const { employees } = useStoreEmployees(ROLE_ORDER);
   const { scheduleStart, scheduleEnd, getDayRange } = useStoreSettings();
   const HOURS = Array.from({ length: scheduleEnd - scheduleStart }, (_, i) => i + scheduleStart);
@@ -243,8 +246,8 @@ const TeamWeekView = () => {
                   );
                 })}
               </tr>
-              {currentStore?.has_budget && dayComments && dayComments.some((dc: any) => (dc.budget || "").trim()) && (
-                <tr>
+              {canSeeBudget && dayComments && dayComments.some((dc: any) => (dc.budget || "").trim()) && (
+                <tr className="print:hidden">
                   <th className="sticky left-0 z-20 bg-card border-b border-r px-2 py-1 text-left text-[10px] text-muted-foreground font-normal">
                     {t("schedule.budget" as any)}
                   </th>

@@ -13,7 +13,9 @@ import { Badge } from "@/components/ui/badge";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { ROLE_ORDER, ROLE_KEYS } from "@/lib/role-colors";
 import { computeNetHours } from "@/lib/hours";
-import { formatLocalDate, getDisplayName, getMondayOf } from "@/lib/format";
+import { formatLocalDate, getDisplayName, getMondayOf, parseAmount, formatAmountBE } from "@/lib/format";
+import { useAuth } from "@/hooks/useAuth";
+import { Wallet } from "lucide-react";
 import { EmployeeHoursDetailDialog } from "./EmployeeHoursDetailDialog";
 
 function addDays(d: Date, n: number) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
@@ -167,6 +169,20 @@ export function HoursCounter() {
     );
   }, [visibleRows]);
 
+  const { role } = useAuth();
+  const canSeeBudget = !!currentStore?.has_budget && (role === "admin" || role === "manager" || role === "editor");
+  const weekStr = formatLocalDate(currentMonday);
+  const { data: budgetRows } = useQuery({
+    queryKey: ["week-budget", currentStore?.id, weekStr],
+    enabled: canSeeBudget && !!currentStore?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("day_comments").select("budget").eq("store_id", currentStore!.id).eq("week_start", weekStr);
+      if (error) throw error;
+      return data as any[];
+    },
+  });
+  const weekBudget = useMemo(() => (budgetRows || []).reduce((a, r) => a + (parseAmount(r.budget || "") || 0), 0), [budgetRows]);
+
   const toggleSort = (key: Exclude<SortKey, null>) => {
     if (sortKey === key) {
       if (sortDir === "asc") setSortDir("desc");
@@ -257,6 +273,19 @@ export function HoursCounter() {
           <span className="font-semibold capitalize">{monthLabel}</span> · {monthMondays.length} {t("misc.week" as any)}{monthMondays.length > 1 ? "s" : ""}
         </div>
       </div>
+
+      {canSeeBudget && weekBudget > 0 && (
+        <div className="grid grid-cols-2 gap-3 print:hidden">
+          <div className="rounded-lg border bg-accent/5 border-accent/20 p-3">
+            <div className="text-xs text-muted-foreground flex items-center gap-1"><Wallet className="h-3.5 w-3.5" />{t("budget.weekTotal" as any)}</div>
+            <div className="text-xl font-bold font-mono-data">{formatAmountBE(String(weekBudget))}</div>
+          </div>
+          <div className="rounded-lg border p-3">
+            <div className="text-xs text-muted-foreground">{t("budget.perHour" as any)}</div>
+            <div className="text-xl font-bold font-mono-data">{totals.weekWorked > 0 ? `${formatAmountBE(String(Math.round(weekBudget / totals.weekWorked)))} / h` : "—"}</div>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center gap-2 flex-wrap no-print">
         <div className="relative flex-1 min-w-[200px] max-w-xs">
