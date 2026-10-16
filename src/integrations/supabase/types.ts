@@ -397,6 +397,70 @@ export type Database = {
           },
         ]
       }
+      shift_swaps: {
+        Row: {
+          created_at: string
+          decided_by: string | null
+          id: string
+          message: string
+          requester_date: string
+          requester_id: string
+          status: string
+          store_id: string
+          target_date: string
+          target_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          decided_by?: string | null
+          id?: string
+          message?: string
+          requester_date: string
+          requester_id: string
+          status?: string
+          store_id: string
+          target_date: string
+          target_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          decided_by?: string | null
+          id?: string
+          message?: string
+          requester_date?: string
+          requester_id?: string
+          status?: string
+          store_id?: string
+          target_date?: string
+          target_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_swaps_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_swaps_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_swaps_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_settings: {
         Row: {
           created_at: string
@@ -441,7 +505,9 @@ export type Database = {
           has_budget: boolean
           has_lunch_break: boolean
           has_multi_roles: boolean
+          has_shift_swaps: boolean
           has_two_floors: boolean
+          has_weather: boolean
           id: string
           is_direction: boolean
           name: string
@@ -454,7 +520,9 @@ export type Database = {
           has_budget?: boolean
           has_lunch_break?: boolean
           has_multi_roles?: boolean
+          has_shift_swaps?: boolean
           has_two_floors?: boolean
+          has_weather?: boolean
           id?: string
           is_direction?: boolean
           name: string
@@ -467,7 +535,9 @@ export type Database = {
           has_budget?: boolean
           has_lunch_break?: boolean
           has_multi_roles?: boolean
+          has_shift_swaps?: boolean
           has_two_floors?: boolean
+          has_weather?: boolean
           id?: string
           is_direction?: boolean
           name?: string
@@ -658,6 +728,7 @@ export type Database = {
     }
     Functions: {
       calc_week_net_hours: { Args: { _schedule: Json }; Returns: number }
+      can_manage_store: { Args: { _store_id: string }; Returns: boolean }
       can_view_employee: { Args: { _employee_id: string }; Returns: boolean }
       can_view_store: { Args: { _store_id: string }; Returns: boolean }
       export_hours_monthly: {
@@ -726,6 +797,11 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      my_employee_ids: { Args: never; Returns: string[] }
+      respond_shift_swap: {
+        Args: { _action: string; _id: string }
+        Returns: undefined
+      }
       set_employee_order: { Args: { _ids: string[] }; Returns: undefined }
     }
     Enums: {
