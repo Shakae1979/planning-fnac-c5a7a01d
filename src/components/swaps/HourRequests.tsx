@@ -32,7 +32,9 @@ const T = {
   pending_manager: { fr: "En attente du responsable", nl: "Wacht op verantwoordelijke" },
   status_approved: { fr: "Validée", nl: "Goedgekeurd" },
   status_rejected: { fr: "Refusée", nl: "Geweigerd" },
-  missing: { fr: "Indiquez l'heure de début et de fin", nl: "Geef begin- en einduur op" },
+  missing: { fr: "Indiquez l'heure de début et de fin (ex. 9h30)", nl: "Geef begin- en einduur op (bv. 9u30)" },
+  invalidTime: { fr: "Horaire invalide — utilisez le format 24h (ex. 9h30)", nl: "Ongeldig uur — gebruik het 24-uursformat (bv. 9u30)" },
+  timePlaceholder: { fr: "ex. 9h30", nl: "bv. 9u30" },
 };
 type K = keyof typeof T;
 function useTx() { const { lang } = useI18n(); return (k: K) => T[k][lang === "nl" ? "nl" : "fr"]; }
@@ -40,6 +42,18 @@ function useTx() { const { lang } = useI18n(); return (k: K) => T[k][lang === "n
 const slot = (s?: string | null, e?: string | null, rest = "Repos") =>
   s && e && /\d/.test(s) ? `${formatTimeBE(s)}–${formatTimeBE(e)}` : (s || rest);
 const d = (s: string) => formatDateBE(new Date(s + "T00:00:00"));
+
+/** Saisie libre → "HH:MM" (format 24h européen). Accepte 9h30, 9u30, 09:30, 0930, 9. */
+export function parseTimeBE(input: string): string | null {
+  if (!input) return null;
+  const c = input.trim().toLowerCase().replace("u", "h");
+  let m = c.match(/^(\d{1,2})h(\d{0,2})$/) || c.match(/^(\d{1,2})[.:](\d{2})$/) || c.match(/^(\d{2})(\d{2})$/) || c.match(/^(\d{1,2})$/);
+  if (!m) return null;
+  const h = parseInt(m[1], 10);
+  const min = parseInt((m[2] || "0").padStart(2, "0"), 10);
+  if (h > 23 || min > 59) return null;
+  return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+}
 
 interface Emp { id: string; name: string; last_name?: string | null; email?: string | null; store_id?: string | null }
 
@@ -89,11 +103,14 @@ export function HourRequestPanel({ employee }: { employee: Emp }) {
 
   const create = useMutation({
     mutationFn: async () => {
-      if (!rest && (!start || !end)) throw new Error(tx("missing"));
+      if (!rest && (!start.trim() || !end.trim())) throw new Error(tx("missing"));
+      const s = rest ? null : parseTimeBE(start);
+      const e = rest ? null : parseTimeBE(end);
+      if (!rest && (!s || !e)) throw new Error(tx("invalidTime"));
       const { error } = await (supabase as any).from("hour_change_requests").insert({
         store_id: employee.store_id, employee_id: employee.id, date,
         current_start: current?.start ?? null, current_end: current?.end ?? null,
-        new_start: rest ? null : start, new_end: rest ? null : end, message,
+        new_start: s, new_end: e, message,
       });
       if (error) throw error;
     },
@@ -149,8 +166,20 @@ export function HourRequestPanel({ employee }: { employee: Emp }) {
             <div className="space-y-1">
               <span>{tx("wanted")}</span>
               <div className="flex gap-2">
-                <Input type="time" step={1800} value={start} disabled={rest} onChange={(e) => setStart(e.target.value)} />
-                <Input type="time" step={1800} value={end} disabled={rest} onChange={(e) => setEnd(e.target.value)} />
+                <Input
+                  inputMode="numeric"
+                  placeholder={tx("timePlaceholder")}
+                  value={start} disabled={rest}
+                  onChange={(e) => setStart(e.target.value)}
+                  onBlur={() => { const p = parseTimeBE(start); if (p) setStart(formatTimeBE(p)); }}
+                />
+                <Input
+                  inputMode="numeric"
+                  placeholder={tx("timePlaceholder")}
+                  value={end} disabled={rest}
+                  onChange={(e) => setEnd(e.target.value)}
+                  onBlur={() => { const p = parseTimeBE(end); if (p) setEnd(formatTimeBE(p)); }}
+                />
               </div>
               <label className="flex items-center gap-2 text-xs"><Checkbox checked={rest} onCheckedChange={(c) => setRest(!!c)} /> {tx("rest")}</label>
             </div>
