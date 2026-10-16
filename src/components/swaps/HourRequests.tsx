@@ -32,7 +32,9 @@ const T = {
   pending_manager: { fr: "En attente du responsable", nl: "Wacht op verantwoordelijke" },
   status_approved: { fr: "Validée", nl: "Goedgekeurd" },
   status_rejected: { fr: "Refusée", nl: "Geweigerd" },
-  missing: { fr: "Indiquez l'heure de début et de fin", nl: "Geef begin- en einduur op" },
+  missing: { fr: "Indiquez l'heure de début et de fin (ex. 9h30)", nl: "Geef begin- en einduur op (bv. 9u30)" },
+  invalidTime: { fr: "Horaire invalide — utilisez le format 24h (ex. 9h30)", nl: "Ongeldig uur — gebruik het 24-uursformat (bv. 9u30)" },
+  timePlaceholder: { fr: "ex. 9h30", nl: "bv. 9u30" },
 };
 type K = keyof typeof T;
 function useTx() { const { lang } = useI18n(); return (k: K) => T[k][lang === "nl" ? "nl" : "fr"]; }
