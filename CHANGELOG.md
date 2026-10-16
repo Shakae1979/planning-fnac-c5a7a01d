@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.39 — 16/10/2026
+- **Budget** : nouvelle option dans les paramètres du magasin, ajoutant une ligne Budget par jour au-dessus des notes dans le planning (avec total hebdomadaire).
+
 ## v5.38 — 29/09/2026
 - **Correctif** : un collaborateur ajouté, renommé ou désactivé depuis les écrans d'équipe apparaît désormais immédiatement dans l'encodage du planning, sans rafraîchissement manuel.
 

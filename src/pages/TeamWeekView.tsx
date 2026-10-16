@@ -243,6 +243,21 @@ const TeamWeekView = () => {
                   );
                 })}
               </tr>
+              {currentStore?.has_budget && dayComments && dayComments.some((dc: any) => (dc.budget || "").trim()) && (
+                <tr>
+                  <th className="sticky left-0 z-20 bg-card border-b border-r px-2 py-1 text-left text-[10px] text-muted-foreground font-normal">
+                    {t("schedule.budget" as any)}
+                  </th>
+                  {DAYS.map(day => {
+                    const budget = ((dayComments?.find(dc => dc.day_key === day.key) as any)?.budget || "") as string;
+                    return (
+                      <th key={day.key + "-budget"} className="border-b border-r px-1 py-1 text-center font-normal">
+                        {budget.trim() ? <span className="text-[10px] font-semibold font-mono-data">{budget}</span> : null}
+                      </th>
+                    );
+                  })}
+                </tr>
+              )}
               {dayComments && dayComments.some(dc => dc.comment.trim()) && (
                 <tr>
                   <th className="sticky left-0 z-20 bg-card border-b border-r px-2 py-1 text-left text-[10px] text-muted-foreground font-normal">
