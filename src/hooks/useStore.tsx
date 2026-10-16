@@ -11,6 +11,8 @@ interface Store {
   has_multi_roles?: boolean;
   has_two_floors?: boolean;
   has_budget?: boolean;
+  has_weather?: boolean;
+  has_shift_swaps?: boolean;
   is_direction?: boolean;
 }
 
@@ -143,10 +145,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (storeList.length > 0) {
       const { data: budgetData } = await (supabase as any)
         .from("stores")
-        .select("id, has_budget")
+        .select("id, has_budget, has_weather, has_shift_swaps")
         .in("id", storeList.map((s) => s.id));
-      const budgetMap = new Map<string, boolean>((budgetData ?? []).map((b: any) => [b.id, !!b.has_budget]));
-      storeList = storeList.map((s) => ({ ...s, has_budget: budgetMap.get(s.id) ?? false }));
+      const budgetMap = new Map<string, any>((budgetData ?? []).map((b: any) => [b.id, b]));
+      storeList = storeList.map((s) => ({ ...s, has_budget: !!budgetMap.get(s.id)?.has_budget, has_weather: !!budgetMap.get(s.id)?.has_weather, has_shift_swaps: !!budgetMap.get(s.id)?.has_shift_swaps }));
     }
 
     if (isStale()) return;
