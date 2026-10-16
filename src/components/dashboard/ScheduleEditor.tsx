@@ -1174,7 +1174,7 @@ export function ScheduleEditor() {
               </tr>
               {/* Budget row (option magasin) */}
               {currentStore?.has_budget && (
-                <tr className="border-b bg-muted/30">
+                <tr className="border-b bg-muted/30 print:hidden">
                   <td className="py-1 pr-2 sticky left-0 bg-muted/30 z-10">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Wallet className="h-3 w-3" />
