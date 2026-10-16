@@ -13,6 +13,7 @@ import { formatDateBE, formatLocalDate, formatTimeBE, getDisplayName, getMondayO
 
 const DAYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 const T = {
+  badge: { fr: "Aménagement", nl: "Aanpassing" },
   title: { fr: "Changement d'horaire", nl: "Uurwijziging" },
   ask: { fr: "Demander un changement", nl: "Wijziging aanvragen" },
   none: { fr: "Aucune demande en cours", nl: "Geen lopende aanvragen" },
@@ -58,12 +59,13 @@ export function parseTimeBE(input: string): string | null {
 interface Emp { id: string; name: string; last_name?: string | null; email?: string | null; store_id?: string | null }
 
 /** Bloc vendeur : demande de changement d'horaire (sur Mon planning). */
-export function HourRequestPanel({ employee }: { employee: Emp }) {
+export function HourRequestPanel({ employee, embedded, open: openP, onOpenChange }: { employee: Emp; embedded?: boolean; open?: boolean; onOpenChange?: (o: boolean) => void }) {
   const { user } = useAuth();
   const tx = useTx();
   const qc = useQueryClient();
   const today = formatLocalDate(new Date());
-  const [open, setOpen] = useState(false);
+  const [openS, setOpenS] = useState(false);
+  const open = openP ?? openS; const setOpen = onOpenChange ?? setOpenS;
   const [date, setDate] = useState(today);
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
@@ -135,14 +137,15 @@ export function HourRequestPanel({ employee }: { employee: Emp }) {
   const list = (reqs ?? []).filter((r) => r.status !== "cancelled");
 
   return (
-    <div className="print:hidden mb-4 rounded-lg border border-border bg-card p-3 space-y-2">
-      <div className="flex items-center justify-between gap-2">
+    <div className={embedded ? "space-y-2" : "print:hidden mb-4 rounded-lg border border-border bg-card p-3 space-y-2"}>
+      {!embedded && <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-sm font-semibold"><Clock className="h-4 w-4 text-accent" /> {tx("title")}</div>
         <Button size="sm" variant="outline" onClick={() => setOpen(true)}>{tx("ask")}</Button>
-      </div>
-      {list.length === 0 && <p className="text-xs text-muted-foreground">{tx("none")}</p>}
+      </div>}
+      {list.length === 0 && !embedded && <p className="text-xs text-muted-foreground">{tx("none")}</p>}
       {list.map((r) => (
         <div key={r.id} className="flex flex-wrap items-center gap-2 text-xs border-t border-border pt-2">
+          {embedded && <span className="rounded bg-primary/15 text-primary px-1.5 py-0.5 font-semibold">🙋 {tx("badge")}</span>}
           <span className="font-medium">{d(r.date)}</span>
           <span className="text-muted-foreground">{slot(r.current_start, r.current_end, tx("rest"))}</span>
           <ArrowRight className="h-3 w-3" />
@@ -158,7 +161,7 @@ export function HourRequestPanel({ employee }: { employee: Emp }) {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>{tx("ask")}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>🙋 {tx("ask")}</DialogTitle></DialogHeader>
           <div className="space-y-3 text-sm">
             <label className="block space-y-1"><span>{tx("date")}</span>
               <Input type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} /></label>

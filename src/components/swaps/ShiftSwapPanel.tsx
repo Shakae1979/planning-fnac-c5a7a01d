@@ -25,12 +25,13 @@ export function useSwapStatusLabel() {
 }
 
 /** Bloc « Échanges de shifts » sur Mon planning — visible seulement pour le titulaire du compte. */
-export function ShiftSwapPanel({ employee }: { employee: Emp }) {
+export function ShiftSwapPanel({ employee, embedded, open: openP, onOpenChange }: { employee: Emp; embedded?: boolean; open?: boolean; onOpenChange?: (o: boolean) => void }) {
   const { user } = useAuth();
   const { t } = useI18n();
   const qc = useQueryClient();
   const statusLabel = useSwapStatusLabel();
-  const [open, setOpen] = useState(false);
+  const [openS, setOpenS] = useState(false);
+  const open = openP ?? openS; const setOpen = onOpenChange ?? setOpenS;
   const today = formatLocalDate(new Date());
   const [myDate, setMyDate] = useState(today);
   const [targetId, setTargetId] = useState("");
@@ -104,19 +105,20 @@ export function ShiftSwapPanel({ employee }: { employee: Emp }) {
   const active = (swaps ?? []).filter((s) => s.status === "pending_colleague" || s.status === "pending_manager" || s.status === "approved").slice(0, 6);
 
   return (
-    <div className="print:hidden mb-4 rounded-lg border border-border bg-card p-3 space-y-2">
-      <div className="flex items-center justify-between gap-2">
+    <div className={embedded ? "space-y-2" : "print:hidden mb-4 rounded-lg border border-border bg-card p-3 space-y-2"}>
+      {!embedded && <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <ArrowLeftRight className="h-4 w-4 text-accent" /> {t("swap.title" as any)}
         </div>
         <Button size="sm" variant="outline" onClick={() => setOpen(true)}>{t("swap.propose" as any)}</Button>
-      </div>
+      </div>}
 
-      {active.length === 0 && <p className="text-xs text-muted-foreground">{t("swap.none" as any)}</p>}
+      {active.length === 0 && !embedded && <p className="text-xs text-muted-foreground">{t("swap.none" as any)}</p>}
       {active.map((s) => {
         const incoming = s.target_id === employee.id;
         return (
           <div key={s.id} className="flex flex-wrap items-center gap-2 text-xs border-t border-border pt-2">
+            {embedded && <span className="rounded bg-accent/15 text-accent px-1.5 py-0.5 font-semibold">👥 {t("req.swapBadge" as any)}</span>}
             <span className="font-medium">{nameOf(s.requester_id)}</span>
             <span className="text-muted-foreground">{formatDateBE(new Date(s.requester_date + "T00:00:00"))}</span>
             <ArrowLeftRight className="h-3 w-3" />

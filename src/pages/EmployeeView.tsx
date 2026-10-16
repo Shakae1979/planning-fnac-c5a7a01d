@@ -11,8 +11,7 @@ import { FnacHeader } from "@/components/FnacHeader";
 import { useI18n } from "@/lib/i18n";
 import { EmployeeMobileView } from "@/components/employee/EmployeeMobileView";
 import { ScheduleChangeBanner } from "@/components/employee/ScheduleChangeBanner";
-import { ShiftSwapPanel } from "@/components/swaps/ShiftSwapPanel";
-import { HourRequestPanel } from "@/components/swaps/HourRequests";
+import { RequestsHub } from "@/components/swaps/RequestsHub";
 
 import { computeNetHours, timeToHours, getDayDate, BREAK_HOURS } from "@/lib/hours";
 
@@ -223,8 +222,7 @@ const EmployeeView = () => {
 
       <div className="max-w-3xl mx-auto px-6 py-4">
         <ScheduleChangeBanner employeeId={employee.id} />
-        <ShiftSwapPanel employee={employee as any} />
-        <HourRequestPanel employee={employee as any} />
+        <RequestsHub employee={employee as any} />
 
         <div className="flex items-center justify-between mb-6">
           <WeekNavigator offset={weekOffset} onChange={setWeekOffset} />
