@@ -166,8 +166,20 @@ export function HourRequestPanel({ employee }: { employee: Emp }) {
             <div className="space-y-1">
               <span>{tx("wanted")}</span>
               <div className="flex gap-2">
-                <Input type="time" step={1800} value={start} disabled={rest} onChange={(e) => setStart(e.target.value)} />
-                <Input type="time" step={1800} value={end} disabled={rest} onChange={(e) => setEnd(e.target.value)} />
+                <Input
+                  inputMode="numeric"
+                  placeholder={tx("timePlaceholder")}
+                  value={start} disabled={rest}
+                  onChange={(e) => setStart(e.target.value)}
+                  onBlur={() => { const p = parseTimeBE(start); if (p) setStart(formatTimeBE(p)); }}
+                />
+                <Input
+                  inputMode="numeric"
+                  placeholder={tx("timePlaceholder")}
+                  value={end} disabled={rest}
+                  onChange={(e) => setEnd(e.target.value)}
+                  onBlur={() => { const p = parseTimeBE(end); if (p) setEnd(formatTimeBE(p)); }}
+                />
               </div>
               <label className="flex items-center gap-2 text-xs"><Checkbox checked={rest} onCheckedChange={(c) => setRest(!!c)} /> {tx("rest")}</label>
             </div>
