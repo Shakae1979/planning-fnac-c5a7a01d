@@ -10,6 +10,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeftRight, Check, X } from "lucide-react";
 import { formatDateBE, formatLocalDate, getDisplayName } from "@/lib/format";
+import { useShiftOn } from "./ShiftPreview";
+
+function SwapPreview({ meId, myDate, targetId, targetDate, targetName }: { meId: string; myDate: string; targetId: string; targetDate: string; targetName: string }) {
+  const { t } = useI18n();
+  const mine = useShiftOn(meId, myDate);
+  const theirs = useShiftOn(targetId || undefined, targetDate);
+  const rest = t("swap.noShift" as any);
+  return (
+    <div className="rounded-md border border-border bg-muted/40 p-2 text-xs space-y-1">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-muted-foreground">{t("swap.you" as any)} — {formatDateBE(new Date(myDate + "T00:00:00"))}</span>
+        <span className="font-semibold">{mine.isLoading ? "…" : mine.data ?? rest}</span>
+      </div>
+      <div className="text-center text-accent">⇄</div>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-muted-foreground">{targetName || t("swap.colleague" as any)} — {formatDateBE(new Date(targetDate + "T00:00:00"))}</span>
+        <span className="font-semibold">{!targetId ? "—" : theirs.isLoading ? "…" : theirs.data ?? rest}</span>
+      </div>
+    </div>
+  );
+}
 
 interface Emp { id: string; name: string; last_name?: string | null; email?: string | null; store_id?: string | null }
 
@@ -154,6 +175,7 @@ export function ShiftSwapPanel({ employee, embedded, open: openP, onOpenChange }
               </Select></label>
             <label className="block space-y-1"><span>{t("swap.theirDay" as any)}</span>
               <Input type="date" min={today} value={targetDate} onChange={(e) => setTargetDate(e.target.value)} /></label>
+            <SwapPreview meId={employee.id} myDate={myDate} targetId={targetId} targetDate={targetDate} targetName={targetId ? nameOf(targetId) : ""} />
             <p className="text-xs text-muted-foreground">{t("swap.help" as any)}</p>
             <Input placeholder={t("swap.message" as any)} value={message} maxLength={200} onChange={(e) => setMessage(e.target.value)} />
           </div>
