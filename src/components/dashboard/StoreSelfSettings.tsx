@@ -107,6 +107,30 @@ export function StoreSelfSettings() {
           </div>
         </div>
 
+        <div className="flex items-start gap-3">
+          <Switch
+            checked={currentStore.has_weather ?? false}
+            onCheckedChange={(checked) => updateFlag.mutate({ has_weather: checked } as any)}
+            disabled={updateFlag.isPending}
+          />
+          <div>
+            <p className="text-sm font-medium text-foreground">{t("store.weather" as any)}</p>
+            <p className="text-xs text-muted-foreground">{t("store.weatherDesc" as any)}</p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3">
+          <Switch
+            checked={currentStore.has_shift_swaps ?? false}
+            onCheckedChange={(checked) => updateFlag.mutate({ has_shift_swaps: checked } as any)}
+            disabled={updateFlag.isPending}
+          />
+          <div>
+            <p className="text-sm font-medium text-foreground">{t("store.shiftSwaps" as any)}</p>
+            <p className="text-xs text-muted-foreground">{t("store.shiftSwapsDesc" as any)}</p>
+          </div>
+        </div>
+
 
       </div>
 

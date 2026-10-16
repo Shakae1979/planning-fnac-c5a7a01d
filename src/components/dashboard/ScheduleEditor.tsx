@@ -17,6 +17,8 @@ import DayRoleEditor from "./DayRoleEditor";
 import { Button } from "@/components/ui/button";
 import { formatDateLongBE, formatDateMonthBE, formatDateBE, formatTimeBE, formatLocalDate, getWeekNumber, getDisplayName, sortByRoleOrder, formatAmountBE, parseAmount } from "@/lib/format";
 import { notifyTeamWeek } from "@/lib/schedule-notify";
+import { useWeather, WeatherBadge } from "@/lib/weather";
+import { ShiftSwapManager } from "@/components/swaps/ShiftSwapManager";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import {
   AlertDialog,
@@ -427,6 +429,7 @@ export function ScheduleEditor() {
   const [activeInput, setActiveInput] = useState<{ key: string; raw: string } | null>(null);
 
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const { data: weather } = useWeather(currentStore?.city, !!currentStore?.has_weather);
 
   const toggleTarget = (empId: string) => {
     setSelectedTargets((prev) => {
@@ -1076,6 +1079,7 @@ export function ScheduleEditor() {
           >
             <Bell className="h-3.5 w-3.5 mr-1" /> {t("schedule.notifyTeam" as any)}
           </Button>
+          {currentStore?.has_shift_swaps && currentStore?.id && <ShiftSwapManager storeId={currentStore.id} />}
           <Button
             variant="outline"
             size="sm"
@@ -1161,6 +1165,9 @@ export function ScheduleEditor() {
                         <span className="ml-1 text-xs text-primary font-normal">{t("copy.source")}</span>
                       )}
                     </div>
+                    {currentStore?.has_weather && !ferie && (
+                      <div><WeatherBadge data={weather} date={new Date(getDayDate(currentMonday, DAY_KEYS.indexOf(day.key as any)) + "T00:00:00")} /></div>
+                    )}
                     {ferie && (
                       <div className="mt-1 text-[9px] font-bold uppercase tracking-wider">
                         <Flag className="h-2.5 w-2.5 inline mr-0.5" />

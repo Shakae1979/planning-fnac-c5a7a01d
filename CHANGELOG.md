@@ -3,6 +3,10 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.42 — 16/10/2026
+- **Météo locale** : prévisions par ville sous chaque jour (encodage, planning semaine, Équipe du jour), activable par magasin, jamais imprimée.
+- **Échanges de shifts** : les collaborateurs proposent un échange depuis Mon planning, le collègue accepte, un responsable approuve et les horaires sont permutés automatiquement avec notification.
+
 ## v5.41 — 16/10/2026
 - Budget affiché dans « Équipe du jour » (objectif du jour) et dans le compteur d'heures (total semaine + € / heure planifiée).
 - Confidentialité : budget visible uniquement par Admin / Manager / Éditeur et jamais imprimé.

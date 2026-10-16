@@ -9,6 +9,7 @@ import { WeekNavigator } from "@/components/WeekNavigator";
 import { toast } from "sonner";
 import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName, formatAmountBE } from "@/lib/format";
 import { useStore } from "@/hooks/useStore";
+import { useWeather, WeatherBadge } from "@/lib/weather";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { useI18n } from "@/lib/i18n";
 import React from "react";
@@ -68,6 +69,7 @@ const TeamWeekView = () => {
   const congeLabels = (type: string) => t(`leave.${type}` as any) || type;
 
   const { currentStore } = useStore();
+  const { data: weather } = useWeather(currentStore?.city, !!currentStore?.has_weather);
   const { role: authRole } = useAuth();
   const canSeeBudget = !!currentStore?.has_budget && (authRole === "admin" || authRole === "manager" || authRole === "editor");
   const { employees } = useStoreEmployees(ROLE_ORDER);
@@ -225,6 +227,7 @@ const TeamWeekView = () => {
                         {isFerieDay && <Flag className="h-3 w-3" />}
                       </div>
                       <div className="text-[10px] font-normal">{formatDateBE(dayDate)}</div>
+                      {currentStore?.has_weather && !isFerieDay && <WeatherBadge data={weather} date={dayDate} />}
                       {isFerieDay && <div className="text-[9px] font-bold uppercase">{t("schedule.holiday")}</div>}
                     </th>
                   );
