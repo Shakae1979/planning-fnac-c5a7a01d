@@ -243,8 +243,8 @@ const TeamWeekView = () => {
                   );
                 })}
               </tr>
-              {currentStore?.has_budget && dayComments && dayComments.some((dc: any) => (dc.budget || "").trim()) && (
-                <tr>
+              {canSeeBudget && dayComments && dayComments.some((dc: any) => (dc.budget || "").trim()) && (
+                <tr className="print:hidden">
                   <th className="sticky left-0 z-20 bg-card border-b border-r px-2 py-1 text-left text-[10px] text-muted-foreground font-normal">
                     {t("schedule.budget" as any)}
                   </th>

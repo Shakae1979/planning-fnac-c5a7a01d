@@ -9,7 +9,9 @@ import { useState, useRef, useCallback, useMemo } from "react";
 import { groupDayRoles, buildRoleSegments, splitHoursByRole, toMin, type DayRoleRow } from "@/lib/day-roles";
 
 import { Button } from "@/components/ui/button";
-import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName } from "@/lib/format";
+import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName, formatAmountBE } from "@/lib/format";
+import { useAuth } from "@/hooks/useAuth";
+import { Wallet } from "lucide-react";
 import { computeNetHours } from "@/lib/hours";
 import { useStore } from "@/hooks/useStore";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
@@ -121,6 +123,9 @@ const TeamDayView = () => {
 
   const dayComment = dayComments?.find((c) => c.day_key === dayKey)?.comment || null;
   const isDayFerie = dayComments?.find((c) => c.day_key === dayKey)?.is_ferie ?? false;
+  const { role: authRole } = useAuth();
+  const canSeeBudget = !!(currentStore as any)?.has_budget && (authRole === "admin" || authRole === "manager" || authRole === "editor");
+  const dayBudget = (((dayComments?.find((c) => c.day_key === dayKey) as any)?.budget || "") as string).trim();
 
   // Rôle du jour (collaborateurs multi-métiers) — plages horaires possibles
   const { data: dayRoles } = useQuery({
@@ -269,6 +274,13 @@ const TeamDayView = () => {
         <div className="flex items-center justify-center flex-wrap gap-2 mb-4 max-sm:landscape:mb-2 sm:mb-6">
           <WeekNavigator mode="day" offset={dayOffset} onChange={setDayOffset} />
           <div className="text-xs text-muted-foreground">{dayLabel}{isToday && <span className="ml-2 text-accent font-medium">· {t("teamDay.today")}</span>}</div>
+          {canSeeBudget && dayBudget && (
+            <div className="print:hidden inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs">
+              <Wallet className="h-3.5 w-3.5 text-accent" />
+              <span className="text-muted-foreground">{t("budget.dayGoal" as any)}</span>
+              <span className="font-bold font-mono-data">{formatAmountBE(dayBudget) || dayBudget}</span>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-3 max-sm:landscape:mb-2 print-summary-cards">
