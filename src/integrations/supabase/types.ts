@@ -285,6 +285,69 @@ export type Database = {
           },
         ]
       }
+      hour_change_requests: {
+        Row: {
+          created_at: string
+          current_end: string | null
+          current_start: string | null
+          date: string
+          decided_by: string | null
+          employee_id: string
+          id: string
+          message: string
+          new_end: string | null
+          new_start: string | null
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_end?: string | null
+          current_start?: string | null
+          date: string
+          decided_by?: string | null
+          employee_id: string
+          id?: string
+          message?: string
+          new_end?: string | null
+          new_start?: string | null
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_end?: string | null
+          current_start?: string | null
+          date?: string
+          decided_by?: string | null
+          employee_id?: string
+          id?: string
+          message?: string
+          new_end?: string | null
+          new_start?: string | null
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hour_change_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hour_change_requests_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notified_schedule_snapshots: {
         Row: {
           employee_id: string
@@ -798,6 +861,10 @@ export type Database = {
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       my_employee_ids: { Args: never; Returns: string[] }
+      respond_hour_request: {
+        Args: { _action: string; _id: string }
+        Returns: undefined
+      }
       respond_shift_swap: {
         Args: { _action: string; _id: string }
         Returns: undefined
