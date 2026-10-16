@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.44 — 16/10/2026
+- Changement d'horaire : saisie de l'horaire au format 24h européen (9h30, 9u30, 09:30 acceptés) — plus de sélecteur AM/PM selon la langue du navigateur.
+
 ## v5.43 — 16/10/2026
 - Demandes de changement d'horaire : le vendeur demande un nouvel horaire depuis « Mon planning », le responsable valide en un clic dans l'encodage (horaire mis à jour + notification).
 
