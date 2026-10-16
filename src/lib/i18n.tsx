@@ -524,6 +524,8 @@ const translations = {
   "swap.pickColleague": { fr: "Choisir un collègue", nl: "Kies een collega" },
   "swap.theirDay": { fr: "Jour du collègue que je reprends", nl: "Dag van de collega die ik overneem" },
   "swap.help": { fr: "Même date = on échange nos horaires ce jour-là. Dates différentes = chacun reprend l'horaire de l'autre.", nl: "Zelfde datum = we wisselen onze uren die dag. Verschillende data = ieder neemt de shift van de ander over." },
+  "swap.you": { fr: "Vous", nl: "Jij" },
+  "swap.noShift": { fr: "Repos / non planifié", nl: "Vrij / niet gepland" },
   "swap.message": { fr: "Message (facultatif)", nl: "Bericht (optioneel)" },
   "swap.send": { fr: "Envoyer la demande", nl: "Aanvraag versturen" },
   "swap.sent": { fr: "Demande envoyée à votre collègue", nl: "Aanvraag verstuurd naar je collega" },
