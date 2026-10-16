@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.45 — 16/10/2026
+- « Mon planning » : un seul bouton « Faire une demande » avec choix guidé (👥 Échanger avec un collègue / 🙋 Aménager mes horaires) et liste unifiée « Mes demandes ».
+
 ## v5.44 — 16/10/2026
 - Changement d'horaire : saisie de l'horaire au format 24h européen (9h30, 9u30, 09:30 acceptés) — plus de sélecteur AM/PM selon la langue du navigateur.
 

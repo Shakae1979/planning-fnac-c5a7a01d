@@ -515,6 +515,7 @@ const translations = {
   "store.weatherDesc": { fr: "Affiche la météo prévue sous chaque jour (jamais imprimée)", nl: "Toont het verwachte weer onder elke dag (nooit afgedrukt)" },
   "store.shiftSwaps": { fr: "Échanges de shifts", nl: "Shiftruil" },
   "store.shiftSwapsDesc": { fr: "Les collaborateurs proposent des échanges, validés par un responsable", nl: "Medewerkers stellen ruilen voor, goedgekeurd door een verantwoordelijke" },
+  "req.swapBadge": { fr: "Échange", nl: "Ruil" },
   "swap.title": { fr: "Échanges", nl: "Ruilen" },
   "swap.propose": { fr: "Proposer un échange", nl: "Ruil voorstellen" },
   "swap.none": { fr: "Aucun échange en cours", nl: "Geen lopende ruilen" },
