@@ -6,7 +6,7 @@ import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { toast } from "sonner";
-import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName } from "@/lib/format";
+import { formatDateBE, formatTimeBE, formatLocalDate, getDisplayName, formatAmountBE } from "@/lib/format";
 import { useStore } from "@/hooks/useStore";
 import { useStoreEmployees } from "@/hooks/useStoreEmployees";
 import { useI18n } from "@/lib/i18n";
@@ -252,7 +252,7 @@ const TeamWeekView = () => {
                     const budget = ((dayComments?.find(dc => dc.day_key === day.key) as any)?.budget || "") as string;
                     return (
                       <th key={day.key + "-budget"} className="border-b border-r px-1 py-1 text-center font-normal">
-                        {budget.trim() ? <span className="text-[10px] font-semibold font-mono-data">{budget}</span> : null}
+                        {budget.trim() ? <span className="text-[10px] font-semibold font-mono-data">{formatAmountBE(budget) || budget}</span> : null}
                       </th>
                     );
                   })}
