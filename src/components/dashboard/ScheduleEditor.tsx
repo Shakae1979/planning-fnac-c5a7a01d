@@ -1166,7 +1166,7 @@ export function ScheduleEditor() {
                       )}
                     </div>
                     {currentStore?.has_weather && !ferie && (
-                      <div><WeatherBadge data={weather} date={getDayDate(currentMonday, DAY_KEYS.indexOf(day.key as any))} /></div>
+                      <div><WeatherBadge data={weather} date={new Date(getDayDate(currentMonday, DAY_KEYS.indexOf(day.key as any)) + "T00:00:00")} /></div>
                     )}
                     {ferie && (
                       <div className="mt-1 text-[9px] font-bold uppercase tracking-wider">
