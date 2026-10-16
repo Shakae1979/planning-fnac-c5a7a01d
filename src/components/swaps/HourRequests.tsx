@@ -43,6 +43,18 @@ const slot = (s?: string | null, e?: string | null, rest = "Repos") =>
   s && e && /\d/.test(s) ? `${formatTimeBE(s)}–${formatTimeBE(e)}` : (s || rest);
 const d = (s: string) => formatDateBE(new Date(s + "T00:00:00"));
 
+/** Saisie libre → "HH:MM" (format 24h européen). Accepte 9h30, 9u30, 09:30, 0930, 9. */
+export function parseTimeBE(input: string): string | null {
+  if (!input) return null;
+  const c = input.trim().toLowerCase().replace("u", "h");
+  let m = c.match(/^(\d{1,2})h(\d{0,2})$/) || c.match(/^(\d{1,2})[.:](\d{2})$/) || c.match(/^(\d{2})(\d{2})$/) || c.match(/^(\d{1,2})$/);
+  if (!m) return null;
+  const h = parseInt(m[1], 10);
+  const min = parseInt((m[2] || "0").padStart(2, "0"), 10);
+  if (h > 23 || min > 59) return null;
+  return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+}
+
 interface Emp { id: string; name: string; last_name?: string | null; email?: string | null; store_id?: string | null }
 
 /** Bloc vendeur : demande de changement d'horaire (sur Mon planning). */
@@ -91,11 +103,14 @@ export function HourRequestPanel({ employee }: { employee: Emp }) {
 
   const create = useMutation({
     mutationFn: async () => {
-      if (!rest && (!start || !end)) throw new Error(tx("missing"));
+      if (!rest && (!start.trim() || !end.trim())) throw new Error(tx("missing"));
+      const s = rest ? null : parseTimeBE(start);
+      const e = rest ? null : parseTimeBE(end);
+      if (!rest && (!s || !e)) throw new Error(tx("invalidTime"));
       const { error } = await (supabase as any).from("hour_change_requests").insert({
         store_id: employee.store_id, employee_id: employee.id, date,
         current_start: current?.start ?? null, current_end: current?.end ?? null,
-        new_start: rest ? null : start, new_end: rest ? null : end, message,
+        new_start: s, new_end: e, message,
       });
       if (error) throw error;
     },
