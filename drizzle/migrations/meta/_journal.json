@@ -78,6 +78,13 @@
       "when": 1792227496609,
       "tag": "0010_fix_breaks_on_approval",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792228132477,
+      "tag": "0011_hour_request_breaks",
+      "breakpoints": true
     }
   ]
 }

@@ -295,6 +295,8 @@ export type Database = {
           employee_id: string
           id: string
           message: string
+          new_break_end: string | null
+          new_break_start: string | null
           new_end: string | null
           new_start: string | null
           status: string
@@ -310,6 +312,8 @@ export type Database = {
           employee_id: string
           id?: string
           message?: string
+          new_break_end?: string | null
+          new_break_start?: string | null
           new_end?: string | null
           new_start?: string | null
           status?: string
@@ -325,6 +329,8 @@ export type Database = {
           employee_id?: string
           id?: string
           message?: string
+          new_break_end?: string | null
+          new_break_start?: string | null
           new_end?: string | null
           new_start?: string | null
           status?: string
