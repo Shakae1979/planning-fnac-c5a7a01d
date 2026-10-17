@@ -71,6 +71,13 @@
       "when": 1792162337865,
       "tag": "0009_hour_change_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792227496609,
+      "tag": "0010_fix_breaks_on_approval",
+      "breakpoints": true
     }
   ]
 }
