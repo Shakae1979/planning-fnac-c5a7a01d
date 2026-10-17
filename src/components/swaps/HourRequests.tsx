@@ -36,6 +36,11 @@ const T = {
   missing: { fr: "Indiquez l'heure de début et de fin (ex. 9h30)", nl: "Geef begin- en einduur op (bv. 9u30)" },
   invalidTime: { fr: "Horaire invalide — utilisez le format 24h (ex. 9h30)", nl: "Ongeldig uur — gebruik het 24-uursformat (bv. 9u30)" },
   timePlaceholder: { fr: "ex. 9h30", nl: "bv. 9u30" },
+  modeShift: { fr: "Décaler mes heures", nl: "Uren verschuiven" },
+  modeBreak: { fr: "Pause / coupure", nl: "Pauze / onderbreking" },
+  breakWanted: { fr: "Pause souhaitée (de – à)", nl: "Gewenste pauze (van – tot)" },
+  breakOutside: { fr: "La pause doit être comprise dans votre horaire actuel", nl: "De pauze moet binnen je huidige uurrooster vallen" },
+  breakLabel: { fr: "pause", nl: "pauze" },
 };
 type K = keyof typeof T;
 function useTx() { const { lang } = useI18n(); return (k: K) => T[k][lang === "nl" ? "nl" : "fr"]; }
@@ -92,6 +97,8 @@ export function HourRequestPanel({ employee, embedded, open: openP, onOpenChange
       return { start: (data as any)?.[`${dk}_start`] ?? null, end: (data as any)?.[`${dk}_end`] ?? null };
     },
   });
+  const [mode, setMode] = useState<"shift" | "break">("shift");
+  const hasCurrent = !!(current?.start && current?.end && /^\d{2}:\d{2}$/.test(current.start) && /^\d{2}:\d{2}$/.test(current.end));
 
   const { data: reqs } = useQuery({
     queryKey: ["hour-requests-mine", employee.id],
@@ -109,16 +116,19 @@ export function HourRequestPanel({ employee, embedded, open: openP, onOpenChange
       const s = rest ? null : parseTimeBE(start);
       const e = rest ? null : parseTimeBE(end);
       if (!rest && (!s || !e)) throw new Error(tx("invalidTime"));
+      const isBreak = mode === "break";
+      if (isBreak && (!hasCurrent || s! < current!.start! || e! > current!.end! || s! >= e!)) throw new Error(tx("breakOutside"));
       const { error } = await (supabase as any).from("hour_change_requests").insert({
         store_id: employee.store_id, employee_id: employee.id, date,
         current_start: current?.start ?? null, current_end: current?.end ?? null,
-        new_start: s, new_end: e, message,
+        new_start: isBreak ? current!.start : s, new_end: isBreak ? current!.end : e,
+        new_break_start: isBreak ? s : null, new_break_end: isBreak ? e : null, message,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(tx("sent"));
-      setOpen(false); setMessage(""); setStart(""); setEnd(""); setRest(false);
+      setOpen(false); setMessage(""); setStart(""); setEnd(""); setRest(false); setMode("shift");
       qc.invalidateQueries({ queryKey: ["hour-requests-mine"] });
     },
     onError: (e) => toast.error((e as Error).message),
@@ -150,6 +160,7 @@ export function HourRequestPanel({ employee, embedded, open: openP, onOpenChange
           <span className="text-muted-foreground">{slot(r.current_start, r.current_end, tx("rest"))}</span>
           <ArrowRight className="h-3 w-3" />
           <span className="font-medium">{slot(r.new_start, r.new_end, tx("rest"))}</span>
+          {r.new_break_start && <span>(☕ {slot(r.new_break_start, r.new_break_end)})</span>}
           <span className="rounded-full px-2 py-0.5 bg-muted text-muted-foreground">
             {r.status === "pending_manager" ? tx("pending_manager") : r.status === "approved" ? tx("status_approved") : tx("status_rejected")}
           </span>
@@ -166,8 +177,12 @@ export function HourRequestPanel({ employee, embedded, open: openP, onOpenChange
             <label className="block space-y-1"><span>{tx("date")}</span>
               <Input type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} /></label>
             <p className="text-xs text-muted-foreground">{tx("current")} : <b>{slot(current?.start, current?.end, tx("rest"))}</b></p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button type="button" size="sm" variant={mode === "shift" ? "default" : "outline"} onClick={() => setMode("shift")}>🕒 {tx("modeShift")}</Button>
+              <Button type="button" size="sm" variant={mode === "break" ? "default" : "outline"} disabled={!hasCurrent} onClick={() => { setMode("break"); setRest(false); }}>☕ {tx("modeBreak")}</Button>
+            </div>
             <div className="space-y-1">
-              <span>{tx("wanted")}</span>
+              <span>{mode === "break" ? tx("breakWanted") : tx("wanted")}</span>
               <div className="flex gap-2">
                 <Input
                   inputMode="numeric"
@@ -184,7 +199,7 @@ export function HourRequestPanel({ employee, embedded, open: openP, onOpenChange
                   onBlur={() => { const p = parseTimeBE(end); if (p) setEnd(formatTimeBE(p)); }}
                 />
               </div>
-              <label className="flex items-center gap-2 text-xs"><Checkbox checked={rest} onCheckedChange={(c) => setRest(!!c)} /> {tx("rest")}</label>
+              {mode === "shift" && <label className="flex items-center gap-2 text-xs"><Checkbox checked={rest} onCheckedChange={(c) => setRest(!!c)} /> {tx("rest")}</label>}
             </div>
             <Input placeholder={tx("reason")} value={message} maxLength={200} onChange={(e) => setMessage(e.target.value)} />
           </div>
@@ -243,6 +258,7 @@ export function HourRequestManager({ storeId }: { storeId: string }) {
                   <span>{slot(r.current_start, r.current_end, tx("rest"))}</span>
                   <ArrowRight className="h-3 w-3" />
                   <b>{slot(r.new_start, r.new_end, tx("rest"))}</b>
+                  {r.new_break_start && <span className="text-xs">(☕ {tx("breakLabel")} {slot(r.new_break_start, r.new_break_end)})</span>}
                 </div>
                 {r.message && <p className="text-xs italic text-muted-foreground">« {r.message} »</p>}
                 <div className="flex gap-2 justify-end">
