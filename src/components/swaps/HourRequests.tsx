@@ -160,6 +160,7 @@ export function HourRequestPanel({ employee, embedded, open: openP, onOpenChange
           <span className="text-muted-foreground">{slot(r.current_start, r.current_end, tx("rest"))}</span>
           <ArrowRight className="h-3 w-3" />
           <span className="font-medium">{slot(r.new_start, r.new_end, tx("rest"))}</span>
+          {r.new_break_start && <span>(☕ {slot(r.new_break_start, r.new_break_end)})</span>}
           <span className="rounded-full px-2 py-0.5 bg-muted text-muted-foreground">
             {r.status === "pending_manager" ? tx("pending_manager") : r.status === "approved" ? tx("status_approved") : tx("status_rejected")}
           </span>
@@ -257,6 +258,7 @@ export function HourRequestManager({ storeId }: { storeId: string }) {
                   <span>{slot(r.current_start, r.current_end, tx("rest"))}</span>
                   <ArrowRight className="h-3 w-3" />
                   <b>{slot(r.new_start, r.new_end, tx("rest"))}</b>
+                  {r.new_break_start && <span className="text-xs">(☕ {tx("breakLabel")} {slot(r.new_break_start, r.new_break_end)})</span>}
                 </div>
                 {r.message && <p className="text-xs italic text-muted-foreground">« {r.message} »</p>}
                 <div className="flex gap-2 justify-end">
