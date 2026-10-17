@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.47 — 17/10/2026
+- Validation des demandes d'horaire et des échanges : la pause de table est effacée si le shift fait 6h ou moins (ou si elle sort des nouvelles heures), et le total d'heures est recalculé.
+
 ## v5.46 — 16/10/2026
 - Échange avec un collègue : aperçu en direct des deux horaires (« Vous : 09h30–18h00 ⇄ Collègue : 11h30–20h00 ») dans le formulaire.
 

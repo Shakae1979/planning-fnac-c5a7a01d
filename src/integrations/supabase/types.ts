@@ -838,6 +838,10 @@ export type Database = {
           week_start: string
         }[]
       }
+      fix_day_break: {
+        Args: { _dk: string; _emp: string; _ws: string }
+        Returns: undefined
+      }
       get_my_role: { Args: never; Returns: string }
       get_my_stores: {
         Args: never
