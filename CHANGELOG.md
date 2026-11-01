@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.49 — 01/11/2026
+- Import des budgets journaliers depuis l'export CSV MOCA (paramètres magasins), association code centre ↔ magasin mémorisée.
+
 ## v5.48 — 17/10/2026
 - Demandes d'aménagement : nouvelle option « Pause / coupure » (ex. 12h–16h dans un shift 10h–19h), appliquée automatiquement à la validation.
 
