@@ -579,6 +579,7 @@ export type Database = {
           has_weather: boolean
           id: string
           is_direction: boolean
+          moca_code: string | null
           name: string
         }
         Insert: {
@@ -594,6 +595,7 @@ export type Database = {
           has_weather?: boolean
           id?: string
           is_direction?: boolean
+          moca_code?: string | null
           name: string
         }
         Update: {
@@ -609,6 +611,7 @@ export type Database = {
           has_weather?: boolean
           id?: string
           is_direction?: boolean
+          moca_code?: string | null
           name?: string
         }
         Relationships: []
