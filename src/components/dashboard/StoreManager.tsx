@@ -16,6 +16,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { useStore } from "@/hooks/useStore";
 import { InlineStoreSettings } from "./InlineStoreSettings";
+import { MocaCodeField } from "./StoreSelfSettings";
 import { MocaImport } from "./MocaImport";
 
 interface ManagerInfo {
@@ -515,6 +516,9 @@ export function StoreManager() {
                           <span className="text-xs font-medium text-foreground">{t("store.budget" as any)}</span>
                           <span className="text-[10px] text-muted-foreground ml-1.5">{t("store.budgetDesc" as any)}</span>
                         </div>
+                      </div>
+                      <div className="pl-11 py-1">
+                        <MocaCodeField storeId={store.id} />
                       </div>
                       {/* Budget toggle */}
                       <div className="pl-11 flex items-center gap-2 py-1">
