@@ -6,6 +6,46 @@ import { Switch } from "@/components/ui/switch";
 import { useStore } from "@/hooks/useStore";
 import { useI18n } from "@/lib/i18n";
 import { InlineStoreSettings } from "./InlineStoreSettings";
+import { MocaImport } from "./MocaImport";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+function MocaCodeField({ storeId }: { storeId: string }) {
+  const { lang } = useI18n() as any;
+  const nl = lang === "nl";
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["moca-stores", storeId],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("stores").select("id,name,moca_code,is_direction").eq("id", storeId);
+      if (error) throw error;
+      return data as any[];
+    },
+  });
+  const current = data?.[0]?.moca_code ?? "";
+  const [val, setVal] = useState("");
+  useEffect(() => setVal(current), [current]);
+  const save = async () => {
+    const code = val.trim() || null;
+    if (code && !/^\d{3,6}$/.test(code)) { toast.error(nl ? "Ongeldige code (cijfers)" : "Code invalide (chiffres uniquement)"); return; }
+    const { error } = await supabase.from("stores").update({ moca_code: code } as any).eq("id", storeId);
+    if (error) { toast.error(error.code === "23505" ? (nl ? "Deze code is al gekoppeld aan een andere winkel" : "Ce code est déjà attribué à un autre magasin") : error.message); return; }
+    qc.invalidateQueries({ queryKey: ["moca-stores"] });
+    toast.success(nl ? "MOCA-code opgeslagen" : "Code MOCA enregistré");
+  };
+  return (
+    <div className="flex items-start gap-3 pt-2 border-t border-border">
+      <div className="flex-1">
+        <p className="text-sm font-medium text-foreground">{nl ? "MOCA-centrumcode" : "Code centre MOCA"}</p>
+        <p className="text-xs text-muted-foreground">{nl ? "Code van uw winkel in de MOCA-export (bv. 5904)." : "Code de votre magasin dans l'export MOCA (ex. 5904 pour Charleroi)."}</p>
+      </div>
+      <Input value={val} onChange={(e) => setVal(e.target.value)} placeholder="5904" className="h-8 w-24 font-mono" inputMode="numeric" />
+      <Button size="sm" variant="outline" onClick={save} disabled={val === current}>{nl ? "Opslaan" : "Enregistrer"}</Button>
+    </div>
+  );
+}
 
 export function StoreSelfSettings() {
   const { t } = useI18n();
@@ -131,8 +171,10 @@ export function StoreSelfSettings() {
           </div>
         </div>
 
-
+        <MocaCodeField storeId={currentStore.id} />
       </div>
+
+      {currentStore.has_budget && <MocaImport storeId={currentStore.id} />}
 
       <div className="kpi-card">
         <InlineStoreSettings storeId={currentStore.id} storeName={currentStore.name} />
