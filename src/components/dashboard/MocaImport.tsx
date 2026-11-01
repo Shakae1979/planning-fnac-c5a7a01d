@@ -9,7 +9,7 @@ import { parseMocaCsv, MocaRow } from "@/lib/moca";
 import { formatAmountBE } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 
-export function MocaImport() {
+export function MocaImport({ storeId: onlyStore }: { storeId?: string } = {}) {
   const { lang } = useI18n() as any;
   const nl = lang === "nl";
   const qc = useQueryClient();
@@ -18,9 +18,11 @@ export function MocaImport() {
   const [busy, setBusy] = useState(false);
 
   const { data: stores } = useQuery({
-    queryKey: ["moca-stores"],
+    queryKey: ["moca-stores", onlyStore ?? "all"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("stores").select("id,name,moca_code,is_direction").order("name");
+      let q = supabase.from("stores").select("id,name,moca_code,is_direction").order("name");
+      if (onlyStore) q = q.eq("id", onlyStore);
+      const { data, error } = await q;
       if (error) throw error;
       return (data || []).filter((s: any) => !s.is_direction) as { id: string; name: string; moca_code: string | null }[];
     },
@@ -37,7 +39,12 @@ export function MocaImport() {
     try {
       const buf = await f.arrayBuffer();
       const text = new TextDecoder("windows-1252").decode(buf);
-      const parsed = parseMocaCsv(text);
+      let parsed = parseMocaCsv(text);
+      if (onlyStore) {
+        const code = stores?.[0]?.moca_code;
+        if (!code) { toast.error(nl ? "Vul eerst de MOCA-code van uw winkel in" : "Renseignez d'abord le code centre MOCA de votre magasin"); return; }
+        parsed = parsed.filter((r) => r.code === code);
+      }
       setRows(parsed);
       const m: Record<string, string> = {};
       stores?.forEach((s) => { if (s.moca_code) m[s.moca_code] = s.id; });

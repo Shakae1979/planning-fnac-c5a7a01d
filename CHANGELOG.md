@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.50 — 01/11/2026
+- Chaque magasin renseigne son **code centre MOCA** dans ses paramètres et peut importer lui-même son budget (seules ses lignes sont reprises).
+
 ## v5.49 — 01/11/2026
 - Import des budgets journaliers depuis l'export CSV MOCA (paramètres magasins), association code centre ↔ magasin mémorisée.
 
