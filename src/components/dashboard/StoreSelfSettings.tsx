@@ -12,7 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-function MocaCodeField({ storeId }: { storeId: string }) {
+export function MocaCodeField({ storeId }: { storeId: string }) {
   const { lang } = useI18n() as any;
   const nl = lang === "nl";
   const qc = useQueryClient();
