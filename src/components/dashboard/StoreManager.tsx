@@ -16,6 +16,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { useStore } from "@/hooks/useStore";
 import { InlineStoreSettings } from "./InlineStoreSettings";
+import { MocaImport } from "./MocaImport";
 
 interface ManagerInfo {
   user_id: string;
@@ -317,6 +318,9 @@ export function StoreManager() {
         <Store className="h-5 w-5" />
         {t("store.title")}
       </h2>
+
+      <MocaImport />
+
 
       <div className="kpi-card">
         <h3 className="text-sm font-semibold text-muted-foreground mb-3">{t("store.add")}</h3>
