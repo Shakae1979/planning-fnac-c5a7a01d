@@ -669,6 +669,50 @@ export type Database = {
           },
         ]
       }
+      week_reviews: {
+        Row: {
+          advice_next_year: string
+          author_name: string
+          created_at: string
+          id: string
+          store_id: string
+          summary: string
+          traffic_level: string
+          updated_at: string
+          week_start: string
+        }
+        Insert: {
+          advice_next_year?: string
+          author_name?: string
+          created_at?: string
+          id?: string
+          store_id: string
+          summary?: string
+          traffic_level?: string
+          updated_at?: string
+          week_start: string
+        }
+        Update: {
+          advice_next_year?: string
+          author_name?: string
+          created_at?: string
+          id?: string
+          store_id?: string
+          summary?: string
+          traffic_level?: string
+          updated_at?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "week_reviews_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       weekly_schedules: {
         Row: {
           created_at: string

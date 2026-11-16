@@ -20,6 +20,7 @@ import { notifyTeamWeek } from "@/lib/schedule-notify";
 import { useWeather, WeatherBadge } from "@/lib/weather";
 import { ShiftSwapManager } from "@/components/swaps/ShiftSwapManager";
 import { HourRequestManager } from "@/components/swaps/HourRequests";
+import { WeekReviewButton, LastYearMemory } from "@/components/reviews/WeekReview";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import {
   AlertDialog,
@@ -1023,6 +1024,7 @@ export function ScheduleEditor() {
           {t("schedule.multiRolesOff" as any)}
         </div>
       )}
+      {currentStore?.id && <LastYearMemory storeId={currentStore.id} monday={currentMonday} />}
       {/* Week navigation */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -1080,6 +1082,7 @@ export function ScheduleEditor() {
           >
             <Bell className="h-3.5 w-3.5 mr-1" /> {t("schedule.notifyTeam" as any)}
           </Button>
+          {currentStore?.id && <WeekReviewButton storeId={currentStore.id} monday={currentMonday} />}
           {currentStore?.has_shift_swaps && currentStore?.id && <ShiftSwapManager storeId={currentStore.id} />}
           {currentStore?.has_shift_swaps && currentStore?.id && <HourRequestManager storeId={currentStore.id} />}
           <Button

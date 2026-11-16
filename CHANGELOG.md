@@ -3,6 +3,9 @@
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
 Format des dates : `DD/MM/YYYY` (belge). Seules les **fonctionnalités majeures** sont listées.
 
+## v5.51 — 16/11/2026
+- **Bilan de la semaine** en texte libre dans le planning et bandeau **Mémoire N-1** rappelant les faits marquants et conseils de la même semaine l'an dernier.
+
 ## v5.50 — 01/11/2026
 - Chaque magasin renseigne son **code centre MOCA** dans ses paramètres et peut importer lui-même son budget (seules ses lignes sont reprises).
 
