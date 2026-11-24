@@ -1,3 +1,6 @@
+## v5.59 — 24/11/2026
+- Équipe du jour : le choix manuel des heures de table dans la grille fonctionne à nouveau et prime sur la pause du planning.
+
 ## v5.58 — 24/11/2026
 - Retrait du bouton « Répartir les heures de table » : les pauses se saisissent à la main.
 
