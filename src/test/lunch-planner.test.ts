@@ -42,14 +42,14 @@ describe("planLunchBreaks", () => {
 
 describe("3 vagues d'heures de table", () => {
   const s = (r: { id: string; breakStart: string }[], id: string) => r.find((x) => x.id === id)?.breakStart;
-  it("tôt 12h, journée 13h, tard 14h", () => {
+  it("tôt 12h, arrivée 10h → 12h, tard 14h", () => {
     const r = planLunchBreaks([
       { id: "tot", role: "caisse", start: "09:00", end: "17:30" },
       { id: "long", role: "stock", start: "10:00", end: "19:00" },
       { id: "tard", role: "editorial", start: "11:30", end: "19:30" },
     ]);
     expect(s(r, "tot")).toBe("12:00");
-    expect(s(r, "long")).toBe("13:00");
+    expect(s(r, "long")).toBe("12:00");
     expect(s(r, "tard")).toBe("14:00");
   });
   it("deux du même rayon seuls : jamais ensemble", () => {
@@ -67,5 +67,20 @@ describe("3 vagues d'heures de table", () => {
     ]);
     expect(s(r, "a")).toBe("12:00");
     expect(s(r, "b")).toBe("12:00");
+  });
+});
+
+import { planLunchBreaks as plan2 } from "@/lib/lunch-planner";
+describe("règle 2h avant pause", () => {
+  it("arrivée 10h seule → 12h-13h", () => {
+    expect(plan2([{ id: "a", role: "caisse", start: "10:00", end: "19:00" }])[0].breakStart).toBe("12:00");
+  });
+  it("deux arrivées 10h même rayon → 12h et 13h", () => {
+    const r = plan2([{ id: "a", role: "caisse", start: "10:00", end: "19:00" }, { id: "b", role: "caisse", start: "10:00", end: "19:00" }]);
+    expect(r.map((x) => x.breakStart).sort()).toEqual(["12:00", "13:00"]);
+  });
+  it("jamais moins de 2h après l'arrivée", () => {
+    const r = plan2([{ id: "a", role: "x", start: "11:00", end: "19:00" }]);
+    expect(r[0].breakStart >= "13:00").toBe(true);
   });
 });

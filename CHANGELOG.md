@@ -1,3 +1,6 @@
+## v5.55 — 24/11/2026
+- Heures de table : toujours au moins 2h de présence avant la pause ; arrivée à 10h → 12h–13h par défaut (13h–14h si un collègue du rayon est déjà en pause).
+
 ## v5.54 — 24/11/2026
 - Heures de table en 3 vagues : arrivée avant 10h → 12h–13h, 10h → 13h–14h, 11h et après → 14h–15h ; deux vendeurs du même rayon ne mangent ensemble que si un collègue reste pour couvrir.
 
