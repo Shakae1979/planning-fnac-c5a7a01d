@@ -15,8 +15,9 @@ export function parseMocaCsv(text: string): MocaRow[] {
   const out: MocaRow[] = [];
   for (const line of lines.slice(1)) {
     const c = line.split(sep);
-    const m = (c[iDate] || "").trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    const m = (c[iDate] || "").trim().match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2}|\d{4})$/);
     if (!m) continue;
+    if (m[3].length === 2) m[3] = "20" + m[3];
     const raw = (c[iTot] || "").split(",")[0].replace(/\D/g, "");
     const amount = raw ? parseInt(raw, 10) : 0;
     if (!amount) continue;
