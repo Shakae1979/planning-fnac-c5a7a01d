@@ -59,14 +59,14 @@ describe("3 vagues d'heures de table", () => {
     ]);
     expect(s(r, "a")).not.toBe(s(r, "b"));
   });
-  it("ensemble autorisé si un 3e couvre le rayon", () => {
+  it("on étale les pauses plutôt que de manger ensemble", () => {
     const r = planLunchBreaks([
       { id: "a", role: "caisse", start: "09:00", end: "17:30" },
       { id: "b", role: "caisse", start: "09:00", end: "17:30" },
       { id: "c", role: "caisse", start: "11:00", end: "17:00" },
     ]);
     expect(s(r, "a")).toBe("12:00");
-    expect(s(r, "b")).toBe("12:00");
+    expect(s(r, "b")).not.toBe("12:00");
   });
 });
 
@@ -82,5 +82,14 @@ describe("règle 2h avant pause", () => {
   it("jamais moins de 2h après l'arrivée", () => {
     const r = plan2([{ id: "a", role: "x", start: "11:00", end: "19:00" }]);
     expect(r[0].breakStart >= "13:00").toBe(true);
+  });
+});
+
+describe("Charleroi éditorial (5 vendeurs)", () => {
+  it("jamais 3 en pause en même temps", () => {
+    const r = plan2([["a","10:00","18:00"],["b","11:00","19:00"],["c","10:00","18:00"],["d","11:00","19:00"],["e","10:00","19:00"]].map(([id,start,end]) => ({ id, role: "editorial", start, end })));
+    const n: Record<string, number> = {};
+    r.forEach((x) => { n[x.breakStart] = (n[x.breakStart] || 0) + 1; });
+    expect(Math.max(...Object.values(n))).toBeLessThanOrEqual(2);
   });
 });

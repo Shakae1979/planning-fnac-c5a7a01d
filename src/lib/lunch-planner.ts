@@ -25,8 +25,10 @@ export function planLunchBreaks(list: LunchInput[]): LunchResult[] {
   const out: LunchResult[] = [];
   const overlaps = (a: number, b: number) => Math.abs(a - b) < 60;
 
+  const slotsFor = (e: { s: number; en: number }) =>
+    SLOTS.filter((sl) => sl >= e.s + 120 && sl + 60 <= e.en - 60 && sl + 60 <= MAX_END);
   for (const e of eligible) {
-    const ok = SLOTS.filter((sl) => sl >= e.s + 120 && sl + 60 <= e.en - 60 && sl + 60 <= MAX_END);
+    const ok = slotsFor(e);
     if (!ok.length) continue;
     const target = preferredSlot(e.s);
     const score = (sl: number) => {
@@ -35,7 +37,9 @@ export function planLunchBreaks(list: LunchInput[]): LunchResult[] {
       const onBreak = mates.filter((o) => breaks.has(o.id) && overlaps(breaks.get(o.id)!, sl)).length;
       const active = mates.length - onBreak;
       let sc = Math.abs(sl - target) / 30 * 10;
-      if (onBreak > 0) sc += active >= 1 ? 5 * onBreak : 1000 * onBreak; // ensemble seulement si couverture
+      if (onBreak > 0) sc += active >= 1 ? 35 * onBreak : 1000 * onBreak; // étaler au maximum
+      if (sl % 60) sc += 5; // heures pleines préférées
+      if (sl < 720) sc += 40; // avant 12h : dernier recours // ensemble seulement si couverture
       if (mates.length > 0 && active < 1) sc += 1000; // rayon vide
       return sc;
     };

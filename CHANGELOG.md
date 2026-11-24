@@ -1,3 +1,6 @@
+## v5.57 — 24/11/2026
+- Heures de table : pauses étalées au maximum dans chaque rayon (12h / 13h / 14h), plus de 3 vendeurs d’un même rayon en pause ensemble ; pause avant 12h seulement en dernier recours.
+
 ## v5.56 — 24/11/2026
 - Équipe du jour : les heures de table sont affichées en gris hachuré (plus confondues avec un créneau libre) et priment sur d’anciens coloriages manuels.
 
