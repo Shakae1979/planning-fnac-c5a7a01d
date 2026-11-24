@@ -39,3 +39,33 @@ describe("planLunchBreaks", () => {
     expect(s("tot") <= "12:30").toBe(true);
   });
 });
+
+describe("3 vagues d'heures de table", () => {
+  const s = (r: { id: string; breakStart: string }[], id: string) => r.find((x) => x.id === id)?.breakStart;
+  it("tôt 12h, journée 13h, tard 14h", () => {
+    const r = planLunchBreaks([
+      { id: "tot", role: "caisse", start: "09:00", end: "17:30" },
+      { id: "long", role: "stock", start: "10:00", end: "19:00" },
+      { id: "tard", role: "editorial", start: "11:30", end: "19:30" },
+    ]);
+    expect(s(r, "tot")).toBe("12:00");
+    expect(s(r, "long")).toBe("13:00");
+    expect(s(r, "tard")).toBe("14:00");
+  });
+  it("deux du même rayon seuls : jamais ensemble", () => {
+    const r = planLunchBreaks([
+      { id: "a", role: "caisse", start: "09:00", end: "17:30" },
+      { id: "b", role: "caisse", start: "09:30", end: "18:00" },
+    ]);
+    expect(s(r, "a")).not.toBe(s(r, "b"));
+  });
+  it("ensemble autorisé si un 3e couvre le rayon", () => {
+    const r = planLunchBreaks([
+      { id: "a", role: "caisse", start: "09:00", end: "17:30" },
+      { id: "b", role: "caisse", start: "09:00", end: "17:30" },
+      { id: "c", role: "caisse", start: "11:00", end: "17:00" },
+    ]);
+    expect(s(r, "a")).toBe("12:00");
+    expect(s(r, "b")).toBe("12:00");
+  });
+});

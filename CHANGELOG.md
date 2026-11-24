@@ -1,3 +1,6 @@
+## v5.54 — 24/11/2026
+- Heures de table en 3 vagues : arrivée avant 10h → 12h–13h, 10h → 13h–14h, 11h et après → 14h–15h ; deux vendeurs du même rayon ne mangent ensemble que si un collègue reste pour couvrir.
+
 ## v5.53 — 24/11/2026
 - Heures de table : 1h max, fin au plus tard 15h, qui arrive tôt mange tôt, métiers étalés au maximum ; plus de cumul visuel de 2h dans « Équipe du jour ».
 - Congés : navigation libre vers 2027 (sélecteur d'année aussi sur la vue publique, passage décembre → janvier) et congés à cheval sur deux années affichés.
