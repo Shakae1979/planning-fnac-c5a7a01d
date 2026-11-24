@@ -1,3 +1,6 @@
+## v5.56 — 24/11/2026
+- Équipe du jour : les heures de table sont affichées en gris hachuré (plus confondues avec un créneau libre) et priment sur d’anciens coloriages manuels.
+
 ## v5.55 — 24/11/2026
 - Heures de table : toujours au moins 2h de présence avant la pause ; arrivée à 10h → 12h–13h par défaut (13h–14h si un collègue du rayon est déjà en pause).
 

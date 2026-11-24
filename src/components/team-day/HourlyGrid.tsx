@@ -37,7 +37,7 @@ interface RoleLegendItem { key: string; color: string; dot: string; borderL: str
 
 /** Entrées spéciales qui ne sont pas de vrais métiers. */
 const SPECIAL_ROLES: RoleLegendItem[] = [
-  { key: "heure_de_table", color: "bg-transparent", dot: "bg-gray-300 border border-gray-400", borderL: "border-l-muted" },
+  { key: "heure_de_table", color: "bg-muted-foreground/25 bg-[repeating-linear-gradient(45deg,transparent_0_4px,hsl(var(--muted-foreground)/0.25)_4px_8px)]", dot: "bg-gray-300 border border-gray-400", borderL: "border-l-muted" },
   { key: "picking", color: "bg-cyan-500/80", dot: "bg-cyan-500", borderL: "border-l-cyan-500" },
 ];
 
@@ -327,8 +327,8 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
                     const ov = overrides[overrideKey];
                     // Quand une pause officielle existe, d'anciennes cases "heure de table" manuelles ne s'additionnent pas.
                     const effOv = hasBreak && ov === "heure_de_table" && !lunchSlots.has(overrideKey) ? undefined : ov;
-                    const cellRole = effOv
-                      || (lunchSlots.has(overrideKey) ? "heure_de_table" : (segRole || emp.role));
+                    // La pause officielle du planning est toujours prioritaire sur un ancien coloriage manuel.
+                    const cellRole = lunchSlots.has(overrideKey) ? "heure_de_table" : (effOv || segRole || emp.role);
                     const colorClass = roleBg[cellRole] || "bg-accent/20";
 
                     const isSelected = selected.has(overrideKey);
