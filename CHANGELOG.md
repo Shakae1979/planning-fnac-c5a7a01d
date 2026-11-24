@@ -1,3 +1,6 @@
+## v5.58 — 24/11/2026
+- Retrait du bouton « Répartir les heures de table » : les pauses se saisissent à la main.
+
 ## v5.57 — 24/11/2026
 - Heures de table : pauses étalées au maximum dans chaque rayon (12h / 13h / 14h), plus de 3 vendeurs d’un même rayon en pause ensemble ; pause avant 12h seulement en dernier recours.
 
