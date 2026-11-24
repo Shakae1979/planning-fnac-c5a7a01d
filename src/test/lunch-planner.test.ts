@@ -28,4 +28,14 @@ describe("planLunchBreaks", () => {
       expect(eh * 60 + em).toBeLessThanOrEqual(900);
     }
   });
+  it("qui arrive tôt mange plus tôt que qui arrive tard", () => {
+    const r = planLunchBreaks([
+      { id: "x", role: "stock", start: "09:00", end: "17:30" },
+      { id: "tot", role: "caisse", start: "09:00", end: "17:30" },
+      { id: "tard", role: "editorial", start: "11:00", end: "19:00" },
+    ]);
+    const s = (id: string) => r.find((x) => x.id === id)!.breakStart;
+    expect(s("tot") < s("tard")).toBe(true);
+    expect(s("tot") <= "12:30").toBe(true);
+  });
 });

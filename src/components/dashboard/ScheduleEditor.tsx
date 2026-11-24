@@ -581,6 +581,11 @@ export function ScheduleEditor() {
     let n = 0;
     for (const day of DAYS) {
       const res = planLunchBreaks(employees.map((e) => ({ id: e.id, role: e.role, start: getValue(e.id, `${day.key}_start`), end: getValue(e.id, `${day.key}_end`) })));
+      for (const e of employees) {
+        if (/^\d{1,2}:\d{2}$/.test(getValue(e.id, `${day.key}_start`) || "")) {
+          newEdits[e.id] = { ...newEdits[e.id], [`${day.key}_break_start`]: "", [`${day.key}_break_end`]: "" };
+        }
+      }
       for (const r of res) {
         newEdits[r.id] = { ...newEdits[r.id], [`${day.key}_break_start`]: r.breakStart, [`${day.key}_break_end`]: r.breakEnd };
         n++;

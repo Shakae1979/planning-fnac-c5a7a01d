@@ -25,7 +25,7 @@ export default function CongesView() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [currentQuarter, setCurrentQuarter] = useState(Math.floor(new Date().getMonth() / 3));
-  const year = new Date().getFullYear();
+  const [year, setYear] = useState(new Date().getFullYear());
 
   const congeTypes = CONGE_TYPES_KEYS.map((k) => ({
     value: k,
@@ -42,8 +42,8 @@ export default function CongesView() {
       const { data, error } = await supabase
         .from("conges")
         .select("*")
-        .gte("date_start", `${year}-01-01`)
-        .lte("date_end", `${year}-12-31`);
+        .lte("date_start", `${year}-12-31`)
+        .gte("date_end", `${year}-01-01`);
       if (error) throw error;
       return data;
     },
@@ -59,6 +59,11 @@ export default function CongesView() {
         <PrintLegend />
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 mr-1">
+              <Button variant="outline" size="icon" aria-label="Année précédente" onClick={() => setYear((y) => y - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+              <span className="min-w-[3.5rem] text-center text-sm font-bold tabular-nums">{year}</span>
+              <Button variant="outline" size="icon" aria-label="Année suivante" onClick={() => setYear((y) => y + 1)}><ChevronRight className="h-4 w-4" /></Button>
+            </div>
             <div className="flex items-center gap-1 mr-2">
               {["T1", "T2", "T3", "T4"].map((label, qi) => (
                 <Button
@@ -73,7 +78,7 @@ export default function CongesView() {
               ))}
             </div>
             <div className="w-px h-6 bg-border" />
-            <Button variant="outline" size="icon" onClick={() => { setViewMode("month"); setCurrentMonth((m) => Math.max(0, m - 1)); }} disabled={viewMode === "month" && currentMonth === 0}>
+            <Button variant="outline" size="icon" onClick={() => { setViewMode("month"); if (currentMonth === 0) { setYear((y) => y - 1); setCurrentMonth(11); } else setCurrentMonth((m) => m - 1); }}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button
@@ -84,7 +89,7 @@ export default function CongesView() {
             >
               {monthName(currentMonth)} {year}
             </Button>
-            <Button variant="outline" size="icon" onClick={() => { setViewMode("month"); setCurrentMonth((m) => Math.min(11, m + 1)); }} disabled={viewMode === "month" && currentMonth === 11}>
+            <Button variant="outline" size="icon" onClick={() => { setViewMode("month"); if (currentMonth === 11) { setYear((y) => y + 1); setCurrentMonth(0); } else setCurrentMonth((m) => m + 1); }}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>

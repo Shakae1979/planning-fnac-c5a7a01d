@@ -323,7 +323,11 @@ const HourlyGrid = forwardRef<HourlyGridHandle, { employees: Employee[]; date: s
                     const segRole = (emp.roleSegments || []).find(
                       (s) => timeToHours(s.start) <= slotTime && timeToHours(s.end) > slotTime
                     )?.role;
-                    const cellRole = overrides[overrideKey]
+                    const hasBreak = !!(emp.breakStart && emp.breakEnd);
+                    const ov = overrides[overrideKey];
+                    // Quand une pause officielle existe, d'anciennes cases "heure de table" manuelles ne s'additionnent pas.
+                    const effOv = hasBreak && ov === "heure_de_table" && !lunchSlots.has(overrideKey) ? undefined : ov;
+                    const cellRole = effOv
                       || (lunchSlots.has(overrideKey) ? "heure_de_table" : (segRole || emp.role));
                     const colorClass = roleBg[cellRole] || "bg-accent/20";
 

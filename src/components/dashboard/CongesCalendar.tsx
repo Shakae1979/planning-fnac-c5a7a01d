@@ -65,8 +65,8 @@ export function CongesCalendar() {
       const { data, error } = await supabase
         .from("conges")
         .select("*")
-        .gte("date_start", `${year}-01-01`)
-        .lte("date_end", `${year}-12-31`);
+        .lte("date_start", `${year}-12-31`)
+        .gte("date_end", `${year}-01-01`);
       if (error) throw error;
       return data;
     },
@@ -161,8 +161,8 @@ export function CongesCalendar() {
           <div className="w-px h-6 bg-border" />
           <Button variant="outline" size="icon" onClick={() => {
             setViewMode("month");
-            setCurrentMonth((m) => Math.max(0, m - 1));
-          }} disabled={viewMode === "month" && currentMonth === 0}>
+            if (currentMonth === 0) { setYear((y) => y - 1); setCurrentMonth(11); } else setCurrentMonth((m) => m - 1);
+          }}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button
@@ -175,8 +175,8 @@ export function CongesCalendar() {
           </Button>
           <Button variant="outline" size="icon" onClick={() => {
             setViewMode("month");
-            setCurrentMonth((m) => Math.min(11, m + 1));
-          }} disabled={viewMode === "month" && currentMonth === 11}>
+            if (currentMonth === 11) { setYear((y) => y + 1); setCurrentMonth(0); } else setCurrentMonth((m) => m + 1);
+          }}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

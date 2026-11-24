@@ -1,3 +1,7 @@
+## v5.53 — 24/11/2026
+- Heures de table : 1h max, fin au plus tard 15h, qui arrive tôt mange tôt, métiers étalés au maximum ; plus de cumul visuel de 2h dans « Équipe du jour ».
+- Congés : navigation libre vers 2027 (sélecteur d'année aussi sur la vue publique, passage décembre → janvier) et congés à cheval sur deux années affichés.
+
 ## v5.52 — 24/11/2026
 - Bouton « Répartir les heures de table » : l'ouvreur part 12h–13h, les autres sont étalés (11h–16h) sans laisser un métier vide.
 
