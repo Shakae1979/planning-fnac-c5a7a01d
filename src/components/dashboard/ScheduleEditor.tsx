@@ -20,6 +20,8 @@ import { notifyTeamWeek } from "@/lib/schedule-notify";
 import { useWeather, WeatherBadge } from "@/lib/weather";
 import { ShiftSwapManager } from "@/components/swaps/ShiftSwapManager";
 import { HourRequestManager } from "@/components/swaps/HourRequests";
+import { planLunchBreaks } from "@/lib/lunch-planner";
+import { Utensils } from "lucide-react";
 import { WeekReviewButton, LastYearMemory } from "@/components/reviews/WeekReview";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import {
@@ -573,6 +575,21 @@ export function ScheduleEditor() {
     return (schedule as any)[field] ?? "";
   };
 
+  const autoLunchBreaks = () => {
+    if (!employees) return;
+    const newEdits = { ...localEdits };
+    let n = 0;
+    for (const day of DAYS) {
+      const res = planLunchBreaks(employees.map((e) => ({ id: e.id, role: e.role, start: getValue(e.id, `${day.key}_start`), end: getValue(e.id, `${day.key}_end`) })));
+      for (const r of res) {
+        newEdits[r.id] = { ...newEdits[r.id], [`${day.key}_break_start`]: r.breakStart, [`${day.key}_break_end`]: r.breakEnd };
+        n++;
+      }
+    }
+    setLocalEdits(newEdits);
+    toast.success(`${n} heures de table réparties — vérifiez puis enregistrez`);
+  };
+
   const getTimeInputValue = (empId: string, field: string): string => {
     const inputKey = `${empId}__${field}`;
     if (activeInput && activeInput.key === inputKey) return activeInput.raw;
@@ -1082,6 +1099,11 @@ export function ScheduleEditor() {
           >
             <Bell className="h-3.5 w-3.5 mr-1" /> {t("schedule.notifyTeam" as any)}
           </Button>
+          {hasLunchBreak && (
+            <Button variant="outline" size="sm" onClick={autoLunchBreaks} title="Le premier qui ouvre : 12h–13h, puis répartition pour garder du monde en surface">
+              <Utensils className="h-3.5 w-3.5 mr-1" /> Répartir les heures de table
+            </Button>
+          )}
           {currentStore?.id && <WeekReviewButton storeId={currentStore.id} monday={currentMonday} />}
           {currentStore?.has_shift_swaps && currentStore?.id && <ShiftSwapManager storeId={currentStore.id} />}
           {currentStore?.has_shift_swaps && currentStore?.id && <HourRequestManager storeId={currentStore.id} />}

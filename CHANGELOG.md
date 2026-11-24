@@ -1,3 +1,6 @@
+## v5.52 — 24/11/2026
+- Bouton « Répartir les heures de table » : l'ouvreur part 12h–13h, les autres sont étalés (11h–16h) sans laisser un métier vide.
+
 # Changelog — Planning Fnac
 
 Toutes les évolutions notables de l'application, de la plus récente à la plus ancienne.
