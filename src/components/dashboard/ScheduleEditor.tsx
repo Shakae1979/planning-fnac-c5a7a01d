@@ -611,6 +611,19 @@ export function ScheduleEditor() {
       return;
     }
     const stored = parseTimeBE(raw);
+    // Heure de table : toujours 1h, fin max 15h00
+    if (field.endsWith("_break_start") || field.endsWith("_break_end")) {
+      const m = /^(\d{2}):(\d{2})$/.exec(stored);
+      if (m) {
+        const base = field.replace(/_break_(start|end)$/, "");
+        let startMin = +m[1] * 60 + +m[2];
+        if (field.endsWith("_break_end")) startMin -= 60;
+        startMin = Math.min(startMin, 14 * 60);
+        const f = (x: number) => `${String(Math.floor(x / 60)).padStart(2, "0")}:${String(x % 60).padStart(2, "0")}`;
+        setLocalEdits((prev) => ({ ...prev, [empId]: { ...prev[empId], [`${base}_break_start`]: f(startMin), [`${base}_break_end`]: f(startMin + 60) } }));
+        return;
+      }
+    }
     handleChange(empId, field, stored);
   };
 

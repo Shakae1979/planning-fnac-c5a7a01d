@@ -19,4 +19,13 @@ describe("planLunchBreaks", () => {
   it("pas de pause pour 6h pile", () => {
     expect(planLunchBreaks([{ id: "a", role: "caisse", start: "10:00", end: "16:00" }])).toHaveLength(0);
   });
+  it("pause de 1h exactement, jamais après 15h", () => {
+    const list = Array.from({ length: 12 }, (_, i) => ({ id: String(i), role: "caisse", start: "10:00", end: "19:00" }));
+    for (const r of planLunchBreaks(list)) {
+      const [sh, sm] = r.breakStart.split(":").map(Number);
+      const [eh, em] = r.breakEnd.split(":").map(Number);
+      expect(eh * 60 + em - (sh * 60 + sm)).toBe(60);
+      expect(eh * 60 + em).toBeLessThanOrEqual(900);
+    }
+  });
 });

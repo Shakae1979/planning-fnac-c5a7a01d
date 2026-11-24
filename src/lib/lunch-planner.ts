@@ -7,7 +7,8 @@ export interface LunchResult { id: string; breakStart: string; breakEnd: string;
 
 const toMin = (t: string) => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ""); return m ? +m[1] * 60 + +m[2] : NaN; };
 const toStr = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
-const SLOTS = [12, 13, 14, 11.5, 12.5, 13.5, 11, 14.5, 15].map((h) => h * 60);
+const MAX_END = 15 * 60; // aucune heure de table ne se termine après 15h00
+const SLOTS = [12, 13, 14, 11.5, 12.5, 13.5, 11].map((h) => h * 60);
 
 export function planLunchBreaks(list: LunchInput[]): LunchResult[] {
   const eligible = list
@@ -18,7 +19,7 @@ export function planLunchBreaks(list: LunchInput[]): LunchResult[] {
   const roleLoad = new Map<string, number>();
   const out: LunchResult[] = [];
   eligible.forEach((e, i) => {
-    const ok = SLOTS.filter((sl) => sl >= e.s + 120 && sl + 60 <= e.en - 60);
+    const ok = SLOTS.filter((sl) => sl >= e.s + 120 && sl + 60 <= e.en - 60 && sl + 60 <= MAX_END);
     if (!ok.length) return;
     let pick: number;
     if (i === 0 && ok.includes(720)) pick = 720;
